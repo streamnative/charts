@@ -1,0 +1,5 @@
+---
+- version: v1alpha1
+  group: io.streamnative
+  kind: Pulsar
+  chart: /opt/helm/helm-charts/pulsar
