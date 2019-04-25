@@ -1,22 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pulsar-operator
+  name: pulsar-helm-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: pulsar-operator
+      name: pulsar-helm-operator
   template:
     metadata:
       labels:
-        name: pulsar-operator
+        name: pulsar-helm-operator
     spec:
-      serviceAccountName: pulsar-operator
+      serviceAccountName: pulsar-helm-operator
       containers:
-        - name: pulsar-operator
-          # Replace this with the built image name
-          image: REPLACE_IMAGE
+        - name: pulsar-helm-operator
+          image: streamnative/pulsar-helm-operator:latest
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
@@ -28,4 +27,4 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: "pulsar-operator"
+              value: "pulsar-helm-operator"

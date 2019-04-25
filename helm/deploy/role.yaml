@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   creationTimestamp: null
-  name: pulsar-operator
+  name: pulsar-helm-operator
 rules:
 - apiGroups:
   - ""
@@ -41,13 +41,13 @@ rules:
 - apiGroups:
   - apps
   resourceNames:
-  - pulsar-operator
+  - pulsar-helm-operator
   resources:
   - deployments/finalizers
   verbs:
   - update
 - apiGroups:
-  - io.streamnative
+  - io.streamnative.helm
   resources:
   - '*'
   verbs:

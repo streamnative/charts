@@ -1,11 +1,11 @@
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: pulsar-operator
+  name: pulsar-helm-operator
 subjects:
 - kind: ServiceAccount
-  name: pulsar-operator
+  name: pulsar-helm-operator
 roleRef:
   kind: Role
-  name: pulsar-operator
+  name: pulsar-helm-operator
   apiGroup: rbac.authorization.k8s.io

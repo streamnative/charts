@@ -1,4 +1,4 @@
-apiVersion: io.streamnative/v1alpha1
+apiVersion: io.streamnative.helm/v1alpha1
 kind: Pulsar
 metadata:
   name: example-pulsar
