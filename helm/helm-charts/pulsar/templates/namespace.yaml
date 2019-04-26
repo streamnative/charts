@@ -17,8 +17,9 @@
 # under the License.
 #
 
+{{- if .Values.namespaceCreate }}
 apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace }}
+{{- end }}

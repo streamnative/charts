@@ -17,8 +17,27 @@
 # under the License.
 #
 
+{{- if .Values.components.proxy }}
 apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "pulsar.name" . }}
+    chart: {{ template "pulsar.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.proxy.component }}
+    cluster: {{ template "pulsar.fullname" . }}
+  annotations:
+{{ toYaml .Values.proxy.service.annotations | indent 4 }}
+spec:
+  type: {{ .Values.proxy.service.type }}
+  ports:
+{{ toYaml .Values.proxy.service.ports | indent 2 }}
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.proxy.component }}
+{{- end }}

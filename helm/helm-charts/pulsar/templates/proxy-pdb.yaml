@@ -17,8 +17,26 @@
 # under the License.
 #
 
-apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
+{{- if .Values.components.proxy }}
+{{- if .Values.proxy.pdb.usePolicy }}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "pulsar.name" . }}
+    chart: {{ template "pulsar.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.proxy.component }}
+    cluster: {{ template "pulsar.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "pulsar.name" . }}
+      release: {{ .Release.Name }}
+      component: {{ .Values.proxy.component }}
+  maxUnavailable: {{ .Values.proxy.pdb.maxUnavailable }}
+{{- end }}
+{{- end }}

@@ -17,8 +17,21 @@
 # under the License.
 #
 
+{{- if .Values.components.autorecovery }}
 apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "pulsar.name" . }}
+    chart: {{ template "pulsar.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: {{ .Values.autorecovery.component }}
+    cluster: {{ template "pulsar.fullname" . }}
+data:
+  zkServers: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+{{ toYaml .Values.autorecovery.configData | indent 2 }}
+{{- end }}

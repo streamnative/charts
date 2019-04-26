@@ -17,8 +17,20 @@
 # under the License.
 #
 
+# deploy zookeeper only when `components.zookeeper` is true
+{{- if .Values.components.zookeeper }}
 apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "pulsar.name" . }}
+    chart: {{ template "pulsar.chart" . }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+    component: {{ .Values.zookeeper.component }}
+    cluster: {{ template "pulsar.fullname" . }}
+data:
+{{ toYaml .Values.zookeeper.configData | indent 2 }}
+{{- end }}
