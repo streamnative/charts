@@ -43,6 +43,21 @@ spec:
             until nslookup {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ add (.Values.zookeeper.replicaCount | int) -1 }}.{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.{{ .Values.namespace }}; do
               sleep 3;
             done;
+      # This initContainer will wait for bookkeeper initnewcluster to complete
+      # before initializing pulsar metadata
+      - name: pulsar-bookkeeper-verify-clusterid
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+        - >
+          bin/apply-config-from-env.py conf/bookkeeper.conf &&
+          until bin/bookkeeper shell whatisinstanceid; do
+            sleep 3;
+          done;
+        envFrom:
+        - configMapRef:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_metadata.component }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
