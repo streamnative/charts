@@ -33,13 +33,6 @@ metadataPrefix: ""
 ## purposes, they will be deployed with emptyDir
 persistence: yes
 
-## If prometheus_persistence is enabled, prometheus will be deployed
-## with PersistentVolumeClaims, otherwise, for test purposes, they
-## will be deployed with emptyDir
-prometheus_persistence: yes
-
-prometheus_rbac: yes
-
 components:
   # zookeeper
   zookeeper: yes
@@ -54,23 +47,16 @@ components:
   # toolset
   toolset: yes
 
-## which extra components to deploy
-extra:
-  # Pulsar proxy
-  proxy: yes
-  # Bookkeeper auto-recovery
-  autoRecovery: yes
-  # Pulsar dashboard
-  dashboard: yes
-  # Bastion pod for administrative commands
-  bastion: yes
-  # Monitoring stack (prometheus and grafana)
-  monitoring: yes
+monitoring:
+  # monitoring - prometheus
+  prometheus: true
 
 ## Which pulsar image to use
 image:
-  repository: apachepulsar/pulsar-all
-  tag: latest
+  repository: streamnative/pulsar
+  tag: 2.4.0-d1d5aba08
+  # repository: apachepulsar/pulsar-all
+  # tag: latest
   pullPolicy: IfNotPresent
 
 ## Pulsar: Zookeeper cluster
@@ -477,6 +463,7 @@ toolset:
 ##
 prometheus:
   component: prometheus
+  rbac: yes
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -489,12 +476,14 @@ prometheus:
     pullPolicy: IfNotPresent
   resources:
     requests:
-      memory: 4Gi
-      cpu: 1
+      memory: 256Mi
+      cpu: 0.1
   volumes:
+    # use a persistent volume or emptyDir
+    persistence: yes
     data:
       name: data
-      size: 50Gi
+      size: 10Gi
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -506,6 +495,7 @@ prometheus:
   ## templates/prometheus-service.yaml
   ##
   service:
+    type: LoadBalancer
     annotations: {}
     ports:
     - name: server
