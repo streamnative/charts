@@ -50,6 +50,8 @@ components:
 monitoring:
   # monitoring - prometheus
   prometheus: true
+  # monitoring - grafana
+  grafana: true
 
 ## Which pulsar image to use
 image:
@@ -63,7 +65,9 @@ image:
 ## templates/zookeeper-statefulset.yaml
 ##
 zookeeper:
-  component: zk
+  # use a component name that matches your grafana configuration
+  # so the metrics are correctly rendered in grafana dashboard
+  component: zookeeper
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
   replicaCount: 3
   # nodeSelector:
@@ -139,7 +143,9 @@ zookeeper:
 ## templates/bookkeeper-statefulset.yaml
 ##
 bookkeeper:
-  component: bk
+  # use a component name that matches your grafana configuration
+  # so the metrics are correctly rendered in grafana dashboard
+  component: bookie
   ## BookKeeper Cluster Initialize
   ## templates/bookkeeper-cluster-initialize.yaml
   metadata:
@@ -243,6 +249,8 @@ bookkeeper:
 ## templates/autorecovery-statefulset.yaml
 ##
 autorecovery:
+  # use a component name that matches your grafana configuration
+  # so the metrics are correctly rendered in grafana dashboard
   component: autorecovery
   replicaCount: 1
   # nodeSelector:
@@ -270,7 +278,7 @@ autorecovery:
 ## deployed when the zookeeper cluster is ready and with the
 ## metadata deployed
 pulsar_metadata:
-  component: cluster-initialize
+  component: pulsar-init
   ## set an existing configuration store
   # configurationStore:
 
@@ -278,6 +286,8 @@ pulsar_metadata:
 ## templates/broker-statefulset.yaml
 ##
 broker:
+  # use a component name that matches your grafana configuration
+  # so the metrics are correctly rendered in grafana dashboard
   component: broker
   replicaCount: 3
   # nodeSelector:
@@ -337,6 +347,8 @@ broker:
 ## templates/proxy-statefulset.yaml
 ##
 proxy:
+  # use a component name that matches your grafana configuration
+  # so the metrics are correctly rendered in grafana dashboard
   component: proxy
   replicaCount: 3
   # nodeSelector:
@@ -458,6 +470,10 @@ toolset:
       -XX:MaxDirectMemorySize=128M
       "
 
+#############################################################
+### Monitoring Stack : Prometheus / Grafana
+#############################################################
+
 ## Monitoring Stack: Prometheus
 ## templates/prometheus-deployment.yaml
 ##
@@ -513,17 +529,18 @@ grafana:
   tolarations: []
   gracePeriod: 0
   image:
-    repository: apachepulsar/pulsar-grafana
+    repository: streamnative/apache-pulsar-grafana-dashboard
     tag: latest
     pullPolicy: IfNotPresent
   resources:
     requests:
-      memory: 4Gi
-      cpu: 1
+      memory: 250Mi
+      cpu: 0.1
   ## Grafana service
   ## templates/grafana-service.yaml
   ##
   service:
+    type: LoadBalancer
     annotations: {}
     ports:
     - name: server
