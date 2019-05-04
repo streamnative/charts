@@ -77,7 +77,7 @@ image:
 ## templates/zookeeper-statefulset.yaml
 ##
 zookeeper:
-  component: zookeeper
+  component: zk
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
   replicaCount: 3
   # nodeSelector:
@@ -89,14 +89,14 @@ zookeeper:
   gracePeriod: 0
   resources:
     requests:
-      memory: 4Gi
-      cpu: 2
+      memory: 256Mi
+      cpu: 0.1
   volumes:
     # use a persistent volume or emptyDir
     persistence: yes
     data:
       name: data
-      size: 20Gi
+      size: 50Gi
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -120,7 +120,7 @@ zookeeper:
   configData:
     PULSAR_MEM: >
       "
-      -Xms2g -Xmx2g
+      -Xms64m -Xmx128m
       -Dcom.sun.management.jmxremote
       -Djute.maxbuffer=10485760
       -XX:+ParallelRefProcEnabled
@@ -153,7 +153,7 @@ zookeeper:
 ## templates/bookkeeper-statefulset.yaml
 ##
 bookkeeper:
-  component: bookkeeper
+  component: bk
   ## BookKeeper Cluster Initialize
   ## templates/bookkeeper-cluster-initialize.yaml
   metadata:
@@ -173,8 +173,8 @@ bookkeeper:
   gracePeriod: 0
   resources:
     requests:
-      memory: 4Gi
-      cpu: 2
+      memory: 512Mi
+      cpu: 0.2
   volumes:
     # use a persistent volume or emptyDir
     persistence: yes
@@ -205,15 +205,15 @@ bookkeeper:
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
       "
-      -Xmx2g
-      -XX:MaxDirectMemorySize=2g
+      -Xmx128m
+      -XX:MaxDirectMemorySize=128m
       "
     # we use `bin/pulsar` for starting bookie daemons
     PULSAR_MEM: >
       "
-      -Xms2g
-      -Xmx2g
-      -XX:MaxDirectMemorySize=2g
+      -Xms128m
+      -Xmx256m
+      -XX:MaxDirectMemorySize=256m
       -Dio.netty.leakDetectionLevel=disabled
       -Dio.netty.recycler.linkCapacity=1024
       -XX:+UseG1GC -XX:MaxGCPauseMillis=10
@@ -236,10 +236,10 @@ bookkeeper:
       -XX:G1LogLevel=finest
       "
     # configure the memory settings based on jvm memory settings
-    dbStorage_writeCacheMaxSizeMb: "256"
-    dbStorage_readAheadCacheMaxSizeMb: "256"
-    dbStorage_rocksDB_writeBufferSizeMB: "64"
-    dbStorage_rocksDB_blockCacheSize: "67108864"
+    dbStorage_writeCacheMaxSizeMb: "32"
+    dbStorage_readAheadCacheMaxSizeMb: "32"
+    dbStorage_rocksDB_writeBufferSizeMB: "8"
+    dbStorage_rocksDB_blockCacheSize: "8388608"
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -257,7 +257,7 @@ bookkeeper:
 ## templates/autorecovery-statefulset.yaml
 ##
 autorecovery:
-  component: bookkeeper-autorecovery
+  component: autorecovery
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -266,15 +266,15 @@ autorecovery:
   gracePeriod: 0
   resources:
     requests:
-      memory: 1Gi
-      cpu: 250m
+      memory: 64Mi
+      cpu: 0.05
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
   configData:
     BOOKIE_MEM: >
       "
-      -Xms512g -Xmx512g
+      -Xms64m -Xmx64m
       "
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
@@ -284,7 +284,7 @@ autorecovery:
 ## deployed when the zookeeper cluster is ready and with the
 ## metadata deployed
 pulsar_metadata:
-  component: pulsar-cluster-initialize
+  component: cluster-initialize
   ## set an existing configuration store
   # configurationStore:
 
@@ -304,15 +304,15 @@ broker:
   gracePeriod: 0
   resources:
     requests:
-      memory: 2Gi
-      cpu: 4
+      memory: 512Mi
+      cpu: 0.2
   ## Broker configmap
   ## templates/broker-configmap.yaml
   ##
   configData:
     PULSAR_MEM: >
       "
-      -Xms1g -Xmx1g -XX:MaxDirectMemorySize=1g
+      -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
       -Dio.netty.leakDetectionLevel=disabled
       -Dio.netty.recycler.linkCapacity=1024
       -XX:+ParallelRefProcEnabled
@@ -362,17 +362,33 @@ proxy:
   gracePeriod: 0
   resources:
     requests:
-      memory: 2Gi
-      cpu: 4
+      memory: 128Mi
+      cpu: 0.2
   ## Proxy configmap
   ## templates/proxy-configmap.yaml
   ##
   configData:
     PULSAR_MEM: >
       "
-      -Xms1g
-      -Xmx1g
-      -XX:MaxDirectMemorySize=1g
+      -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+      -Dio.netty.leakDetectionLevel=disabled
+      -Dio.netty.recycler.linkCapacity=1024
+      -XX:+ParallelRefProcEnabled
+      -XX:+UnlockExperimentalVMOptions
+      -XX:+AggressiveOpts
+      -XX:+DoEscapeAnalysis
+      -XX:ParallelGCThreads=4
+      -XX:ConcGCThreads=4
+      -XX:G1NewSizePercent=50
+      -XX:+DisableExplicitGC
+      -XX:-ResizePLAB
+      -XX:+ExitOnOutOfMemoryError
+      -XX:+PerfDisableSharedMem
+      "
+    PULSAR_GC: >
+      "
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
       "
   ## Proxy service
   ## templates/proxy-service.yaml

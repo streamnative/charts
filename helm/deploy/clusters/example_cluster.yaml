@@ -1,0 +1,4 @@
+apiVersion: io.streamnative.helm/v1alpha1
+kind: PulsarCluster
+metadata:
+  name: example-pulsar
