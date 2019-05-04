@@ -44,7 +44,7 @@ spec:
               sleep 3;
             done;
       containers:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-cluster-initialize"
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-init"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
       {{- if .Values.bookkeeper.metadata.resources }}
