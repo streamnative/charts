@@ -257,7 +257,9 @@ autorecovery:
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  annotations: {}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8000"
   tolarations: []
   gracePeriod: 0
   resources:
