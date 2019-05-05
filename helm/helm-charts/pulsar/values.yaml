@@ -52,6 +52,8 @@ monitoring:
   prometheus: true
   # monitoring - grafana
   grafana: true
+  # monitoring - node_exporter
+  node_exporter: true
 
 ## Which pulsar image to use
 image:
@@ -529,7 +531,7 @@ grafana:
   tolarations: []
   gracePeriod: 0
   image:
-    repository: streamnative/apache-pulsar-grafana-dashboard
+    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
     tag: latest
     pullPolicy: IfNotPresent
   resources:
@@ -545,3 +547,19 @@ grafana:
     ports:
     - name: server
       port: 3000
+
+## Monitoring Stack: node_exporteer
+## templates/node-exporter.yaml
+##
+
+node_exporter:
+  component: node-exporter
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9100"
+  limits:
+    cpu: 10m
+    memory: 50Mi
+  requests:
+    cpu: 10m
+    memory: 50Mi
