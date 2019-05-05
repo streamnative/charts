@@ -533,7 +533,7 @@ grafana:
   gracePeriod: 0
   image:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.2
+    tag: 0.0.4
     pullPolicy: IfNotPresent
   resources:
     requests:
@@ -548,6 +548,9 @@ grafana:
     ports:
     - name: server
       port: 3000
+  admin:
+    user: admin
+    password: happypulsaring
 
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
