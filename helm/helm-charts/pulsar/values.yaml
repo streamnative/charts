@@ -534,7 +534,7 @@ grafana:
   gracePeriod: 0
   image:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: latest
+    tag: 0.0.2
     pullPolicy: IfNotPresent
   resources:
     requests:
