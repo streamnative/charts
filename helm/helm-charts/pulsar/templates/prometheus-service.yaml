@@ -33,7 +33,7 @@ metadata:
   annotations:
 {{ toYaml .Values.prometheus.service.annotations | indent 4 }}
 spec:
-  type: {{ .Values.prometheus.service.type }}
+  clusterIP: None
   ports:
 {{ toYaml .Values.prometheus.service.ports | indent 2 }}
   selector:

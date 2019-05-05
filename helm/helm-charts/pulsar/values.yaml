@@ -515,7 +515,6 @@ prometheus:
   ## templates/prometheus-service.yaml
   ##
   service:
-    type: LoadBalancer
     annotations: {}
     ports:
     - name: server
