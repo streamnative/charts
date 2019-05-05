@@ -36,6 +36,8 @@ spec:
   ports:
   - name: bookie
     port: 3181
+  - name: http
+    port: 8000
   clusterIP: None
   selector:
     app: {{ template "pulsar.name" . }}

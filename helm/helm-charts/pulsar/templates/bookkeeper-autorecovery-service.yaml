@@ -31,6 +31,9 @@ metadata:
     component: {{ .Values.autorecovery.component }}
     cluster: {{ template "pulsar.fullname" . }}
 spec:
+  ports:
+  - name: http
+    port: 8000
   clusterIP: None
   selector:
     app: {{ template "pulsar.name" . }}

@@ -108,6 +108,9 @@ spec:
         - >
           bin/apply-config-from-env.py conf/bookkeeper.conf &&
           bin/bookkeeper autorecovery
+        ports:
+        - name: http
+          containerPort: 8000
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"

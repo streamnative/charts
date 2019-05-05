@@ -253,7 +253,7 @@ bookkeeper:
 autorecovery:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
-  component: autorecovery
+  component: recovery
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
