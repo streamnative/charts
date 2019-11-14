@@ -97,7 +97,7 @@ zookeeper:
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
     dataLog:
-      name: dataLog
+      name: datalog
       size: 10Gi
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
