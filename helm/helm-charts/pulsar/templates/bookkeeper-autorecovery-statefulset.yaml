@@ -78,7 +78,7 @@ spec:
                 values:
                 - {{ .Values.bookkeeper.component }}
             topologyKey: "kubernetes.io/hostname"
-      terminationGracePeriodSeconds: {{ .Values.dashboard.gracePeriod }}
+      terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       initContainers:
       # This initContainer will wait for bookkeeper initnewcluster to complete
       # before deploying the bookies

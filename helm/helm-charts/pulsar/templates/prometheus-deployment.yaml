@@ -31,7 +31,6 @@ metadata:
     component: {{ .Values.prometheus.component }}
     cluster: {{ template "pulsar.fullname" . }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
   replicas: {{ .Values.prometheus.replicaCount }}
   selector:
     matchLabels:
