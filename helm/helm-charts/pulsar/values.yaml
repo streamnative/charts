@@ -404,8 +404,14 @@ proxy:
     - name: http
       port: 8080
       protocol: TCP
+    - name: https
+      port: 8443
+      protocal: TCP
     - name: pulsar
       port: 6650
+      protocol: TCP
+    - name: pulsarssl
+      port: 6651
       protocol: TCP
   ## Proxy PodDisruptionBudget
   ## templates/proxy-pdb.yaml
