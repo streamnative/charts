@@ -455,7 +455,6 @@ toolset:
 ##
 prometheus:
   component: prometheus
-  rbac: yes
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -572,3 +571,8 @@ pulsar_manager:
   admin:
     user: pulsar
     password: pulsar
+
+rbac:
+  enable: true
+  roleName: pulsar-operator
+  roleBindingName: pulsar-operator-cluster-role-binding
