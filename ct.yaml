@@ -17,17 +17,9 @@
 # under the License.
 #
 
-apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: sijie
-  email: sijie@apache.org
-- name: wolfstudy
-  email: rxl@apache.org
+chart-dirs:
+  - helm/helm-charts
+charts:
+  - helm/helm-charts/pulsar
+debug: true
+helm-extra-args: --timeout 1200

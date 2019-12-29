@@ -25,21 +25,24 @@ on:
     paths:
       - 'helm/**'
 jobs:
-
-  build:
-    name: Build
+  lint-test:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
 
-    - name: Check out code into the master codebase
-      uses: actions/checkout@v1
+      - name: Create kind cluster
+        uses: helm/kind-action@master
+        with:
+          installLocalPathProvisioner: true
 
-    - name: Get Helm
-      run: |
-        curl -L https://get.helm.sh/helm-v3.0.0-linux-amd64.tar.gz | tar xvz
+      - name: Run chart-testing (lint)
+        uses: helm/chart-testing-action@master
+        with:
+          command: lint
 
-    - name: Run tests
-      run: |
-        # TODO: `dry-run` requires a running kubernetes cluster
-        # linux-amd64/helm install --dry-run --debug pulsar-test ./helm/helm-charts/pulsar
-        linux-amd64/helm template pulsar-test ./helm/helm-charts/pulsar
+      # TODO: enable testing installing chart
+      # - name: Run chart-testing (install)
+      #   uses: helm/chart-testing-action@master
+      #   with:
+      #     command: install
