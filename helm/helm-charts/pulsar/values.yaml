@@ -406,7 +406,7 @@ proxy:
       protocol: TCP
     - name: https
       port: 8443
-      protocal: TCP
+      protocol: TCP
     - name: pulsar
       port: 6650
       protocol: TCP
