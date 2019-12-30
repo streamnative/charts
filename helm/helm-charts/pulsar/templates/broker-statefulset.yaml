@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.components.broker }}
+{{- $ensembleSize := .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -90,6 +91,21 @@ spec:
             until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} ls {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
               sleep 3;
             done;
+      # This init container will wait for bookkeeper to be ready before
+      # deploying the broker
+      - name: wait-bookkeeper-ready
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            bin/apply-config-from-env.py conf/bookkeeper.conf &&
+            until bin/bookkeeper shell simpletest -ensemble {{$ensembleSize}}; do
+              sleep 3;
+            done;
+        envFrom:
+          - configMapRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
