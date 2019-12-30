@@ -65,6 +65,16 @@ image:
   # tag: latest
   pullPolicy: IfNotPresent
 
+## Admin
+## templates/pulsar-admin-secret.yaml
+##
+## This admin credentials will be used for configuring both grafana and 
+## pulsar-manager
+admin:
+  user: pulsaradmin
+  password: happypulsaring
+
+
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
 ##
@@ -519,9 +529,6 @@ grafana:
     ports:
     - name: server
       port: 3000
-  admin:
-    user: admin
-    password: happypulsaring
 
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
@@ -568,10 +575,6 @@ pulsar_manager:
     ports:
       - name: server
         port: 9527
-  admin:
-    user: pulsar
-    password: pulsar
-
 rbac:
   enable: true
   roleName: pulsar-operator

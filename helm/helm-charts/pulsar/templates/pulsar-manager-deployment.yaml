@@ -84,13 +84,13 @@ spec:
           - name: USERNAME
             valueFrom:
               secretKeyRef:
-                key: PULSAR_MANAGER_ADMIN_USER
-                name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-secret"
+                key: USER
+                name: "{{ template "pulsar.fullname" . }}-admin-secret"
           - name: PASSWORD
             valueFrom:
               secretKeyRef:
-                key: PULSAR_MANAGER_ADMIN_PASSWORD
-                name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-secret"
+                key: PASSWORD
+                name: "{{ template "pulsar.fullname" . }}-admin-secret"
           - name: LOG_LEVEL
             value: DEBUG
       volumes:

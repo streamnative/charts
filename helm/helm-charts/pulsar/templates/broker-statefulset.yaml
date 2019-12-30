@@ -117,4 +117,10 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+        env:
+        - name: superUserRoles
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-admin-secret"
+              key: USER
 {{- end }}
