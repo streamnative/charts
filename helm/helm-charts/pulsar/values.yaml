@@ -19,7 +19,7 @@
 
 ## Namespace to deploy pulsar
 namespace: pulsar
-namespaceCreate: yes
+namespaceCreate: true
 
 ## Pulsar Metadata Prefix
 ##
@@ -31,23 +31,23 @@ metadataPrefix: ""
 ## If persistence is enabled, components that have state will
 ## be deployed with PersistentVolumeClaims, otherwise, for test
 ## purposes, they will be deployed with emptyDir
-persistence: yes
+persistence: true
 
 components:
   # zookeeper
-  zookeeper: yes
+  zookeeper: true
   # bookkeeper
-  bookkeeper: yes
+  bookkeeper: true
   # bookkeeper - autorecovery
-  autorecovery: yes
+  autorecovery: true
   # broker
-  broker: yes
+  broker: true
   # proxy
-  proxy: yes
+  proxy: true
   # toolset
-  toolset: yes
+  toolset: true
   # pulsar manager
-  pulsar_manager: yes
+  pulsar_manager: true
 
 monitoring:
   # monitoring - prometheus
@@ -68,7 +68,7 @@ image:
 ## Admin
 ## templates/pulsar-admin-secret.yaml
 ##
-## This admin credentials will be used for configuring both grafana and 
+## This admin credentials will be used for configuring both grafana and
 ## pulsar-manager
 admin:
   user: pulsaradmin
@@ -97,7 +97,7 @@ zookeeper:
       cpu: 0.1
   volumes:
     # use a persistent volume or emptyDir
-    persistence: yes
+    persistence: true
     data:
       name: data
       size: 50Gi
@@ -150,7 +150,7 @@ zookeeper:
   ## templates/zookeeper-pdb.yaml
   ##
   pdb:
-    usePolicy: yes
+    usePolicy: true
     maxUnavailable: 1
 
 ## Pulsar: Bookkeeper cluster
@@ -183,7 +183,7 @@ bookkeeper:
       cpu: 0.2
   volumes:
     # use a persistent volume or emptyDir
-    persistence: yes
+    persistence: true
     journal:
       name: journal
       size: 10Gi
@@ -256,7 +256,7 @@ bookkeeper:
   ## templates/bookkeeper-pdb.yaml
   ##
   pdb:
-    usePolicy: yes
+    usePolicy: true
     maxUnavailable: 1
 
 ## Pulsar: Bookkeeper AutoRecovery
@@ -356,7 +356,7 @@ broker:
   ## templates/broker-pdb.yaml
   ##
   pdb:
-    usePolicy: yes
+    usePolicy: true
     maxUnavailable: 1
 
 ## Pulsar: Proxy Cluster
@@ -427,7 +427,7 @@ proxy:
   ## templates/proxy-pdb.yaml
   ##
   pdb:
-    usePolicy: yes
+    usePolicy: true
     maxUnavailable: 1
 
 ## Pulsar ToolSet
@@ -481,7 +481,7 @@ prometheus:
       cpu: 0.1
   volumes:
     # use a persistent volume or emptyDir
-    persistence: yes
+    persistence: true
     data:
       name: data
       size: 10Gi
@@ -602,4 +602,3 @@ rbac:
   enable: true
   roleName: pulsar-operator
   roleBindingName: pulsar-operator-cluster-role-binding
-
