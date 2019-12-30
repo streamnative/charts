@@ -530,6 +530,7 @@ grafana:
     - name: server
       port: 3000
 
+
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
 ##
@@ -575,7 +576,30 @@ pulsar_manager:
     ports:
       - name: server
         port: 9527
+
+## Components Stack: monitoring ingress
+## templates/monitoring-ingress.yaml
+##
+
+ingress:
+  component: monitoring
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - monitoring-example.local
+  tls: []
+  #  - secretName: monitoring-example-tls
+  #    hosts:
+  #      - monitoring-example.local
+
+## Components Stack: pulsar operators rbac
+## templates/pulsar-operators-rbac.yaml
+##
+
 rbac:
   enable: true
   roleName: pulsar-operator
   roleBindingName: pulsar-operator-cluster-role-binding
+
