@@ -45,5 +45,20 @@ data:
   numHttpServerThreads: "8"
   # function worker configuration
   PF_pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
+  # token authentication configuration
+  {{- if .Values.broker.auth.authentication.enable }}
+  authenticationEnabled: "true"
+  {{- if .Values.broker.auth.authorization.enable }}
+  authorizationEnabled: "true"
+  {{- end }}
+  authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
+  brokerClientAuthenticationParameters: "file:///pulsar/keys/token/token"
+  brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+  {{- if .Values.broker.auth.authentication.usingSecretKey }}
+  tokenSecretKey: "file:///pulsar/keys/token/secret.key"
+  {{- else }}
+  tokenPublicKey: "file:///pulsar/keys/token/public.key"
+  {{- end }}
+  {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}
 {{- end }}

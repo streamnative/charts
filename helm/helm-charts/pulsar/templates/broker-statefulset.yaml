@@ -134,9 +134,29 @@ spec:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         env:
-        - name: superUserRoles
-          valueFrom:
-            secretKeyRef:
-              name: "{{ template "pulsar.fullname" . }}-admin-secret"
-              key: USER
+          - name: superUserRoles
+            valueFrom:
+              secretKeyRef:
+                name: "{{ template "pulsar.fullname" . }}-admin-secret"
+                key: USER
+      {{- if .Values.broker.auth.authentication.enable }}
+        volumeMounts:
+          - mountPath: "/pulsar/keys"
+            name: token-keys
+            readOnly: true
+      volumes:
+        - name: token-keys
+          secret:
+            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-secrets"
+            items:
+              {{- if .Values.broker.auth.authentication.usingSecretKey }}
+              - key: SECRETKEY
+                path: token/secret.key
+              {{- else }}
+              - key: PUBLICKEY
+                path:/token/public.key
+              {{- end}}
+              - key: TOKEN
+                path: token/token
+      {{- end}}
 {{- end }}
