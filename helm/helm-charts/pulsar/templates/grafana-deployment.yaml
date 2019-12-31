@@ -58,8 +58,8 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.grafana.gracePeriod }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
-        image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
-        imagePullPolicy: {{ .Values.grafana.image.pullPolicy }}
+        image: "{{ .Values.images.grafana.repository }}:{{ .Values.images.grafana.tag }}"
+        imagePullPolicy: {{ .Values.images.grafana.pullPolicy }}
       {{- if .Values.grafana.resources }}
         resources:
 {{ toYaml .Values.grafana.resources | indent 10 }}

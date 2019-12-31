@@ -82,8 +82,8 @@ spec:
       # This initContainer will wait for bookkeeper initnewcluster to complete
       # before deploying the bookies
       - name: pulsar-bookkeeper-verify-clusterid
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
         command: ["sh", "-c"]
         args:
         - >
@@ -96,8 +96,8 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
       {{- if .Values.bookkeeper.resources }}
         resources:
 {{ toYaml .Values.bookkeeper.resources | indent 10 }}

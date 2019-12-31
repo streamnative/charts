@@ -58,12 +58,29 @@ monitoring:
   node_exporter: true
 
 ## Which pulsar image to use
-image:
-  repository: streamnative/pulsar
-  tag: 2.4.0-d1d5aba08
-  # repository: apachepulsar/pulsar-all
-  # tag: latest
-  pullPolicy: IfNotPresent
+images:
+  pulsar:
+    # repository: streamnative/pulsar
+    # tag: 2.4.0-d1d5aba08
+    repository: apachepulsar/pulsar-all
+    tag: 2.4.2
+    pullPolicy: IfNotPresent
+  prometheus:
+    repository: prom/prometheus
+    tag: v1.6.3
+    pullPolicy: IfNotPresent
+  grafana:
+    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
+    tag: 0.0.4
+    pullPolicy: IfNotPresent
+  pulsar_manager:
+    repository: apachepulsar/pulsar-manager
+    tag: v0.1.0
+    pullPolicy: IfNotPresent
+  node_exporter:
+    repository: prom/node-exporter
+    tag: v0.16.0
+    pullPolicy: "IfNotPresent"
 
 ## Admin
 ## templates/pulsar-admin-secret.yaml
@@ -483,10 +500,6 @@ prometheus:
   annotations: {}
   tolarations: []
   gracePeriod: 0
-  image:
-    repository: prom/prometheus
-    tag: v1.6.3
-    pullPolicy: IfNotPresent
   resources:
     requests:
       memory: 256Mi
@@ -524,10 +537,6 @@ grafana:
   annotations: {}
   tolarations: []
   gracePeriod: 0
-  image:
-    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.4
-    pullPolicy: IfNotPresent
   resources:
     requests:
       memory: 250Mi
@@ -571,10 +580,6 @@ pulsar_manager:
   annotations: {}
   tolarations: []
   gracePeriod: 0
-  image:
-    repository: apachepulsar/pulsar-manager
-    tag: v0.1.0
-    pullPolicy: IfNotPresent
   resources:
     requests:
       memory: 250Mi

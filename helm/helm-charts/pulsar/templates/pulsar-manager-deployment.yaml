@@ -58,8 +58,8 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.pulsar_manager.gracePeriod }}
       containers:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
-          image: "{{ .Values.pulsar_manager.image.repository }}:{{ .Values.pulsar_manager.image.tag }}"
-          imagePullPolicy: {{ .Values.pulsar_manager.image.pullPolicy }}
+          image: "{{ .Values.images.pulsar_manager.repository }}:{{ .Values.images.pulsar_manager.tag }}"
+          imagePullPolicy: {{ .Values.images.pulsar_manager.pullPolicy }}
         {{- if .Values.pulsar_manager.resources }}
           resources:
 {{ toYaml .Values.pulsar_manager.resources | indent 12 }}

@@ -83,8 +83,8 @@ spec:
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
       - name: wait-zookeeper-ready
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -94,8 +94,8 @@ spec:
       # This init container will wait for bookkeeper to be ready before
       # deploying the broker
       - name: wait-bookkeeper-ready
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >
@@ -108,8 +108,8 @@ spec:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
       {{- if .Values.broker.resources }}
         resources:
 {{ toYaml .Values.broker.resources | indent 10 }}

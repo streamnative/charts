@@ -35,8 +35,8 @@ spec:
     spec:
       initContainers:
       - name: wait-zookeeper-ready
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -46,8 +46,8 @@ spec:
       # This initContainer will wait for bookkeeper initnewcluster to complete
       # before initializing pulsar metadata
       - name: pulsar-bookkeeper-verify-clusterid
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
         command: ["sh", "-c"]
         args:
         - >
@@ -60,8 +60,8 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_metadata.component }}"
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
       {{- if .Values.pulsar_metadata.resources }}
         resources:
 {{ toYaml .Values.pulsar_metadata.resources | indent 10 }}

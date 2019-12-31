@@ -61,8 +61,8 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.prometheus.gracePeriod }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
-        image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
-        imagePullPolicy: {{ .Values.prometheus.image.pullPolicy }}
+        image: "{{ .Values.images.prometheus.repository }}:{{ .Values.images.prometheus.tag }}"
+        imagePullPolicy: {{ .Values.images.prometheus.pullPolicy }}
       {{- if .Values.prometheus.resources }}
         resources:
 {{ toYaml .Values.prometheus.resources | indent 10 }}

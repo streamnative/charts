@@ -82,8 +82,8 @@ spec:
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
       - name: wait-zookeeper-ready
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -92,8 +92,8 @@ spec:
             done;
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
       {{- if .Values.proxy.resources }}
         resources:
 {{ toYaml .Values.proxy.resources | indent 10 }}

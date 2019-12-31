@@ -60,8 +60,8 @@ spec:
     {{- end }}
       containers:
         - name: prometheus-node-exporter
-          image: "prom/node-exporter:v0.16.0"
-          imagePullPolicy: "IfNotPresent"
+          image: "{{ .Values.images.node_exporter.repository }}:{{ .Values.images.node_exporter.tag }}"
+          imagePullPolicy: {{ .Values.images.node_exporter.pullPolicy }}
           args:
             - --path.procfs=/host/proc
             - --path.sysfs=/host/sys
