@@ -74,29 +74,28 @@ external_dns:
       # project: external-dns-test
       project:
 
-## Components Stack: control plane ingress
-## templates/control-plane-ingress.yaml
+## Components Stack: control center ingress
+## templates/control-center-ingress.yaml
 ingress:
   controller:
-    component: nginx-ingress-controller
-  ports:
-    http: 80
-    https: 443
-  control_plane:
     enabled: true
-    component: control-plane
+    rbac: true
+    component: nginx-ingress-controller
     replicaCount: 1
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
     tolarations: []
     gracePeriod: 300
     annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
+    ports:
+      http: 80
+      https: 443
+  control_center:
+    enabled: true
+    component: control-center
     tls:
       enabled: false
-    ports:
-      grafana: 3000
+    annotations: {}
 
 # security
 tls:

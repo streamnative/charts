@@ -5,10 +5,10 @@ to synchronize exposed Kubernetes services and ingresses with DNS providers.
 
 When `external_dns.enabled` is set to true, this helm chart will automatically register two DNS entries via `ExternalDNS` for the cluster.
 
-- Data plane endpoint: `data.$(helm-release-name).$(domain_filter)`.
+- Data endpoint: `data.$(helm-release-name).$(domain_filter)`.
   It is the DNS name for accessing the exposed pulsar cluster to
   produce and consume messages.
-- Control plane endpoint: `admin.$(helm-release-name).$(domain_filter)`.
+- Control-center endpoint: `admin.$(helm-release-name).$(domain_filter)`.
   It is the DNS name for accessing the whole control plane, including Pulsar manager and Grafana.
   - `admin.$(helm-release-name).$(domain_filter)/grafana`: to access the grafana dashboard.
   - `admin.$(helm-release-name).$(domain_filter)/manager`: to access Pulsar manager.
@@ -18,6 +18,8 @@ When `external_dns.enabled` is set to true, this helm chart will automatically r
 - [ExternalDNS settings](#externaldns-settings)
   - [Google Cloud DNS settings](#google-cloud-dns-settings)
 - [Ingress settings](#ingress-settings)
+  - [Ingress controller settings](#ingress-controller-settings)
+  - [Control-center ingress settings](#control-center-ingress-settings)
 
 ### ExternalDNS settings
 
@@ -47,19 +49,33 @@ ExternalDNS can be turned on/off by setting `external_dns.enabled` to `true`/`fa
 
 When enabling ExternalDNS for managing DNS records for the cluster,
 you can also configure enabling `Ingress` to expose all the components
-in the control plane through one domain name. You can do so by setting
-`ingress.control_plane.enabled` to `true`.
+in the control center through one domain name. You can do so by setting
+`ingress.control_center.enabled` to `true`.
+
+#### Ingress controller settings
 
 | Parameter | Description | Default Value |
 | --------- | ----------- | ------------- |
-| ingress.control_plane.enabled | Flag to create a control_plane ingress to expose all the control_plane components through one `Ingress`. | true |
-| ingress.control_plane.component | The component name is used for naming the control_plane ingress. | control-plane |
-| ingress.control_plane.replicaCount | The number of replicas to run the ingress controller. | 1 |
-| ingress.control_plane.nodeSelector | The node selector to select nodes to run ingress controller. | Nil |
-| ingress.control_plane.tolarations | The tolarations for the deployment of running ingress controller. | `[]` |
-| ingress.control_plane.gracePeriod | The grace termination period of terminating an ingress controller. | 300 |
-| ingress.control_plane.annotations | The annotations attached to the ingress controller deployment. | `{}` |
-| ingress.control_plane.tls.enabled | Flag to enable TLS in the control_plane ingress. | false |
+| ingress.controller.enabled | Enable running a Nginx Ingress controller. | true |
+| ingress.controller.rbac | Flag to enable/disable RBAC for running the ingress controller. | true |
+| ingress.controller.component | The component name is used for naming the ingress controller ingress. | nginx-ingress-controller |
+| ingress.controller.replicaCount | The number of replicas to run the ingress controller. | 1 |
+| ingress.controller.nodeSelector | The node selector to select nodes to run ingress controller. | Nil |
+| ingress.controller.tolarations | The tolarations for the deployment of running ingress controller. | `[]` |
+| ingress.control_center.annotations | The annotations attached to the ingress controller. | `{}` |
+| ingress.control_center.tls.enabled | Flag to enable TLS in the control_center ingress. | false |
+| ingress.controller.gracePeriod | The grace termination period of terminating an ingress controller. | 300 |
+| ingress.controller.ports.http | The http port for the ingress controller. | 80 |
+| ingress.controller.ports.https | The https port for the ingress controller. | 443 |
+
+#### Control-center ingress settings
+
+| Parameter | Description | Default Value |
+| --------- | ----------- | ------------- |
+| ingress.control_center.enabled | Flag to create a control_center ingress to expose all the control_center components through one `Ingress`. | true |
+| ingress.control_center.component | The component name is used for naming the control_center ingress. | control-center |
+| ingress.control_center.annotations | The annotations attached to the control_center ingress. | `{}` |
+| ingress.control_center.tls.enabled | Flag to enable TLS in the control_center ingress. | false |
 
 ## Cloud Providers
 
