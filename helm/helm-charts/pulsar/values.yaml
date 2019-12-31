@@ -57,6 +57,51 @@ monitoring:
   # monitoring - node_exporter
   node_exporter: true
 
+## External DNS
+## templates/external-dns.yaml
+## templates/external-dns-rbac.yaml
+external_dns:
+  enabled: true
+  component: external-dns
+  policy: upsert-only
+  registry: txt
+  owner_id: streamnative
+  domain_filter: test.gcp.streamnative.dev
+  provider: google
+  providers:
+    google:
+      # Use this to specify a project different from the one external-dns is running inside
+      # project: external-dns-test
+      project:
+
+## Components Stack: control plane ingress
+## templates/control-plane-ingress.yaml
+ingress:
+  controller:
+    component: nginx-ingress-controller
+  ports:
+    http: 80
+    https: 443
+  control_plane:
+    enabled: true
+    component: control-plane
+    replicaCount: 1
+    # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+    tolarations: []
+    gracePeriod: 300
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    tls:
+      enabled: false
+    ports:
+      grafana: 3000
+
+# security
+tls:
+  proxy: false
+
 ## Which pulsar image to use
 images:
   pulsar:
@@ -81,6 +126,10 @@ images:
     repository: prom/node-exporter
     tag: v0.16.0
     pullPolicy: "IfNotPresent"
+  nginx_ingress_controller:
+    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
+    tag: 0.26.2
+    pullPolicy: "IfNotPresent"
 
 ## Admin
 ## templates/pulsar-admin-secret.yaml
@@ -90,7 +139,6 @@ images:
 admin:
   user: pulsaradmin
   password: happypulsaring
-
 
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
@@ -398,9 +446,7 @@ proxy:
   replicaCount: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
+  annotations: {}
   tolarations: []
   gracePeriod: 0
   resources:
@@ -436,22 +482,14 @@ proxy:
   ## Proxy service
   ## templates/proxy-service.yaml
   ##
+  ports:
+    http: 80
+    https: 443
+    pulsar: 6650
+    pulsarssl: 6651
   service:
     annotations: {}
     type: LoadBalancer
-    ports:
-    - name: http
-      port: 8080
-      protocol: TCP
-    - name: https
-      port: 8443
-      protocol: TCP
-    - name: pulsar
-      port: 6650
-      protocol: TCP
-    - name: pulsarssl
-      port: 6651
-      protocol: TCP
   ## Proxy PodDisruptionBudget
   ## templates/proxy-pdb.yaml
   ##
@@ -537,6 +575,7 @@ grafana:
   annotations: {}
   tolarations: []
   gracePeriod: 0
+  port: 3000
   resources:
     requests:
       memory: 250Mi
@@ -545,7 +584,7 @@ grafana:
   ## templates/grafana-service.yaml
   ##
   service:
-    type: LoadBalancer
+    type: ClusterIP
     annotations: {}
     ports:
     - name: server
@@ -574,6 +613,7 @@ node_exporter:
 
 pulsar_manager:
   component: pulsar-manager
+  port: 9527
   replicaCount: 1
   # nodeSelector:
   # cloud.google.com/gke-nodepool: default-pool
@@ -588,28 +628,11 @@ pulsar_manager:
   ## templates/pulsar-manager-service.yaml
   ##
   service:
-    type: LoadBalancer
+    type: ClusterIP
     annotations: {}
     ports:
       - name: server
         port: 9527
-
-## Components Stack: monitoring ingress
-## templates/monitoring-ingress.yaml
-##
-
-ingress:
-  component: monitoring
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - monitoring-example.local
-  tls: []
-  #  - secretName: monitoring-example-tls
-  #    hosts:
-  #      - monitoring-example.local
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml

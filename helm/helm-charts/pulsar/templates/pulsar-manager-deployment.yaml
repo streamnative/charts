@@ -65,7 +65,7 @@ spec:
 {{ toYaml .Values.pulsar_manager.resources | indent 12 }}
         {{- end }}
           ports:
-          - containerPort: 9527
+          - containerPort: {{ .Values.pulsar_manager.port }}
           volumeMounts:
           - name: pulsar-manager-data
             mountPath: /data

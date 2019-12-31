@@ -65,7 +65,7 @@ spec:
 {{ toYaml .Values.grafana.resources | indent 10 }}
       {{- end }}
         ports:
-        - containerPort: 3000
+        - containerPort: {{ .Values.grafana.port }}
         env:
         # for supporting apachepulsar/pulsar-grafana
         - name: PROMETHEUS_URL

@@ -17,7 +17,8 @@
 # under the License.
 #
 
-{{- if .Values.ingress.enabled }}
+{{- if .Values.external_dns.enabled }}
+{{- if .Values.ingress.control_plane.enabled }}
 {{- $fullName := include "pulsar.fullname" . -}}
 
 {{/* COMMENT */}}
@@ -25,7 +26,7 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.component }}-ingress"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_plane.component }}-ingress"
   namespace: {{ .Values.namespace }}
   labels:
     app: {{ template "pulsar.name" . }}
@@ -33,33 +34,33 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
     cluster: {{ template "pulsar.fullname" . }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    kubernetes.io/ingress.class: nginx
+  {{- with .Values.ingress.control_plane.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.ingress.tls }}
+{{- if .Values.ingress.control_plane.tls.enabled }}
   tls:
-  {{- range .Values.ingress.tls }}
     - hosts:
-      {{- range .hosts }}
-        - {{ . | quote }}
-      {{- end }}
-      secretName: {{ .secretName }}
+        {{- if .Values.external_dns.domain_filter }}
+        - {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
         {{- end }}
+      secretName: {{ .secretName }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
-    - host: {{ . | quote }}
+    {{- if .Values.external_dns.domain_filter }}
+    - host: {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
       http:
         paths:
           - path: /manager
             backend:
-              serviceName: "{{ $fullName }}-pulsar-manager"
-              servicePort: http
+              serviceName: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
+              servicePort: {{ .Values.pulsar_manager.port }}
           - path: /grafana
             backend:
-              serviceName: "{{ $fullName }}-grafana"
-              servicePort: http
-  {{- end }}
+              serviceName: "{{ $fullName }}-{{ .Values.grafana.component }}"
+              servicePort: {{ .Values.grafana.port }}
+    {{- end }}
+{{- end }}
 {{- end }}

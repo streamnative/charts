@@ -35,5 +35,13 @@ data:
   brokerWebServiceURL: http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:8080
   clusterName: {{ template "pulsar.fullname" . }}
   httpNumThreads: "8"
+  {{- if .Values.tls.proxy }}
+  servicePortTls: "{{ .Values.proxy.ports.pulsarssl }}"
+  webServicePortTls: "{{ .Values.proxy.ports.https }}"
+  {{- end }}
+  {{- if not .Values.tls.proxy }}
+  servicePort: "{{ .Values.proxy.ports.pulsar }}"
+  webServicePort: "{{ .Values.proxy.ports.http }}"
+  {{- end }}
 {{ toYaml .Values.proxy.configData | indent 2 }}
 {{- end }}
