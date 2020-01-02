@@ -122,14 +122,19 @@ spec:
           bin/gen-yml-from-env.py conf/functions_worker.yml &&
           bin/pulsar broker
         ports:
+        # prometheus needs to access /metrics endpoint
         - name: http
-          containerPort: 8080
-        - name: https
-          containerPort: 8443
+          containerPort: {{ .Values.broker.ports.http }}
+        {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
         - name: pulsar
-          containerPort: 6650
+          containerPort: {{ .Values.broker.ports.pulsar }}
+        {{- end }}
+        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        - name: https
+          containerPort: {{ .Values.broker.ports.https }}
         - name: pulsarssl
-          containerPort: 6651
+          containerPort: {{ .Values.broker.ports.pulsarssl }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
@@ -139,12 +144,22 @@ spec:
               secretKeyRef:
                 name: "{{ template "pulsar.fullname" . }}-admin-secret"
                 key: USER
-      {{- if .Values.broker.auth.authentication.enable }}
+      {{- if or .Values.broker.auth.authentication.enable (and .Values.tls.enabled .Values.tls.broker.enabled) }}
         volumeMounts:
+          {{- if .Values.broker.auth.authentication.enable }}
           - mountPath: "/pulsar/keys"
             name: token-keys
             readOnly: true
+          {{- end}}
+          {{- if .Values.tls.broker.enabled }}
+          - mountPath: "/pulsar/certs"
+            name: broker-certs
+            readOnly: true
+          {{- end}}
+      {{- end}}
+      {{- if or .Values.broker.auth.authentication.enable (and .Values.tls.enabled .Values.tls.broker.enabled) }}
       volumes:
+        {{- if .Values.broker.auth.authentication.enable }}
         - name: token-keys
           secret:
             secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-secrets"
@@ -158,5 +173,18 @@ spec:
               {{- end}}
               - key: TOKEN
                 path: token/token
+        {{- end}}
+        {{- if .Values.tls.broker.enabled }}
+        - name: broker-certs
+          secret:
+            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+            items:
+              - key: tls.crt
+                path: broker/tls.crt
+              - key: tls.key
+                path: broker/tls.key
+              - key: ca.crt
+                path: broker/ca.crt
+        {{- end}}
       {{- end}}
 {{- end }}

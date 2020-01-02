@@ -34,14 +34,19 @@ metadata:
 {{ toYaml .Values.broker.service.annotations | indent 4 }}
 spec:
   ports:
+  # prometheus needs to access /metrics endpoint
   - name: http
-    port: 8080
-  - name: https
-    port: 8443
+    port: {{ .Values.broker.ports.http }}
+  {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
   - name: pulsar
-    port: 6650
+    port: {{ .Values.broker.ports.pulsar }}
+  {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  - name: https
+    port: {{ .Values.broker.ports.https }}
   - name: pulsarssl
-    port: 6651
+    port: {{ .Values.broker.ports.pulsarssl }}
+  {{- end }}
   clusterIP: None
   selector:
     app: {{ template "pulsar.name" . }}

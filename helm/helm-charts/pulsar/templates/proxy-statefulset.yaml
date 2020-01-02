@@ -109,11 +109,93 @@ spec:
           bin/apply-config-from-env.py conf/pulsar_env.sh &&
           bin/pulsar proxy
         ports:
+        # prometheus needs to access /metrics endpoint
         - name: http
           containerPort: {{ .Values.proxy.ports.http }}
+        {{- if or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled) }}
         - name: pulsar
           containerPort: {{ .Values.proxy.ports.pulsar }}
+        {{- end }}
+        {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
+        - name: https
+          containerPort: {{ .Values.proxy.ports.https }}
+        - name: pulsarssl
+          containerPort: {{ .Values.proxy.ports.pulsarssl }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+        env:
+          - name: superUserRoles
+            valueFrom:
+              secretKeyRef:
+                name: "{{ template "pulsar.fullname" . }}-admin-secret"
+                key: USER
+        {{- if and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled) }}
+        volumeMounts:
+          {{- if .Values.tls.broker.enabled }}
+          - mountPath: "/pulsar/certs/broker"
+            name: broker-certs
+            readOnly: true
+          {{- end}}
+          {{- if .Values.tls.proxy.enabled }}
+          - mountPath: "/pulsar/certs/proxy"
+            name: proxy-certs
+            readOnly: true
+          - mountPath: "/pulsar/certs/proxy-ca"
+            name: proxy-ca-cert 
+            readOnly: true
+          {{- end}}
+      {{- end}}
+      {{- if and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled) }}
+      volumes:
+        {{- if .Values.tls.broker.enabled }}
+        - name: broker-certs
+          secret:
+            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+            items:
+              - key: ca.crt
+                path: ca.crt
+        {{- end}}
+        {{- if .Values.tls.proxy.enabled }}
+        - name: proxy-certs
+          secret:
+            {{- if .Values.tls.broker.enabled }}
+            # TODO: use the same cert as broker for now until #5971 is fixed
+            #       https://github.com/apache/pulsar/pull/5971
+            # secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+            {{- end}}
+            {{- if not .Values.tls.broker.enabled }}
+            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+            {{- end}}
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+        - name: proxy-ca-cert 
+          secret:
+          {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
+            secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
+            items:
+              - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
+                path: ca.crt
+          {{- end}}
+          {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
+            {{- if .Values.tls.broker.enabled }}
+            # TODO: use the same cert as broker for now until #5971 is fixed
+            #       https://github.com/apache/pulsar/pull/5971
+            # secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+            {{- end}}
+            {{- if not .Values.tls.broker.enabled }}
+            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+            {{- end}}
+            items:
+              - key: ca.crt
+                path: ca.crt
+          {{- end}}
+        {{- end}}
+      {{- end}}
 {{- end }}

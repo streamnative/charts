@@ -1,0 +1,123 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.certs.internal_issuer.enabled }}
+{{- if .Values.tls.enabled }}
+
+{{- if .Values.tls.proxy.enabled }}
+{{- if not (and .Values.external_dns.enabled .Values.certs.public_issuer.enabled) }}
+# only configure issue private certicate for proxy when public_issuer is not used
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+  namespace: {{ .Values.namespace }}
+spec:
+  # Secret names are always required.
+  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+  duration: "{{ .Values.tls.common.duration }}"
+  renewBefore: "{{ .Values.tls.common.renewBefore }}"
+  organization:
+{{ toYaml .Values.tls.common.organization | indent 2 }}
+  # The use of the common name field has been deprecated since 2000 and is
+  # discouraged from being used.
+  commonName: {{ .Values.tls.proxy.commonName }}
+  isCA: true
+  keySize: {{ .Values.tls.common.keySize }}
+  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
+  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  usages:
+    - signing
+    - server auth
+    - client auth
+  # At least one of a DNS Name, USI SAN, or IP address is required.
+{{- if .Values.tls.proxy.dnsNames }}
+  dnsNames:
+{{ toYaml .Values.tls.proxy.dnsNames | indent 2 }}
+{{- end }}
+{{- if .Values.tls.proxy.uriSANs }}
+  uriSANs:
+{{ toYaml .Values.tls.proxy.uriSANs | indent 2 }}
+{{- end }}
+{{- if .Values.tls.proxy.ipAddresses }}
+  ipAddresses:
+{{ toYaml .Values.tls.proxy.ipAddresses | indent 2 }}
+{{- end }}
+  # Issuer references are always required.
+  issuerRef:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}"
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: Issuer
+    # This is optional since cert-manager will default to this value however
+    # if you are using an external issuer, change this to that issuer group.
+    group: cert-manager.io
+---
+{{- end }}
+{{- end }}
+
+{{- if .Values.tls.broker.enabled }}
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+  namespace: {{ .Values.namespace }}
+spec:
+  # Secret names are always required.
+  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+  duration: "{{ .Values.tls.common.duration }}"
+  renewBefore: "{{ .Values.tls.common.renewBefore }}"
+  organization:
+{{ toYaml .Values.tls.common.organization | indent 2 }}
+  # The use of the common name field has been deprecated since 2000 and is
+  # discouraged from being used.
+  commonName: {{ .Values.tls.broker.commonName }}
+  isCA: true
+  keySize: {{ .Values.tls.common.keySize }}
+  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
+  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  usages:
+    - signing
+    - server auth
+    - client auth
+  # At least one of a DNS Name, USI SAN, or IP address is required.
+{{- if .Values.tls.broker.dnsNames }}
+  dnsNames:
+{{ toYaml .Values.tls.broker.dnsNames | indent 2 }}
+{{- end }}
+{{- if .Values.tls.broker.uriSANs }}
+  uriSANs:
+{{ toYaml .Values.tls.broker.uriSANs | indent 2 }}
+{{- end }}
+{{- if .Values.tls.broker.ipAddresses }}
+  ipAddresses:
+{{ toYaml .Values.tls.broker.ipAddresses | indent 2 }}
+{{- end }}
+  # Issuer references are always required.
+  issuerRef:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}"
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: Issuer
+    # This is optional since cert-manager will default to this value however
+    # if you are using an external issuer, change this to that issuer group.
+    group: cert-manager.io
+{{- end }}
+{{- end }}
+{{- end }}

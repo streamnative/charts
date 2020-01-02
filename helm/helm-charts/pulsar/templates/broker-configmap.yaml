@@ -60,5 +60,18 @@ data:
   tokenPublicKey: "file:///pulsar/keys/token/public.key"
   {{- end }}
   {{- end }}
+  # prometheus needs to access /metrics endpoint
+  webServicePort: "{{ .Values.broker.ports.http }}"
+  # tls
+  {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
+  brokerServicePort: "{{ .Values.broker.ports.pulsar }}"
+  {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  brokerServicePortTls: "{{ .Values.broker.ports.pulsarssl }}"
+  webServicePortTls: "{{ .Values.broker.ports.https }}"
+  tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+  tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
+  tlsTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
+  {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}
 {{- end }}

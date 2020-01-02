@@ -19,7 +19,7 @@
 
 ## Namespace to deploy pulsar
 namespace: pulsar
-namespaceCreate: true
+namespaceCreate: false
 
 ## Pulsar Metadata Prefix
 ##
@@ -61,16 +61,15 @@ monitoring:
 ## templates/external-dns.yaml
 ## templates/external-dns-rbac.yaml
 external_dns:
-  enabled: true
+  enabled: false
   component: external-dns
   policy: upsert-only
   registry: txt
-  owner_id: streamnative
-  domain_filter: test.gcp.streamnative.dev
+  owner_id: pulsar
+  domain_filter: pulsar.example.local
   provider: google
   providers:
     google:
-      # Use this to specify a project different from the one external-dns is running inside
       # project: external-dns-test
       project:
 
@@ -78,7 +77,7 @@ external_dns:
 ## templates/control-center-ingress.yaml
 ingress:
   controller:
-    enabled: true
+    enabled: false
     rbac: true
     component: nginx-ingress-controller
     replicaCount: 1
@@ -97,9 +96,78 @@ ingress:
       enabled: false
     annotations: {}
 
-# security
+# TLS
+# templates/tls-certs.yaml
 tls:
-  proxy: false
+  enabled: true
+  # common settings for generating certs
+  common:
+    # 90d
+    duration: 2160h
+    # 15d
+    renewBefore: 360h
+    organization:
+      - pulsar
+    keySize: 4096
+    keyAlgorithm: rsa
+    keyEncoding: pkcs8
+  # settings for generating certs for proxy
+  proxy:
+    enabled: true
+    cert_name: tls-proxy
+    commonName: example.com
+    dnsNames:
+    - "*"
+    uriSANs:
+    - "*"
+    ipAddresses:
+    - "*"
+  # settings for generating certs for broker
+  broker:
+    enabled: false
+    cert_name: tls-broker
+    commonName: example.com
+    dnsNames:
+    - "*"
+    uriSANs:
+    - "*"
+    ipAddresses:
+    - "*"
+
+## cert-manager
+# templates/tls-cert-issuer.yaml
+certs:
+  internal_issuer:
+    enabled: true
+    component: internal-cert-issuer
+    type: selfsigning
+  public_issuer:
+    enabled: true
+    component: public-cert-issuer
+    type: acme
+  issuers:
+    selfsigning:
+    acme:
+      # You must replace this email address with your own.
+      # Let's Encrypt will use this to contact you about expiring
+      # certificates, and issues related to your account.
+      email: contact@example.local
+      # change this to production endpoint once you successfully test it
+      # server: https://acme-v02.api.letsencrypt.org/directory
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      solvers:
+        clouddns:
+          # TODO: add a link about how to configure this section
+          project: "[YOUR GCP PROJECT ID]"
+          serviceAccountSecretRef:
+            name: "[NAME OF SECRET]"
+            namespace: "[NAMESPACE OF THE SECRET]"
+            key: "[KEY OF SECRET]"
+  lets_encrypt:
+    # TODO: add a link about how to configure lets encrypt CA
+    ca_ref:
+      secretName: [SECRET STORES lets encrypt CA]
+      keyName: [KEY IN THE SECRET STORES let encrypt CA]
 
 ## Which pulsar image to use
 images:
@@ -370,6 +438,11 @@ broker:
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
   replicaCount: 3
+  ports:
+    http: 8080
+    https: 8443
+    pulsar: 6650
+    pulsarssl: 6651
   # nodeSelector:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -501,6 +574,7 @@ proxy:
 ##
 toolset:
   component: toolset
+  useProxy: true
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
