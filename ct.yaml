@@ -18,8 +18,8 @@
 #
 
 chart-dirs:
-  - helm/helm-charts
+  - pulsar/charts
 charts:
-  - helm/helm-charts/pulsar
+  - pulsar/charts/pulsar
 debug: true
 helm-extra-args: --timeout 1200
