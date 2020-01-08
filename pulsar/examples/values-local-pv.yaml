@@ -1,0 +1,32 @@
+## deployed withh emptyDir
+persistence: true
+
+## disable tls
+tls:
+  enabled: false
+
+## disable certs issuers
+certs:
+  internal_issuer:
+    enabled: false
+  public_issuer:
+    enabled: false
+
+bookkeeper:
+  volumes:
+    journal:
+      local_storage: true
+    ledgers:
+      local_storage: true
+
+zookeeper:
+  volumes:
+    data:
+      local_storage: true
+    dataLog:
+      local_storage: true
+
+prometheus:
+  volumes:
+    data:
+      local_storage: true

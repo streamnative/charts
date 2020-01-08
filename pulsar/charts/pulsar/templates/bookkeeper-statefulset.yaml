@@ -121,7 +121,7 @@ spec:
           mountPath: /pulsar/data/bookkeeper/journal
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
           mountPath: /pulsar/data/bookkeeper/ledgers
-        {{- if not .Values.persistence }}
+    {{- if not .Values.persistence }}
       volumes:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
         emptyDir: {}
@@ -137,8 +137,11 @@ spec:
       resources:
         requests:
           storage: {{ .Values.bookkeeper.volumes.journal.size }}
-    {{- if .Values.bookkeeper.volumes.journal.storageClass }}
+    {{- if and (not .Values.bookkeeper.volumes.journal.local_storage) .Values.bookkeeper.volumes.journal.storageClass }}
       storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+    {{- end }}
+    {{- if .Values.bookkeeper.volumes.journal.local_storage }}
+      storageClassName: "local-storage"
     {{- end }}
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
@@ -147,8 +150,11 @@ spec:
       resources:
         requests:
           storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
-    {{- if .Values.bookkeeper.volumes.ledgers.storageClass }}
+    {{- if and (not .Values.bookkeeper.volumes.ledgers.local_storage) .Values.bookkeeper.volumes.ledgers.storageClass }}
       storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+    {{- end }}
+    {{- if .Values.bookkeeper.volumes.ledgers.local_storage }}
+      storageClassName: "local-storage"
     {{- end }}
 {{- end }}
 {{- end }}

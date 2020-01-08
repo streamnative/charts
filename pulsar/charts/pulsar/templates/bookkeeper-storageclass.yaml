@@ -20,7 +20,7 @@
 {{- if .Values.components.bookkeeper }}
 {{- if .Values.bookkeeper.persistence }}
 
-{{- if .Values.bookkeeper.volumes.journal.storageClass }}
+{{- if and (not .Values.bookkeeper.volumes.journal.local_storage) .Values.bookkeeper.volumes.journal.storageClass }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -40,7 +40,7 @@ parameters:
 {{- end }}
 ---
 
-{{- if .Values.bookkeeper.volumes.ledgers.storageClass }}
+{{- if and (not .Values.bookkeeper.volumes.journal.local_storage) .Values.bookkeeper.volumes.ledgers.storageClass }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:

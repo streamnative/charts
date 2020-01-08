@@ -1,0 +1,13 @@
+## deployed withh emptyDir
+persistence: false
+
+## disable tls
+tls:
+  enabled: false
+
+## disable certs issuers
+certs:
+  internal_issuer:
+    enabled: false
+  public_issuer:
+    enabled: false
