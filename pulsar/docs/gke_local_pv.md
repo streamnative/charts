@@ -2,7 +2,7 @@
 
 ## Create a GKE cluster with local SSDs
 
-> NOTE: in order to use local PV, you need to create a GKE cluster with Kubernetes version newer than 1.14.
+> NOTE: in order to use local PV, you need to create a GKE cluster with Kubernetes 1.14+.
 
 ```
 gcloud container clusters create $(pulsar-cluster-name) \
