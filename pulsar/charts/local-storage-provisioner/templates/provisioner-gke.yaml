@@ -1,0 +1,83 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if eq .Values.type "gke" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "chart.fullname" . }}-config"
+  namespace: {{ .Values.namespace }}
+data:
+  useNodeNameOnly: "{{ .Values.gke.useNodeNameOnly }}"
+  storageClassMap: |
+    local-storage:
+       hostDir: {{ .Values.gke.hostDir }}
+       mountDir:  {{ .Values.gke.mountDir }}
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: "{{ template "chart.fullname" . }}"
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: "{{ template "chart.fullname" . }}"
+spec:
+  selector:
+    matchLabels:
+      app: "{{ template "chart.fullname" . }}"
+  template:
+    metadata:
+      labels:
+        app: "{{ template "chart.fullname" . }}"
+    spec:
+      serviceAccountName: "{{ template "chart.fullname" . }}-{{ .Values.rbac.service_account.name }}"
+      containers:
+        - image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          name: provisioner 
+          securityContext:
+            privileged: true
+          env:
+          - name: MY_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          volumeMounts:
+            - mountPath: /etc/provisioner/config 
+              name: provisioner-config
+              readOnly: true             
+            - mountPath:  {{ .Values.gke.mountDir }}
+              name: local-storage
+      volumes:
+        - name: provisioner-config
+          configMap:
+            name: "{{ template "chart.fullname" . }}-config"
+        - name: local-storage
+          hostPath:
+            path: {{ .Values.gke.hostDir }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: "local-storage"
+  namespace: {{ .Values.namespace }}
+provisioner: "kubernetes.io/no-provisioner"
+volumeBindingMode: "WaitForFirstConsumer"
+{{- end }}

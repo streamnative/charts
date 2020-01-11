@@ -233,6 +233,7 @@ zookeeper:
     data:
       name: data
       size: 50Gi
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -243,6 +244,7 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -319,6 +321,7 @@ bookkeeper:
     journal:
       name: journal
       size: 10Gi
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -329,6 +332,7 @@ bookkeeper:
     ledgers:
       name: ledgers
       size: 50Gi
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -621,6 +625,7 @@ prometheus:
     data:
       name: data
       size: 10Gi
+      local_storage: true
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
