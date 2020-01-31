@@ -74,7 +74,7 @@ spec:
           - name: PULSAR_CLUSTER
             value: {{ template "pulsar.fullname" . }}
           - name: REDIRECT_HOST
-            value: http://127.0.0.1
+            value: {{ .Values.pulsar_manager.redirect_host }}
           - name: REDIRECT_PORT
             value: "9527"
           - name: DRIVER_CLASS_NAME

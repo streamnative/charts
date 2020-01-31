@@ -204,7 +204,7 @@ images:
 ## This admin credentials will be used for configuring both grafana and
 ## pulsar-manager
 admin:
-  user: pulsaradmin
+  user: pulsar
   password: happypulsaring
 
 ## Pulsar: Zookeeper cluster
@@ -625,7 +625,7 @@ prometheus:
     data:
       name: data
       size: 10Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -711,6 +711,7 @@ pulsar_manager:
     ports:
       - name: server
         port: 9527
+  redirect_host: 127.0.0.1
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
