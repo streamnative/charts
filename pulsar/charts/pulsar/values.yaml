@@ -19,7 +19,7 @@
 
 ## Namespace to deploy pulsar
 namespace: pulsar
-namespaceCreate: false
+namespaceCreate: true
 
 ## Pulsar Metadata Prefix
 ##
@@ -99,7 +99,7 @@ ingress:
 # TLS
 # templates/tls-certs.yaml
 tls:
-  enabled: true
+  enabled: false
   # common settings for generating certs
   common:
     # 90d
@@ -113,7 +113,7 @@ tls:
     keyEncoding: pkcs8
   # settings for generating certs for proxy
   proxy:
-    enabled: true
+    enabled: false
     cert_name: tls-proxy
     commonName: example.com
     dnsNames:
@@ -138,11 +138,11 @@ tls:
 # templates/tls-cert-issuer.yaml
 certs:
   internal_issuer:
-    enabled: true
+    enabled: false
     component: internal-cert-issuer
     type: selfsigning
   public_issuer:
-    enabled: true
+    enabled: false
     component: public-cert-issuer
     type: acme
   issuers:
