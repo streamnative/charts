@@ -67,6 +67,10 @@ spec:
         resources:
 {{ toYaml .Values.prometheus.resources | indent 10 }}
       {{- end }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            {{ .Values.exacutableDir }}sn-prometheus
         ports:
         - containerPort: 9090
         volumeMounts:

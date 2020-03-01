@@ -64,6 +64,10 @@ spec:
           resources:
 {{ toYaml .Values.pulsar_manager.resources | indent 12 }}
         {{- end }}
+          command: ["sh", "-c"]
+          args:
+            - >
+              {{ .Values.exacutableDir }}pulsar-manager
           ports:
           - containerPort: {{ .Values.pulsar_manager.port }}
           volumeMounts:

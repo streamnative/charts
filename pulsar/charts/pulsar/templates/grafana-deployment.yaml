@@ -64,6 +64,10 @@ spec:
         resources:
 {{ toYaml .Values.grafana.resources | indent 10 }}
       {{- end }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            {{ .Values.exacutableDir }}sn-grafana-server
         ports:
         - containerPort: {{ .Values.grafana.port }}
         env:

@@ -65,6 +65,10 @@ spec:
           args:
             - --path.procfs=/host/proc
             - --path.sysfs=/host/sys
+          command: ["sh", "-c"]
+          args:
+            - >
+              {{ .Values.exacutableDir }}sn_node_exporter
           ports:
           volumeMounts:
             - name: proc

@@ -120,7 +120,7 @@ spec:
           {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}broker.conf &&
           {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}pulsar_env.sh &&
           {{ .Values.exacutableDir }}gen-yml-from-env.py {{ .Values.confDir }}functions_worker.yml &&
-          {{ .Values.exacutableDir }}pulsar broker
+          {{ .Values.exacutableDir }}pulsar broker -fwc {{ .Values.confDir }}functions_worker.yml
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http
