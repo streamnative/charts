@@ -51,8 +51,8 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
-          until bin/bookkeeper shell whatisinstanceid; do
+          {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}bookkeeper.conf &&
+          until {{ .Values.exacutableDir }}bookkeeper shell whatisinstanceid; do
             sleep 3;
           done;
         envFrom:
@@ -69,7 +69,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-            bin/pulsar initialize-cluster-metadata \
+            {{ .Values.exacutableDir }}pulsar initialize-cluster-metadata \
               --cluster {{ template "pulsar.fullname" . }} \
               --zookeeper {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}{{ .Values.metadataPrefix }} \
               {{- if .Values.pulsar_metadata.configurationStore }}

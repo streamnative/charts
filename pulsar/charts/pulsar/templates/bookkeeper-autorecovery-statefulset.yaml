@@ -88,8 +88,8 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
-          until bin/bookkeeper shell whatisinstanceid; do
+          {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}bookkeeper.conf &&
+          until {{ .Values.exacutableDir }}bookkeeper shell whatisinstanceid; do
             sleep 3;
           done;
         envFrom:
@@ -106,8 +106,8 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
-          bin/bookkeeper autorecovery
+          {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}bookkeeper.conf &&
+          {{ .Values.exacutableDir }}}bookkeeper autorecovery
         ports:
         - name: http
           containerPort: 8000

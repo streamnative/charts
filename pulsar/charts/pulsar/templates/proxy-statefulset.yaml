@@ -91,7 +91,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
-            until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} ls {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            until {{ .Values.exacutableDir }}pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} ls {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
               sleep 3;
             done;
       containers:
@@ -105,9 +105,9 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/proxy.conf &&
-          bin/apply-config-from-env.py conf/pulsar_env.sh &&
-          bin/pulsar proxy
+          {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}proxy.conf &&
+          {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}pulsar_env.sh &&
+          {{ .Values.exacutableDir }}pulsar proxy
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http

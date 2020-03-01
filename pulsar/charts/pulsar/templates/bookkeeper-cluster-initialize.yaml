@@ -54,8 +54,8 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-            bin/apply-config-from-env.py conf/bookkeeper.conf &&
-            bin/bookkeeper shell initnewcluster
+            {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}bookkeeper.conf &&
+            {{ .Values.exacutableDir }}bookkeeper shell initnewcluster
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"

@@ -71,8 +71,8 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/client.conf &&
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
+          {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}client.conf &&
+          {{ .Values.exacutableDir }}apply-config-from-env.py {{ .Values.confDir }}bookkeeper.conf &&
           sleep 10000000000
         envFrom:
         - configMapRef:

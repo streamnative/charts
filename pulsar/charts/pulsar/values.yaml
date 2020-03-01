@@ -28,6 +28,9 @@ namespaceCreate: true
 ## If you do so, all the pulsar meta
 metadataPrefix: ""
 
+exacutableDir: ""
+confDir: "/etc/pulsar/"
+
 ## If persistence is enabled, components that have state will
 ## be deployed with PersistentVolumeClaims, otherwise, for test
 ## purposes, they will be deployed with emptyDir
@@ -174,25 +177,25 @@ images:
   pulsar:
     # repository: streamnative/pulsar
     # tag: 2.4.0-d1d5aba08
-    repository: apachepulsar/pulsar-all
-    tag: 2.4.2
-    pullPolicy: IfNotPresent
+    repository: zymap/platform
+    tag: 0.3.0
+    pullPolicy: Always
   prometheus:
-    repository: prom/prometheus
-    tag: v1.6.3
-    pullPolicy: IfNotPresent
+    repository: zymap/platform
+    tag: 0.3.0
+    pullPolicy: Always
   grafana:
-    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.4
-    pullPolicy: IfNotPresent
+    repository: zymap/platform
+    tag: 0.3.0
+    pullPolicy: Always
   pulsar_manager:
-    repository: apachepulsar/pulsar-manager
-    tag: v0.1.0
-    pullPolicy: IfNotPresent
+    repository: zymap/platform
+    tag: 0.3.0
+    pullPolicy: Always
   node_exporter:
-    repository: prom/node-exporter
-    tag: v0.16.0
-    pullPolicy: "IfNotPresent"
+    repository: zymap/platform
+    tag: 0.3.0
+    pullPolicy: "Always"
   nginx_ingress_controller:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: 0.26.2
