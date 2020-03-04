@@ -88,8 +88,13 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
-            until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} ls {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
-              sleep 3;
+            {{- if .Values.pulsar_metadata.configurationStore }}
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} ls {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            {{- end }}
+            {{- if not .Values.pulsar_metadata.configurationStore }}
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} ls {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            {{- end }}
+              echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
       # This init container will wait for bookkeeper to be ready before
       # deploying the broker
@@ -100,9 +105,12 @@ spec:
         args:
           - >
             bin/apply-config-from-env.py conf/bookkeeper.conf &&
+            until bin/bookkeeper shell whatisinstanceid; do
+              sleep 3;
+            done &&
             until bin/bookkeeper shell simpletest -ensemble {{$ensembleSize}}; do
               sleep 3;
-            done;
+            done
         envFrom:
           - configMapRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"

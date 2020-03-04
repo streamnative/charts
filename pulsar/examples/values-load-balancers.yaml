@@ -17,18 +17,25 @@
 # under the License.
 #
 
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-admin-secret"
-  namespace: {{ .Values.namespace }}
-  labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-    cluster: {{ template "pulsar.fullname" . }}
-type: Opaque
-data:
-  PASSWORD: {{ .Values.admin.password | default "pulsar" | b64enc }}
-  USER: {{ .Values.admin.user | default "pulsar" | b64enc }}
+persistence: true
+
+## disable tls
+tls:
+  enabled: false
+
+## disable certs issuers
+certs:
+  internal_issuer:
+    enabled: false
+  public_issuer:
+    enabled: false
+
+## load balancers
+grafana:
+  service:
+    type: LoadBalancer
+
+pulsar_manager:
+  service:
+    type: LoadBalancer
+  redirect_host: 34.73.120.92

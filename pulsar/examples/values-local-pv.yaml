@@ -17,19 +17,12 @@
 # under the License.
 #
 
-## deployed withh emptyDir
+## enable persistence
 persistence: true
 
 ## disable tls
 tls:
   enabled: false
-
-## disable certs issuers
-certs:
-  internal_issuer:
-    enabled: false
-  public_issuer:
-    enabled: false
 
 bookkeeper:
   volumes:
