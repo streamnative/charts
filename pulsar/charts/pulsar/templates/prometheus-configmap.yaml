@@ -36,6 +36,12 @@ data:
   prometheus.yml: |
     global:
       scrape_interval: 15s
+{{- if .Values.monitoring.alert_manager }}
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets: ['{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}:{{ .Values.alert_manager.port }}']
+{{- end }}
     scrape_configs:
     - job_name: 'prometheus'
       static_configs:
