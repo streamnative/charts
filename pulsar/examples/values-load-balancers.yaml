@@ -38,4 +38,4 @@ grafana:
 pulsar_manager:
   service:
     type: LoadBalancer
-  redirect_host: 34.73.120.92
+  redirect_host: [LOAD_BALANCER_IP]
