@@ -34,6 +34,18 @@ spec:
   template:
     spec:
       initContainers:
+      {{- if .Values.pulsar_metadata.configurationStore }}
+      - name: wait-cs-ready
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >-
+            until nslookup {{ .Values.pulsar_metadata.configurationStore}}; do
+              sleep 3;
+            done;
+
+      {{- end }}
       - name: wait-zookeeper-ready
         image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
         imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
@@ -73,7 +85,7 @@ spec:
               --cluster {{ template "pulsar.fullname" . }} \
               --zookeeper {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}{{ .Values.metadataPrefix }} \
               {{- if .Values.pulsar_metadata.configurationStore }}
-              --configuration-store {{ .Values.pulsar_metadata.configurationStore }} \
+              --configuration-store {{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }} \
               {{- end }}
               {{- if not .Values.pulsar_metadata.configurationStore }}
               --configuration-store {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}{{ .Values.metadataPrefix }} \

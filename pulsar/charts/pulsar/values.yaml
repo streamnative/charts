@@ -205,7 +205,7 @@ images:
 ## pulsar-manager
 admin:
   user: pulsar
-  password: happypulsaring
+  password: pulsar
 
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
@@ -433,6 +433,7 @@ pulsar_metadata:
   component: pulsar-init
   ## set an existing configuration store
   # configurationStore:
+  configurationStoreMetadataPrefix: ""
 
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml

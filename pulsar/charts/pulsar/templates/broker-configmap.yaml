@@ -34,7 +34,7 @@ data:
   # broker configuration
   zookeeperServers: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}{{ .Values.metadataPrefix }}"
   {{- if .Values.pulsar_metadata.configurationStore }}
-  configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}"
+  configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
   {{- end }}
   {{- if not .Values.pulsar_metadata.configurationStore }}
   configurationStoreServers: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}{{ .Values.metadataPrefix }}"
