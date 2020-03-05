@@ -64,6 +64,13 @@ spec:
           resources:
 {{ toYaml .Values.pulsar_manager.resources | indent 12 }}
         {{- end }}
+        {{- if .Values.images.pulsar_manager.hasCommand }}
+          command: ["sh", "-c"]
+          args:
+            - >
+              nginx &&
+              bin/pulsar-manager
+        {{- end }}
           ports:
           - containerPort: {{ .Values.pulsar_manager.port }}
           volumeMounts:

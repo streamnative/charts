@@ -33,6 +33,7 @@ metadataPrefix: ""
 ## purposes, they will be deployed with emptyDir
 persistence: true
 
+
 components:
   # zookeeper
   zookeeper: true
@@ -56,6 +57,8 @@ monitoring:
   grafana: true
   # monitoring - node_exporter
   node_exporter: true
+  # alerting - alert-manager
+  alert_manager: true
 
 ## External DNS
 ## templates/external-dns.yaml
@@ -181,6 +184,10 @@ images:
     repository: prom/prometheus
     tag: v1.6.3
     pullPolicy: IfNotPresent
+  alert_manager:
+    repository: prom/alertmanager
+    tag: v0.20.0
+    pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
     tag: 0.0.4
@@ -189,6 +196,7 @@ images:
     repository: apachepulsar/pulsar-manager
     tag: v0.1.0
     pullPolicy: IfNotPresent
+    hasCommand: false
   node_exporter:
     repository: prom/node-exporter
     tag: v0.16.0
@@ -686,6 +694,21 @@ node_exporter:
     cpu: 10m
     memory: 50Mi
 
+alert_manager:
+  component: alert-manager
+  port: 9093
+  replicaCount: 1
+  gracePeriod: 0
+  resources:
+    requests:
+      memory: 250Mi
+      cpu: 0.1
+  service:
+    type: ClusterIP
+    annotations: {}
+    ports:
+      - name: alert-manager
+        port: 9093
 ## Components Stack: pulsar_manager
 ## templates/pulsar-manager.yaml
 ##
