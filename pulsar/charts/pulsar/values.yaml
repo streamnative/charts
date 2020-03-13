@@ -177,12 +177,12 @@ images:
   pulsar:
     # repository: streamnative/pulsar
     # tag: 2.4.0-d1d5aba08
-    repository: apachepulsar/pulsar-all
-    tag: 2.4.2
+    repository: streamnative/platform
+    tag: v1.0.0
     pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
-    tag: v1.6.3
+    tag: v2.15.2
     pullPolicy: IfNotPresent
   alert_manager:
     repository: prom/alertmanager
@@ -193,13 +193,13 @@ images:
     tag: 0.0.4
     pullPolicy: IfNotPresent
   pulsar_manager:
-    repository: apachepulsar/pulsar-manager
-    tag: v0.1.0
+    repository: streamnative/pulsar-manager
+    tag: 0.2.0
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
     repository: prom/node-exporter
-    tag: v0.16.0
+    tag: v0.18.1
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller

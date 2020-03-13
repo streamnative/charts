@@ -73,7 +73,7 @@ spec:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
           mountPath: /etc/prometheus
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
-          mountPath: /prometheus
+          mountPath: /data
       volumes:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
         configMap:
