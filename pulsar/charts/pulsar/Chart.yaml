@@ -27,7 +27,5 @@ sources:
 - https://github.com/streamnative/pulsar-operators
 icon: http://pulsar.apache.org/img/pulsar.svg
 maintainers:
-- name: sijie
-  email: sijie@apache.org
-- name: wolfstudy
-  email: rxl@apache.org
+- name: StreamNative Support
+  email: support@streamnative.io

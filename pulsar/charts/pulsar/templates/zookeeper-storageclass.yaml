@@ -19,7 +19,7 @@
 
 # deploy zookeeper only when `components.zookeeper` is true
 {{- if .Values.components.zookeeper }}
-{{- if .Values.zookeeper.volumes.persistence }}
+{{- if and .Values.persistence .Values.zookeeper.volumes.persistence }}
 
 # define the storage class for data directory
 {{- if and (not .Values.zookeeper.volumes.data.local_storage) .Values.zookeeper.volumes.data.storageClass }}

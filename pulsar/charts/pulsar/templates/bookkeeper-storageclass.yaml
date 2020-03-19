@@ -18,8 +18,7 @@
 #
 
 {{- if .Values.components.bookkeeper }}
-{{- if .Values.bookkeeper.persistence }}
-
+{{- if and .Values.persistence .Values.bookkeeper.volumes.persistence }}
 {{- if and (not .Values.bookkeeper.volumes.journal.local_storage) .Values.bookkeeper.volumes.journal.storageClass }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
