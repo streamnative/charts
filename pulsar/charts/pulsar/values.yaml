@@ -17,23 +17,42 @@
 # under the License.
 #
 
+
+###
+### K8S Settings
+###
+
 ## Namespace to deploy pulsar
 namespace: pulsar
-namespaceCreate: true
+namespaceCreate: false
+
+###
+### Global Settings
+###
 
 ## Pulsar Metadata Prefix
 ##
 ## By default, pulsar stores all the metadata at root path.
 ## You can configure to have a prefix (e.g. "/my-pulsar-cluster").
-## If you do so, all the pulsar meta
+## If you do so, all the pulsar and bookkeeper metadata will
+## be stored under the provided path
 metadataPrefix: ""
 
+## Persistence
+##
 ## If persistence is enabled, components that have state will
 ## be deployed with PersistentVolumeClaims, otherwise, for test
 ## purposes, they will be deployed with emptyDir
+##
+## This is a global setting that is applied to all components.
+## If you need to disable persistence for a component,
+## you can set the `volume.persistence` setting to `false` for 
+## that component.
 persistence: true
 
-
+## Components
+##
+## Control what components of Apache Pulsar to deploy for the cluster
 components:
   # zookeeper
   zookeeper: true
@@ -50,6 +69,9 @@ components:
   # pulsar manager
   pulsar_manager: true
 
+## Monitoring Components
+##
+## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
   # monitoring - prometheus
   prometheus: true
@@ -60,119 +82,9 @@ monitoring:
   # alerting - alert-manager
   alert_manager: true
 
-## External DNS
-## templates/external-dns.yaml
-## templates/external-dns-rbac.yaml
-external_dns:
-  enabled: false
-  component: external-dns
-  policy: upsert-only
-  registry: txt
-  owner_id: pulsar
-  domain_filter: pulsar.example.local
-  provider: google
-  providers:
-    google:
-      # project: external-dns-test
-      project:
-
-## Components Stack: control center ingress
-## templates/control-center-ingress.yaml
-ingress:
-  controller:
-    enabled: false
-    rbac: true
-    component: nginx-ingress-controller
-    replicaCount: 1
-    # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
-    tolarations: []
-    gracePeriod: 300
-    annotations: {}
-    ports:
-      http: 80
-      https: 443
-  control_center:
-    enabled: true
-    component: control-center
-    tls:
-      enabled: false
-    annotations: {}
-
-# TLS
-# templates/tls-certs.yaml
-tls:
-  enabled: false
-  # common settings for generating certs
-  common:
-    # 90d
-    duration: 2160h
-    # 15d
-    renewBefore: 360h
-    organization:
-      - pulsar
-    keySize: 4096
-    keyAlgorithm: rsa
-    keyEncoding: pkcs8
-  # settings for generating certs for proxy
-  proxy:
-    enabled: false
-    cert_name: tls-proxy
-    commonName: example.com
-    dnsNames:
-    - "*"
-    uriSANs:
-    - "*"
-    ipAddresses:
-    - "*"
-  # settings for generating certs for broker
-  broker:
-    enabled: false
-    cert_name: tls-broker
-    commonName: example.com
-    dnsNames:
-    - "*"
-    uriSANs:
-    - "*"
-    ipAddresses:
-    - "*"
-
-## cert-manager
-# templates/tls-cert-issuer.yaml
-certs:
-  internal_issuer:
-    enabled: false
-    component: internal-cert-issuer
-    type: selfsigning
-  public_issuer:
-    enabled: false
-    component: public-cert-issuer
-    type: acme
-  issuers:
-    selfsigning:
-    acme:
-      # You must replace this email address with your own.
-      # Let's Encrypt will use this to contact you about expiring
-      # certificates, and issues related to your account.
-      email: contact@example.local
-      # change this to production endpoint once you successfully test it
-      # server: https://acme-v02.api.letsencrypt.org/directory
-      server: https://acme-staging-v02.api.letsencrypt.org/directory
-      solvers:
-        clouddns:
-          # TODO: add a link about how to configure this section
-          project: "[YOUR GCP PROJECT ID]"
-          serviceAccountSecretRef:
-            name: "[NAME OF SECRET]"
-            namespace: "[NAMESPACE OF THE SECRET]"
-            key: "[KEY OF SECRET]"
-  lets_encrypt:
-    # TODO: add a link about how to configure lets encrypt CA
-    ca_ref:
-      secretName: [SECRET STORES lets encrypt CA]
-      keyName: [KEY IN THE SECRET STORES let encrypt CA]
-
-## Which pulsar image to use
+## Images
+## 
+## Control what images to use for each component
 images:
   pulsar:
     # repository: streamnative/pulsar
@@ -214,6 +126,136 @@ images:
 admin:
   user: pulsar
   password: pulsar
+
+## TLS
+## templates/tls-certs.yaml
+##
+## The chart is using cert-manager for provisioning TLS certs for
+## brokers and proxies.
+tls:
+  enabled: false
+  # common settings for generating certs
+  common:
+    # 90d
+    duration: 2160h
+    # 15d
+    renewBefore: 360h
+    organization:
+      - pulsar
+    keySize: 4096
+    keyAlgorithm: rsa
+    keyEncoding: pkcs8
+  # settings for generating certs for proxy
+  proxy:
+    enabled: false
+    cert_name: tls-proxy
+    commonName: example.com
+    dnsNames:
+    - "*"
+    uriSANs:
+    - "*"
+    ipAddresses:
+    - "*"
+  # settings for generating certs for broker
+  broker:
+    enabled: false
+    cert_name: tls-broker
+    commonName: example.com
+    dnsNames:
+    - "*"
+    uriSANs:
+    - "*"
+    ipAddresses:
+    - "*"
+
+######################################################################
+# External dependencies 
+######################################################################
+
+## cert-manager
+## templates/tls-cert-issuer.yaml
+##
+## Cert manager is used for automatically provisioning TLS certificates
+## for components within a Pulsar cluster
+certs:
+  internal_issuer:
+    enabled: false
+    component: internal-cert-issuer
+    type: selfsigning
+  public_issuer:
+    enabled: false
+    component: public-cert-issuer
+    type: acme
+  issuers:
+    selfsigning:
+    acme:
+      # You must replace this email address with your own.
+      # Let's Encrypt will use this to contact you about expiring
+      # certificates, and issues related to your account.
+      email: contact@example.local
+      # change this to production endpoint once you successfully test it
+      # server: https://acme-v02.api.letsencrypt.org/directory
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      solvers:
+        clouddns:
+          # TODO: add a link about how to configure this section
+          project: "[YOUR GCP PROJECT ID]"
+          serviceAccountSecretRef:
+            name: "[NAME OF SECRET]"
+            namespace: "[NAMESPACE OF THE SECRET]"
+            key: "[KEY OF SECRET]"
+  lets_encrypt:
+    # TODO: add a link about how to configure lets encrypt CA
+    ca_ref:
+      secretName: [SECRET STORES lets encrypt CA]
+      keyName: [KEY IN THE SECRET STORES let encrypt CA]
+
+## External DNS
+## templates/external-dns.yaml
+## templates/external-dns-rbac.yaml
+##
+## External DNS is used for synchronizing exposed Ingresses with DNS providers
+external_dns:
+  enabled: false
+  component: external-dns
+  policy: upsert-only
+  registry: txt
+  owner_id: pulsar
+  domain_filter: pulsar.example.local
+  provider: google
+  providers:
+    google:
+      # project: external-dns-test
+      project:
+
+## Ingresses for exposing Pulsar services
+## templates/control-center-ingress.yaml
+##
+## Ingresses for exposing pulsar services publicly
+ingress:
+  controller:
+    enabled: false
+    rbac: true
+    component: nginx-ingress-controller
+    replicaCount: 1
+    # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+    tolarations: []
+    gracePeriod: 300
+    annotations: {}
+    ports:
+      http: 80
+      https: 443
+  control_center:
+    enabled: true
+    component: control-center
+    tls:
+      enabled: false
+    annotations: {}
+
+######################################################################
+# Below are settings for each component
+######################################################################
 
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml

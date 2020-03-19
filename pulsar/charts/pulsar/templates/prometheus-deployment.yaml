@@ -78,11 +78,11 @@ spec:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
-    {{- if not .Values.prometheus.volumes.persistence }}
+    {{- if not (and .Values.persistence .Values.prometheus.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
         emptyDir: {}
     {{- end }}
-    {{- if .Values.prometheus.volumes.persistence }}
+    {{- if and .Values.persistence .Values.prometheus.volumes.persistence }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
         persistentVolumeClaim:
           claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"

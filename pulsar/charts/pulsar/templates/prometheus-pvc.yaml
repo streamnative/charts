@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.monitoring.prometheus }}
-{{- if .Values.prometheus.volumes.persistence }}
+{{- if and .Values.persistence .Values.prometheus.volumes.persistence }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

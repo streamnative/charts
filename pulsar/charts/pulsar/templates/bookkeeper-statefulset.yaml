@@ -86,11 +86,22 @@ spec:
         imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
         command: ["sh", "-c"]
         args:
+        {{- if not (and .Values.persistence .Values.bookkeeper.volumes.persistence) }}
+        # only reformat bookie if bookkeeper is running without persistence
+        - >
+          bin/apply-config-from-env.py conf/bookkeeper.conf &&
+          until bin/bookkeeper shell whatisinstanceid; do
+            sleep 3;
+          done &&
+          (bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie || yes)
+        {{- end }}
+        {{- if and .Values.persistence .Values.bookkeeper.volumes.persistence }}
         - >
           bin/apply-config-from-env.py conf/bookkeeper.conf &&
           until bin/bookkeeper shell whatisinstanceid; do
             sleep 3;
           done;
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
@@ -121,14 +132,14 @@ spec:
           mountPath: /pulsar/data/bookkeeper/journal
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
           mountPath: /pulsar/data/bookkeeper/ledgers
-    {{- if not .Values.persistence }}
+    {{- if not (and .Values.persistence .Values.bookkeeper.volumes.persistence) }}
       volumes:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
         emptyDir: {}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
         emptyDir: {}
     {{- end }}
-{{- if .Values.persistence }}
+{{- if and .Values.persistence .Values.bookkeeper.volumes.persistence}}
   volumeClaimTemplates:
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
