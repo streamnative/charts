@@ -24,29 +24,22 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.node_exporter.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.node_exporter.component }}
-    cluster: {{ template "pulsar.fullname" . }}
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 spec:
   selector:
     matchLabels:
-      app: {{ template "pulsar.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.node_exporter.component }}
   updateStrategy:
     type: OnDelete
   template:
     metadata:
       labels:
-        app: {{ template "pulsar.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.node_exporter.component }}
-        cluster: {{ template "pulsar.fullname" . }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "9100"

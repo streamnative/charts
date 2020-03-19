@@ -24,12 +24,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.alert_manager.component }}
-    cluster: {{ template "pulsar.fullname" . }}
   annotations:
         {{ toYaml .Values.alert_manager.service.annotations | indent 4 }}
 spec:

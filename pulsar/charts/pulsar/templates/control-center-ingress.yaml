@@ -29,11 +29,7 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-    cluster: {{ template "pulsar.fullname" . }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
   annotations:
     kubernetes.io/ingress.class: nginx
   {{- with .Values.ingress.control_center.annotations }}

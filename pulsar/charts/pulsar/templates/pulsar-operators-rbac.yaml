@@ -23,9 +23,7 @@ kind: ClusterRole
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.rbac.roleName }}"
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
 rules:
 - apiGroups: [""]
   resources:

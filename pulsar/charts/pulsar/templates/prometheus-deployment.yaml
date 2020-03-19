@@ -24,26 +24,19 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.prometheus.component }}
-    cluster: {{ template "pulsar.fullname" . }}
 spec:
   replicas: {{ .Values.prometheus.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "pulsar.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.prometheus.component }}
   template:
     metadata:
       labels:
-        app: {{ template "pulsar.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.prometheus.component }}
-        cluster: {{ template "pulsar.fullname" . }}
       annotations:
 {{ toYaml .Values.prometheus.annotations | indent 8 }}
     spec:

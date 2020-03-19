@@ -24,12 +24,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
-    cluster: {{ template "pulsar.fullname" . }}
   annotations:
 {{ toYaml .Values.bookkeeper.service.annotations | indent 4 }}
 spec:
@@ -40,7 +36,6 @@ spec:
     port: {{ .Values.bookkeeper.ports.http }}
   clusterIP: None
   selector:
-    app: {{ template "pulsar.name" . }}
-    release: {{ .Release.Name }}
+    {{- include "pulsar.matchLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
 {{- end }}

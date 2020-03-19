@@ -24,19 +24,14 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
-    cluster: {{ template "pulsar.fullname" . }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   replicas: {{ .Values.bookkeeper.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "pulsar.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.bookkeeper.component }}
   updateStrategy:
     type: RollingUpdate
@@ -44,10 +39,8 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "pulsar.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.bookkeeper.component }}
-        cluster: {{ template "pulsar.fullname" . }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
@@ -127,9 +120,9 @@ spec:
           bin/pulsar bookie
         ports:
         - name: bookie
-          containerPort: 3181
+          containerPort: {{ .Values.bookkeeper.ports.bookie }}
         - name: http
-          containerPort: 8000
+          containerPort: {{ .Values.bookkeeper.ports.http }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"

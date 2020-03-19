@@ -29,9 +29,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "pulsar.name" . }}
-        chart: {{ template "pulsar.chart" . }}
-        release: {{ .Release.Name }}
+        {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
       serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}"
       containers:
