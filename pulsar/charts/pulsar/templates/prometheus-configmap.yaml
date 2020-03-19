@@ -24,12 +24,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.prometheus.component }}
-    cluster: {{ template "pulsar.fullname" . }}
 data:
   # Include prometheus configuration file, setup to monitor all the
   # Kubernetes pods with the "scrape=true" annotation.

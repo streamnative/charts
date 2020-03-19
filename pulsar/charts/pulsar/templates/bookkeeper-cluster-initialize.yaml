@@ -24,12 +24,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-init"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: "{{ .Values.bookkeeper.component }}-init"
-    cluster: {{ template "pulsar.fullname" . }}
 spec:
   template:
     spec:

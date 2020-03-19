@@ -25,12 +25,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name | quote }}
-    heritage: {{ .Release.Service | quote }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
-    cluster: {{ template "pulsar.fullname" . }}
 data:
 {{ toYaml .Values.zookeeper.configData | indent 2 }}
 {{- end }}

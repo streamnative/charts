@@ -26,12 +26,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
-    cluster: {{ template "pulsar.fullname" . }}
 provisioner: {{ .Values.bookkeeper.volumes.journal.storageClass.provisioner }}
 parameters:
   type: {{ .Values.bookkeeper.volumes.journal.storageClass.type }}
@@ -46,12 +42,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
-    cluster: {{ template "pulsar.fullname" . }}
 provisioner: {{ .Values.bookkeeper.volumes.ledgers.storageClass.provisioner }}
 parameters:
   type: {{ .Values.bookkeeper.volumes.ledgers.storageClass.type }}

@@ -24,12 +24,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.autorecovery.component }}
-    cluster: {{ template "pulsar.fullname" . }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
   replicas: {{ .Values.autorecovery.replicaCount }}
@@ -39,16 +35,13 @@ spec:
   # nodeSelector:
   selector:
     matchLabels:
-      app: {{ template "pulsar.name" . }}
-      release: {{ .Release.Name }}
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.autorecovery.component }}
   template:
     metadata:
       labels:
-        app: {{ template "pulsar.name" . }}
-        release: {{ .Release.Name }}
+        {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.autorecovery.component }}
-        cluster: {{ template "pulsar.fullname" . }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
