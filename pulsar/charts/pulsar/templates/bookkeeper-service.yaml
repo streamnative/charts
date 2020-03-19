@@ -35,9 +35,9 @@ metadata:
 spec:
   ports:
   - name: bookie
-    port: 3181
+    port: {{ .Values.bookkeeper.ports.bookie }}
   - name: http
-    port: 8000
+    port: {{ .Values.bookkeeper.ports.http }}
   clusterIP: None
   selector:
     app: {{ template "pulsar.name" . }}

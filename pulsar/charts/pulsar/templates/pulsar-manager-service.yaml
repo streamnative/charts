@@ -35,7 +35,9 @@ metadata:
 spec:
   type: {{ .Values.pulsar_manager.service.type }}
   ports:
-{{ toYaml .Values.pulsar_manager.service.ports | indent 2 }}
+    - name: server
+      port: {{ .Values.pulsar_manager.port }}
+      protocol: TCP
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}

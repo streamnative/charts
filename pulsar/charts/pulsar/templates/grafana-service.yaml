@@ -31,11 +31,15 @@ metadata:
     component: {{ .Values.grafana.component }}
     cluster: {{ template "pulsar.fullname" . }}
   annotations:
-{{ toYaml .Values.grafana.service.annotations | indent 4 }}
+{{- with .Values.grafana.service.annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   type: {{ .Values.grafana.service.type }}
   ports:
-{{ toYaml .Values.grafana.service.ports | indent 2 }}
+    - name: server
+      port: {{ .Values.grafana.port }}
+      protocol: TCP
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}

@@ -61,6 +61,7 @@ spec:
 {{ toYaml .Values.zookeeper.tolerations | indent 8 }}
     {{- end }}
       affinity:
+        {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity}}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -78,6 +79,7 @@ spec:
                 values:
                 - {{ .Values.zookeeper.component }}
             topologyKey: "kubernetes.io/hostname"
+        {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
@@ -124,12 +126,12 @@ spec:
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
           mountPath: /pulsar/data
-    {{- if not (and .Values.persistence .Values.zookeeper.volumes.persistence) }}
+    {{- if not (and .Values.volumes.persistence .Values.zookeeper.volumes.persistence) }}
       volumes:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
         emptyDir: {}
     {{- end }}
-{{- if and .Values.persistence .Values.zookeeper.volumes.persistence }}
+{{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   volumeClaimTemplates:
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"

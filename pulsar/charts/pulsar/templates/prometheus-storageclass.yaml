@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.monitoring.prometheus }}
-{{- if and .Values.persistence .Values.prometheus.volumes.persistence }}
+{{- if and .Values.volumes.persistence .Values.prometheus.volumes.persistence }}
 {{- if .Values.prometheus.volumes.data.storageClass }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass

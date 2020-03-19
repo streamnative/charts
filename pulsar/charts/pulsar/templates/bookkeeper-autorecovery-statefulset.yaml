@@ -50,6 +50,8 @@ spec:
         component: {{ .Values.autorecovery.component }}
         cluster: {{ template "pulsar.fullname" . }}
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
 {{ toYaml .Values.autorecovery.annotations | indent 8 }}
     spec:
     {{- if .Values.autorecovery.nodeSelector }}
@@ -61,6 +63,7 @@ spec:
 {{ toYaml .Values.autorecovery.tolerations | indent 8 }}
     {{- end }}
       affinity:
+        {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -78,6 +81,7 @@ spec:
                 values:
                 - {{ .Values.bookkeeper.component }}
             topologyKey: "kubernetes.io/hostname"
+        {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       initContainers:
       # This initContainer will wait for bookkeeper initnewcluster to complete
@@ -110,7 +114,7 @@ spec:
           bin/bookkeeper autorecovery
         ports:
         - name: http
-          containerPort: 8000
+          containerPort: {{ .Values.autorecovery.ports.http }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"

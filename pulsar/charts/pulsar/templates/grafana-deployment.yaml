@@ -45,7 +45,9 @@ spec:
         component: {{ .Values.grafana.component }}
         cluster: {{ template "pulsar.fullname" . }}
       annotations:
-{{ toYaml .Values.grafana.annotations | indent 8 }}
+{{- with .Values.grafana.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.grafana.nodeSelector }}
       nodeSelector:
@@ -65,7 +67,8 @@ spec:
 {{ toYaml .Values.grafana.resources | indent 10 }}
       {{- end }}
         ports:
-        - containerPort: {{ .Values.grafana.port }}
+        - name: server
+          containerPort: {{ .Values.grafana.port }}
         env:
         # for supporting apachepulsar/pulsar-grafana
         - name: PROMETHEUS_URL

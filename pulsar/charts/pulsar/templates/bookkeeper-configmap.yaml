@@ -35,6 +35,7 @@ data:
   zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
   # enable bookkeeper http server
   httpServerEnabled: "true"
+  httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
   # config the stats provider
   statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
   # use hostname as the bookie id
@@ -43,5 +44,7 @@ data:
   # disable auto recovery on bookies since we will start AutoRecovery in separated pods
   autoRecoveryDaemonEnabled: "false"
   {{- end }}
+  # Do not retain journal files as it increase the disk utilization
+  journalMaxBackups: "0"
 {{ toYaml .Values.bookkeeper.configData | indent 2 }}
 {{- end }}

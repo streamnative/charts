@@ -18,7 +18,8 @@
 #
 
 ## deployed withh emptyDir
-persistence: false
+volumes:
+  persistence: false
 
 ## Enable `autoSkipNonRecoverableData` since bookkeeper is running
 ## without persistence
