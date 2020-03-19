@@ -35,7 +35,8 @@ metadata:
 spec:
   clusterIP: None
   ports:
-{{ toYaml .Values.alert_manager.service.ports | indent 2 }}
+    - name: server
+      port: {{ .Values.alert_manager.port }}
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}

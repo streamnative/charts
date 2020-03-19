@@ -48,7 +48,11 @@ spec:
         component: {{ .Values.node_exporter.component }}
         cluster: {{ template "pulsar.fullname" . }}
       annotations:
-{{ toYaml .Values.node_exporter.annotations | indent 8 }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+{{- with .Values.node_exporter.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.node_exporter.nodeSelector }}
       nodeSelector:

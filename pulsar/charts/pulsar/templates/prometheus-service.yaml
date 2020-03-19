@@ -35,7 +35,8 @@ metadata:
 spec:
   clusterIP: None
   ports:
-{{ toYaml .Values.prometheus.service.ports | indent 2 }}
+    - name: server
+      port: {{ .Values.prometheus.port }}
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}

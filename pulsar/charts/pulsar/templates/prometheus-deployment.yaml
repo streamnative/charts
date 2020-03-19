@@ -68,7 +68,8 @@ spec:
 {{ toYaml .Values.prometheus.resources | indent 10 }}
       {{- end }}
         ports:
-        - containerPort: 9090
+        - name: server
+          containerPort: {{ .Values.prometheus.port }}
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
           mountPath: /etc/prometheus
@@ -78,11 +79,11 @@ spec:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
-    {{- if not (and .Values.persistence .Values.prometheus.volumes.persistence) }}
+    {{- if not (and .Values.volumes.persistence .Values.prometheus.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
         emptyDir: {}
     {{- end }}
-    {{- if and .Values.persistence .Values.prometheus.volumes.persistence }}
+    {{- if and .Values.volumes.persistence .Values.prometheus.volumes.persistence }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
         persistentVolumeClaim:
           claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"

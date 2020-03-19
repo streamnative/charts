@@ -51,7 +51,7 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.proxy.ports.http }}"
-{{- with .Values.proxy.service.annotations }}
+{{- with .Values.proxy.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
@@ -64,6 +64,7 @@ spec:
 {{ toYaml .Values.proxy.tolerations | indent 8 }}
     {{- end }}
       affinity:
+        {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity}}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -81,6 +82,7 @@ spec:
                 values:
                 - {{ .Values.proxy.component }}
             topologyKey: "kubernetes.io/hostname"
+        {{- end }}
       terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
       initContainers:
       # This init container will wait for zookeeper to be ready before

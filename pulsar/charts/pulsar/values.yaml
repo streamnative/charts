@@ -48,7 +48,17 @@ metadataPrefix: ""
 ## If you need to disable persistence for a component,
 ## you can set the `volume.persistence` setting to `false` for 
 ## that component.
-persistence: true
+volumes:
+  persistence: true
+
+## AntiAffinity
+##
+## Flag to enable and disable `AntiAffinity` for all components.
+## This is a global setting that is applied to all components.
+## If you need to disable AntiAffinity for a component, you can set
+## the `affinity.anti_affinity` settings to `false` for that component.
+affinity:
+  anti_affinity: true 
 
 ## Components
 ##
@@ -268,6 +278,8 @@ zookeeper:
   replicaCount: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  affinity:
+    anti_affinity: true
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
@@ -354,11 +366,14 @@ bookkeeper:
         # memory: 4Gi
         # cpu: 2
   replicaCount: 4
+  ports:
+    http: 8000
+    bookie: 3181
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8000"
+  affinity:
+    anti_affinity: true
+  annotations: {}
   tolarations: []
   gracePeriod: 0
   resources:
@@ -453,11 +468,13 @@ autorecovery:
   # so the metrics are correctly rendered in grafana dashboard
   component: recovery
   replicaCount: 1
+  ports:
+    http: 8000
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8000"
+  affinity:
+    anti_affinity: true
+  annotations: {}
   tolarations: []
   gracePeriod: 0
   resources:
@@ -499,11 +516,10 @@ broker:
     pulsar: 6650
     pulsarssl: 6651
   # nodeSelector:
-  # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
+  affinity:
+    anti_affinity: true
+  annotations: {}
   tolarations: []
   gracePeriod: 0
   resources:
@@ -573,6 +589,8 @@ proxy:
   replicaCount: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  affinity:
+    anti_affinity: true
   annotations: {}
   tolarations: []
   gracePeriod: 0
@@ -666,6 +684,7 @@ prometheus:
   annotations: {}
   tolarations: []
   gracePeriod: 0
+  port: 9090
   resources:
     requests:
       memory: 256Mi
@@ -689,9 +708,6 @@ prometheus:
   ##
   service:
     annotations: {}
-    ports:
-    - name: server
-      port: 9090
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-deployment.yaml
@@ -713,12 +729,8 @@ grafana:
   ## templates/grafana-service.yaml
   ##
   service:
-    type: ClusterIP
+    type: LoadBalancer
     annotations: {}
-    ports:
-    - name: server
-      port: 3000
-
 
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
@@ -726,9 +738,7 @@ grafana:
 
 node_exporter:
   component: node-exporter
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "9100"
+  annotations: {}
   limits:
     cpu: 10m
     memory: 50Mi
@@ -739,6 +749,7 @@ node_exporter:
 alert_manager:
   component: alert-manager
   port: 9093
+  annotations: {}
   replicaCount: 1
   gracePeriod: 0
   resources:
@@ -748,13 +759,10 @@ alert_manager:
   service:
     type: ClusterIP
     annotations: {}
-    ports:
-      - name: alert-manager
-        port: 9093
+
 ## Components Stack: pulsar_manager
 ## templates/pulsar-manager.yaml
 ##
-
 pulsar_manager:
   component: pulsar-manager
   port: 9527
@@ -772,11 +780,8 @@ pulsar_manager:
   ## templates/pulsar-manager-service.yaml
   ##
   service:
-    type: ClusterIP
+    type: LoadBalancer
     annotations: {}
-    ports:
-      - name: server
-        port: 9527
   redirect_host: 127.0.0.1
 
 ## Components Stack: pulsar operators rbac

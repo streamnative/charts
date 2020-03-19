@@ -33,7 +33,7 @@ metadata:
 spec:
   ports:
   - name: http
-    port: 8000
+    port: {{ .Values.autorecovery.ports.http }}
   clusterIP: None
   selector:
     app: {{ template "pulsar.name" . }}

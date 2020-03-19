@@ -45,7 +45,9 @@ spec:
         component: {{ .Values.alert_manager.component }}
         cluster: {{ template "pulsar.fullname" . }}
       annotations:
-{{ toYaml .Values.alert_manager.annotations | indent 8 }}
+{{- with .Values.alert_manager.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.alert_manager.nodeSelector }}
       nodeSelector:
@@ -65,5 +67,6 @@ spec:
 {{ toYaml .Values.alert_manager.resources | indent 10 }}
        {{- end }}
         ports:
-        - containerPort: {{ .Values.alert_manager.port }}
+        - name: server
+          containerPort: {{ .Values.alert_manager.port }}
 {{- end }}

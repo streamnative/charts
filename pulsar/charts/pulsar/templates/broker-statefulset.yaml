@@ -50,7 +50,11 @@ spec:
         component: {{ .Values.broker.component }}
         cluster: {{ template "pulsar.fullname" . }}
       annotations:
-{{ toYaml .Values.broker.annotations | indent 8 }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.broker.ports.http }}"
+{{- with .Values.broker.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.broker.nodeSelector }}
       nodeSelector:
@@ -61,6 +65,7 @@ spec:
 {{ toYaml .Values.broker.tolerations | indent 8 }}
     {{- end }}
       affinity:
+        {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity}}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -78,6 +83,7 @@ spec:
                 values:
                 - {{ .Values.broker.component }}
             topologyKey: "kubernetes.io/hostname"
+        {{- end }}
       terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
       initContainers:
       # This init container will wait for zookeeper to be ready before
