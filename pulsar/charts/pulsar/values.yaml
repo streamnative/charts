@@ -50,6 +50,9 @@ metadataPrefix: ""
 ## that component.
 volumes:
   persistence: true
+  # configure the components to use local persistent volume
+  # the local provisioner should be installed prior to enable local persistent volume
+  local_storage: false
 
 ## AntiAffinity
 ##
@@ -475,7 +478,7 @@ autorecovery:
   affinity:
     anti_affinity: true
   annotations: {}
-  tolarations: []
+  # tolarations: []
   gracePeriod: 0
   resources:
     requests:

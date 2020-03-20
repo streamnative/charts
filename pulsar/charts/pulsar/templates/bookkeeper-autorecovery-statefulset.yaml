@@ -45,7 +45,9 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
-{{ toYaml .Values.autorecovery.annotations | indent 8 }}
+{{- with .Values.autorecovery.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.autorecovery.nodeSelector }}
       nodeSelector:
@@ -53,7 +55,9 @@ spec:
     {{- end }}
     {{- if .Values.autorecovery.tolerations }}
       tolerations:
-{{ toYaml .Values.autorecovery.tolerations | indent 8 }}
+{{- with .Values.autorecovery.tolarations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     {{- end }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}

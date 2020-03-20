@@ -147,10 +147,10 @@ spec:
       resources:
         requests:
           storage: {{ .Values.bookkeeper.volumes.journal.size }}
-    {{- if and (not .Values.bookkeeper.volumes.journal.local_storage) .Values.bookkeeper.volumes.journal.storageClass }}
+    {{- if and (not (and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage)) .Values.bookkeeper.volumes.journal.storageClass }}
       storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
     {{- end }}
-    {{- if .Values.bookkeeper.volumes.journal.local_storage }}
+    {{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage }}
       storageClassName: "local-storage"
     {{- end }}
   - metadata:
@@ -160,10 +160,10 @@ spec:
       resources:
         requests:
           storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
-    {{- if and (not .Values.bookkeeper.volumes.ledgers.local_storage) .Values.bookkeeper.volumes.ledgers.storageClass }}
+    {{- if and (not (and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage)) .Values.bookkeeper.volumes.ledgers.storageClass }}
       storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
     {{- end }}
-    {{- if .Values.bookkeeper.volumes.ledgers.local_storage }}
+    {{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage }}
       storageClassName: "local-storage"
     {{- end }}
 {{- end }}
