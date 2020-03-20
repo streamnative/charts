@@ -133,10 +133,10 @@ spec:
       resources:
         requests:
           storage: {{ .Values.zookeeper.volumes.data.size }}
-    {{- if and (not .Values.zookeeper.volumes.data.local_storage) .Values.zookeeper.volumes.data.storageClass }}
+    {{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage)) .Values.zookeeper.volumes.data.storageClass }}
       storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
     {{- end }}
-    {{- if .Values.zookeeper.volumes.data.local_storage }}
+    {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
       storageClassName: "local-storage"
     {{- end }}
 {{- end }}

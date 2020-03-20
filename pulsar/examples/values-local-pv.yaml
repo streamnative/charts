@@ -17,28 +17,5 @@
 # under the License.
 #
 
-## enable persistence
-persistence: true
-
-## disable tls
-tls:
-  enabled: false
-
-bookkeeper:
-  volumes:
-    journal:
-      local_storage: true
-    ledgers:
-      local_storage: true
-
-zookeeper:
-  volumes:
-    data:
-      local_storage: true
-    dataLog:
-      local_storage: true
-
-prometheus:
-  volumes:
-    data:
-      local_storage: true
+volumes:
+  local_storage: false
