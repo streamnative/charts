@@ -26,13 +26,13 @@ echo "Install the pulsar chart"
 ${KUBECTL} create namespace ${NAMESPACE}
 ${HELM} install --values ${BINDIR}/values-local-pv.yaml ${CLUSTER} pulsar/charts/pulsar
 
-WC=$(kubectl get pods --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
+WC=$(kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
 while [[ ${WC} -lt 1 ]]; do
   echo ${WC};
   sleep 15
   kubectl get pods --field-selector=status.phase=Running
-  WC=$(kubectl get pods --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
+  WC=$(kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
 done
 
 # test producer
-${KUBECTL} exec -n pulsar -it ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce test-topic
+${KUBECTL} exec -n ${NAMESPACE} -it ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce test-topic
