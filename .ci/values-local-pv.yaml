@@ -17,15 +17,36 @@
 # under the License.
 #
 
-apiVersion: v1
-appVersion: "1.0"
-description: Local Storage Provisioner for Kubernetes
-name: local-storage-provisioner
-version: 0.1.0
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/charts/pulsar/charts/local-storage-provisioner
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+volumes:
+  local_storage: true
+
+# disabled AntiAffinity
+affinity:
+  anti_affinity: false
+
+# disable auto recovery
+components:
+  autorecovery: false
+
+zookeeper:
+  replicaCount: 1
+
+bookkeeper:
+  replicaCount: 3
+
+broker:
+  replicaCount: 1
+  configData:
+    ## Enable `autoSkipNonRecoverableData` since bookkeeper is running
+    ## without persistence
+    autoSkipNonRecoverableData: "true"
+    # storage settings
+    managedLedgerDefaultEnsembleSize: "1"
+    managedLedgerDefaultWriteQuorum: "1"
+    managedLedgerDefaultAckQuorum: "1"
+
+proxy:
+  replicaCount: 1
+
+toolset:
+  useProxy: false

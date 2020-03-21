@@ -31,7 +31,7 @@ type: gke
 gke:
   useNodeNameOnly: "true"
   hostDir: /mnt/disks
-  mountDir:  /mnt/disks  
+  mountDir: /mnt/disks
 
 ## rbac settings
 rbac:

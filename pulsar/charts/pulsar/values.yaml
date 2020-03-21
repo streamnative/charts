@@ -46,7 +46,7 @@ metadataPrefix: ""
 ##
 ## This is a global setting that is applied to all components.
 ## If you need to disable persistence for a component,
-## you can set the `volume.persistence` setting to `false` for 
+## you can set the `volume.persistence` setting to `false` for
 ## that component.
 volumes:
   persistence: true
@@ -61,7 +61,7 @@ volumes:
 ## If you need to disable AntiAffinity for a component, you can set
 ## the `affinity.anti_affinity` settings to `false` for that component.
 affinity:
-  anti_affinity: true 
+  anti_affinity: true
 
 ## Components
 ##
@@ -96,7 +96,7 @@ monitoring:
   alert_manager: true
 
 ## Images
-## 
+##
 ## Control what images to use for each component
 images:
   pulsar:
@@ -182,7 +182,7 @@ tls:
     - "*"
 
 ######################################################################
-# External dependencies 
+# External dependencies
 ######################################################################
 
 ## cert-manager
@@ -253,7 +253,7 @@ ingress:
     replicaCount: 1
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-    tolarations: []
+    tolerations: []
     gracePeriod: 300
     annotations: {}
     ports:
@@ -286,7 +286,7 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   resources:
     requests:
@@ -377,7 +377,7 @@ bookkeeper:
   affinity:
     anti_affinity: true
   annotations: {}
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   resources:
     requests:
@@ -478,7 +478,7 @@ autorecovery:
   affinity:
     anti_affinity: true
   annotations: {}
-  # tolarations: []
+  # tolerations: []
   gracePeriod: 0
   resources:
     requests:
@@ -523,7 +523,7 @@ broker:
   affinity:
     anti_affinity: true
   annotations: {}
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   resources:
     requests:
@@ -595,7 +595,7 @@ proxy:
   affinity:
     anti_affinity: true
   annotations: {}
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   resources:
     requests:
@@ -655,7 +655,7 @@ toolset:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   resources:
     requests:
@@ -685,7 +685,7 @@ prometheus:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   port: 9090
   resources:
@@ -721,7 +721,7 @@ grafana:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   port: 3000
   resources:
@@ -773,7 +773,7 @@ pulsar_manager:
   # nodeSelector:
   # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
-  tolarations: []
+  tolerations: []
   gracePeriod: 0
   resources:
     requests:

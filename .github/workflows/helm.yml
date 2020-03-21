@@ -22,8 +22,6 @@ on:
   pull_request:
     branches:
       - '*'
-    paths:
-      - 'helm/**'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
@@ -31,18 +29,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Create kind cluster
-        uses: helm/kind-action@master
-        with:
-          installLocalPathProvisioner: true
-
       - name: Run chart-testing (lint)
+        id: lint
         uses: helm/chart-testing-action@master
         with:
           command: lint
 
-      # TODO: enable testing installing chart
-      # - name: Run chart-testing (install)
-      #   uses: helm/chart-testing-action@master
-      #   with:
-      #     command: install
+      - name: Run chart-testing (install)
+        run: |
+          .ci/install.sh
+        # Only build a kind cluster if there are chart changes to test.
+        if: steps.lint.outputs.changed == 'true'
