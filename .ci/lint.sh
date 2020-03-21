@@ -1,0 +1,1 @@
+quay.io/helmpack/chart-testing

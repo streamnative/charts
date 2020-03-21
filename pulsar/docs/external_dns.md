@@ -61,7 +61,7 @@ in the control center through one domain name. You can do so by setting
 | ingress.controller.component | The component name is used for naming the ingress controller ingress. | nginx-ingress-controller |
 | ingress.controller.replicaCount | The number of replicas to run the ingress controller. | 1 |
 | ingress.controller.nodeSelector | The node selector to select nodes to run ingress controller. | Nil |
-| ingress.controller.tolarations | The tolarations for the deployment of running ingress controller. | `[]` |
+| ingress.controller.tolerations | The tolerations for the deployment of running ingress controller. | `[]` |
 | ingress.control_center.annotations | The annotations attached to the ingress controller. | `{}` |
 | ingress.control_center.tls.enabled | Flag to enable TLS in the control_center ingress. | false |
 | ingress.controller.gracePeriod | The grace termination period of terminating an ingress controller. | 300 |

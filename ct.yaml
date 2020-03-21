@@ -21,5 +21,7 @@ chart-dirs:
   - pulsar/charts
 charts:
   - pulsar/charts/local-storage-provisioner
+  - pulsar/charts/pulsar
 debug: true
 helm-extra-args: --timeout 1200
+validate-maintainers: false
