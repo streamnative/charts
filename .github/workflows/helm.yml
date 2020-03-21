@@ -22,8 +22,6 @@ on:
   pull_request:
     branches:
       - '*'
-    paths:
-      - 'helm/**'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
