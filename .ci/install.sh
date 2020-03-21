@@ -35,4 +35,4 @@ while [[ ${WC} -lt 1 ]]; do
 done
 
 # test producer
-${KUBECTL} exec -n ${NAMESPACE} -it ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce test-topic
+${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce -m "test-message" test-topic
