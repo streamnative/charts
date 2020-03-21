@@ -3,3 +3,6 @@
 
 # Mac
 **/.DS_Store
+
+**/output
+**/~
