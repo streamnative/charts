@@ -34,5 +34,13 @@ while [[ ${WC} -lt 1 ]]; do
   WC=$(kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
 done
 
+WC=$(kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
+while [[ ${WC} -lt 1 ]]; do
+  echo ${WC};
+  sleep 15
+  kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running
+  WC=$(kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
+done
+
 # test producer
 ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce -m "test-message" test-topic
