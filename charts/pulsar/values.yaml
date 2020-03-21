@@ -162,7 +162,6 @@ tls:
   proxy:
     enabled: false
     cert_name: tls-proxy
-    commonName: example.com
     dnsNames:
     - "*"
     uriSANs:
@@ -173,7 +172,6 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
-    commonName: example.com
     dnsNames:
     - "*"
     uriSANs:

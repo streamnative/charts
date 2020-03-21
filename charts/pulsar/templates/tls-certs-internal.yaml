@@ -37,7 +37,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: {{ .Values.tls.proxy.commonName }}
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ .Values.namespace }}.svc.cluster.local"
   isCA: true
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -87,7 +87,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: {{ .Values.tls.broker.commonName }}
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ .Values.namespace }}.svc.cluster.local"
   isCA: true
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
