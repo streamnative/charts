@@ -30,7 +30,7 @@ WC=$(kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running | gr
 while [[ ${WC} -lt 1 ]]; do
   echo ${WC};
   sleep 15
-  kubectl get pods --field-selector=status.phase=Running
+  kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running
   WC=$(kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
 done
 
