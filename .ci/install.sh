@@ -17,8 +17,9 @@ ${HELM} install local-storage-provisioner pulsar/charts/local-storage-provisione
 WC=$(kubectl get pods --field-selector=status.phase=Running | grep local-storage-provisioner | wc -l)
 while [[ ${WC} -lt 1 ]]; do
   echo ${WC};
-  sleep 5
+  sleep 15
   kubectl get pods --field-selector=status.phase=Running
+  WC=$(kubectl get pods --field-selector=status.phase=Running | grep local-storage-provisioner | wc -l)
 done
 
 echo "Install the pulsar chart"
@@ -28,8 +29,9 @@ ${HELM} install --values ${BINDIR}/values-local-pv.yaml ${CLUSTER} pulsar/charts
 WC=$(kubectl get pods --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
 while [[ ${WC} -lt 1 ]]; do
   echo ${WC};
-  sleep 5
+  sleep 15
   kubectl get pods --field-selector=status.phase=Running
+  WC=$(kubectl get pods --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
 done
 
 # test producer
