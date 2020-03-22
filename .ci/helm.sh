@@ -102,23 +102,6 @@ function ci::test_pulsar_producer() {
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce -m "test-message" pulsar-ci/test/test-topic
 }
 
-function ci::test_pulsar_function() {
-    sleep 120
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-broker; do sleep3; done'
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep3; done'
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-bookie-0 -- df -h
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/bookkeeper shell listbookies -rw
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/bookkeeper shell listbookies -ro
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- curl --retry 10 -L -o /pulsar/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- chmod +x /pulsar/bin/jq
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions create --tenant pulsar-ci --namespace test --name test-function --inputs "pulsar-ci/test/test_input" --output "pulsar-ci/test/test_output" --parallelism 1 --classname org.apache.pulsar.functions.api.examples.ExclamationFunction --jar /pulsar/examples/api-examples.jar
-
-    # wait until the function is running
-    ci:wait_function_running
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce -m "hello pulsar function!" pulsar-ci/test/test_input
-    ci:wait_message_processed
-}
-
 function ci::wait_function_running() {
     num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .numRunning) 
     while [[ ${num_running} -lt 1 ]]; do
@@ -137,4 +120,21 @@ function ci::wait_message_processed() {
       ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function
       num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .processedSuccessfullyTotal) 
     done
+}
+
+function ci::test_pulsar_function() {
+    sleep 120
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-broker; do sleep3; done'
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep3; done'
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-bookie-0 -- df -h
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/bookkeeper shell listbookies -rw
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/bookkeeper shell listbookies -ro
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- curl --retry 10 -L -o /pulsar/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- chmod +x /pulsar/bin/jq
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions create --tenant pulsar-ci --namespace test --name test-function --inputs "pulsar-ci/test/test_input" --output "pulsar-ci/test/test_output" --parallelism 1 --classname org.apache.pulsar.functions.api.examples.ExclamationFunction --jar /pulsar/examples/api-examples.jar
+
+    # wait until the function is running
+    ci::wait_function_running
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce -m "hello pulsar function!" pulsar-ci/test/test_input
+    ci::wait_message_processed
 }
