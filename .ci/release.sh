@@ -37,7 +37,7 @@ source ${CHARTS_HOME}/hack/common.sh
 source ${CHARTS_HOME}/.ci/git.sh
 
 # allow overwriting cr binary
-CR="docker run -v ${CHARTS_HOME}:/cr quay.io/helmpack/chart-releaser:v0.2.3 cr"
+CR="docker run -v ${CHARTS_HOME}:/cr quay.io/helmpack/chart-releaser:v${CR_VERSION} cr"
 
 function release::ensure_dir() {
     local dir=$1
@@ -79,7 +79,7 @@ function release::publish_charts() {
 
 # install cr
 # hack::ensure_cr
-docker pull quay.io/helmpack/chart-releaser:v0.2.3
+docker pull quay.io/helmpack/chart-releaser:v${CR_VERSION}
 
 latest_tag=$(git::find_latest_tag)
 echo "Latest tag: $latest_tag"
