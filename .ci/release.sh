@@ -22,7 +22,7 @@ BINDIR=`dirname "$0"`
 CHARTS_HOME=`cd ${BINDIR}/..;pwd`
 CHARTS_PKGS=${CHARTS_HOME}/.chart-packages
 CHARTS_INDEX=${CHARTS_HOME}/.chart-index
-CHARTS_REPO=${CHARTS_REPO:-"https://charts.streamnative.io"}
+CHARTS_REPO=${CHARTS_REPO:-"http://charts.streamnative.io"}
 OWNER=${OWNER:-streamnative}
 REPO=${REPO:-charts}
 GITHUB_TOKEN=${GITHUB_TOKEN:-"UNSET"}
@@ -63,7 +63,7 @@ function release::upload_packages() {
 }
 
 function release::update_chart_index() {
-    ${CR} index -o ${OWNER} -r ${REPO} -t "${GITHUB_TOKEN}" -c ${CHARTS_REPO}
+    ${CR} index -o ${OWNER} -r ${REPO} -t "${GITHUB_TOKEN}" -c ${CHARTS_REPO} --index-path ${CHARTS_INDEX}
 }
 
 function release::publish_charts() {
@@ -104,7 +104,7 @@ for chart in $(release::find_changed_charts charts); do
     release::package_chart ${chart}
 done
 
-release::upload_packages
+#release::upload_packages
 release::update_chart_index
 
 if [[ "x${PUBLISH_CHARTS}" == "xtrue" ]]; then
