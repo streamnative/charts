@@ -17,41 +17,28 @@
 # under the License.
 #
 
-volumes:
-  local_storage: true
+name: Precommit - Pulsar Helm Chart (Pulsar Function)
+on:
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
 
-# disabled AntiAffinity
-affinity:
-  anti_affinity: false
+      - name: Lint chart
+        id: lint
+        uses: helm/chart-testing-action@master
+        with:
+          command: lint
 
-# disable auto recovery
-components:
-  autorecovery: false
-
-zookeeper:
-  replicaCount: 1
-
-bookkeeper:
-  replicaCount: 3
-  configData:
-    diskUsageThreshold: "0.999"
-    diskUsageWarnThreshold: "0.999"
-    PULSAR_PREFIX_diskUsageThreshold: "0.999"
-    PULSAR_PREFIX_diskUsageWarnThreshold: "0.999"
-
-broker:
-  replicaCount: 1
-  configData:
-    ## Enable `autoSkipNonRecoverableData` since bookkeeper is running
-    ## without persistence
-    autoSkipNonRecoverableData: "true"
-    # storage settings
-    managedLedgerDefaultEnsembleSize: "1"
-    managedLedgerDefaultWriteQuorum: "1"
-    managedLedgerDefaultAckQuorum: "1"
-
-proxy:
-  replicaCount: 1
-
-toolset:
-  useProxy: false
+      - name: Install chart
+        run: |
+          .ci/chart_test.sh .ci/clusters/values-function.yaml
+        env:
+          FUNCTION: "true"
+        # Only build a kind cluster if there are chart changes to test.
+        if: steps.lint.outputs.changed == 'true'

@@ -17,25 +17,29 @@
 # under the License.
 #
 
-persistence: true
+metadataPrefix: "/configuration-store"
 
-## disable tls
-tls:
-  enabled: false
+## start
+components:
+  # zookeeper
+  zookeeper: true
+  # bookkeeper
+  bookkeeper: false
+  # bookkeeper - autorecovery
+  autorecovery: false
+  # broker
+  broker: false
+  # proxy
+  proxy: false
+  # toolset
+  toolset: false
+  # pulsar manager
+  pulsar_manager: false
 
-## disable certs issuers
-certs:
-  internal_issuer:
-    enabled: false
-  public_issuer:
-    enabled: false
-
-## load balancers
-grafana:
-  service:
-    type: LoadBalancer
-
-pulsar_manager:
-  service:
-    type: LoadBalancer
-  redirect_host: [LOAD_BALANCER_IP]
+monitoring:
+  # monitoring - prometheus
+  prometheus: false
+  # monitoring - grafana
+  grafana: false
+  # monitoring - node_exporter
+  node_exporter: false

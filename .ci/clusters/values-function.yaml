@@ -49,26 +49,12 @@ broker:
     managedLedgerDefaultEnsembleSize: "1"
     managedLedgerDefaultWriteQuorum: "1"
     managedLedgerDefaultAckQuorum: "1"
+    PF_functionInstanceMinResources_cpu: "0.2"
+    PF_functionInstanceMinResources_ram: "268435456"
+    PF_functionInstanceMinResources_disk: "268435456"
 
 proxy:
   replicaCount: 1
 
 toolset:
   useProxy: false
-
-# enable TLS
-tls:
-  enabled: true
-  proxy:
-    enabled: true
-  broker:
-    enabled: true
-
-# issue selfsigning certs
-certs:
-  internal_issuer:
-    enabled: true
-    type: selfsigning
-  public_issuer:
-    enabled: true
-    type: selfsigning
