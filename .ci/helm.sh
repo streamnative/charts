@@ -67,7 +67,7 @@ function ci::install_pulsar_chart() {
     ${CHARTS_HOME}/scripts/pulsar/prepare_helm_release.sh -c -k ${CLUSTER} -n ${NAMESPACE} ${extra_opts}
     sleep 10
 
-    ${HELM} install --values ${CHARTS_HOME}/${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
+    ${HELM} install --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
 
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     while [[ ${WC} -lt 1 ]]; do

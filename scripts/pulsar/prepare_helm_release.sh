@@ -104,13 +104,13 @@ function generate_cc_admin_credentials() {
         --from-literal="USER=${cc_admin}" --from-literal="PASSWORD=${cc_password}"
 }
 
-function create_namespace() {
+function do_create_namespace() {
     if [[ "${create_namespace}" == "true" ]]; then
         kubectl create namespace ${namespace}
     fi
 }
 
-create_namespace
+do_create_namespace
 
 echo "create the credentials for the admin user of control center (grafana & pulsar-manager)"
 generate_cc_admin_credentials
