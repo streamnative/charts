@@ -109,7 +109,8 @@ function ci::test_pulsar_function() {
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-bookie-0 -- df -h
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/bookkeeper shell listbookies -rw
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/bookkeeper shell listbookies -ro
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- apt-get update & apt-get install -y jq
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- curl --retry 10 -L -o /pulsar/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- chmod +x /pulsar/bin/jq
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin tenants create pulsar-ci
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin namespaces create pulsar-ci/test
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions create \
@@ -129,21 +130,21 @@ function ci::test_pulsar_function() {
 }
 
 function ci::wait_function_running() {
-    num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | jq .numRunning) 
+    num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .numRunning) 
     while [[ ${num_running} -lt 1 ]]; do
       echo ${num_running}
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
-      num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | jq .numRunning) 
+      num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .numRunning) 
     done
 }
 
 function ci::wait_message_processed() {
-    num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | jq .processedSuccessfullyTotal) 
+    num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .processedSuccessfullyTotal) 
     while [[ ${num_processed} -lt 1 ]]; do
       echo ${num_processed}
       sleep 15
       ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function
-      num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | jq .processedSuccessfullyTotal) 
+      num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .processedSuccessfullyTotal) 
     done
 }
