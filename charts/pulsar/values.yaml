@@ -75,6 +75,8 @@ components:
   autorecovery: true
   # broker
   broker: true
+  # functions
+  functions: true
   # proxy
   proxy: true
   # toolset
@@ -103,8 +105,11 @@ images:
     # repository: streamnative/pulsar
     # tag: 2.4.0-d1d5aba08
     repository: apachepulsar/pulsar-all
-    tag: 2.4.2
+    tag: 2.5.0
     pullPolicy: IfNotPresent
+  functions:
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
   prometheus:
     repository: prom/prometheus
     tag: v1.6.3
@@ -578,6 +583,12 @@ broker:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+
+## Pulsar: Functions Worker
+## templates/function-worker-configmap.yaml
+##
+functions:
+  component: functions-worker
 
 ## Pulsar: Proxy Cluster
 ## templates/proxy-statefulset.yaml
