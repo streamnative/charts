@@ -17,25 +17,28 @@
 # under the License.
 #
 
-persistence: true
+name: Precommit - Pulsar Helm Chart (Pulsar Function)
+on:
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
 
-## disable tls
-tls:
-  enabled: false
+      - name: Lint chart
+        id: lint
+        uses: helm/chart-testing-action@master
+        with:
+          command: lint
 
-## disable certs issuers
-certs:
-  internal_issuer:
-    enabled: false
-  public_issuer:
-    enabled: false
-
-## load balancers
-grafana:
-  service:
-    type: LoadBalancer
-
-pulsar_manager:
-  service:
-    type: LoadBalancer
-  redirect_host: [LOAD_BALANCER_IP]
+      - name: Install chart
+        run: |
+          .ci/chart_test.sh .ci/clusters/values-function.yaml
+        env:
+          FUNCTION: "true"
+        # Only build a kind cluster if there are chart changes to test.
+        if: steps.lint.outputs.changed == 'true'

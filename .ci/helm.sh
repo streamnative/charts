@@ -85,7 +85,7 @@ function ci::install_pulsar_chart() {
     while [[ ${WC} -lt 1 ]]; do
       echo ${WC};
       sleep 15
-      kubectl get pods -n ${NAMESPACE} --field-selector=status.phase=Running
+      ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
     done
 }
@@ -95,4 +95,45 @@ function ci::test_pulsar_producer() {
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin tenants create pulsar-ci
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin namespaces create pulsar-ci/test
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce -m "test-message" pulsar-ci/test/test-topic
+}
+
+function ci::test_pulsar_function() {
+    sleep 120
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- apt-get update & apt-get install -y jq
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin tenants create pulsar-ci
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin namespaces create pulsar-ci/test
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions create \
+        --tenant pulsar-ci \ 
+        --namespace test \ 
+        --name test-function \
+        --inputs "pulsar-ci/test/test_input" \
+        --output "pulsar-ci/test/test_output" \
+        --parallelism 1 \
+        --classname org.apache.pulsar.functions.api.examples.ExclamationFunction \
+        --jar /pulsar/examples/api-examples.jar
+
+    # wait until the function is running
+    ci:wait_function_running
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-client produce -m "hello pulsar function!" pulsar-ci/test/test_input
+    ci:wait_message_processed
+}
+
+function ci::wait_function_running() {
+    num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | jq .numRunning) 
+    while [[ ${num_running} -lt 1 ]]; do
+      echo ${num_running}
+      sleep 15
+      ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
+      num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | jq .numRunning) 
+    done
+}
+
+function ci::wait_message_processed() {
+    num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | jq .processedSuccessfullyTotal) 
+    while [[ ${num_processed} -lt 1 ]]; do
+      echo ${num_processed}
+      sleep 15
+      ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function
+      num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | jq .processedSuccessfullyTotal) 
+    done
 }
