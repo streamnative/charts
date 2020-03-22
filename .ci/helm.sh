@@ -103,22 +103,22 @@ function ci::test_pulsar_producer() {
 }
 
 function ci::wait_function_running() {
-    num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .numRunning) 
+    num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c '/pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .numRunning') 
     while [[ ${num_running} -lt 1 ]]; do
       echo ${num_running}
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
-      num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .numRunning) 
+      num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c '/pulsar/bin/pulsar-admin functions status --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .numRunning') 
     done
 }
 
 function ci::wait_message_processed() {
-    num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .processedSuccessfullyTotal) 
+    num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c '/pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .processedSuccessfullyTotal') 
     while [[ ${num_processed} -lt 1 ]]; do
       echo ${num_processed}
       sleep 15
       ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function
-      num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .processedSuccessfullyTotal) 
+      num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c '/pulsar/bin/pulsar-admin functions stats --tenant pulsar-ci --namespace test --name test-function | /pulsar/bin/jq .processedSuccessfullyTotal') 
     done
 }
 
