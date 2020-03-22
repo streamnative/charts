@@ -50,7 +50,6 @@ case $key in
     -d|--delete-namespace)
     delete_namespace=true
     shift
-    shift
     ;;
     -k|--release)
     release="$2"

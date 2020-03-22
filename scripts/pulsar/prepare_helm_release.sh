@@ -55,7 +55,6 @@ case $key in
     -c|--create-namespace)
     create_namespace=true
     shift
-    shift
     ;;
     -k|--release)
     release="$2"
