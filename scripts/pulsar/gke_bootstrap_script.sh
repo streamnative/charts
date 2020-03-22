@@ -13,7 +13,7 @@ PREEMPTIBLE=${PREEMPTIBLE-false}
 EXTRA_CREATE_ARGS=${EXTRA_CREATE_ARGS:-""}
 USE_LOCAL_SSD=${USE_LOCAL_SSD-false}
 LOCAL_SSD_COUNT=${LOCAL_SSD_COUNT:-"4"}
-CONFDIR=${CONFDIR:-"~/.streamnative"}
+CONFDIR=${CONFDIR:-"${HOME}/.config/streamnative"}
 
 # MacOS does not support readlink, but it does have perl
 KERNEL_NAME=$(uname -s)
@@ -84,11 +84,14 @@ Environment variables:
     PROJECT             Name of the GCP project. It is not set by default.
 
     CLUSTER_NAME        Name of the GKE cluster. Defaults to ${CLUSTER_NAME}.
+    CONFDIR             Configuration directory to store kubernetes config. Defaults to ${CONFDIR}
     INT_NETWORK         The Compute Engine Network that the cluster will connect to. Defaults to the '${INT_NETWORK}' network.
+    LOCAL_SSD_COUNT     The number of local ssd counts. Defaults to ${LOCAL_SSD_COUNT}.
     MACHINE_TYPE        The type of machine to use for nodes. Defaults to ${MACHINE_TYPE}.
     NUM_NODES           The number of nodes to be created in each of the cluster's zones. Defaults to ${NUM_NODES}.
     PREEMPTIBLE         Create nodes using preemptible VM instances in the new cluster. Defaults to ${PREEMPTIBLE}.
     REGION              Compute region for the cluster. Defaults to ${REGION}.
+    USE_LOCAL_SSD       Flag to create a cluster with local SSDs. Defaults to ${USE_LOCAL_SSD}.
     ZONE                Compute zone for the cluster. Defaults to ${ZONE}.
     ZONE_EXTENSION      Compute zone extension for the cluster. Defaults to ${ZONE_EXTENSION}.
 

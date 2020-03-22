@@ -62,19 +62,22 @@ data:
   {{- end }}
 
   # Authentication Settings
-  {{- if .Values.broker.auth.authentication.enable }}
+  {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
-  {{- if .Values.broker.auth.authorization.enable }}
+  {{- if .Values.auth.authorization.enabled }}
   authorizationEnabled: "true"
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }}
   {{- end }}
+  {{- if eq .Values.auth.authentication.provider "jwt" }}
   # token authentication configuration
   authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
-  brokerClientAuthenticationParameters: "file:///pulsar/keys/token/token"
+  brokerClientAuthenticationParameters: "file:///pulsar/tokens/broker/token"
   brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-  {{- if .Values.broker.auth.authentication.usingSecretKey }}
+  {{- if .Values.auth.authentication.jwt.usingSecretKey }}
   tokenSecretKey: "file:///pulsar/keys/token/secret.key"
   {{- else }}
   tokenPublicKey: "file:///pulsar/keys/token/public.key"
+  {{- end }}
   {{- end }}
   {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}

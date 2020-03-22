@@ -60,5 +60,12 @@ data:
   brokerServiceUrl: "pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsar }}/"
   {{- end }}
   {{- end }}
+  # Authentication Settings
+  {{- if .Values.auth.authentication.enabled }}
+  {{- if eq .Values.auth.authentication.provider "jwt" }}
+  authParams: "file:///pulsar/tokens/client/token"
+  authPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+  {{- end }} 
+  {{- end }} 
 {{ toYaml .Values.toolset.configData | indent 2 }}
 {{- end }}
