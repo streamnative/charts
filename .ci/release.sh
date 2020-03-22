@@ -84,7 +84,7 @@ hack::ensure_cr
 git::fetch_tags
 
 latest_tag=$(git::find_latest_tag)
-echo $latest_tag
+echo "Latest tag: $latest_tag"
 
 latest_tag_rev=$(git::get_revision "$latest_tag")
 echo "$latest_tag_rev $latest_tag (latest tag)"
