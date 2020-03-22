@@ -24,7 +24,7 @@ name: pulsar
 version: 0.1.0
 home: https://streamnative.io
 sources:
-- https://github.com/streamnative/pulsar-operators
+- https://github.com/streamnative/charts/pulsar
 icon: http://pulsar.apache.org/img/pulsar.svg
 maintainers:
 - name: StreamNative Support

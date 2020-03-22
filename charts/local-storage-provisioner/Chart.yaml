@@ -24,7 +24,7 @@ name: local-storage-provisioner
 version: 0.1.0
 home: https://streamnative.io
 sources:
-- https://github.com/streamnative/charts/pulsar/charts/local-storage-provisioner
+- https://github.com/streamnative/charts/local-storage-provisioner
 icon: http://pulsar.apache.org/img/pulsar.svg
 maintainers:
 - name: StreamNative Support
