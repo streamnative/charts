@@ -75,7 +75,7 @@ function release::publish_charts() {
     git add index.yaml
     git commit --message="Publish new charts to ${CHARTS_REPO}" --signoff
     git remote -v
-    git push gh-pages 
+    git push --repo https://${SNBOT_USER}:${GITHUB_TOKEN}@github.com/${OWNER}/${REPO} gh-pages 
 }
 
 # install cr

@@ -35,6 +35,7 @@ jobs:
       - name: Install chart
         env:
           GITHUB_TOKEN: ${{ secrets.SNBOT_TOKEN }}
+          SNBOT_USER: ${{ secrets.SNBOT_USER }}
           CHARTS_REPO: ${{ secrets.CHARTS_REPO }}
           PUBLISH_CHARTS: ${{ secrets.PUBLISH_CHARTS }}
           GITUSER: ${{ secrets.GITUSER }}
