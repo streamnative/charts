@@ -6,3 +6,6 @@
 
 **/output
 **/~
+
+# charts
+.charts**
