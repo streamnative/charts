@@ -1,24 +1,58 @@
 apiVersion: v1
 entries:
   alpine:
-    - created: 2016-10-06T16:23:20.499814565-06:00
-      description: Deploy a basic Alpine Linux pod
-      digest: 99c76e403d752c84ead610644d4b1c2f2b453a74b921f422b9dcb8a7c8b559cd
-      home: https://helm.sh/helm
-      name: alpine
-      sources:
-      - https://github.com/helm/helm
-      urls:
-      - https://technosophos.github.io/tscharts/alpine-0.2.0.tgz
-      version: 0.2.0
-    - created: 2016-10-06T16:23:20.499543808-06:00
-      description: Deploy a basic Alpine Linux pod
-      digest: 515c58e5f79d8b2913a10cb400ebb6fa9c77fe813287afbacf1a0b897cd78727
-      home: https://helm.sh/helm
-      name: alpine
-      sources:
-      - https://github.com/helm/helm
-      urls:
-      - https://technosophos.github.io/tscharts/alpine-0.1.0.tgz
-      version: 0.1.0
-generated: 2016-10-06T16:23:20.499029981-06:00
+  - created: "2016-10-06T16:23:20.499814565-06:00"
+    description: Deploy a basic Alpine Linux pod
+    digest: 99c76e403d752c84ead610644d4b1c2f2b453a74b921f422b9dcb8a7c8b559cd
+    home: https://helm.sh/helm
+    name: alpine
+    sources:
+    - https://github.com/helm/helm
+    urls:
+    - https://technosophos.github.io/tscharts/alpine-0.2.0.tgz
+    version: 0.2.0
+  - created: "2016-10-06T16:23:20.499543808-06:00"
+    description: Deploy a basic Alpine Linux pod
+    digest: 515c58e5f79d8b2913a10cb400ebb6fa9c77fe813287afbacf1a0b897cd78727
+    home: https://helm.sh/helm
+    name: alpine
+    sources:
+    - https://github.com/helm/helm
+    urls:
+    - https://technosophos.github.io/tscharts/alpine-0.1.0.tgz
+    version: 0.1.0
+  local-storage-provisioner:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2020-03-22T23:54:49.285074067Z"
+    description: Local Storage Provisioner for Kubernetes
+    digest: 58533c330b2da8f43aa29539c98650cc07e16f763715c6f685239603291e2f3d
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: local-storage-provisioner
+    sources:
+    - https://github.com/streamnative/charts/local-storage-provisioner
+    urls:
+    - https://github.com/streamnative/charts/releases/download/local-storage-provisioner-0.1.0/local-storage-provisioner-0.1.0.tgz
+    version: 0.1.0
+  pulsar:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2020-03-22T23:54:49.402831274Z"
+    description: Apache Pulsar Helm chart for Kubernetes
+    digest: 51be30ac68cb7e9cda818deddaa82b8dd7bad266f4b0240bb80b507610cc9776
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: pulsar
+    sources:
+    - https://github.com/streamnative/charts/pulsar
+    urls:
+    - https://github.com/streamnative/charts/releases/download/pulsar-0.1.0/pulsar-0.1.0.tgz
+    version: 0.1.0
+generated: "2016-10-06T16:23:20.499029981-06:00"
