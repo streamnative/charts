@@ -64,7 +64,9 @@ function ci::install_pulsar_chart() {
     local extra_opts=$2
 
     echo "Installing the pulsar chart"
-    ${CHARTS_HOME}/scripts/pulsar/prepare_helm_release.sh -c -k ${CLUSTER} -n ${NAMESPACE} ${extra_opts}
+    ${KUBECTL} create namespace ${NAMESPACE}
+    echo ${CHARTS_HOME}/scripts/pulsar/prepare_helm_release.sh -k ${CLUSTER} -n ${NAMESPACE} ${extra_opts}
+    ${CHARTS_HOME}/scripts/pulsar/prepare_helm_release.sh -k ${CLUSTER} -n ${NAMESPACE} ${extra_opts}
     sleep 10
 
     ${HELM} install --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
