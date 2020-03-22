@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart
+name: Precommit - Pulsar Helm Chart (TLS Installation)
 on:
   pull_request:
     branches:
