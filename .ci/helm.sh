@@ -47,7 +47,7 @@ function ci::install_storage_provisioner() {
 
 function ci::install_cert_manager() {
     echo "Installing the cert-manager ..."
-    ${KUBECTL} create namespace cert-manager
+    # ${KUBECTL} create namespace cert-manager
     ${CHARTS_HOME}/scripts/cert-manager/install-cert-manager.sh
     WC=$(${KUBECTL} get pods -n cert-manager --field-selector=status.phase=Running | wc -l)
     while [[ ${WC} -lt 3 ]]; do
@@ -69,6 +69,8 @@ function ci::install_pulsar_chart() {
     ${CHARTS_HOME}/scripts/pulsar/prepare_helm_release.sh -k ${CLUSTER} -n ${NAMESPACE} ${extra_opts}
     sleep 10
 
+    echo ${HELM} install --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
+    ${HELM} template --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
     ${HELM} install --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
 
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
