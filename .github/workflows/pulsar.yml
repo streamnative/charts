@@ -37,6 +37,6 @@ jobs:
 
       - name: Install chart
         run: |
-          .ci/install.sh
+          .ci/pulsar.sh
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'
