@@ -111,15 +111,7 @@ function ci::test_pulsar_function() {
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/bookkeeper shell listbookies -ro
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- curl --retry 10 -L -o /pulsar/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- chmod +x /pulsar/bin/jq
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions create \
-        --tenant pulsar-ci \ 
-        --namespace test \ 
-        --name test-function \
-        --inputs "pulsar-ci/test/test_input" \
-        --output "pulsar-ci/test/test_output" \
-        --parallelism 1 \
-        --classname org.apache.pulsar.functions.api.examples.ExclamationFunction \
-        --jar /pulsar/examples/api-examples.jar
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- /pulsar/bin/pulsar-admin functions create --tenant pulsar-ci --namespace test --name test-function --inputs "pulsar-ci/test/test_input" --output "pulsar-ci/test/test_output" --parallelism 1 --classname org.apache.pulsar.functions.api.examples.ExclamationFunction --jar /pulsar/examples/api-examples.jar
 
     # wait until the function is running
     ci:wait_function_running
