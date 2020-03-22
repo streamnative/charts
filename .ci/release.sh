@@ -80,9 +80,6 @@ function release::publish_charts() {
 # install cr
 hack::ensure_cr
 
-# fetch tags
-git::fetch_tags
-
 latest_tag=$(git::find_latest_tag)
 echo "Latest tag: $latest_tag"
 

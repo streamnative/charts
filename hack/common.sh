@@ -23,8 +23,6 @@ if [ -z "$PULSAR_CHART_HOME" ]; then
     exit 1
 fi
 
-OS=$(go env GOOS)
-ARCH=$(go env GOARCH)
 OUTPUT=${PULSAR_CHART_HOME}/output
 OUTPUT_BIN=${OUTPUT}/bin
 KUBECTL_VERSION=1.14.3
@@ -37,6 +35,20 @@ CR_BIN=$OUTPUT_BIN/cr
 CR_VERSION=0.2.3
 
 test -d "$OUTPUT_BIN" || mkdir -p "$OUTPUT_BIN"
+
+ARCH=""
+hack::discoverArch() {
+  ARCH=$(uname -m)
+  case $ARCH in
+    x86) ARCH="386";;
+    x86_64) ARCH="amd64";;
+    i686) ARCH="386";;
+    i386) ARCH="386";;
+  esac
+}
+
+hack::discoverArch
+OS=$(echo `uname`|tr '[:upper:]' '[:lower:]')
 
 function hack::verify_kubectl() {
     if test -x "$KUBECTL_BIN"; then
@@ -109,12 +121,15 @@ function hack::verify_cr() {
 
 function hack::ensure_cr() {
     if hack::verify_cr; then
+        $CR_BIN version
         return 0
     fi
     echo "Installing chart-releaser ${CR_VERSION} ..."
     tmpfile=$(mktemp)
     trap "test -f $tmpfile && rm $tmpfile" RETURN
-    curl --retry 10 -L -o $tmpfile https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_linux_amd64.tar.gz
+    echo curl --retry 10 -L -o $tmpfile https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_${OS}_${ARCH}.tar.gz
+    curl --retry 10 -L -o $tmpfile https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_${OS}_${ARCH}.tar.gz
     mv $tmpfile $CR_BIN
     chmod +x $CR_BIN
+    $CR_BIN version
 }
