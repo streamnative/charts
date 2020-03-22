@@ -37,6 +37,6 @@ jobs:
 
       - name: Install chart
         run: |
-          .ci/pulsar.sh
+          .ci/chart_test.sh .ci/clusters/values-local-pv.yaml
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'

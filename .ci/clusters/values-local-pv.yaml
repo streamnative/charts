@@ -17,14 +17,33 @@
 # under the License.
 #
 
-apiVersion: v1
-kind: Secret
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-admin-secret"
-  namespace: {{ .Values.namespace }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-type: Opaque
-data:
-  PASSWORD: {{ .Values.admin.password | default "pulsar" | b64enc }}
-  USER: {{ .Values.admin.user | default "pulsar" | b64enc }}
+volumes:
+  local_storage: true
+
+# disabled AntiAffinity
+affinity:
+  anti_affinity: false
+
+# disable auto recovery
+components:
+  autorecovery: false
+
+zookeeper:
+  replicaCount: 1
+
+bookkeeper:
+  replicaCount: 3
+
+broker:
+  replicaCount: 1
+  configData:
+    ## Enable `autoSkipNonRecoverableData` since bookkeeper is running
+    ## without persistence
+    autoSkipNonRecoverableData: "true"
+    # storage settings
+    managedLedgerDefaultEnsembleSize: "1"
+    managedLedgerDefaultWriteQuorum: "1"
+    managedLedgerDefaultAckQuorum: "1"
+
+proxy:
+  replicaCount: 1

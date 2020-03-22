@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart (TLS Installation)
+name: Precommit - Pulsar Helm Chart (JWT Secret Key Installation)
 on:
   pull_request:
     branches:
@@ -37,8 +37,8 @@ jobs:
 
       - name: Run chart-testing (install)
         run: |
-          .ci/chart_test.sh .ci/clusters/values-tls.yaml
+          .ci/chart_test.sh .ci/clusters/values-jwt-asymmetric.yaml
         env:
-          TLS: "true"
+          SYMMETRIC: "false"
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'

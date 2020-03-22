@@ -120,14 +120,18 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-        env:
-          - name: superUserRoles
-            valueFrom:
-              secretKeyRef:
-                name: "{{ template "pulsar.fullname" . }}-admin-secret"
-                key: USER
-        {{- if and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled) }}
+        {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled)) }}
         volumeMounts:
+          {{- if .Values.auth.authentication.enabled }}
+          {{- if eq .Values.auth.authentication.provider "jwt" }}
+          - mountPath: "/pulsar/keys"
+            name: token-keys
+            readOnly: true
+          - mountPath: "/pulsar/tokens"
+            name: proxy-token
+            readOnly: true
+          {{- end }}
+          {{- end }}
           {{- if .Values.tls.broker.enabled }}
           - mountPath: "/pulsar/certs/broker"
             name: broker-certs
@@ -142,8 +146,34 @@ spec:
             readOnly: true
           {{- end}}
       {{- end}}
-      {{- if and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled) }}
+      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled)) }}
       volumes:
+        {{- if .Values.auth.authentication.enabled }}
+        {{- if eq .Values.auth.authentication.provider "jwt" }}
+        - name: token-keys
+          secret:
+            {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
+            secretName: "{{ .Release.Name }}-token-asymmetric-key"
+            {{- end}}
+            {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+            secretName: "{{ .Release.Name }}-token-symmetric-key"
+            {{- end}}
+            items:
+              {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+              - key: SECRETKEY
+                path: token/secret.key
+              {{- else }}
+              - key: PUBLICKEY
+                path: token/public.key
+              {{- end}}
+        - name: proxy-token
+          secret:
+            secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.proxy }}"
+            items:
+              - key: TOKEN
+                path: proxy/token
+        {{- end}}
+        {{- end}}
         {{- if .Values.tls.broker.enabled }}
         - name: broker-certs
           secret:

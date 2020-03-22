@@ -87,36 +87,6 @@ case $key in
     ;;
     *)
     echo "unknown option: $key"
-    -k|--release)
-    release="$2"
-    shift
-    shift
-    ;;
-    --control-center-admin)
-    cc_admin="$2"
-    shift
-    shift
-    ;;
-    --control-center-password)
-    cc_password="$2"
-    shift
-    shift
-    ;;
-    --pulsar-superusers)
-    pulsar_superusers="$2"
-    shift
-    shift
-    ;;
-    -s|--symmetric)
-    symmetric=true
-    shift
-    ;;
-    -h|--help)
-    usage
-    exit 0
-    ;;
-    *)
-    echo "unknown option: $key"
     usage
     exit 1
     ;;
