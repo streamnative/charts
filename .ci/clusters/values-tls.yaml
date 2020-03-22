@@ -48,6 +48,9 @@ broker:
 proxy:
   replicaCount: 1
 
+toolset:
+  useProxy: false
+
 # enable TLS
 tls:
   enabled: true

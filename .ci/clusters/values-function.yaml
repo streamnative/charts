@@ -51,3 +51,5 @@ broker:
 proxy:
   replicaCount: 1
 
+toolset:
+  useProxy: false
