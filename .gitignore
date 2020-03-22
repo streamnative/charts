@@ -1,0 +1,12 @@
+# Intellij
+.idea
+
+# Mac
+**/.DS_Store
+
+**/output
+**/~
+
+# charts
+.chart-index/**
+.chart-packages/**
