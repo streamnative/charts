@@ -23,7 +23,7 @@ set -e
 
 NAMESPACE=cert-manager
 NAME=cert-manager
-VERSION=0.14.0
+VERSION=v0.14.0
 
 # Install cert-manager CustomResourceDefinition resources
 echo "Installing cert-manager CRD resources ..."
@@ -51,7 +51,7 @@ helm repo update
 echo "Installing cert-manager ${VERSION} to namespace ${NAMESPACE} as '${NAME}' ..."
 helm install \
   --namespace ${NAMESPACE} \
-  --version v${VERSION} \
+  --version ${VERSION} \
   ${NAME} \
   jetstack/cert-manager
 echo "Successfully installed cert-manager ${VERSION}."

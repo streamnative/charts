@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart
+name: Precommit - Pulsar Helm Chart (TLS Installation)
 on:
   pull_request:
     branches:
@@ -37,6 +37,6 @@ jobs:
 
       - name: Run chart-testing (install)
         run: |
-          .ci/install.sh
+          .ci/pulsar_tls.sh
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'
