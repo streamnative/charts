@@ -37,7 +37,7 @@ source ${CHARTS_HOME}/hack/common.sh
 source ${CHARTS_HOME}/.ci/git.sh
 
 # allow overwriting cr binary
-CR="docker run quay.io/helmpack/chart-releaser:v0.2.3 cr"
+CR="docker run -v ${CHARTS_HOME}:/cr quay.io/helmpack/chart-releaser:v0.2.3 cr"
 
 function release::ensure_dir() {
     local dir=$1
@@ -59,11 +59,11 @@ function release::package_chart() {
 }
 
 function release::upload_packages() {
-    ${CR} upload --owner ${OWNER} --git-repo ${REPO} -t ${GITHUB_TOKEN} --package-path ${CHARTS_PKGS}
+    ${CR} upload --owner ${OWNER} --git-repo ${REPO} -t ${GITHUB_TOKEN} --package-path /cr/.chart-packages
 }
 
 function release::update_chart_index() {
-    ${CR} index -o ${OWNER} -r ${REPO} -t "${GITHUB_TOKEN}" -c ${CHARTS_REPO} --index-path ${CHARTS_INDEX}
+    ${CR} index -o ${OWNER} -r ${REPO} -t "${GITHUB_TOKEN}" -c ${CHARTS_REPO} --index-path /cr/.chart-index --package-path /cr/.chart-packages
 }
 
 function release::publish_charts() {
@@ -79,7 +79,7 @@ function release::publish_charts() {
 
 # install cr
 # hack::ensure_cr
-docker fetch quay.io/helmpack/chart-releaser:v0.2.3
+docker pull quay.io/helmpack/chart-releaser:v0.2.3
 
 latest_tag=$(git::find_latest_tag)
 echo "Latest tag: $latest_tag"
