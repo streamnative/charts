@@ -32,6 +32,7 @@ Options:
        --control-center-admin           the user name of control center administrator
        --control-center-password        the password of control center administrator
        --pulsar-superusers              the superusers of pulsar cluster. a comma separated list of super users.
+       -c,--create-namespace            flag to create k8s namespace.
 Usage:
     $0 --namespace pulsar --release pulsar-release
 EOF
@@ -42,12 +43,50 @@ while [[ $# -gt 0 ]]
 do
 key="$1"
 
+symmetric=false
+create_namespace=false
+
 case $key in
     -n|--namespace)
     namespace="$2"
     shift
     shift
     ;;
+    -c|--create-namespace)
+    create_namespace=true
+    shift
+    shift
+    ;;
+    -k|--release)
+    release="$2"
+    shift
+    shift
+    ;;
+    --control-center-admin)
+    cc_admin="$2"
+    shift
+    shift
+    ;;
+    --control-center-password)
+    cc_password="$2"
+    shift
+    shift
+    ;;
+    --pulsar-superusers)
+    pulsar_superusers="$2"
+    shift
+    shift
+    ;;
+    -s|--symmetric)
+    symmetric=true
+    shift
+    ;;
+    -h|--help)
+    usage
+    exit 0
+    ;;
+    *)
+    echo "unknown option: $key"
     -k|--release)
     release="$2"
     shift
@@ -95,6 +134,14 @@ function generate_cc_admin_credentials() {
     kubectl create secret generic ${secret_name} -n ${namespace} \
         --from-literal="USER=${cc_admin}" --from-literal="PASSWORD=${cc_password}"
 }
+
+function create_namespace() {
+    if [[ "${create_namespace}" == "true" ]]; then
+        kubectl create namespace ${namespace}
+    fi
+}
+
+create_namespace
 
 echo "create the credentials for the admin user of control center (grafana & pulsar-manager)"
 generate_cc_admin_credentials
