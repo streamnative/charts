@@ -47,7 +47,7 @@ function ci::install_storage_provisioner() {
 
 function ci::install_cert_manager() {
     echo "Installing the cert-manager ..."
-    # ${KUBECTL} create namespace cert-manager
+    ${KUBECTL} create namespace cert-manager
     ${CHARTS_HOME}/scripts/cert-manager/install-cert-manager.sh
     WC=$(${KUBECTL} get pods -n cert-manager --field-selector=status.phase=Running | wc -l)
     while [[ ${WC} -lt 3 ]]; do

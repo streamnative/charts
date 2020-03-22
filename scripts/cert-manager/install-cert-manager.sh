@@ -27,7 +27,7 @@ VERSION=v0.14.0
 
 # Install cert-manager CustomResourceDefinition resources
 echo "Installing cert-manager CRD resources ..."
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${VERSION}/cert-manager-legacy.yaml
+kubectl apply --validate=false -f https://raw.githubusercontent.com/jetstack/cert-manager/${VERSION}/deploy/manifests/00-crds.yaml
 
 # Create the namespace 
 kubectl get ns ${NAMESPACE}
