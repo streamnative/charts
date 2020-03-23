@@ -22,6 +22,9 @@ on:
   pull_request:
     branches:
       - '*'
+    paths:
+      - 'charts/local-storage-provisioner/**'
+      - 'charts/pulsar/**'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
