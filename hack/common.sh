@@ -23,22 +23,32 @@ if [ -z "$PULSAR_CHART_HOME" ]; then
     exit 1
 fi
 
-OS=$(go env GOOS)
-ARCH=$(go env GOARCH)
 OUTPUT=${PULSAR_CHART_HOME}/output
 OUTPUT_BIN=${OUTPUT}/bin
 KUBECTL_VERSION=1.14.3
 KUBECTL_BIN=$OUTPUT_BIN/kubectl
 HELM_BIN=$OUTPUT_BIN/helm
-#
-# Don't ugprade to 2.15.x/2.16.x until this issue
-# (https://github.com/helm/helm/issues/6361) has been fixed.
-#
 HELM_VERSION=3.0.1
 KIND_VERSION=0.6.1
 KIND_BIN=$OUTPUT_BIN/kind
+CR_BIN=$OUTPUT_BIN/cr
+CR_VERSION=1.0.0-beta.1
 
 test -d "$OUTPUT_BIN" || mkdir -p "$OUTPUT_BIN"
+
+ARCH=""
+hack::discoverArch() {
+  ARCH=$(uname -m)
+  case $ARCH in
+    x86) ARCH="386";;
+    x86_64) ARCH="amd64";;
+    i686) ARCH="386";;
+    i386) ARCH="386";;
+  esac
+}
+
+hack::discoverArch
+OS=$(echo `uname`|tr '[:upper:]' '[:lower:]')
 
 function hack::verify_kubectl() {
     if test -x "$KUBECTL_BIN"; then
@@ -102,3 +112,24 @@ function hack::version_ge() {
     [ "$(printf '%s\n' "$1" "$2" | sort -V | head -n1)" = "$2" ]
 }
 
+function hack::verify_cr() {
+    if test -x "$CR_BIN"; then
+        return
+    fi
+    return 1
+}
+
+function hack::ensure_cr() {
+    if hack::verify_cr; then
+        $CR_BIN version
+        return 0
+    fi
+    echo "Installing chart-releaser ${CR_VERSION} ..."
+    tmpfile=$(mktemp)
+    trap "test -f $tmpfile && rm $tmpfile" RETURN
+    echo curl --retry 10 -L -o $tmpfile https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_${OS}_${ARCH}.tar.gz
+    curl --retry 10 -L -o $tmpfile https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_${OS}_${ARCH}.tar.gz
+    mv $tmpfile $CR_BIN
+    chmod +x $CR_BIN
+    $CR_BIN version
+}

@@ -17,15 +17,25 @@
 # under the License.
 #
 
-apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/charts/pulsar
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+name: Post commit - Publish Pulsar Helm Chart
+on:
+  push:
+    branches:
+      - master 
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install chart
+        env:
+          GITHUB_TOKEN: ${{ secrets.SNBOT_TOKEN }}
+          SNBOT_USER: ${{ secrets.SNBOT_USER }}
+          CHARTS_REPO: ${{ secrets.CHARTS_REPO }}
+          PUBLISH_CHARTS: ${{ secrets.PUBLISH_CHARTS }}
+          GITUSER: ${{ secrets.GITUSER }}
+          GITEMAIL: ${{ secrets.GITEMAIL }}
+        run: |
+          .ci/release.sh

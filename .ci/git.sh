@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -17,15 +18,18 @@
 # under the License.
 #
 
-apiVersion: v1
-appVersion: "1.0"
-description: Apache Pulsar Helm chart for Kubernetes
-name: pulsar
-version: 0.1.0
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/charts/pulsar
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+function git::fetch_tags() {
+    echo "Fetching tags ..."
+    git fetch --tags
+}
+
+function git::find_latest_tag() {
+    if ! git describe --tags --abbrev=0 2> /dev/null; then
+        git rev-list --max-parents=0 --first-parent HEAD
+    fi
+}
+
+function git::get_revision() {
+    local tag=$1
+    echo "$(git rev-parse --verify ${tag})"
+}
