@@ -104,12 +104,12 @@ images:
   pulsar:
     # repository: streamnative/pulsar
     # tag: 2.4.0-d1d5aba08
-    repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
     pullPolicy: IfNotPresent
   functions:
-    repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
   prometheus:
     repository: prom/prometheus
     tag: v1.6.3
@@ -123,8 +123,8 @@ images:
     tag: 0.0.4
     pullPolicy: IfNotPresent
   pulsar_manager:
-    repository: apachepulsar/pulsar-manager
-    tag: v0.1.0
+    repository: streamnative/pulsar-manager
+    tag: 0.3.0
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
