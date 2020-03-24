@@ -42,5 +42,8 @@ data:
   {{- end }}
   # Do not retain journal files as it increase the disk utilization
   journalMaxBackups: "0"
+  journalDirectories: "/pulsar/data/bookkeeper/journal"
+  PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
+  ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
 {{ toYaml .Values.bookkeeper.configData | indent 2 }}
 {{- end }}

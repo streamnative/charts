@@ -51,7 +51,7 @@ data:
   functionsWorkerEnabled: "true"
   PF_functionRuntimeFactoryClassName: "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory"
   PF_pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
-  PF_connectorsDirectory: /pulsar/connectors
+  PF_connectorsDirectory: ./connectors
   PF_containerFactory: k8s
   PF_numFunctionPackageReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
   # support version >= 2.5.0
