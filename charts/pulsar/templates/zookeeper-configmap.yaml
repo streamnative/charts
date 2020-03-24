@@ -28,5 +28,6 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
 data:
+  dataDir: /pulsar/data/zookeeper
 {{ toYaml .Values.zookeeper.configData | indent 2 }}
 {{- end }}
