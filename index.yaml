@@ -3,22 +3,6 @@ entries:
   local-storage-provisioner:
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2020-03-24T08:56:29.725711639Z"
-    description: Local Storage Provisioner for Kubernetes
-    digest: c60a94e80bcb7ca79ae660c7710696d72a07db5ea378453a63dfa6448e5f6262
-    home: https://streamnative.io
-    icon: http://pulsar.apache.org/img/pulsar.svg
-    maintainers:
-    - email: support@streamnative.io
-      name: StreamNative Support
-    name: local-storage-provisioner
-    sources:
-    - https://github.com/streamnative/charts/local-storage-provisioner
-    urls:
-    - https://github.com/streamnative/charts/releases/download/local-storage-provisioner-1.0.0/local-storage-provisioner-1.0.0.tgz
-    version: 1.0.0
-  - apiVersion: v1
-    appVersion: "1.0"
     created: "2020-03-22T23:54:49.285074067Z"
     description: Local Storage Provisioner for Kubernetes
     digest: 58533c330b2da8f43aa29539c98650cc07e16f763715c6f685239603291e2f3d
@@ -34,22 +18,6 @@ entries:
     - https://github.com/streamnative/charts/releases/download/local-storage-provisioner-0.1.0/local-storage-provisioner-0.1.0.tgz
     version: 0.1.0
   pulsar:
-  - apiVersion: v1
-    appVersion: "1.0"
-    created: "2020-03-24T08:56:29.859057829Z"
-    description: Apache Pulsar Helm chart for Kubernetes
-    digest: 37f28050b74cefcea1f8234de1664c94fbf1cd70c388d5d3ad38dd2099dc2051
-    home: https://streamnative.io
-    icon: http://pulsar.apache.org/img/pulsar.svg
-    maintainers:
-    - email: support@streamnative.io
-      name: StreamNative Support
-    name: pulsar
-    sources:
-    - https://github.com/streamnative/charts/pulsar
-    urls:
-    - https://github.com/streamnative/charts/releases/download/pulsar-1.0.0/pulsar-1.0.0.tgz
-    version: 1.0.0
   - apiVersion: v1
     appVersion: "1.0"
     created: "2020-03-22T23:54:49.402831274Z"
