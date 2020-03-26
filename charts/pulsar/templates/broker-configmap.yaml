@@ -55,7 +55,7 @@ data:
   PF_containerFactory: k8s
   PF_numFunctionPackageReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
   # support version >= 2.5.0
-  PF_functionRuntimeFactoryConfigs_pulsarRootDir: /pulsar
+  PF_functionRuntimeFactoryConfigs_pulsarRootDir: /sn-platform
   PF_functionRuntimeFactoryConfigs_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
   PF_functionRuntimeFactoryConfigs_submittingInsidePod: "true"
   PF_functionRuntimeFactoryConfigs_installUserCodeDependencies: "true"
