@@ -73,20 +73,25 @@ function ci::install_pulsar_chart() {
     ${HELM} template --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
     ${HELM} install --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
 
+    WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
+    while [[ ${WC} -lt 1 ]]; do
+      echo ${WC};
+      sleep 15
+      ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
+      WC=$(${KUBECTL} get pods -n ${NAMESPACE} | grep ${CLUSTER}-broker | wc -l)
+      if [[ ${WC} -gt 1 ]]; then
+        ${KUBECTL} describe pod -n ${NAMESPACE} pulsar-ci-broker-0
+        ${KUBECTL} logs -n ${NAMESPACE} pulsar-ci-broker-0
+      fi
+      WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
+    done
+
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     while [[ ${WC} -lt 1 ]]; do
       echo ${WC};
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
-    done
-
-    WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
-    while [[ ${WC} -lt 1 ]]; do
-      echo ${WC};
-      sleep 15
-      ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
-      WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
     done
 }
 
