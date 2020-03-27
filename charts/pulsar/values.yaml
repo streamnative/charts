@@ -101,13 +101,39 @@ monitoring:
 ##
 ## Control what images to use for each component
 images:
-  pulsar:
-    # repository: streamnative/pulsar
-    # tag: 2.4.0-d1d5aba08
+  zookeeper:
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  bookie:
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  autorecovery:
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  broker:
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
+  proxy:
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
     repository: streamnative/platform
     tag: v1.0.0
     pullPolicy: IfNotPresent
   functions:
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
     repository: streamnative/platform
     tag: v1.0.0
   prometheus:
@@ -295,6 +321,22 @@ zookeeper:
   replicaCount: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
   affinity:
     anti_affinity: true
   annotations:
@@ -376,6 +418,13 @@ bookkeeper:
   ## BookKeeper Cluster Initialize
   ## templates/bookkeeper-cluster-initialize.yaml
   metadata:
+    image:
+      # the image used for running `bookkeeper-cluster-initialize` job
+      # repository: apachepulsar/pulsar-all
+      # tag: 2.5.0
+      repository: streamnative/platform
+      tag: v1.0.0
+      pullPolicy: IfNotPresent
     ## Set the resources used for running `bin/bookkeeper shell initnewcluster`
     ##
     resources:
@@ -388,6 +437,22 @@ bookkeeper:
     bookie: 3181
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 60
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 60
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 30
   affinity:
     anti_affinity: true
   annotations: {}
@@ -515,6 +580,13 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
+  image:
+    # the image used for running `pulsar-cluster-initialize` job
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
+    pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
   configurationStoreMetadataPrefix: ""
@@ -534,6 +606,22 @@ broker:
     pulsarssl: 6651
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  probe:
+    liveness:
+      enabled: false
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: false
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 10
   affinity:
     anti_affinity: true
   annotations: {}
@@ -600,6 +688,22 @@ proxy:
   replicaCount: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 10
   affinity:
     anti_affinity: true
   annotations: {}

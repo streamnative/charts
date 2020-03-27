@@ -81,18 +81,60 @@ spec:
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
       - name: wait-zookeeper-ready
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
+        imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >-
-            until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} ls {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
               sleep 3;
+            done;
+      # This init container will wait for at least one broker to be ready before
+      # deploying the proxy
+      - name: wait-broker-ready
+        image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
+        imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >-
+            set -e;
+            brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
+            until [ ${brokerServiceNumber} -ge 1 ]; do
+              echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 10 seconds ...";
+              sleep 10;
+              brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
+        imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
+        {{- if .Values.proxy.probe.liveness.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.proxy.ports.http }}
+          initialDelaySeconds: {{ .Values.proxy.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.proxy.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.proxy.probe.liveness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.proxy.probe.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.proxy.ports.http }}
+          initialDelaySeconds: {{ .Values.proxy.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.proxy.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.proxy.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.proxy.probe.startup.enabled }}
+        startupProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.proxy.ports.http }}
+          initialDelaySeconds: {{ .Values.proxy.probe.startup.initialDelaySeconds }}
+          periodSeconds: {{ .Values.proxy.probe.startup.periodSeconds }}
+          failureThreshold: {{ .Values.proxy.probe.startup.failureThreshold }}
+        {{- end }}
       {{- if .Values.proxy.resources }}
         resources:
 {{ toYaml .Values.proxy.resources | indent 10 }}
@@ -102,6 +144,7 @@ spec:
         - >
           bin/apply-config-from-env.py conf/proxy.conf &&
           bin/apply-config-from-env.py conf/pulsar_env.sh &&
+          echo "OK" > status &&
           bin/pulsar proxy
         ports:
         # prometheus needs to access /metrics endpoint

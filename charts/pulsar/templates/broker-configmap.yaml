@@ -41,6 +41,12 @@ data:
   exposeTopicLevelMetricsInPrometheus: "true"
   numHttpServerThreads: "8"
   zooKeeperSessionTimeoutMillis: "30000"
+  {{- if eq .Values.images.broker.repository "streamnative/platform" }}
+  statusFilePath: "/sn-platform/status"
+  {{- end }}
+  {{- if not (eq .Values.images.broker.repository "streamnative/platform") }}
+  statusFilePath: "/pulsar/status"
+  {{- end }}
 
   # Function Worker Settings
   # function worker configuration
@@ -55,7 +61,14 @@ data:
   PF_containerFactory: k8s
   PF_numFunctionPackageReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
   # support version >= 2.5.0
+  {{- if eq .Values.images.broker.repository "streamnative/platform" }}
+  PF_functionRuntimeFactoryConfigs_pulsarRootDir: /sn-platform
+  PF_kubernetesContainerFactory_pulsarRootDir: /sn-platform
+  {{- end }}
+  {{- if not (eq .Values.images.broker.repository "streamnative/platform") }}
   PF_functionRuntimeFactoryConfigs_pulsarRootDir: /pulsar
+  PF_kubernetesContainerFactory_pulsarRootDir: /pulsar
+  {{- end }}
   PF_functionRuntimeFactoryConfigs_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
   PF_functionRuntimeFactoryConfigs_submittingInsidePod: "true"
   PF_functionRuntimeFactoryConfigs_installUserCodeDependencies: "true"
@@ -72,7 +85,6 @@ data:
   PF_functionRuntimeFactoryConfigs_changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
   PF_functionRuntimeFactoryConfigs_changeConfigMapNamespace: {{ .Values.namespace }}
   # support version < 2.5.0
-  PF_kubernetesContainerFactory_pulsarRootDir: /pulsar
   PF_kubernetesContainerFactory_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
   PF_kubernetesContainerFactory_submittingInsidePod: "true"
   PF_kubernetesContainerFactory_installUserCodeDependencies: "true"

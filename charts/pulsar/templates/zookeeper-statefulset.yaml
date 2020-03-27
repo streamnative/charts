@@ -76,8 +76,8 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
+        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
       {{- if .Values.zookeeper.resources }}
         resources:
 {{ toYaml .Values.zookeeper.resources | indent 10 }}
@@ -104,18 +104,33 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+        {{- if .Values.zookeeper.probe.readiness.enabled }}
         readinessProbe:
           exec:
             command:
-            - "bin/pulsar-zookeeper-ruok.sh"
-          initialDelaySeconds: 5
-          timeoutSeconds: 5
+            - bin/pulsar-zookeeper-ruok.sh
+          initialDelaySeconds: {{ .Values.zookeeper.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.zookeeper.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.zookeeper.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.zookeeper.probe.liveness.enabled }}
         livenessProbe:
           exec:
             command:
-            - "bin/pulsar-zookeeper-ruok.sh"
-          initialDelaySeconds: 15
-          timeoutSeconds: 5
+            - bin/pulsar-zookeeper-ruok.sh
+          initialDelaySeconds: {{ .Values.zookeeper.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.zookeeper.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.zookeeper.probe.liveness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.zookeeper.probe.startup.enabled }}
+        startupProbe:
+          exec:
+            command:
+            - bin/pulsar-zookeeper-ruok.sh
+          initialDelaySeconds: {{ .Values.zookeeper.probe.startup.initialDelaySeconds }}
+          periodSeconds: {{ .Values.zookeeper.probe.startup.periodSeconds }}
+          failureThreshold: {{ .Values.zookeeper.probe.startup.failureThreshold }}
+        {{- end }}
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
           mountPath: /pulsar/data
