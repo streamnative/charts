@@ -73,6 +73,7 @@ function ci::install_pulsar_chart() {
     ${HELM} template --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
     ${HELM} install --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
 
+    echo "wait until broker is alive"
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
     while [[ ${WC} -lt 1 ]]; do
       echo ${WC};
@@ -85,6 +86,8 @@ function ci::install_pulsar_chart() {
       fi
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
     done
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-broker; do sleep 3; done'
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ $(curl -L http://pulsar-ci-broker:8080/status.html) == "OK" ]; do sleep 3; done'
 
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     while [[ ${WC} -lt 1 ]]; do
@@ -93,6 +96,8 @@ function ci::install_pulsar_chart() {
       ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     done
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ $(curl -L http://pulsar-ci-proxy:8080/status.html) == "OK" ]; do sleep 3; done'
 }
 
 function ci::test_pulsar_producer() {
