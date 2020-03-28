@@ -62,7 +62,7 @@ spec:
 {{- end }}
 {{- end }}
 
-{{- if .Values.tls.broker.enabled }}
+{{- if or .Values.tls.broker.enabled .Values.tls.bookie.enabled }}
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
@@ -116,7 +116,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.bookie.component }}.{{ .Values.namespace }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.{{ .Values.namespace }}.svc.cluster.local"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -125,8 +125,8 @@ spec:
     - server auth
     - client auth
   dnsNames:
-    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.bookie.component }}.{{ .Values.namespace }}.svc.cluster.local"
-    -  "{{ template "pulsar.fullname" . }}-{{ .Values.bookie.component }}"
+    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.{{ .Values.namespace }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"

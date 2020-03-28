@@ -185,7 +185,7 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled .Values.tls.broker.enabled) }}
+      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.bookie.enabled)) }}
         volumeMounts:
           {{- if .Values.auth.authentication.enabled }}
           {{- if eq .Values.auth.authentication.provider "jwt" }}
@@ -197,7 +197,7 @@ spec:
             readOnly: true
           {{- end }}
           {{- end }}
-          {{- if .Values.tls.broker.enabled }}
+          {{- if or .Values.tls.broker.enabled .Values.tls.bookie.enabled }}
           - mountPath: "/pulsar/certs/broker"
             name: broker-certs
             readOnly: true
@@ -206,7 +206,7 @@ spec:
             readOnly: true
           {{- end }}
       {{- end }}
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled .Values.tls.broker.enabled) }}
+      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.bookie.enabled)) }}
       volumes:
         {{- if .Values.auth.authentication.enabled }}
         {{- if eq .Values.auth.authentication.provider "jwt" }}
@@ -234,7 +234,7 @@ spec:
                 path: broker/token
         {{- end}}
         {{- end}}
-        {{- if .Values.tls.broker.enabled }}
+        {{- if or .Values.tls.broker.enabled .Values.tls.bookie.enabled }}
         - name: broker-certs
           secret:
             secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"

@@ -159,13 +159,37 @@ spec:
           mountPath: /pulsar/data/bookkeeper/journal
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
           mountPath: /pulsar/data/bookkeeper/ledgers
-    {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
+        {{- if .Values.tls.bookie.enabled }}
+        - mountPath: "/pulsar/certs/bookie"
+          name: bookie-certs
+          readOnly: true
+        - mountPath: "/pulsar/certs/ca"
+          name: ca
+          readOnly: true
+        {{- end }}
       volumes:
+      {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
         emptyDir: {}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
         emptyDir: {}
-    {{- end }}
+      {{- end }}
+      {{- if .Values.tls.bookie.enabled }}
+      - name: bookie-certs
+        secret:
+          secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.bookie.cert_name }}"
+          items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+      - name: ca
+        secret:
+          secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+          items:
+            - key: ca.crt
+              path: ca.crt
+      {{- end}}
 {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   volumeClaimTemplates:
   - metadata:

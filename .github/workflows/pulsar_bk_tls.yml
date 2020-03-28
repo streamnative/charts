@@ -41,7 +41,7 @@ jobs:
       # skip TLS testing now
       - name: Run chart-testing (install)
         run: |
-          .ci/chart_test.sh .ci/clusters/values-tls.yaml
+          .ci/chart_test.sh .ci/clusters/values-bk-tls.yaml
         env:
           TLS: "true"
         # Only build a kind cluster if there are chart changes to test.

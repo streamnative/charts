@@ -59,10 +59,6 @@ toolset:
 # enable TLS
 tls:
   enabled: true
-  proxy:
-    enabled: true
-  broker:
-    enabled: true
   bookie:
     enabled: true
 
