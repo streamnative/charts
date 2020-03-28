@@ -19,8 +19,6 @@
 
 #!/usr/bin/env bash
 
-set -e
-
 NAMESPACE=cert-manager
 NAME=cert-manager
 VERSION=v0.13.0

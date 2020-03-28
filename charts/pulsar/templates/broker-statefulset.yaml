@@ -157,11 +157,17 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/broker.conf &&
-          bin/apply-config-from-env.py conf/pulsar_env.sh &&
-          bin/gen-yml-from-env.py conf/functions_worker.yml &&
-          echo "OK" > status &&
-          bin/pulsar broker
+          bin/apply-config-from-env.py conf/broker.conf;
+          bin/apply-config-from-env.py conf/pulsar_env.sh;
+          bin/gen-yml-from-env.py conf/functions_worker.yml;
+          echo "OK" > status;
+          bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.service" . }} get {{ template "pulsar.broker.znode" . }};
+          while [ $? -eq 0 ]; do
+            echo "broker {{ template "pulsar.broker.hostname" . }} znode still exists ... check in 10 seconds ...";
+            sleep 10;
+            bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.service" . }} get {{ template "pulsar.broker.znode" . }};
+          done;
+          bin/pulsar broker;
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http
@@ -192,8 +198,11 @@ spec:
           {{- end }}
           {{- end }}
           {{- if .Values.tls.broker.enabled }}
-          - mountPath: "/pulsar/certs"
+          - mountPath: "/pulsar/certs/broker"
             name: broker-certs
+            readOnly: true
+          - mountPath: "/pulsar/certs/ca"
+            name: ca
             readOnly: true
           {{- end }}
       {{- end }}
@@ -231,11 +240,15 @@ spec:
             secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
             items:
               - key: tls.crt
-                path: broker/tls.crt
+                path: tls.crt
               - key: tls.key
-                path: broker/tls.key
+                path: tls.key
+        - name: ca
+          secret:
+            secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+            items:
               - key: ca.crt
-                path: broker/ca.crt
+                path: ca.crt
         {{- end}}
       {{- end}}
 {{- end }}

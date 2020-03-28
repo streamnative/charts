@@ -113,7 +113,7 @@ data:
   # TLS Settings
   tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
   tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
-  tlsTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
+  tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   {{- end }}
 
   # Authentication Settings
@@ -134,6 +134,16 @@ data:
   tokenPublicKey: "file:///pulsar/keys/token/public.key"
   {{- end }}
   {{- end }}
+  {{- end }}
+
+  {{- if and .Values.tls.enabled .Values.tls.bookie.enabled }}
+  # bookkeeper tls settings
+  bookkeeperTLSClientAuthentication: "true"
+  bookkeeperTLSKeyFileType: "PEM"
+  bookkeeperTLSKeyFilePath: "/pulsar/certs/bookie/tls.key"
+  bookkeeperTLSCertificateFilePath: "/pulsar/certs/bookie/tls.crt"
+  bookkeeperTLSTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  bookkeeperTLSTrustCertTypes: "PEM"
   {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}
 {{- end }}
