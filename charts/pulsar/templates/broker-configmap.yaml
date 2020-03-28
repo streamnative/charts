@@ -140,10 +140,18 @@ data:
   # bookkeeper tls settings
   bookkeeperTLSClientAuthentication: "true"
   bookkeeperTLSKeyFileType: "PEM"
-  bookkeeperTLSKeyFilePath: "/pulsar/certs/bookie/tls.key"
-  bookkeeperTLSCertificateFilePath: "/pulsar/certs/bookie/tls.crt"
+  bookkeeperTLSKeyFilePath: "/pulsar/certs/broker/tls.key"
+  bookkeeperTLSCertificateFilePath: "/pulsar/certs/broker/tls.crt"
   bookkeeperTLSTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   bookkeeperTLSTrustCertTypes: "PEM"
+  PULSAR_PREFIX_bookkeeperTLSClientAuthentication: "true"
+  PULSAR_PREFIX_bookkeeperTLSKeyFileType: "PEM"
+  PULSAR_PREFIX_bookkeeperTLSKeyFilePath: "/pulsar/certs/broker/tls.key"
+  PULSAR_PREFIX_bookkeeperTLSCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+  PULSAR_PREFIX_bookkeeperTLSTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  PULSAR_PREFIX_bookkeeperTLSTrustCertTypes: "PEM"
+  # https://github.com/apache/bookkeeper/pull/2300
+  bookkeeperUseV2WireProtocol: "false"
   {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}
 {{- end }}
