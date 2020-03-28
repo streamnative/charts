@@ -81,22 +81,23 @@ spec:
       # This initContainer will wait for bookkeeper initnewcluster to complete
       # before deploying the bookies
       - name: pulsar-bookkeeper-verify-clusterid
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
+        imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
         command: ["sh", "-c"]
         args:
         {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
         # only reformat bookie if bookkeeper is running without persistence
         - >
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
+          bin/apply-config-from-env.py conf/bookkeeper.conf;
           until bin/bookkeeper shell whatisinstanceid; do
             sleep 3;
-          done &&
-          (bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie || yes)
+          done;
+          bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie || true
         {{- end }}
         {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence }}
         - >
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
+          set -e;
+          bin/apply-config-from-env.py conf/bookkeeper.conf;
           until bin/bookkeeper shell whatisinstanceid; do
             sleep 3;
           done;
@@ -106,8 +107,35 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
+        imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
+        {{- if .Values.bookkeeper.probe.liveness.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /api/v1/bookie/state
+            port: {{ .Values.bookkeeper.ports.http }}
+          initialDelaySeconds: {{ .Values.bookkeeper.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.bookkeeper.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.bookkeeper.probe.liveness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.bookkeeper.probe.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /api/v1/bookie/is_ready
+            port: {{ .Values.bookkeeper.ports.http }}
+          initialDelaySeconds: {{ .Values.bookkeeper.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.bookkeeper.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.bookkeeper.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.bookkeeper.probe.startup.enabled }}
+        startupProbe:
+          httpGet:
+            path: /api/v1/bookie/is_ready
+            port: {{ .Values.bookkeeper.ports.http }}
+          initialDelaySeconds: {{ .Values.bookkeeper.probe.startup.initialDelaySeconds }}
+          periodSeconds: {{ .Values.bookkeeper.probe.startup.periodSeconds }}
+          failureThreshold: {{ .Values.bookkeeper.probe.startup.failureThreshold }}
+        {{- end }}
       {{- if .Values.bookkeeper.resources }}
         resources:
 {{ toYaml .Values.bookkeeper.resources | indent 10 }}

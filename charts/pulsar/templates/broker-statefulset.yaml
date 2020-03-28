@@ -18,7 +18,6 @@
 #
 
 {{- if .Values.components.broker }}
-{{- $ensembleSize := .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -83,41 +82,74 @@ spec:
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
       - name: wait-zookeeper-ready
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >-
             {{- if .Values.pulsar_metadata.configurationStore }}
-            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} ls {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} get {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
             {{- end }}
             {{- if not .Values.pulsar_metadata.configurationStore }}
-            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} ls {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
             {{- end }}
               echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
       # This init container will wait for bookkeeper to be ready before
       # deploying the broker
       - name: wait-bookkeeper-ready
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >
-            bin/apply-config-from-env.py conf/bookkeeper.conf &&
+            bin/apply-config-from-env.py conf/bookkeeper.conf;
             until bin/bookkeeper shell whatisinstanceid; do
+              echo "bookkeeper cluster is not initialized yet. backoff for 3 seconds ...";
               sleep 3;
-            done &&
-            until bin/bookkeeper shell simpletest -ensemble {{$ensembleSize}}; do
-              sleep 3;
-            done
+            done;
+            echo "bookkeeper cluster is already initialized";
+            bookieServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }} | grep Name | wc -l)";
+            until [ ${bookieServiceNumber} -ge {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }} ]; do
+              echo "bookkeeper cluster {{ template "pulsar.fullname" . }} isn't ready yet ... check in 10 seconds ...";
+              sleep 10;
+              bookieServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }} | grep Name | wc -l)";
+            done;
+            echo "bookkeeper cluster is ready";
         envFrom:
           - configMapRef:
-              name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        {{- if .Values.broker.probe.liveness.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.broker.ports.http }}
+          initialDelaySeconds: {{ .Values.broker.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.broker.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.broker.probe.liveness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.broker.probe.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.broker.ports.http }}
+          initialDelaySeconds: {{ .Values.broker.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.broker.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.broker.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.broker.probe.startup.enabled }}
+        startupProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.broker.ports.http }}
+          initialDelaySeconds: {{ .Values.broker.probe.startup.initialDelaySeconds }}
+          periodSeconds: {{ .Values.broker.probe.startup.periodSeconds }}
+          failureThreshold: {{ .Values.broker.probe.startup.failureThreshold }}
+        {{- end }}
       {{- if .Values.broker.resources }}
         resources:
 {{ toYaml .Values.broker.resources | indent 10 }}
@@ -128,6 +160,7 @@ spec:
           bin/apply-config-from-env.py conf/broker.conf &&
           bin/apply-config-from-env.py conf/pulsar_env.sh &&
           bin/gen-yml-from-env.py conf/functions_worker.yml &&
+          echo "OK" > status &&
           bin/pulsar broker
         ports:
         # prometheus needs to access /metrics endpoint
