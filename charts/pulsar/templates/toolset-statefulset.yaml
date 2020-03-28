@@ -79,14 +79,9 @@ spec:
             readOnly: true
           {{- end }}
           {{- end }}
-          {{- if and (not .Values.toolset.useProxy) .Values.tls.broker.enabled }}
-          - mountPath: "/pulsar/certs"
-            name: broker-certs
-            readOnly: true
-          {{- end}}
-          {{- if and .Values.toolset.useProxy .Values.tls.proxy.enabled }}
-          - mountPath: "/pulsar/certs/proxy-ca"
-            name: proxy-certs
+          {{- if .Values.tls.enabled }}
+          - mountPath: "/pulsar/certs/ca"
+            name: ca
             readOnly: true
           {{- end}}
       {{- end }}  
@@ -102,16 +97,8 @@ spec:
                 path: client/token
         {{- end}}
         {{- end}}
-        {{- if and (not .Values.toolset.useProxy) .Values.tls.broker.enabled }}
-        - name: broker-certs
-          secret:
-            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
-            items:
-              - key: ca.crt
-                path: broker/ca.crt
-        {{- end}}
-        {{- if and .Values.toolset.useProxy .Values.tls.proxy.enabled }}
-        - name: proxy-certs
+        {{- if .Values.tls.enabled }}
+        - name: ca
           secret:
           {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
             secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
@@ -120,15 +107,7 @@ spec:
                 path: ca.crt
           {{- end}}
           {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
-            {{- if .Values.tls.broker.enabled }}
-            # TODO: use the same cert as broker for now until #5971 is fixed
-            #       https://github.com/apache/pulsar/pull/5971
-            # secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
-            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
-            {{- end}}
-            {{- if not .Values.tls.broker.enabled }}
-            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
-            {{- end}}
+            secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
             items:
               - key: ca.crt
                 path: ca.crt

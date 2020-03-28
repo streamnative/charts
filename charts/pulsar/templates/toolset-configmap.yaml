@@ -37,7 +37,7 @@ data:
   brokerServiceUrl: "pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsarssl }}/"
   useTls: "true"
   tlsAllowInsecureConnection: "false"
-  tlsTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
+  tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   tlsEnableHostnameVerification: "false"
   {{- end }}
   {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
@@ -52,7 +52,7 @@ data:
   brokerServiceUrl: "pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsarssl }}/"
   useTls: "true"
   tlsAllowInsecureConnection: "false"
-  tlsTrustCertsFilePath: "/pulsar/certs/proxy-ca/ca.crt"
+  tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   tlsEnableHostnameVerification: "false"
   {{- end }}
   {{- if not (and .Values.tls.enabled .Values.tls.proxy.enabled) }}

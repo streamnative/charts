@@ -200,6 +200,16 @@ tls:
     - "*"
     ipAddresses:
     - "*"
+  # settings for generating certs for bookies
+  bookie:
+    enabled: false
+    cert_name: tls-bookie
+    dnsNames:
+    - "*":
+    uriSANs:
+    - "*"
+    ipAddresses:
+    - "*"
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -608,12 +618,12 @@ broker:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
     liveness:
-      enabled: false
+      enabled: true
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
     readiness:
-      enabled: false
+      enabled: true
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
