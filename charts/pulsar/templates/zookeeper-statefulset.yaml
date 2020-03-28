@@ -83,19 +83,25 @@ spec:
 {{ toYaml .Values.zookeeper.resources | indent 10 }}
       {{- end }}
         command: ["sh", "-c"]
+        # PULSAR_EXTRA_OPTS="${PULSAR_EXTRA_OPTS} -Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory -Dzookeeper.ssl.keyStore.location=/pulsar/certs/zookeeper/tls.key -Dzookeeper.ssl.trustStore.location=/pulsar/certs/ca/ca.crt"
         args:
         - >
-          bin/apply-config-from-env.py conf/zookeeper.conf &&
-          bin/apply-config-from-env.py conf/pulsar_env.sh &&
-          bin/generate-zookeeper-config.sh conf/zookeeper.conf &&
-          bin/pulsar zookeeper
+          bin/apply-config-from-env.py conf/zookeeper.conf;
+          bin/apply-config-from-env.py conf/pulsar_env.sh;
+          {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
+          bin/generate-zookeeper-config.sh conf/zookeeper.conf;
+          bin/pulsar zookeeper;
         ports:
         - name: client
-          containerPort: 2181
+          containerPort: {{ .Values.zookeeper.ports.client }}
         - name: follower
-          containerPort: 2888
+          containerPort: {{ .Values.zookeeper.ports.follower }}
         - name: leader-election
-          containerPort: 3888
+          containerPort: {{ .Values.zookeeper.ports.leaderElection }}
+        {{- if .Values.tls.zookeeper.enabled }}
+        - name: client-tls
+          containerPort: {{ .Values.zookeeper.ports.clientTls }}
+        {{- end }}
         env:
         - name: ZOOKEEPER_SERVERS
           value:
@@ -134,11 +140,35 @@ spec:
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
           mountPath: /pulsar/data
-    {{- if not (and .Values.volumes.persistence .Values.zookeeper.volumes.persistence) }}
+        {{- if .Values.tls.zookeeper.enabled }}
+        - mountPath: "/pulsar/certs/zookeeper"
+          name: zookeeper-certs
+          readOnly: true
+        - mountPath: "/pulsar/certs/ca"
+          name: ca
+          readOnly: true
+        {{- end }}
       volumes:
+      {{- if not (and .Values.volumes.persistence .Values.zookeeper.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
         emptyDir: {}
-    {{- end }}
+      {{- end }}
+      {{- if .Values.tls.zookeeper.enabled }}
+      - name: zookeeper-certs
+        secret:
+          secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.zookeeper.cert_name }}"
+          items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+      - name: ca
+        secret:
+          secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+          items:
+            - key: ca.crt
+              path: ca.crt
+      {{- end}}
 {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   volumeClaimTemplates:
   - metadata:

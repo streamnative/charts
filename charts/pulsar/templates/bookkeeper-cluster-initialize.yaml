@@ -50,7 +50,8 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-            bin/apply-config-from-env.py conf/bookkeeper.conf &&
+            bin/apply-config-from-env.py conf/bookkeeper.conf;
+            {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 12 }}
             if bin/bookkeeper shell whatisinstanceid; then
                 echo "bookkeeper cluster already initialized";
             else
@@ -62,5 +63,9 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+        volumeMounts:
+        {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
+      volumes:
+      {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       restartPolicy: Never
 {{- end }}

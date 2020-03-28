@@ -85,26 +85,16 @@ spec:
         imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
         command: ["sh", "-c"]
         args:
-        {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
         # only reformat bookie if bookkeeper is running without persistence
         - >
-          bin/apply-config-from-env.py conf/bookkeeper.conf;
-          until bin/bookkeeper shell whatisinstanceid; do
-            sleep 3;
-          done;
-          bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie || true
-        {{- end }}
-        {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence }}
-        - >
-          set -e;
-          bin/apply-config-from-env.py conf/bookkeeper.conf;
-          until bin/bookkeeper shell whatisinstanceid; do
-            sleep 3;
-          done;
-        {{- end }}
+          {{- include "pulsar.bookkeeper.init.verify_cluster_id" . | nindent 10 }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+        volumeMounts:
+        {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 8 }}
+      volumes:
+      {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 6 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
@@ -143,9 +133,10 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
-          bin/apply-config-from-env.py conf/pulsar_env.sh &&
-          bin/pulsar bookie
+          bin/apply-config-from-env.py conf/bookkeeper.conf;
+          bin/apply-config-from-env.py conf/pulsar_env.sh;
+          {{- include "pulsar.bookkeeper.zookeeper.tls.settings" . | nindent 10 }}
+          bin/pulsar bookie;
         ports:
         - name: bookie
           containerPort: {{ .Values.bookkeeper.ports.bookie }}
@@ -159,14 +150,7 @@ spec:
           mountPath: /pulsar/data/bookkeeper/journal
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
           mountPath: /pulsar/data/bookkeeper/ledgers
-        {{- if .Values.tls.bookie.enabled }}
-        - mountPath: "/pulsar/certs/bookie"
-          name: bookie-certs
-          readOnly: true
-        - mountPath: "/pulsar/certs/ca"
-          name: ca
-          readOnly: true
-        {{- end }}
+        {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 8 }}
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
@@ -174,22 +158,7 @@ spec:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
         emptyDir: {}
       {{- end }}
-      {{- if .Values.tls.bookie.enabled }}
-      - name: bookie-certs
-        secret:
-          secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.bookie.cert_name }}"
-          items:
-            - key: tls.crt
-              path: tls.crt
-            - key: tls.key
-              path: tls.key
-      - name: ca
-        secret:
-          secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
-          items:
-            - key: ca.crt
-              path: ca.crt
-      {{- end}}
+      {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 6 }}
 {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   volumeClaimTemplates:
   - metadata:

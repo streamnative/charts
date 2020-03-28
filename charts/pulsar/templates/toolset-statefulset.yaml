@@ -64,54 +64,57 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/client.conf &&
-          bin/apply-config-from-env.py conf/bookkeeper.conf &&
+          bin/apply-config-from-env.py conf/client.conf;
+          bin/apply-config-from-env.py conf/bookkeeper.conf;
+          {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 10 }}
           sleep 10000000000
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled)) }}
         volumeMounts:
-          {{- if .Values.auth.authentication.enabled }}
-          {{- if eq .Values.auth.authentication.provider "jwt" }}
-          - mountPath: "/pulsar/tokens"
-            name: client-token
-            readOnly: true
-          {{- end }}
-          {{- end }}
-          {{- if .Values.tls.enabled }}
-          - mountPath: "/pulsar/certs/ca"
-            name: ca
-            readOnly: true
-          {{- end}}
-      {{- end }}  
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled)) }}
-      volumes:
+        {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled)) }}
         {{- if .Values.auth.authentication.enabled }}
         {{- if eq .Values.auth.authentication.provider "jwt" }}
-        - name: client-token
-          secret:
-            secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
-            items:
-              - key: TOKEN
-                path: client/token
-        {{- end}}
-        {{- end}}
+        - mountPath: "/pulsar/tokens"
+          name: client-token
+          readOnly: true
+        {{- end }}
+        {{- end }}
         {{- if .Values.tls.enabled }}
-        - name: ca
-          secret:
-          {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
-            secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
-            items:
-              - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
-                path: ca.crt
-          {{- end}}
-          {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
-            secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
-            items:
-              - key: ca.crt
-                path: ca.crt
-          {{- end}}
+        - mountPath: "/pulsar/certs/ca"
+          name: ca
+          readOnly: true
+        {{- end}}
+        {{- end }}  
+        {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
+      volumes:
+      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled)) }}
+      {{- if .Values.auth.authentication.enabled }}
+      {{- if eq .Values.auth.authentication.provider "jwt" }}
+      - name: client-token
+        secret:
+          secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
+          items:
+            - key: TOKEN
+              path: client/token
+      {{- end}}
+      {{- end}}
+      {{- if .Values.tls.enabled }}
+      - name: ca
+        secret:
+        {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
+          secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
+          items:
+            - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
+              path: ca.crt
+        {{- end}}
+        {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
+          secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+          items:
+            - key: ca.crt
+              path: ca.crt
         {{- end}}
       {{- end}}
+      {{- end}}
+      {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
 {{- end }}
