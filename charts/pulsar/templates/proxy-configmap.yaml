@@ -29,12 +29,7 @@ metadata:
 data:
   clusterName: {{ template "pulsar.fullname" . }}
   httpNumThreads: "8"
-  {{- if eq .Values.images.proxy.repository "streamnative/platform" }}
-  statusFilePath: "/sn-platform/status"
-  {{- end }}
-  {{- if not (eq .Values.images.proxy.repository "streamnative/platform") }}
-  statusFilePath: "/pulsar/status"
-  {{- end }}
+  statusFilePath: "{{ template "pulsar.home" . }}/status"
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.proxy.ports.http }}"
   {{- if or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled) }}

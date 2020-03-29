@@ -184,32 +184,18 @@ tls:
   proxy:
     enabled: false
     cert_name: tls-proxy
-    dnsNames:
-    - "*"
-    uriSANs:
-    - "*"
-    ipAddresses:
-    - "*"
   # settings for generating certs for broker
   broker:
     enabled: false
     cert_name: tls-broker
-    dnsNames:
-    - "*"
-    uriSANs:
-    - "*"
-    ipAddresses:
-    - "*"
   # settings for generating certs for bookies
   bookie:
     enabled: false
     cert_name: tls-bookie
-    dnsNames:
-    - "*":
-    uriSANs:
-    - "*"
-    ipAddresses:
-    - "*"
+  # settings for generating certs for bookies
+  zookeeper:
+    enabled: false
+    cert_name: tls-zookeeper
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -329,6 +315,11 @@ zookeeper:
   component: zookeeper
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
   replicaCount: 3
+  ports:
+    client: 2181
+    clientTls: 2281
+    follower: 2888
+    leaderElection: 3888
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:

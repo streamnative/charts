@@ -65,6 +65,8 @@ tls:
     enabled: true
   bookie:
     enabled: true
+  zookeeper:
+    enabled: true
 
 # issue selfsigning certs
 certs:

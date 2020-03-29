@@ -24,6 +24,8 @@ tls:
     enabled: true
   broker:
     enabled: true
+  zookeeper:
+    enabled: true
 
 # issue selfsigning certs
 certs:

@@ -53,7 +53,7 @@ function ci::install_cert_manager() {
     while [[ ${WC} -lt 3 ]]; do
       echo ${WC};
       sleep 15
-      ${KUBECTL} get pods -n cert-manager --field-selector=status.phase=Running
+      ${KUBECTL} get pods -n cert-manager
       WC=$(${KUBECTL} get pods -n cert-manager --field-selector=status.phase=Running | wc -l)
     done
     echo "Successfully installed the cert manager."
@@ -78,7 +78,7 @@ function ci::install_pulsar_chart() {
     while [[ ${WC} -lt 1 ]]; do
       echo ${WC};
       sleep 15
-      ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
+      ${KUBECTL} get pods -n ${NAMESPACE}
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} | grep ${CLUSTER}-broker | wc -l)
       if [[ ${WC} -gt 1 ]]; then
         ${KUBECTL} describe pod -n ${NAMESPACE} pulsar-ci-broker-0
@@ -93,7 +93,7 @@ function ci::install_pulsar_chart() {
     while [[ ${WC} -lt 1 ]]; do
       echo ${WC};
       sleep 15
-      ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
+      ${KUBECTL} get pods -n ${NAMESPACE}
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     done
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'
