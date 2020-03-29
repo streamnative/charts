@@ -37,7 +37,7 @@ spec:
       port: {{ .Values.zookeeper.ports.leaderElection }}
     - name: client
       port: {{ .Values.zookeeper.ports.client }}
-    {{- if .Values.tls.zookeeper.enabled }}
+    {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
     - name: client-tls
       port: {{ .Values.zookeeper.ports.clientTls }}
     {{- end }}

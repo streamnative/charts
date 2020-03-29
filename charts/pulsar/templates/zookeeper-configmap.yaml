@@ -32,7 +32,7 @@ data:
   PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
   serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
   # enable zookeeper tls
-  {{- if .Values.tls.zookeeper.enabled }}
+  {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
   secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   {{- end }}

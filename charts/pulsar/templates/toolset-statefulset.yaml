@@ -80,12 +80,12 @@ spec:
           readOnly: true
         {{- end }}
         {{- end }}
+        {{- end }}  
         {{- if .Values.tls.enabled }}
-        - mountPath: "/pulsar/certs/ca"
+        - mountPath: "/pulsar/certs/proxy-ca"
           name: ca
           readOnly: true
         {{- end}}
-        {{- end }}  
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
       volumes:
       {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled)) }}
@@ -100,7 +100,7 @@ spec:
       {{- end}}
       {{- end}}
       {{- if .Values.tls.enabled }}
-      - name: ca
+      - name: proxy-ca
         secret:
         {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
           secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
