@@ -112,6 +112,7 @@ PULSAR_PREFIX_tlsTrustStore: /pulsar/certs/ca/ca.crt
 Define bookie init container : verify cluster id
 */}}
 {{- define "pulsar.bookkeeper.init.verify_cluster_id" -}}
+{{- if .Values.tls.zookeeper.enabled -}}
 {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
 bin/apply-config-from-env.py conf/bookkeeper.conf;
 {{- include "pulsar.bookkeeper.zookeeper.tls.settings" . }}
@@ -129,5 +130,6 @@ export BOOKIE_EXTRA_OPTS="${BOOKIE_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.
 until bin/bookkeeper shell whatisinstanceid; do
   sleep 3;
 done;
+{{- end -}}
 {{- end -}}
 {{- end }}
