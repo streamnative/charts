@@ -28,12 +28,12 @@ metadata:
     component: {{ .Values.broker.component }}
 data:
   # Metadata settings
-  zookeeperServers: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}{{ .Values.metadataPrefix }}"
+  zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   {{- if .Values.pulsar_metadata.configurationStore }}
   configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
   {{- end }}
   {{- if not .Values.pulsar_metadata.configurationStore }}
-  configurationStoreServers: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}{{ .Values.metadataPrefix }}"
+  configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   {{- end }}
 
   # Broker settings
@@ -41,12 +41,7 @@ data:
   exposeTopicLevelMetricsInPrometheus: "true"
   numHttpServerThreads: "8"
   zooKeeperSessionTimeoutMillis: "30000"
-  {{- if eq .Values.images.broker.repository "streamnative/platform" }}
-  statusFilePath: "/sn-platform/status"
-  {{- end }}
-  {{- if not (eq .Values.images.broker.repository "streamnative/platform") }}
-  statusFilePath: "/pulsar/status"
-  {{- end }}
+  statusFilePath: "{{ template "pulsar.home" . }}/status"
 
   # Function Worker Settings
   # function worker configuration
@@ -61,14 +56,8 @@ data:
   PF_containerFactory: k8s
   PF_numFunctionPackageReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
   # support version >= 2.5.0
-  {{- if eq .Values.images.broker.repository "streamnative/platform" }}
-  PF_functionRuntimeFactoryConfigs_pulsarRootDir: /sn-platform
-  PF_kubernetesContainerFactory_pulsarRootDir: /sn-platform
-  {{- end }}
-  {{- if not (eq .Values.images.broker.repository "streamnative/platform") }}
-  PF_functionRuntimeFactoryConfigs_pulsarRootDir: /pulsar
-  PF_kubernetesContainerFactory_pulsarRootDir: /pulsar
-  {{- end }}
+  PF_functionRuntimeFactoryConfigs_pulsarRootDir: {{ template "pulsar.home" . }}
+  PF_kubernetesContainerFactory_pulsarRootDir: {{ template "pulsar.home" . }}
   PF_functionRuntimeFactoryConfigs_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
   PF_functionRuntimeFactoryConfigs_submittingInsidePod: "true"
   PF_functionRuntimeFactoryConfigs_installUserCodeDependencies: "true"

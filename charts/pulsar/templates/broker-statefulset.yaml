@@ -87,14 +87,17 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
+            {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 12 }}
             {{- if .Values.pulsar_metadata.configurationStore }}
             until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} get {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
             {{- end }}
             {{- if not .Values.pulsar_metadata.configurationStore }}
-            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.zookeeper.connect" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
             {{- end }}
               echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
+        volumeMounts:
+        {{- include "pulsar.broker.certs.volumeMounts" . | nindent 8 }}
       # This init container will wait for bookkeeper to be ready before
       # deploying the broker
       - name: wait-bookkeeper-ready
@@ -103,6 +106,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
+            {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 12 }}
             bin/apply-config-from-env.py conf/bookkeeper.conf;
             until bin/bookkeeper shell whatisinstanceid; do
               echo "bookkeeper cluster is not initialized yet. backoff for 3 seconds ...";
@@ -119,6 +123,8 @@ spec:
         envFrom:
           - configMapRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+        volumeMounts:
+        {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
@@ -161,11 +167,12 @@ spec:
           bin/apply-config-from-env.py conf/pulsar_env.sh;
           bin/gen-yml-from-env.py conf/functions_worker.yml;
           echo "OK" > status;
-          bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.service" . }} get {{ template "pulsar.broker.znode" . }};
+          {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
+          bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
           while [ $? -eq 0 ]; do
             echo "broker {{ template "pulsar.broker.hostname" . }} znode still exists ... check in 10 seconds ...";
             sleep 10;
-            bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.service" . }} get {{ template "pulsar.broker.znode" . }};
+            bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
           done;
           bin/pulsar broker;
         ports:
@@ -197,58 +204,36 @@ spec:
             readOnly: true
           {{- end }}
           {{- end }}
-          {{- if or .Values.tls.broker.enabled .Values.tls.bookie.enabled }}
-          - mountPath: "/pulsar/certs/broker"
-            name: broker-certs
-            readOnly: true
-          - mountPath: "/pulsar/certs/ca"
-            name: ca
-            readOnly: true
-          {{- end }}
+          {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
       {{- end }}
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.bookie.enabled)) }}
       volumes:
-        {{- if .Values.auth.authentication.enabled }}
-        {{- if eq .Values.auth.authentication.provider "jwt" }}
-        - name: token-keys
-          secret:
-            {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-            secretName: "{{ .Release.Name }}-token-asymmetric-key"
-            {{- end}}
+      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.bookie.enabled)) }}
+      {{- if .Values.auth.authentication.enabled }}
+      {{- if eq .Values.auth.authentication.provider "jwt" }}
+      - name: token-keys
+        secret:
+          {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
+          secretName: "{{ .Release.Name }}-token-asymmetric-key"
+          {{- end}}
+          {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+          secretName: "{{ .Release.Name }}-token-symmetric-key"
+          {{- end}}
+          items:
             {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-            secretName: "{{ .Release.Name }}-token-symmetric-key"
+            - key: SECRETKEY
+              path: token/secret.key
+            {{- else }}
+            - key: PUBLICKEY
+              path: token/public.key
             {{- end}}
-            items:
-              {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-              - key: SECRETKEY
-                path: token/secret.key
-              {{- else }}
-              - key: PUBLICKEY
-                path: token/public.key
-              {{- end}}
-        - name: broker-token
-          secret:
-            secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
-            items:
-              - key: TOKEN
-                path: broker/token
-        {{- end}}
-        {{- end}}
-        {{- if or .Values.tls.broker.enabled .Values.tls.bookie.enabled }}
-        - name: broker-certs
-          secret:
-            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
-            items:
-              - key: tls.crt
-                path: tls.crt
-              - key: tls.key
-                path: tls.key
-        - name: ca
-          secret:
-            secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
-            items:
-              - key: ca.crt
-                path: ca.crt
-        {{- end}}
+      - name: broker-token
+        secret:
+          secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
+          items:
+            - key: TOKEN
+              path: broker/token
       {{- end}}
+      {{- end}}
+      {{- end}}
+      {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
 {{- end }}

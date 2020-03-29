@@ -93,8 +93,6 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         volumeMounts:
         {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 8 }}
-      volumes:
-      {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 6 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"

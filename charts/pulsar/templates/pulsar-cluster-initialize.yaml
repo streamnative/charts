@@ -69,8 +69,6 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         volumeMounts:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
-      volumes:
-      {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_metadata.component }}"
         image: "{{ .Values.pulsar_metadata.image.repository }}:{{ .Values.pulsar_metadata.image.tag }}"

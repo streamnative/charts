@@ -62,7 +62,7 @@ spec:
 {{- end }}
 {{- end }}
 
-{{- if or .Values.tls.broker.enabled .Values.tls.bookie.enabled }}
+{{- if or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
