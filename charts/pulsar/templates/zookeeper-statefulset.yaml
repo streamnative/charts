@@ -83,6 +83,7 @@ spec:
 {{ toYaml .Values.zookeeper.resources | indent 10 }}
       {{- end }}
         command: ["sh", "-c"]
+        # PULSAR_EXTRA_OPTS="${PULSAR_EXTRA_OPTS} -Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory -Dzookeeper.ssl.keyStore.location=/pulsar/certs/zookeeper/tls.key -Dzookeeper.ssl.trustStore.location=/pulsar/certs/ca/ca.crt"
         args:
         - >
           bin/apply-config-from-env.py conf/zookeeper.conf;
