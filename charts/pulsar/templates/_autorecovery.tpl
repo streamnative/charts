@@ -45,7 +45,7 @@ Define autorecovery tls certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
 - name: autorecovery-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.autorecovery.cert_name }}"
     items:
     - key: tls.crt
       path: tls.crt

@@ -45,7 +45,7 @@ Define toolset tls certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
 - name: toolset-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
     items:
     - key: tls.crt
       path: tls.crt

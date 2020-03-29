@@ -62,11 +62,7 @@ tls:
   bookie:
     enabled: true
 
-# issue selfsigning certs
+# disable cert manager
 certs:
   internal_issuer:
-    enabled: true
-    type: selfsigning
-  public_issuer:
-    enabled: true
-    type: selfsigning
+    enabled: false

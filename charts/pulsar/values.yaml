@@ -192,10 +192,16 @@ tls:
   bookie:
     enabled: false
     cert_name: tls-bookie
-  # settings for generating certs for bookies
+  # settings for generating certs for zookeeper
   zookeeper:
     enabled: false
     cert_name: tls-zookeeper
+  # settings for generating certs for recovery
+  autorecovery:
+    cert_name: tls-recovery
+  # settings for generating certs for toolset
+  toolset:
+    cert_name: tls-toolset
 
 # Enable or disable broker authentication and authorization.
 auth:

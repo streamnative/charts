@@ -63,10 +63,6 @@ tls:
     enabled: true
   broker:
     enabled: true
-  bookie:
-    enabled: true
-  zookeeper:
-    enabled: true
 
 # disable cert-manager
 certs:
