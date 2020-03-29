@@ -38,8 +38,8 @@ keytool -import \
     -keystore /pulsar/toolset.truststore.jks \
     -storepass "${PASSWORD}" \
     -trustcacerts -noprompt;
-echo "BOOKIE_EXTRA_OPTS=\"${BOOKIE_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=/pulsar/toolset.keystore.jks -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=/pulsar/toolset.truststore.jks -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> {{ template "pulsar.home" . }}/conf/pulsar_env.sh;
-echo "PULSAR_EXTRA_OPTS=\"${PULSAR_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=/pulsar/toolset.keystore.jks -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=/pulsar/toolset.truststore.jks -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> {{ template "pulsar.home" . }}/conf/bkenv.sh;
+echo "\nBOOKIE_EXTRA_OPTS=\"${BOOKIE_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=/pulsar/toolset.keystore.jks -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=/pulsar/toolset.truststore.jks -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> {{ template "pulsar.home" . }}/conf/bkenv.sh;
+echo "\nPULSAR_EXTRA_OPTS=\"${PULSAR_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=/pulsar/toolset.keystore.jks -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=/pulsar/toolset.truststore.jks -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> {{ template "pulsar.home" . }}/conf/pulsar_env.sh;
 {{- end -}}
 {{- end }}
 

@@ -28,8 +28,7 @@ metadata:
     component: {{ .Values.toolset.component }}
 data:
   BOOKIE_LOG_APPENDER: "RollingFile"
-  zkServers: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-  zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+  {{- include "pulsar.bookkeeper.config.common" . | nindent 2 }}
   {{- if not .Values.toolset.useProxy }}
   # talk to broker
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
