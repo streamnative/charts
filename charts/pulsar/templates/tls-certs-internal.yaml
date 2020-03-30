@@ -17,8 +17,8 @@
 # under the License.
 #
 
-{{- if .Values.certs.internal_issuer.enabled }}
 {{- if .Values.tls.enabled }}
+{{- if .Values.certs.internal_issuer.enabled }}
 
 {{- if .Values.tls.proxy.enabled }}
 {{- if not (and .Values.external_dns.enabled .Values.certs.public_issuer.enabled) }}
@@ -143,11 +143,11 @@ spec:
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.autorecovery.cert_name }}"
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.autorecovery.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
@@ -178,11 +178,11 @@ spec:
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:

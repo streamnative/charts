@@ -59,16 +59,12 @@ toolset:
 # enable TLS
 tls:
   enabled: true
-  proxy:
-    enabled: true
-  broker:
+  zookeeper:
     enabled: true
   bookie:
     enabled: true
-  zookeeper:
-    enabled: true
 
-# disable cert-manager
+# disable cert manager
 certs:
   internal_issuer:
     enabled: false

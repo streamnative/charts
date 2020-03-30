@@ -17,43 +17,27 @@ ${HOSTNAME}.{{ template "pulsar.bookkeeper.service" . }}.{{ .Values.namespace }}
 Define bookie zookeeper client tls settings
 */}}
 {{- define "pulsar.bookkeeper.zookeeper.tls.settings" -}}
-{{- if .Values.tls.zookeeper.enabled -}}
-PASSWORD=$(head /dev/urandom | base64 | head -c 24);
-openssl pkcs12 \
-    -export \
-    -in /pulsar/certs/bookie/tls.crt \
-    -inkey /pulsar/certs/bookie/tls.key \
-    -out /pulsar/bookie.p12 \
-    -name {{ template "pulsar.bookkeeper.hostname" . }} \
-    -passout "pass:${PASSWORD}";
-keytool -importkeystore \
-    -srckeystore /pulsar/bookie.p12 \
-    -srcstoretype PKCS12 -srcstorepass "${PASSWORD}" \
-    -alias {{ template "pulsar.bookkeeper.hostname" . }}  \
-    -destkeystore /pulsar/bookie.keystore.jks \
-    -deststorepass "${PASSWORD}";
-keytool -import \
-    -file /pulsar/certs/ca/ca.crt \
-    -storetype JKS \
-    -alias {{ template "pulsar.bookkeeper.hostname" . }}  \
-    -keystore /pulsar/bookie.truststore.jks \
-    -storepass "${PASSWORD}" \
-    -trustcacerts -noprompt;
-export PULSAR_EXTRA_OPTS="${PULSAR_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=/pulsar/bookie.keystore.jks -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=/pulsar/bookie.truststore.jks -Dzookeeper.ssl.trustStore.password=${PASSWORD}";
-{{- end -}}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
+/pulsar/keytool/keytool.sh bookie {{ template "pulsar.bookkeeper.hostname" . }} true;
+{{- end }}
 {{- end }}
 
 {{/*
 Define bookie tls certs mounts
 */}}
 {{- define "pulsar.bookkeeper.certs.volumeMounts" -}}
-{{- if or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled }}
+{{- if and .Values.tls.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
 - name: bookie-certs
   mountPath: "/pulsar/certs/bookie"
   readOnly: true
 - name: ca
   mountPath: "/pulsar/certs/ca"
   readOnly: true
+{{- if .Values.tls.zookeeper.enabled }}
+- name: keytool
+  mountPath: "/pulsar/keytool/keytool.sh"
+  subPath: keytool.sh
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -61,7 +45,7 @@ Define bookie tls certs mounts
 Define bookie tls certs volumes
 */}}
 {{- define "pulsar.bookkeeper.certs.volumes" -}}
-{{- if or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled -}}
+{{- if and .Values.tls.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
 - name: bookie-certs
   secret:
     secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.bookie.cert_name }}"
@@ -76,7 +60,13 @@ Define bookie tls certs volumes
     items:
     - key: ca.crt
       path: ca.crt
-{{- end -}}
+{{- if .Values.tls.zookeeper.enabled }}
+- name: keytool
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
+    defaultMode: 0755
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -112,24 +102,20 @@ PULSAR_PREFIX_tlsTrustStore: /pulsar/certs/ca/ca.crt
 Define bookie init container : verify cluster id
 */}}
 {{- define "pulsar.bookkeeper.init.verify_cluster_id" -}}
-{{- if .Values.tls.zookeeper.enabled -}}
 {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
 bin/apply-config-from-env.py conf/bookkeeper.conf;
-{{- include "pulsar.bookkeeper.zookeeper.tls.settings" . }}
-export BOOKIE_EXTRA_OPTS="${BOOKIE_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=/pulsar/bookie.keystore.jks -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=/pulsar/bookie.truststore.jks -Dzookeeper.ssl.trustStore.password=${PASSWORD}";
+{{- include "pulsar.bookkeeper.zookeeper.tls.settings" . -}}
 until bin/bookkeeper shell whatisinstanceid; do
   sleep 3;
 done;
 bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie || true
-{{- end -}}
+{{- end }}
 {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence }}
 set -e;
 bin/apply-config-from-env.py conf/bookkeeper.conf;
-{{- include "pulsar.bookkeeper.zookeeper.tls.settings" . }}
-export BOOKIE_EXTRA_OPTS="${BOOKIE_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=/pulsar/bookie.keystore.jks -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=/pulsar/bookie.truststore.jks -Dzookeeper.ssl.trustStore.password=${PASSWORD}";
+{{- include "pulsar.bookkeeper.zookeeper.tls.settings" . -}}
 until bin/bookkeeper shell whatisinstanceid; do
   sleep 3;
 done;
-{{- end -}}
-{{- end -}}
+{{- end }}
 {{- end }}

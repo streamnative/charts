@@ -25,8 +25,9 @@ fi
 
 OUTPUT=${CHART_HOME}/output
 OUTPUT_BIN=${OUTPUT}/bin
-PULSARCTL_VERSION=v0.3.0
-PULSARCTL_BIN=$OUTPUT_BIN/pulsarctl
+PULSARCTL_VERSION=v0.4.0
+PULSARCTL_BIN=${HOME}/.pulsarctl/pulsarctl
+export PATH=${HOME}/.pulsarctl/plugins:${PATH}
 
 discoverArch() {
   ARCH=$(uname -m)
@@ -54,12 +55,12 @@ function pulsar::ensure_pulsarctl() {
     if pulsar::verify_pulsarctl; then
         return 0
     fi
-    echo "Installing pulsarctl $PULSARCTL_VERSION..."
-    tmpfile=$(mktemp)
-    trap "test -f $tmpfile && rm $tmpfile" RETURN
-    curl --retry 10 -L -o $tmpfile https://github.com/streamnative/pulsarctl/releases/download/${PULSARCTL_VERSION}/pulsarctl-${ARCH}-${OS}
-    mv $tmpfile $PULSARCTL_BIN
-    chmod +x $PULSARCTL_BIN
+    echo "Get pulsarctl install.sh script ..."
+    install_script=$(mktemp)
+    trap "test -f $install_script && rm $install_script" RETURN
+    curl --retry 10 -L -o $install_script https://raw.githubusercontent.com/streamnative/pulsarctl/master/install.sh
+    chmod +x $install_script
+    $install_script --user --version ${PULSARCTL_VERSION}
 }
 
 

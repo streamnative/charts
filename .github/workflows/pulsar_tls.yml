@@ -38,11 +38,8 @@ jobs:
         with:
           command: lint
 
-      # skip TLS testing now
-      #- name: Run chart-testing (install)
-      #  run: |
-      #    .ci/chart_test.sh .ci/clusters/values-tls.yaml
-      #  env:
-      #    TLS: "true"
-      #  # Only build a kind cluster if there are chart changes to test.
-      #  if: steps.lint.outputs.changed == 'true'
+      - name: Run chart-testing (install)
+        run: |
+          .ci/chart_test.sh .ci/clusters/values-tls.yaml
+        # Only build a kind cluster if there are chart changes to test.
+        if: steps.lint.outputs.changed == 'true'

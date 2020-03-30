@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart (BK TLS Only)
+name: Precommit - Pulsar Helm Chart (Broker & Proxy TLS Installation)
 on:
   pull_request:
     branches:
@@ -40,6 +40,6 @@ jobs:
 
       - name: Run chart-testing (install)
         run: |
-          .ci/chart_test.sh .ci/clusters/values-bk-tls.yaml
+          .ci/chart_test.sh .ci/clusters/values-broker-tls.yaml
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'

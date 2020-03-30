@@ -16,11 +16,6 @@ ci::create_cluster
 # install storage provisioner
 ci::install_storage_provisioner
 
-if [[ "x${TLS}" == "xtrue" ]]; then
-    # install cert manager
-    ci::install_cert_manager
-fi
-
 extra_opts=""
 if [[ "x${SYMMETRIC}" == "xtrue" ]]; then
     extra_opts="-s"
