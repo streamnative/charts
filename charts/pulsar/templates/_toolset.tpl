@@ -32,9 +32,11 @@ Define toolset tls certs mounts
 - name: ca
   mountPath: "/pulsar/certs/ca"
   readOnly: true
+{{- if .Values.tls.zookeeper.enabled }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
   subPath: keytool.sh
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -42,7 +44,7 @@ Define toolset tls certs mounts
 Define toolset tls certs volumes
 */}}
 {{- define "pulsar.toolset.certs.volumes" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: toolset-certs
   secret:
     secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
@@ -57,9 +59,11 @@ Define toolset tls certs volumes
     items:
     - key: ca.crt
       path: ca.crt
+{{- if .Values.tls.zookeeper.enabled }}
 - name: keytool
   configMap:
     name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
     defaultMode: 0755
-{{- end -}}
+{{- end }}
+{{- end }}
 {{- end }}

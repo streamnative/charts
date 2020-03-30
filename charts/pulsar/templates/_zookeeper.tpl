@@ -24,8 +24,6 @@ Define the zookeeper hostname
 ${HOSTNAME}.{{ template "pulsar.zookeeper.service" . }}.{{ .Values.namespace }}.svc.cluster.local
 {{- end -}}
 
-
-
 {{/*
 Define zookeeper tls settings
 */}}

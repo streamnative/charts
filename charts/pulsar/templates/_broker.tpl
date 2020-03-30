@@ -23,25 +23,27 @@ Define the broker znode
 Define broker zookeeper client tls settings
 */}}
 {{- define "pulsar.broker.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 /pulsar/keytool/keytool.sh broker {{ template "pulsar.broker.hostname" . }} true;
-{{- end -}}
+{{- end }}
 {{- end }}
 
 {{/*
 Define broker tls certs mounts
 */}}
 {{- define "pulsar.broker.certs.volumeMounts" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) -}}
+{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
 - name: broker-certs
   mountPath: "/pulsar/certs/broker"
   readOnly: true
 - name: ca
   mountPath: "/pulsar/certs/ca"
   readOnly: true
+{{- if .Values.tls.zookeeper.enabled }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
   subPath: keytool.sh
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -49,7 +51,7 @@ Define broker tls certs mounts
 Define broker tls certs volumes
 */}}
 {{- define "pulsar.broker.certs.volumes" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) -}}
+{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
 - name: broker-certs
   secret:
     secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
@@ -64,9 +66,11 @@ Define broker tls certs volumes
     items:
     - key: ca.crt
       path: ca.crt
+{{- if .Values.tls.zookeeper.enabled }}
 - name: keytool
   configMap:
     name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
     defaultMode: 0755
-{{- end -}}
+{{- end }}
+{{- end }}
 {{- end }}

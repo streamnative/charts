@@ -16,9 +16,9 @@ ${HOSTNAME}.{{ template "pulsar.autorecovery.service" . }}.{{ .Values.namespace 
 Define autorecovery zookeeper client tls settings
 */}}
 {{- define "pulsar.autorecovery.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 /pulsar/keytool/keytool.sh autorecovery {{ template "pulsar.autorecovery.hostname" . }} true;
-{{- end -}}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -32,9 +32,11 @@ Define autorecovery tls certs mounts
 - name: ca
   mountPath: "/pulsar/certs/ca"
   readOnly: true
+{{- if .Values.tls.zookeeper.enabled }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
   subPath: keytool.sh
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -42,7 +44,7 @@ Define autorecovery tls certs mounts
 Define autorecovery tls certs volumes
 */}}
 {{- define "pulsar.autorecovery.certs.volumes" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: autorecovery-certs
   secret:
     secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.autorecovery.cert_name }}"
@@ -57,11 +59,13 @@ Define autorecovery tls certs volumes
     items:
     - key: ca.crt
       path: ca.crt
+{{- if .Values.tls.zookeeper.enabled }}
 - name: keytool
   configMap:
     name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
     defaultMode: 0755
-{{- end -}}
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -69,7 +73,7 @@ Define autorecovery init container : verify cluster id
 */}}
 {{- define "pulsar.autorecovery.init.verify_cluster_id" -}}
 bin/apply-config-from-env.py conf/bookkeeper.conf;
-{{- include "pulsar.autorecovery.zookeeper.tls.settings" . }}
+{{- include "pulsar.autorecovery.zookeeper.tls.settings" . -}}
 until bin/bookkeeper shell whatisinstanceid; do
   sleep 3;
 done;

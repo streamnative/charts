@@ -174,6 +174,7 @@ spec:
             sleep 10;
             bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
           done;
+          cat conf/pulsar_env.sh;
           bin/pulsar broker;
         ports:
         # prometheus needs to access /metrics endpoint
@@ -192,7 +193,6 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.bookie.enabled)) }}
         volumeMounts:
           {{- if .Values.auth.authentication.enabled }}
           {{- if eq .Values.auth.authentication.provider "jwt" }}
@@ -205,9 +205,7 @@ spec:
           {{- end }}
           {{- end }}
           {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
-      {{- end }}
       volumes:
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.bookie.enabled)) }}
       {{- if .Values.auth.authentication.enabled }}
       {{- if eq .Values.auth.authentication.provider "jwt" }}
       - name: token-keys
@@ -232,7 +230,6 @@ spec:
           items:
             - key: TOKEN
               path: broker/token
-      {{- end}}
       {{- end}}
       {{- end}}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
