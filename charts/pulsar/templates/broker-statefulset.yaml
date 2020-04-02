@@ -166,6 +166,7 @@ spec:
           bin/apply-config-from-env.py conf/broker.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
           bin/gen-yml-from-env.py conf/functions_worker.yml;
+          bin/gen-log-from-env.py conf/log4j2.yaml;
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
           bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};

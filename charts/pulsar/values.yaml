@@ -123,19 +123,19 @@ images:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/platform
-    tag: v1.0.0
+    tag: v1.0.1
     pullPolicy: IfNotPresent
   proxy:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/platform
-    tag: v1.0.0
+    tag: v1.0.1
     pullPolicy: IfNotPresent
   functions:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/platform
-    tag: v1.0.0
+    tag: v1.0.1
   prometheus:
     repository: prom/prometheus
     tag: v1.6.3
@@ -161,6 +161,13 @@ images:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: 0.26.2
     pullPolicy: "IfNotPresent"
+
+## Logger level setting
+logger:
+  enabled: false
+  level: debug
+  ref: Console
+  appender_ref_level: debug
 
 ## TLS
 ## templates/tls-certs.yaml
