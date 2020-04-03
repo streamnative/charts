@@ -91,13 +91,6 @@ data:
   PF_kubernetesContainerFactory_changeConfigMapNamespace: {{ .Values.namespace }}
   {{- end }}
 
-  # Log level settings
-  {{- if and .Values.logger.enabled}}
-  LOG_Configuration_Loggers_Root_level: {{.Values.logger.level}}
-  LOG_Configuration_Loggers_Root_AppenderRef_ref: {{.Values.logger.ref}}
-  LOG_Configuration_Loggers_Root_AppenderRef_level: {{.Values.logger.appender_ref_level}}
-  {{- end }}
-  
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.broker.ports.http }}"
   {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}

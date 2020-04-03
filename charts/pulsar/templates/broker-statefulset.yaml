@@ -166,10 +166,10 @@ spec:
           bin/apply-config-from-env.py conf/broker.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
           bin/gen-yml-from-env.py conf/functions_worker.yml;
-          bin/gen-log-from-env.py conf/log4j2.yaml;
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
           bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
+          cp /logconf/log4j2.yaml /sn-platform/conf;
           while [ $? -eq 0 ]; do
             echo "broker {{ template "pulsar.broker.hostname" . }} znode still exists ... check in 10 seconds ...";
             sleep 10;
@@ -195,6 +195,8 @@ spec:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         volumeMounts:
+          - mountPath: "/logconf"
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
           {{- if .Values.auth.authentication.enabled }}
           {{- if eq .Values.auth.authentication.provider "jwt" }}
           - mountPath: "/pulsar/keys"
@@ -207,6 +209,9 @@ spec:
           {{- end }}
           {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
       volumes:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j"
       {{- if .Values.auth.authentication.enabled }}
       {{- if eq .Values.auth.authentication.provider "jwt" }}
       - name: token-keys
