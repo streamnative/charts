@@ -948,10 +948,8 @@ presto:
         type: "UseG1GC"
         g1:
           heapRegionSize: "32M"
-
   service:
     type: LoadBalancer
-
   resources: 
   # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -967,7 +965,5 @@ presto:
 
   # nodeSelector: 
     # agentpool: presto
-
   tolerations: []
-
   affinity: {}
