@@ -332,8 +332,8 @@ zookeeper:
     clientTls: 2281
     follower: 2888
     leaderElection: 3888
-  #nodeSelector:
-    #agentpool: agentpool
+  # nodeSelector:
+    # agentpool: agentpool
   probe:
     liveness:
       enabled: true
@@ -448,8 +448,8 @@ bookkeeper:
   ports:
     http: 8000
     bookie: 3181
-  #nodeSelector:
-    #agentpool: bookkeeper
+  # nodeSelector:
+    # agentpool: bookkeeper
   probe:
     liveness:
       enabled: true
@@ -569,8 +569,8 @@ autorecovery:
   replicaCount: 1
   ports:
     http: 8000
-  #nodeSelector:
-    #agentpool: broker
+  # nodeSelector:
+    # agentpool: broker
   affinity:
     anti_affinity: true
   annotations: {}
@@ -621,8 +621,8 @@ broker:
     https: 8443
     pulsar: 6650
     pulsarssl: 6651
-  #nodeSelector:
-    #agentpool: broker
+  # nodeSelector:
+    # agentpool: broker
   probe:
     liveness:
       enabled: true
@@ -703,8 +703,8 @@ proxy:
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
   replicaCount: 1
-  #nodeSelector:
-    #agentpool: pulsarproxy
+  # nodeSelector:
+    # agentpool: pulsarproxy
   probe:
     liveness:
       enabled: true
@@ -781,8 +781,8 @@ toolset:
   component: toolset
   useProxy: true
   replicaCount: 1
-  #nodeSelector:
-    #agentpool: agentpool
+  # nodeSelector:
+    # agentpool: agentpool
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -847,8 +847,8 @@ prometheus:
 grafana:
   component: grafana
   replicaCount: 1
-  #nodeSelector:
-    #agentpool: pulsarproxy
+  # nodeSelector:
+    # agentpool: pulsarproxy
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -899,8 +899,8 @@ pulsar_manager:
   component: pulsar-manager
   port: 9527
   replicaCount: 1
-  #nodeSelector:
-    #agentpool: pulsarproxy
+  # nodeSelector:
+    # agentpool: pulsarproxy
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -965,8 +965,8 @@ presto:
   #    cpu: 100m
   #    memory: 128Mi
 
-  #nodeSelector: 
-    #agentpool: presto
+  # nodeSelector: 
+    # agentpool: presto
 
   tolerations: []
 

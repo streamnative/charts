@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\charts",
+    "\\charts\\pulsar",
+    "\\charts\\pulsar\\templates",
+    "\\scripts",
+    "\\scripts\\pulsar"
+  ],
+  "SelectedNode": "\\charts\\pulsar\\templates\\presto-coordinator-configmap.yaml",
+  "PreviewInSolutionExplorer": false
+}
