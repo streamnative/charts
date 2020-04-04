@@ -1,0 +1,21 @@
+{{- if .Values.components.presto }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-presto"
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: presto-coordinator
+spec:
+  type: {{ .Values.presto.service.type }}
+  ports:
+    - port: {{ .Values.presto.server.config.http.port }}
+      targetPort: {{ .Values.presto.server.config.http.port }}
+      protocol: TCP
+      name: http-coord
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: presto-coordinator
+{{- end }}

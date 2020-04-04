@@ -83,13 +83,15 @@ components:
   toolset: true
   # pulsar manager
   pulsar_manager: true
+  # pulsar sql
+  presto: true
 
 ## Monitoring Components
 ##
 ## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
   # monitoring - prometheus
-  prometheus: true
+  prometheus: false
   # monitoring - grafana
   grafana: true
   # monitoring - node_exporter
@@ -112,6 +114,10 @@ images:
     # tag: 2.5.0
     repository: streamnative/platform
     tag: v1.0.0
+    pullPolicy: IfNotPresent
+  presto:
+    repository: eabanonu/presto-pulsar
+    tag: v0.0.12
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -320,14 +326,14 @@ zookeeper:
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
-  replicaCount: 3
+  replicaCount: 2
   ports:
     client: 2181
     clientTls: 2281
     follower: 2888
     leaderElection: 3888
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
+  nodeSelector:
+    agentpool: agentpool
   probe:
     liveness:
       enabled: true
@@ -438,12 +444,12 @@ bookkeeper:
       # requests:
         # memory: 4Gi
         # cpu: 2
-  replicaCount: 4
+  replicaCount: 3
   ports:
     http: 8000
     bookie: 3181
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
+  nodeSelector:
+    agentpool: bookkeeper
   probe:
     liveness:
       enabled: true
@@ -563,8 +569,8 @@ autorecovery:
   replicaCount: 1
   ports:
     http: 8000
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
+  nodeSelector:
+    agentpool: broker
   affinity:
     anti_affinity: true
   annotations: {}
@@ -609,14 +615,14 @@ broker:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
-  replicaCount: 3
+  replicaCount: 2
   ports:
     http: 8080
     https: 8443
     pulsar: 6650
     pulsarssl: 6651
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
+  nodeSelector:
+    agentpool: broker
   probe:
     liveness:
       enabled: true
@@ -696,9 +702,9 @@ proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
-  replicaCount: 3
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
+  replicaCount: 1
+  nodeSelector:
+    agentpool: pulsarproxy
   probe:
     liveness:
       enabled: true
@@ -775,8 +781,8 @@ toolset:
   component: toolset
   useProxy: true
   replicaCount: 1
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
+  nodeSelector:
+    agentpool: agentpool
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -841,8 +847,8 @@ prometheus:
 grafana:
   component: grafana
   replicaCount: 1
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
+  nodeSelector:
+    agentpool: pulsarproxy
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -893,8 +899,8 @@ pulsar_manager:
   component: pulsar-manager
   port: 9527
   replicaCount: 1
-  # nodeSelector:
-  # cloud.google.com/gke-nodepool: default-pool
+  nodeSelector:
+    agentpool: pulsarproxy
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -918,3 +924,49 @@ rbac:
   enable: true
   roleName: pulsar-operator
   roleBindingName: pulsar-operator-cluster-role-binding
+
+# Deploy pulsar sql
+presto:
+  server:
+    workers: 2
+    node:
+      environment: production
+      dataDir: /presto/etc/data
+    log:
+      presto:
+        level: DEBUG
+    config:
+      path: /etc/presto
+      http:
+        port: 8081
+      query:
+        maxMemory: "4GB"
+        maxMemoryPerNode: "1GB"
+  jvm:
+    maxHeapSize: "8G"
+    gcMethod:
+      type: "UseG1GC"
+      g1:
+        heapRegionSize: "32M"
+
+  service:
+    type: LoadBalancer
+
+  resources: 
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  nodeSelector: 
+    agentpool: presto
+
+  tolerations: []
+
+  affinity: {}
