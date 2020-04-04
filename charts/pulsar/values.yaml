@@ -928,7 +928,7 @@ rbac:
 # Deploy pulsar sql
 presto:
   server:
-    workers: 2
+    workers: 1
     node:
       environment: production
       dataDir: /presto/etc/data
@@ -942,27 +942,28 @@ presto:
       query:
         maxMemory: "4GB"
         maxMemoryPerNode: "1GB"
-  jvm:
-    maxHeapSize: "8G"
-    gcMethod:
-      type: "UseG1GC"
-      g1:
-        heapRegionSize: "32M"
+    jvm:
+      maxHeapSize: "8G"
+      gcMethod:
+        type: "UseG1GC"
+        g1:
+          heapRegionSize: "32M"
 
   service:
     type: LoadBalancer
 
   resources: 
+  # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    limits:
-      cpu: 100m
-      memory: 128Mi
-    requests:
-      cpu: 100m
-      memory: 128Mi
+  #  limits:
+  #    cpu: 100m
+  #    memory: 128Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 128Mi
 
   nodeSelector: 
     agentpool: presto

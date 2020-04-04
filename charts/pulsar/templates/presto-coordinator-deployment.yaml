@@ -25,7 +25,7 @@ spec:
           configMap:
             name: {{ template "presto.coordinator" . }}
       containers:
-        - name: {{ .Chart.Name }}.presto-coordinator
+        - name: {{ .Chart.Name }}-presto-coordinator
           image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
           imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
           command: ["/bin/bash"]

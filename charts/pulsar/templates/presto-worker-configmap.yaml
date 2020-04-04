@@ -1,5 +1,5 @@
 {{- if .Values.components.presto }}
-{{- if gt (int .Values.server.workers) 0 }}
+{{- if gt (int .Values.presto.server.workers) 0 }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -29,7 +29,7 @@ data:
     http-server.http.port={{ .Values.presto.server.config.http.port }}
     query.max-memory={{ .Values.presto.server.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.server.config.query.maxMemoryPerNode }}
-    discovery.uri=http://{{ template "Pulsar.fullname" . }}-presto:{{ .Values.presto.server.config.http.port }}
+    discovery.uri=http://{{ template "pulsar.fullname" . }}-presto:{{ .Values.presto.server.config.http.port }}
 
   log.properties: |
     com.facebook.presto={{ .Values.presto.server.log.presto.level }}
@@ -144,7 +144,7 @@ data:
     cp {{ .Values.presto.server.config.path }}/*.properties $PRESTO_CONF_DIR
     cp {{ .Values.presto.server.config.path }}/*.config $PRESTO_CONF_DIR
     cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/catalog
-    cp {{ .Values.presto.server.config.path }}/pulsar.properties presto/etc/data/etc/catalog
+    cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/data/etc/catalog 
     launcher run
 
   health_check.sh: |

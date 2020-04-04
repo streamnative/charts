@@ -1,5 +1,5 @@
 {{- if .Values.components.presto }}
-{{- if gt (int .Values.server.workers) 0 }}
+{{- if gt (int .Values.presto.server.workers) 0 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -27,7 +27,7 @@ spec:
           configMap:
             name: {{ template "presto.worker" . }}
       containers:
-        - name: {{ .Chart.Name }}-worker
+        - name: {{ .Chart.Name }}-presto-worker
           image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
           imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
           command: ["/bin/bash"]

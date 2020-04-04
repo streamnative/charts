@@ -148,6 +148,6 @@ data:
     cp {{ .Values.presto.server.config.path }}/*.properties $PRESTO_CONF_DIR
     cp {{ .Values.presto.server.config.path }}/*.config $PRESTO_CONF_DIR
     cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/catalog
-    cp {{ .Values.presto.server.config.path }}/pulsar.properties presto/etc/data/etc/catalog    
+    cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/data/etc/catalog    
     launcher run
 {{- end }}
