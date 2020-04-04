@@ -963,7 +963,7 @@ presto:
   #    cpu: 100m
   #    memory: 128Mi
 
-  # nodeSelector: 
+  # nodeSelector:
     # agentpool: presto
   tolerations: []
   affinity: {}
