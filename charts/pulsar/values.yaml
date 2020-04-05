@@ -84,7 +84,7 @@ components:
   # pulsar manager
   pulsar_manager: true
   # pulsar sql
-  presto: true
+  presto: false
 
 ## Monitoring Components
 ##
@@ -326,14 +326,14 @@ zookeeper:
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
-  replicaCount: 2
+  replicaCount: 3
   ports:
     client: 2181
     clientTls: 2281
     follower: 2888
     leaderElection: 3888
   # nodeSelector:
-    # agentpool: agentpool
+    # cloud.google.com/gke-nodepool: default-pool
   probe:
     liveness:
       enabled: true
@@ -444,12 +444,12 @@ bookkeeper:
       # requests:
         # memory: 4Gi
         # cpu: 2
-  replicaCount: 3
+  replicaCount: 4
   ports:
     http: 8000
     bookie: 3181
   # nodeSelector:
-    # agentpool: bookkeeper
+    # cloud.google.com/gke-nodepool: default-pool
   probe:
     liveness:
       enabled: true
@@ -570,7 +570,7 @@ autorecovery:
   ports:
     http: 8000
   # nodeSelector:
-    # agentpool: broker
+    # cloud.google.com/gke-nodepool: default-pool
   affinity:
     anti_affinity: true
   annotations: {}
@@ -615,14 +615,14 @@ broker:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
-  replicaCount: 2
+  replicaCount: 3
   ports:
     http: 8080
     https: 8443
     pulsar: 6650
     pulsarssl: 6651
   # nodeSelector:
-    # agentpool: broker
+    # cloud.google.com/gke-nodepool: default-pool
   probe:
     liveness:
       enabled: true
@@ -702,9 +702,9 @@ proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
-  replicaCount: 1
+  replicaCount: 3
   # nodeSelector:
-    # agentpool: pulsarproxy
+    # cloud.google.com/gke-nodepool: default-pool
   probe:
     liveness:
       enabled: true
@@ -782,7 +782,7 @@ toolset:
   useProxy: true
   replicaCount: 1
   # nodeSelector:
-    # agentpool: agentpool
+    # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -848,7 +848,7 @@ grafana:
   component: grafana
   replicaCount: 1
   # nodeSelector:
-    # agentpool: pulsarproxy
+    # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -900,7 +900,7 @@ pulsar_manager:
   port: 9527
   replicaCount: 1
   # nodeSelector:
-    # agentpool: pulsarproxy
+    # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -928,7 +928,7 @@ rbac:
 # Deploy pulsar sql
 presto:
   server:
-    workers: 1
+    workers: 2
     node:
       environment: production
       dataDir: /presto/etc/data
