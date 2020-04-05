@@ -91,7 +91,7 @@ components:
 ## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
   # monitoring - prometheus
-  prometheus: false
+  prometheus: true
   # monitoring - grafana
   grafana: true
   # monitoring - node_exporter
