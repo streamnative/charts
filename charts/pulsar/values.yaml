@@ -975,4 +975,4 @@ presto:
   tolerations: []
   affinity: {}
   annotations: {}
-  gracePeriod: 0  
+  gracePeriod: 0 
