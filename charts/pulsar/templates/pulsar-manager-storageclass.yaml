@@ -18,24 +18,20 @@
 #
 
 {{- if .Values.components.pulsar_manager }}
-apiVersion: v1
-kind: Service
+{{- if and .Values.volumes.persistence .Values.pulsar_manager.volumes.persistence }}
+{{- if .Values.pulsar_manager.volumes.data.storageClass }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-{{ .Values.pulsar_manager.volumes.data.name }}"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.pulsar_manager.component }}
-  annotations:
-{{ toYaml .Values.pulsar_manager.service.annotations | indent 4 }}
-spec:
-  type: {{ .Values.pulsar_manager.service.type }}
-  ports:
-    - name: frontend
-      port: {{ .Values.pulsar_manager.ports.frontend }}
-      protocol: TCP
-  selector:
-    app: {{ template "pulsar.name" . }}
-    release: {{ .Release.Name }}
-    component: {{ .Values.pulsar_manager.component }}
+provisioner: {{ .Values.pulsar_manager.volumes.data.storageClass.provisioner }}
+parameters:
+  type: {{ .Values.pulsar_manager.volumes.data.storageClass.type }}
+  fsType: {{ .Values.pulsar_manager.volumes.data.storageClass.fsType }}
+{{- end }}
+{{- end }}
 {{- end }}

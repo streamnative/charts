@@ -21,7 +21,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
@@ -29,10 +29,10 @@ metadata:
   annotations:
 {{ toYaml .Values.pulsar_manager.service.annotations | indent 4 }}
 spec:
-  type: {{ .Values.pulsar_manager.service.type }}
+  clusterIP: None
   ports:
-    - name: frontend
-      port: {{ .Values.pulsar_manager.ports.frontend }}
+    - name: backend
+      port: {{ .Values.pulsar_manager.ports.backend }}
       protocol: TCP
   selector:
     app: {{ template "pulsar.name" . }}
