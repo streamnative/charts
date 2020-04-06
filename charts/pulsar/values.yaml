@@ -929,6 +929,10 @@ rbac:
 presto:
   server:
     workers: 2
+    # zookeeper servers
+    zookeepers: {}
+    # broker servers
+    brokers: {}
     node:
       environment: production
       dataDir: /presto/etc/data

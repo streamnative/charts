@@ -80,9 +80,10 @@ data:
     # name of the connector to be displayed in the catalog
     connector.name=pulsar
     # the url of Pulsar broker service
-    pulsar.broker-service-url=http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ .Values.namespace }}.svc.cluster.local:8080
+    #pulsar.broker-service-url=http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ .Values.namespace }}.svc.cluster.local:8080
+    pulsar.broker-service-url={{ .Values.presto.server.brokers }}
     # URI of Zookeeper cluster
-    pulsar.zookeeper-uri={{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}
+    pulsar.zookeeper-uri={{ .Values.presto.server.zookeepers }}
     # minimum number of entries to read at a single time
     pulsar.max-entry-read-batch-size=100
     # default number of splits to use per query
