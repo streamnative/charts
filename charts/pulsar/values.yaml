@@ -117,7 +117,7 @@ images:
     pullPolicy: IfNotPresent
   presto:
     repository: eabanonu/presto-pulsar
-    tag: v0.0.12
+    tag: v0.0.15
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -760,7 +760,7 @@ proxy:
   ## templates/proxy-service.yaml
   ##
   ports:
-    http: 80
+    http: 8080
     https: 443
     pulsar: 6650
     pulsarssl: 6651
@@ -929,6 +929,10 @@ rbac:
 presto:
   server:
     workers: 2
+    # zookeeper servers
+    zookeepers: {}
+    # broker servers
+    brokers: {}
     node:
       environment: production
       dataDir: /presto/etc/data
@@ -951,6 +955,9 @@ presto:
   service:
     type: LoadBalancer
   resources:
+    requests:
+      memory: 512Mi
+      cpu: 0.2
   # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -967,3 +974,6 @@ presto:
     # agentpool: presto
   tolerations: []
   affinity: {}
+  annotations: {}
+  gracePeriod: 0
+  
