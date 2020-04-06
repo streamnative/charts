@@ -116,8 +116,8 @@ images:
     tag: v1.0.0
     pullPolicy: IfNotPresent
   presto:
-    repository: eabanonu/presto-pulsar
-    tag: v0.0.15
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -930,9 +930,9 @@ presto:
   server:
     workers: 2
     # zookeeper servers
-    zookeepers: {}
+    zookeepers: 10.240.0.126:2181,10.240.0.32:2181,10.240.0.139:2181
     # broker servers
-    brokers: {}
+    brokers: http://52.177.30.235:8080
     node:
       environment: production
       dataDir: /presto/etc/data
@@ -954,21 +954,15 @@ presto:
           heapRegionSize: "32M"
   service:
     type: LoadBalancer
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 0.2
+  resources: {}  
   # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  #  limits:
-  #    cpu: 100m
-  #    memory: 128Mi
   #  requests:
-  #    cpu: 100m
-  #    memory: 128Mi
+  #    memory: 512Mi
+  #    cpu: 0.2
 
   # nodeSelector:
     # agentpool: presto
