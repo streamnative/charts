@@ -30,7 +30,6 @@ data:
   node.properties: |
     node.environment={{ .Values.presto.server.node.environment }}
     node.data-dir={{ .Values.presto.server.node.dataDir }}
-
   jvm.config: |
     -server
     -Xmx{{ .Values.presto.server.jvm.maxHeapSize }}
@@ -40,21 +39,40 @@ data:
     -XX:+ExplicitGCInvokesConcurrent
     -XX:+HeapDumpOnOutOfMemoryError
     -XX:+ExitOnOutOfMemoryError
-
   config.properties: |
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #   http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
     coordinator=true
+    http-server.http.port={{ .Values.presto.server.config.http.port }}
+    discovery-server.enabled=true
+    discovery.uri=http://{{ template "pulsar.fullname" . }}-presto:{{ .Values.presto.server.config.http.port }}
+    query.max-memory={{ .Values.presto.server.config.query.maxMemory }}
+    query.max-memory-per-node={{ .Values.presto.server.config.query.maxMemoryPerNode }}
 {{- if gt (int .Values.presto.server.workers) 0 }}
     node-scheduler.include-coordinator=false
 {{- else }}
     node-scheduler.include-coordinator=true
 {{- end }}
-    http-server.http.port={{ .Values.presto.server.config.http.port }}
-    query.max-memory={{ .Values.presto.server.config.query.maxMemory }}
-    query.max-memory-per-node={{ .Values.presto.server.config.query.maxMemoryPerNode }}
-    discovery-server.enabled=true
-    discovery.uri=http://{{ template "pulsar.fullname" . }}-presto:{{ .Values.presto.server.config.http.port }}
 
   log.properties: |
+    
     com.facebook.presto={{ .Values.presto.server.log.presto.level }}
   
   pulsar.properties: |
@@ -80,8 +98,8 @@ data:
     # name of the connector to be displayed in the catalog
     connector.name=pulsar
     # the url of Pulsar broker service
-    #pulsar.broker-service-url=http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ .Values.namespace }}.svc.cluster.local:8080
     pulsar.broker-service-url={{ .Values.presto.server.brokers }}
+    # pulsar.broker-service-url={{ .Values.presto.server.brokers }}
     # URI of Zookeeper cluster
     pulsar.zookeeper-uri={{ .Values.presto.server.zookeepers }}
     # minimum number of entries to read at a single time
@@ -168,6 +186,6 @@ data:
     cp {{ .Values.presto.server.config.path }}/*.properties $PRESTO_CONF_DIR
     cp {{ .Values.presto.server.config.path }}/*.config $PRESTO_CONF_DIR
     cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/catalog
-    cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/data/etc/catalog    
+    cp {{ .Values.presto.server.config.path }}/pulsar.properties presto/etc/data/etc/catalog  
     launcher run
 {{- end }}
