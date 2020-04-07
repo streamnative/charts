@@ -169,7 +169,7 @@ spec:
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
           bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
-          cp /logconf/log4j2.yaml /sn-platform/conf;
+          cp /logconf/log4j2.yaml {{ template "pulsar.home" .}}/conf;
           while [ $? -eq 0 ]; do
             echo "broker {{ template "pulsar.broker.hostname" . }} znode still exists ... check in 10 seconds ...";
             sleep 10;
