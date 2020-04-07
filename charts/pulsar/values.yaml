@@ -116,8 +116,8 @@ images:
     tag: v1.0.0
     pullPolicy: IfNotPresent
   presto:
-    repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    repository: eabanonu/presto-pulsar
+    tag: v0.0.15
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -930,9 +930,9 @@ presto:
   server:
     workers: 2
     # zookeeper servers
-    zookeepers: 10.240.0.126:2181,10.240.0.32:2181,10.240.0.139:2181
+    zookeepers: {}
     # broker servers
-    brokers: http://52.177.30.235:8080
+    brokers: {}
     node:
       environment: production
       dataDir: /presto/etc/data
