@@ -83,6 +83,8 @@ components:
   toolset: true
   # pulsar manager
   pulsar_manager: true
+  # pulsar sql
+  presto: false
 
 ## Monitoring Components
 ##
@@ -112,6 +114,10 @@ images:
     # tag: 2.5.0
     repository: streamnative/platform
     tag: v1.0.0
+    pullPolicy: IfNotPresent
+  presto:
+    repository: eabanonu/presto-pulsar
+    tag: v0.0.15
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -757,7 +763,7 @@ proxy:
   ## templates/proxy-service.yaml
   ##
   ports:
-    http: 80
+    http: 8080
     https: 443
     pulsar: 6650
     pulsarssl: 6651
@@ -915,7 +921,7 @@ pulsar_manager:
       initialDelaySeconds: 10
       periodSeconds: 30
   # nodeSelector:
-  # cloud.google.com/gke-nodepool: default-pool
+    # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -961,3 +967,49 @@ rbac:
   enable: true
   roleName: pulsar-operator
   roleBindingName: pulsar-operator-cluster-role-binding
+
+# Deploy pulsar sql
+presto:
+  server:
+    workers: 2
+    # zookeeper servers
+    zookeepers: {}
+    # broker servers
+    brokers: {}
+    node:
+      environment: production
+      dataDir: /presto/etc/data
+    log:
+      presto:
+        level: DEBUG
+    config:
+      path: /etc/presto
+      http:
+        port: 8081
+      query:
+        maxMemory: "4GB"
+        maxMemoryPerNode: "1GB"
+    jvm:
+      maxHeapSize: "8G"
+      gcMethod:
+        type: "UseG1GC"
+        g1:
+          heapRegionSize: "32M"
+  service:
+    type: LoadBalancer
+  resources: {}
+  # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  #  requests:
+  #    memory: 512Mi
+  #    cpu: 0.2
+
+  # nodeSelector:
+    # agentpool: presto
+  tolerations: []
+  affinity: {}
+  annotations: {}
+  gracePeriod: 0
