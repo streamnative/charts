@@ -133,6 +133,7 @@ spec:
         - >
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
+          cp /logconf/log4j2.yaml {{ template "pulsar.home" .}}/conf;
           {{- include "pulsar.bookkeeper.zookeeper.tls.settings" . | nindent 10 }}
           bin/pulsar bookie;
         ports:
@@ -148,8 +149,13 @@ spec:
           mountPath: /pulsar/data/bookkeeper/journal
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
           mountPath: /pulsar/data/bookkeeper/ledgers
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-log4j-config"
+          mountPath: "/logconf"
         {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 8 }}
       volumes:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-log4j-config"
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j"
       {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
         emptyDir: {}

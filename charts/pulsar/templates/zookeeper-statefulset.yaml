@@ -88,6 +88,7 @@ spec:
         - >
           bin/apply-config-from-env.py conf/zookeeper.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
+          cp /logconf/log4j2.yaml {{ template "pulsar.home" .}}/conf;
           {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
           bin/generate-zookeeper-config.sh conf/zookeeper.conf;
           bin/pulsar zookeeper;
@@ -138,6 +139,8 @@ spec:
           failureThreshold: {{ .Values.zookeeper.probe.startup.failureThreshold }}
         {{- end }}
         volumeMounts:
+        - mountPath: "/logconf"
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-log4j-config"
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
           mountPath: /pulsar/data
         {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
@@ -152,6 +155,9 @@ spec:
           subPath: keytool.sh
         {{- end }}
       volumes:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-log4j-config"
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j"
       {{- if not (and .Values.volumes.persistence .Values.zookeeper.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
         emptyDir: {}

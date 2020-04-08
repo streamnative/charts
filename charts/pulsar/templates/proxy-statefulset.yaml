@@ -142,10 +142,11 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/apply-config-from-env.py conf/proxy.conf &&
-          bin/apply-config-from-env.py conf/pulsar_env.sh &&
-          echo "OK" > status &&
-          bin/pulsar proxy
+          bin/apply-config-from-env.py conf/proxy.conf;
+          bin/apply-config-from-env.py conf/pulsar_env.sh;
+          cp /logconf/log4j2.yaml {{ template "pulsar.home" .}}/conf;
+          echo "OK" > status;
+          bin/pulsar proxy;
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http
@@ -165,6 +166,8 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
         {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled)) }}
         volumeMounts:
+          - mountPath: "/logconf"
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j-config"
           {{- if .Values.auth.authentication.enabled }}
           {{- if eq .Values.auth.authentication.provider "jwt" }}
           - mountPath: "/pulsar/keys"
@@ -188,6 +191,9 @@ spec:
       {{- end}}
       {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled .Values.tls.proxy.enabled) }}
       volumes:
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j-config"
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j"
         {{- if .Values.auth.authentication.enabled }}
         {{- if eq .Values.auth.authentication.provider "jwt" }}
         - name: token-keys
