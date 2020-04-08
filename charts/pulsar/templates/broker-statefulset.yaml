@@ -195,17 +195,11 @@ spec:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         volumeMounts:
-          - mountPath: "/logconf"
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
-        {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
-        {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
       volumes:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
-        configMap:
-          name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
-          items:
-          - key: log4j2.yaml
-            path: conf/log4j2.yaml
       {{- include "pulsar.broker.token.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
+      {{- include "pulsar.broker.log.volumes" . | nindent 6 }}
 {{- end }}
