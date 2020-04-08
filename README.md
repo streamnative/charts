@@ -51,8 +51,8 @@ It includes support for:
         - [x] Broker
         - [x] Toolset
         - [ ] Kafka-on-Pulsar
-        - [ ] Bookie
-        - [ ] ZooKeeper
+        - [x] Bookie
+        - [x] ZooKeeper
     - [x] Authentication
         - [x] JWT
         - [ ] Mutal TLS

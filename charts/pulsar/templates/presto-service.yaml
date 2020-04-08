@@ -17,25 +17,24 @@
 # under the License.
 #
 
-{{- if .Values.components.pulsar_manager }}
+{{- if .Values.components.presto }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+  name: "{{ template "pulsar.fullname" . }}-presto"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.pulsar_manager.component }}
-  annotations:
-{{ toYaml .Values.pulsar_manager.service.annotations | indent 4 }}
+    component: presto-coordinator
 spec:
-  type: {{ .Values.pulsar_manager.service.type }}
+  type: {{ .Values.presto.service.type }}
   ports:
-    - name: frontend
-      port: {{ .Values.pulsar_manager.ports.frontend }}
+    - port: {{ .Values.presto.server.config.http.port }}
+      targetPort: {{ .Values.presto.server.config.http.port }}
       protocol: TCP
+      name: http-coord
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}
-    component: {{ .Values.pulsar_manager.component }}
+    component: presto-coordinator
 {{- end }}

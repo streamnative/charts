@@ -197,46 +197,12 @@ spec:
         volumeMounts:
           - mountPath: "/logconf"
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
-          {{- if .Values.auth.authentication.enabled }}
-          {{- if eq .Values.auth.authentication.provider "jwt" }}
-          - mountPath: "/pulsar/keys"
-            name: token-keys
-            readOnly: true
-          - mountPath: "/pulsar/tokens"
-            name: broker-token
-            readOnly: true
-          {{- end }}
-          {{- end }}
-          {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+        {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
+        {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
       volumes:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j"
-      {{- if .Values.auth.authentication.enabled }}
-      {{- if eq .Values.auth.authentication.provider "jwt" }}
-      - name: token-keys
-        secret:
-          {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-          secretName: "{{ .Release.Name }}-token-asymmetric-key"
-          {{- end}}
-          {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-          secretName: "{{ .Release.Name }}-token-symmetric-key"
-          {{- end}}
-          items:
-            {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-            - key: SECRETKEY
-              path: token/secret.key
-            {{- else }}
-            - key: PUBLICKEY
-              path: token/public.key
-            {{- end}}
-      - name: broker-token
-        secret:
-          secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
-          items:
-            - key: TOKEN
-              path: broker/token
-      {{- end}}
-      {{- end}}
+      {{- include "pulsar.broker.token.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
 {{- end }}

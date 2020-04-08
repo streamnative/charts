@@ -83,6 +83,8 @@ components:
   toolset: true
   # pulsar manager
   pulsar_manager: true
+  # pulsar sql
+  presto: false
 
 ## Monitoring Components
 ##
@@ -112,6 +114,10 @@ images:
     # tag: 2.5.0
     repository: streamnative/platform
     tag: v1.0.0
+    pullPolicy: IfNotPresent
+  presto:
+    repository: eabanonu/presto-pulsar
+    tag: v0.0.15
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -202,6 +208,9 @@ tls:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
+  pulsar_manager:
+    enabled: true
+    cert_name: tls-pulsar-manager
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -350,7 +359,7 @@ zookeeper:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 256Mi
@@ -464,7 +473,7 @@ bookkeeper:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 512Mi
@@ -569,7 +578,7 @@ autorecovery:
     anti_affinity: true
   annotations: {}
   # tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 64Mi
@@ -637,7 +646,7 @@ broker:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 512Mi
@@ -719,7 +728,7 @@ proxy:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 128Mi
@@ -754,7 +763,7 @@ proxy:
   ## templates/proxy-service.yaml
   ##
   ports:
-    http: 80
+    http: 8080
     https: 443
     pulsar: 6650
     pulsarssl: 6651
@@ -891,10 +900,28 @@ alert_manager:
 ##
 pulsar_manager:
   component: pulsar-manager
-  port: 9527
+  ports:
+    frontend: 9527
+    backend: 7750
   replicaCount: 1
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
   # nodeSelector:
-  # cloud.google.com/gke-nodepool: default-pool
+    # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -902,13 +929,35 @@ pulsar_manager:
     requests:
       memory: 250Mi
       cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+      ## If the storage class is left undefined when using persistence
+      ## the default storage class for the cluster will be used.
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
   ## Pulsar manager service
   ## templates/pulsar-manager-service.yaml
   ##
   service:
     type: LoadBalancer
     annotations: {}
-  redirect_host: 127.0.0.1
+  ## pulsar manager configmap
+  ## templates/pulsar-manager-configmap.yaml
+  ##
+  configData: {}
+  superuser:
+    user: "pulsarmanager"
+    password: "welovepulsar"
+    description: "Pulsar Manager Admin"
+    email: support@pulsar.io
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
@@ -918,3 +967,49 @@ rbac:
   enable: true
   roleName: pulsar-operator
   roleBindingName: pulsar-operator-cluster-role-binding
+
+# Deploy pulsar sql
+presto:
+  server:
+    workers: 2
+    # zookeeper servers
+    zookeepers: {}
+    # broker servers
+    brokers: {}
+    node:
+      environment: production
+      dataDir: /presto/etc/data
+    log:
+      presto:
+        level: DEBUG
+    config:
+      path: /etc/presto
+      http:
+        port: 8081
+      query:
+        maxMemory: "4GB"
+        maxMemoryPerNode: "1GB"
+    jvm:
+      maxHeapSize: "8G"
+      gcMethod:
+        type: "UseG1GC"
+        g1:
+          heapRegionSize: "32M"
+  service:
+    type: LoadBalancer
+  resources: {}
+  # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  #  requests:
+  #    memory: 512Mi
+  #    cpu: 0.2
+
+  # nodeSelector:
+    # agentpool: presto
+  tolerations: []
+  affinity: {}
+  annotations: {}
+  gracePeriod: 0
