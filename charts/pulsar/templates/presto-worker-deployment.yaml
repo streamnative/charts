@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if .Values.components.presto }}
+{{- if .Values.components.sql_worker }}
 {{- if gt (int .Values.presto.server.workers) 0 }}
 apiVersion: apps/v1
 kind: Deployment
@@ -45,7 +45,7 @@ spec:
           configMap:
             name: {{ template "presto.worker" . }}
       containers:
-        - name: {{ .Chart.Name }}-presto-worker
+        - name: {{ .Chart.Name }}-worker
           image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
           imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
           command: ["/bin/bash"]

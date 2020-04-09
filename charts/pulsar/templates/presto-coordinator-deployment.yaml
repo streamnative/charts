@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.presto }}
+{{- if .Values.components.sql_worker }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -44,7 +44,7 @@ spec:
           configMap:
             name: {{ template "presto.coordinator" . }}
       containers:
-        - name: {{ .Chart.Name }}-presto-coordinator
+        - name: {{ .Chart.Name }}-coordinator
           image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
           imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
           command: ["/bin/bash"]

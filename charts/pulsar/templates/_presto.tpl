@@ -9,10 +9,10 @@ If release name contains chart name it will be used as a full name.
 */}}
 
 {{- define "presto.coordinator" -}}
-{{ template "pulsar.fullname" . }}-presto-coordinator
+{{ template "pulsar.fullname" . }}-coordinator
 {{- end -}}
 
 {{- define "presto.worker" -}}
-{{ template "pulsar.fullname" . }}-presto-worker
+{{ template "pulsar.fullname" . }}-worker
 {{- end -}}
 

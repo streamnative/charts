@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.presto }}
+{{- if .Values.components.sql_worker }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -60,11 +60,15 @@ data:
     #
 
     coordinator=true
+    node.id=ffffffff-ffff-ffff-ffff-ffffffffffff
+    node.environment={{ .Values.presto.server.node.environment }}
     http-server.http.port={{ .Values.presto.server.config.http.port }}
     discovery-server.enabled=true
     discovery.uri=http://{{ template "pulsar.fullname" . }}-presto:{{ .Values.presto.server.config.http.port }}
-    query.max-memory={{ .Values.presto.server.config.query.maxMemory }}
-    query.max-memory-per-node={{ .Values.presto.server.config.query.maxMemoryPerNode }}
+    query.max-memory=50GB
+    query.max-memory-per-node=1GB
+    presto.version=0.206
+    distributed-joins-enabled=true
 {{- if gt (int .Values.presto.server.workers) 0 }}
     node-scheduler.include-coordinator=false
 {{- else }}
@@ -72,8 +76,29 @@ data:
 {{- end }}
 
   log.properties: |
-    
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #   http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
     com.facebook.presto={{ .Values.presto.server.log.presto.level }}
+    com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory=WARN
+    com.ning.http.client=WARN
+    com.facebook.presto.server.PluginManager={{ .Values.presto.server.log.presto.level }}
   
   pulsar.properties: |
     #
@@ -183,9 +208,9 @@ data:
 
   docker-presto.sh: |
     #!/bin/bash 
-    cp {{ .Values.presto.server.config.path }}/*.properties $PRESTO_CONF_DIR
-    cp {{ .Values.presto.server.config.path }}/*.config $PRESTO_CONF_DIR
-    cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/catalog
-    cp {{ .Values.presto.server.config.path }}/pulsar.properties presto/etc/data/etc/catalog  
-    launcher run
+    cp {{ .Values.presto.server.config.path }}/*.properties $PULSAR_HOME/conf/presto
+    #cp {{ .Values.presto.server.config.path }}/*.config $PRESTO_CONF_DIR
+    cp {{ .Values.presto.server.config.path }}/pulsar.properties $PULSAR_HOME/conf/presto/catalog
+    #cp {{ .Values.presto.server.config.path }}/pulsar.properties presto/etc/data/etc/catalog  
+    ./bin/pulsar sql-worker run
 {{- end }}

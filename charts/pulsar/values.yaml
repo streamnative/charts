@@ -76,7 +76,7 @@ components:
   # broker
   broker: true
   # functions
-  functions: true
+  functions: false
   # proxy
   proxy: true
   # toolset
@@ -84,14 +84,14 @@ components:
   # pulsar manager
   pulsar_manager: true
   # pulsar sql
-  presto: false
+  sql_worker: false
 
 ## Monitoring Components
 ##
 ## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
   # monitoring - prometheus
-  prometheus: true
+  prometheus: false
   # monitoring - grafana
   grafana: true
   # monitoring - node_exporter
@@ -104,38 +104,28 @@ monitoring:
 ## Control what images to use for each component
 images:
   zookeeper:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   bookie:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   presto:
     repository: eabanonu/presto-pulsar
-    tag: v0.0.15
+    tag: v0.1.1
     pullPolicy: IfNotPresent
   autorecovery:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   broker:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   proxy:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   functions:
     # repository: apachepulsar/pulsar-all
@@ -366,8 +356,8 @@ zookeeper:
     persistence: true
     data:
       name: data
-      size: 50Gi
-      local_storage: true
+      size: 10Gi
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -378,7 +368,7 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -481,7 +471,7 @@ bookkeeper:
     journal:
       name: journal
       size: 10Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -492,7 +482,7 @@ bookkeeper:
     ledgers:
       name: ledgers
       size: 50Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -599,10 +589,8 @@ pulsar_metadata:
   component: pulsar-init
   image:
     # the image used for running `pulsar-cluster-initialize` job
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -827,7 +815,7 @@ prometheus:
     data:
       name: data
       size: 10Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -930,17 +918,17 @@ presto:
   server:
     workers: 2
     # zookeeper servers
-    zookeepers: {}
+    zookeepers: 10.244.4.57:2181,10.244.0.43:2181,10.244.2.65:2181
     # broker servers
-    brokers: {}
+    brokers: http://40.70.229.28:8080
     node:
       environment: production
-      dataDir: /presto/etc/data
+      dataDir: /pulsar/data
     log:
       presto:
         level: DEBUG
     config:
-      path: /etc/presto
+      path: /pulsar/custom
       http:
         port: 8081
       query:
