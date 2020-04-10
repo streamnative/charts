@@ -972,10 +972,10 @@ presto:
     workers: 2
     # zookeeper servers
     # the name of your zookeeper service and port
-    zookeepers: pulsar-zookeeper:2181 
+    zookeepers: pulsar-zookeeper:2181
     # broker servers
     # the name of your broker service and port
-    brokers: http://pulsar-proxy:8080 
+    brokers: http://pulsar-proxy:8080
     node:
       environment: production
       dataDir: /pulsar/data
