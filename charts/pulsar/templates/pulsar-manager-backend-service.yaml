@@ -17,25 +17,25 @@
 # under the License.
 #
 
-name: Post commit - Publish Pulsar Helm Chart
-on:
-  push:
-    branches:
-      - master 
-jobs:
-  lint-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install chart
-        env:
-          GITHUB_TOKEN: ${{ secrets.SNBOT_TOKEN }}
-          SNBOT_USER: ${{ secrets.SNBOT_USER }}
-          CHARTS_REPO: ${{ secrets.CHARTS_REPO }}
-          PUBLISH_CHARTS: ${{ secrets.PUBLISH_CHARTS }}
-          GITUSER: ${{ secrets.GITUSER }}
-          GITEMAIL: ${{ secrets.GITEMAIL }}
-        run: |
-          .ci/release.sh
+{{- if .Values.components.pulsar_manager }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend"
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.pulsar_manager.component }}
+  annotations:
+{{ toYaml .Values.pulsar_manager.service.annotations | indent 4 }}
+spec:
+  clusterIP: None
+  ports:
+    - name: backend
+      port: {{ .Values.pulsar_manager.ports.backend }}
+      protocol: TCP
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.pulsar_manager.component }}
+{{- end }}

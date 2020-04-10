@@ -18,24 +18,22 @@
 #
 
 {{- if .Values.components.pulsar_manager }}
+{{- if and .Values.volumes.persistence .Values.pulsar_manager.volumes.persistence }}
 apiVersion: v1
-kind: Service
+kind: PersistentVolumeClaim
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-{{ .Values.pulsar_manager.volumes.data.name }}"
   namespace: {{ .Values.namespace }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.pulsar_manager.component }}
-  annotations:
-{{ toYaml .Values.pulsar_manager.service.annotations | indent 4 }}
 spec:
-  type: {{ .Values.pulsar_manager.service.type }}
-  ports:
-    - name: frontend
-      port: {{ .Values.pulsar_manager.ports.frontend }}
-      protocol: TCP
-  selector:
-    app: {{ template "pulsar.name" . }}
-    release: {{ .Release.Name }}
-    component: {{ .Values.pulsar_manager.component }}
+  resources:
+    requests:
+      storage: {{ .Values.pulsar_manager.volumes.data.size }}
+  accessModes: [ "ReadWriteOnce" ]
+{{- if and (not (and .Values.volumes.local_storage .Values.pulsar_manager.volumes.data.local_storage)) .Values.pulsar_manager.volumes.data.storageClass }}
+  storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-{{ .Values.pulsar_manager.volumes.data.name }}"
+{{- end }}
+{{- if and .Values.volumes.local_storage .Values.pulsar_manager.volumes.data.local_storage }}
+  storageClassName: "local-storage"
+{{- end }}
+{{- end }}
 {{- end }}
