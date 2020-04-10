@@ -211,4 +211,5 @@ data:
     cp {{ .Values.presto.server.config.path }}/*.config $PULSAR_HOME/conf/presto
     cp {{ .Values.presto.server.config.path }}/pulsar.properties $PULSAR_HOME/conf/presto/catalog
     ./bin/pulsar sql-worker run --node-config=$PULSAR_HOME/conf/presto/node.properties --jvm-config=$PULSAR_HOME/conf/presto/jvm.config
+
 {{- end }}

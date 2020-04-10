@@ -16,7 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
 {{- if .Values.components.sql_worker }}
 apiVersion: v1
 kind: Service
@@ -27,6 +26,7 @@ metadata:
     chart: {{ template "presto.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+
 spec:
   type: {{ .Values.presto.service.type }}
   ports:

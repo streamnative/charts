@@ -208,6 +208,9 @@ tls:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
+  pulsar_manager:
+    enabled: true
+    cert_name: tls-pulsar-manager
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -356,7 +359,7 @@ zookeeper:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 256Mi
@@ -470,7 +473,7 @@ bookkeeper:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 512Mi
@@ -575,7 +578,7 @@ autorecovery:
     anti_affinity: true
   annotations: {}
   # tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 64Mi
@@ -641,7 +644,7 @@ broker:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 512Mi
@@ -723,7 +726,7 @@ proxy:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 128Mi
@@ -895,8 +898,26 @@ alert_manager:
 ##
 pulsar_manager:
   component: pulsar-manager
-  port: 9527
+  ports:
+    frontend: 9527
+    backend: 7750
   replicaCount: 1
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
@@ -906,13 +927,35 @@ pulsar_manager:
     requests:
       memory: 250Mi
       cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+      ## If the storage class is left undefined when using persistence
+      ## the default storage class for the cluster will be used.
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
   ## Pulsar manager service
   ## templates/pulsar-manager-service.yaml
   ##
   service:
     type: LoadBalancer
     annotations: {}
-  redirect_host: 127.0.0.1
+  ## pulsar manager configmap
+  ## templates/pulsar-manager-configmap.yaml
+  ##
+  configData: {}
+  superuser:
+    user: "pulsarmanager"
+    password: "welovepulsar"
+    description: "Pulsar Manager Admin"
+    email: support@pulsar.io
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
