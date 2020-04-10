@@ -16,16 +16,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
 {{- if .Values.components.sql_worker }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "pulsar.fullname" . }}"
-  namespace: {{ .Values.namespace }}
+  name: {{ template "presto.fullname" . }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: presto-coordinator
+    app: {{ template "presto.name" . }}
+    chart: {{ template "presto.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+
 spec:
   type: {{ .Values.presto.service.type }}
   ports:
@@ -34,7 +35,7 @@ spec:
       protocol: TCP
       name: http-coord
   selector:
-    app: {{ template "pulsar.name" . }}
+    app: {{ template "presto.name" . }}
     release: {{ .Release.Name }}
-    component: presto-coordinator
+    component: coordinator
 {{- end }}

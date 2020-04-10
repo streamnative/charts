@@ -22,22 +22,24 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "presto.coordinator" . }}
-  namespace: {{ .Values.namespace }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: presto-coordinator
+    app: {{ template "presto.name" . }}
+    chart: {{ template "presto.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: coordinator
 spec:
   selector:
     matchLabels:
-      app: {{ template "pulsar.name" . }}
+      app: {{ template "presto.name" . }}
       release: {{ .Release.Name }}
-      component: presto-coordinator
+      component: coordinator
   template:
     metadata:
       labels:
-        app: {{ template "pulsar.name" . }}
+        app: {{ template "presto.name" . }}
         release: {{ .Release.Name }}
-        component: presto-coordinator
+        component: coordinator
     spec:
       volumes:
         - name: config-volume

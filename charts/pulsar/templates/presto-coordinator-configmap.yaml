@@ -22,10 +22,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "presto.coordinator" . }}
-  namespace: {{ .Values.namespace }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: presto-coordinator
+    app: {{ template "presto.name" . }}
+    chart: {{ template "presto.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: coordinator
 data:
   node.properties: |
     node.environment={{ .Values.presto.server.node.environment }}
@@ -60,14 +62,11 @@ data:
     #
 
     coordinator=true
-    node.id=ffffffff-ffff-ffff-ffff-ffffffffffff
-    node.environment={{ .Values.presto.server.node.environment }}
     http-server.http.port={{ .Values.presto.server.config.http.port }}
     discovery-server.enabled=true
-    discovery.uri=http://{{ template "pulsar.fullname" . }}-presto:{{ .Values.presto.server.config.http.port }}
+    discovery.uri=http://{{ template "presto.fullname" . }}:{{ .Values.presto.server.config.http.port }}
     query.max-memory=50GB
     query.max-memory-per-node=1GB
-    presto.version=0.206
     distributed-joins-enabled=true
 {{- if gt (int .Values.presto.server.workers) 0 }}
     node-scheduler.include-coordinator=false
@@ -209,8 +208,8 @@ data:
   docker-presto.sh: |
     #!/bin/bash 
     cp {{ .Values.presto.server.config.path }}/*.properties $PULSAR_HOME/conf/presto
-    #cp {{ .Values.presto.server.config.path }}/*.config $PRESTO_CONF_DIR
+    cp {{ .Values.presto.server.config.path }}/*.config $PULSAR_HOME/conf/presto
     cp {{ .Values.presto.server.config.path }}/pulsar.properties $PULSAR_HOME/conf/presto/catalog
-    #cp {{ .Values.presto.server.config.path }}/pulsar.properties presto/etc/data/etc/catalog  
-    ./bin/pulsar sql-worker run
+    ./bin/pulsar sql-worker run --node-config=$PULSAR_HOME/conf/presto/node.properties --jvm-config=$PULSAR_HOME/conf/presto/jvm.config
+
 {{- end }}
