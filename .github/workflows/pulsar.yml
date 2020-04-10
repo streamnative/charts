@@ -25,12 +25,16 @@ on:
     paths:
       - 'charts/local-storage-provisioner/**'
       - 'charts/pulsar/**'
+      - '.github/workflows/**'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Fetch history
+        run: git fetch --prune --unshallow
 
       - name: Lint chart
         id: lint
