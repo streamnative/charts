@@ -18,7 +18,7 @@
 #
 
 # script to process key/cert to keystore and truststore
-{{- if .Values.tls.zookeeper.enabled }}
+{{- if or .Values.tls.zookeeper.enabled .Values.tls.pulsar_manager.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -58,7 +58,7 @@ data:
     ensureFileNotEmpty ${keyFile}
     ensureFileNotEmpty ${caFile}
     
-    PASSWORD=$(head /dev/urandom | base64 | head -c 24)
+    export PASSWORD=$(head /dev/urandom | base64 | head -c 24)
     
     openssl pkcs12 \
         -export \
@@ -95,4 +95,5 @@ data:
         echo $'\n' >> conf/pulsar_env.sh
         echo "PULSAR_EXTRA_OPTS=\"${PULSAR_EXTRA_OPTS} -Dzookeeper.ssl.keyStore.location=${keyStoreFile} -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=${trustStoreFile} -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> conf/pulsar_env.sh
     fi
+    echo ${PASSWORD} > conf/password
 {{- end }}

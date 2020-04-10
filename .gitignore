@@ -10,3 +10,4 @@
 # charts
 .chart-packages/**
 .chart-index/**
+.vs/

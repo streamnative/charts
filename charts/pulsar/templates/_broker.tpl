@@ -74,3 +74,53 @@ Define broker tls certs volumes
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define broker token mounts
+*/}}
+{{- define "pulsar.broker.token.volumeMounts" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "jwt" }}
+- mountPath: "/pulsar/keys"
+  name: token-keys
+  readOnly: true
+- mountPath: "/pulsar/tokens"
+  name: broker-token
+  readOnly: true
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Define broker token volumes
+*/}}
+{{- define "pulsar.broker.token.volumes" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "jwt" }}
+- name: token-keys
+  secret:
+    {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
+    secretName: "{{ .Release.Name }}-token-asymmetric-key"
+    {{- end}}
+    {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+    secretName: "{{ .Release.Name }}-token-symmetric-key"
+    {{- end}}
+    items:
+      {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+      - key: SECRETKEY
+        path: token/secret.key
+      {{- else }}
+      - key: PUBLICKEY
+        path: token/public.key
+      - key: PRIVATEKEY
+        path: token/private.key
+      {{- end}}
+- name: broker-token
+  secret:
+    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
+    items:
+      - key: TOKEN
+        path: broker/token
+{{- end }}
+{{- end }}
+{{- end }}

@@ -84,7 +84,7 @@ components:
   # pulsar manager
   pulsar_manager: true
   # pulsar sql
-  presto: false
+  sql_worker: false
 
 ## Monitoring Components
 ##
@@ -117,7 +117,7 @@ images:
     pullPolicy: IfNotPresent
   presto:
     repository: eabanonu/presto-pulsar
-    tag: v0.0.15
+    tag: v0.1.1
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -208,6 +208,9 @@ tls:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
+  pulsar_manager:
+    enabled: true
+    cert_name: tls-pulsar-manager
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -356,7 +359,7 @@ zookeeper:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 256Mi
@@ -366,8 +369,8 @@ zookeeper:
     persistence: true
     data:
       name: data
-      size: 50Gi
-      local_storage: true
+      size: 10Gi
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -378,7 +381,7 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -470,7 +473,7 @@ bookkeeper:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 512Mi
@@ -481,7 +484,7 @@ bookkeeper:
     journal:
       name: journal
       size: 10Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -492,7 +495,7 @@ bookkeeper:
     ledgers:
       name: ledgers
       size: 50Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -575,7 +578,7 @@ autorecovery:
     anti_affinity: true
   annotations: {}
   # tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 64Mi
@@ -599,10 +602,8 @@ pulsar_metadata:
   component: pulsar-init
   image:
     # the image used for running `pulsar-cluster-initialize` job
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: apachepulsar/pulsar-all
+    tag: 2.5.0
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -643,7 +644,7 @@ broker:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 512Mi
@@ -725,7 +726,7 @@ proxy:
     anti_affinity: true
   annotations: {}
   tolerations: []
-  gracePeriod: 0
+  gracePeriod: 30
   resources:
     requests:
       memory: 128Mi
@@ -827,7 +828,7 @@ prometheus:
     data:
       name: data
       size: 10Gi
-      local_storage: true
+      local_storage: false
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -897,8 +898,26 @@ alert_manager:
 ##
 pulsar_manager:
   component: pulsar-manager
-  port: 9527
+  ports:
+    frontend: 9527
+    backend: 7750
   replicaCount: 1
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
@@ -908,13 +927,35 @@ pulsar_manager:
     requests:
       memory: 250Mi
       cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+      ## If the storage class is left undefined when using persistence
+      ## the default storage class for the cluster will be used.
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
   ## Pulsar manager service
   ## templates/pulsar-manager-service.yaml
   ##
   service:
     type: LoadBalancer
     annotations: {}
-  redirect_host: 127.0.0.1
+  ## pulsar manager configmap
+  ## templates/pulsar-manager-configmap.yaml
+  ##
+  configData: {}
+  superuser:
+    user: "pulsarmanager"
+    password: "welovepulsar"
+    description: "Pulsar Manager Admin"
+    email: support@pulsar.io
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
@@ -930,17 +971,19 @@ presto:
   server:
     workers: 2
     # zookeeper servers
-    zookeepers: {}
+    # the name of your zookeeper service and port
+    zookeepers: pulsar-zookeeper:2181
     # broker servers
-    brokers: {}
+    # the name of your broker service and port
+    brokers: http://pulsar-proxy:8080
     node:
       environment: production
-      dataDir: /presto/etc/data
+      dataDir: /pulsar/data
     log:
       presto:
         level: DEBUG
     config:
-      path: /etc/presto
+      path: /pulsar/custom
       http:
         port: 8081
       query:
@@ -954,21 +997,15 @@ presto:
           heapRegionSize: "32M"
   service:
     type: LoadBalancer
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 0.2
+  resources: {}
   # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  #  limits:
-  #    cpu: 100m
-  #    memory: 128Mi
   #  requests:
-  #    cpu: 100m
-  #    memory: 128Mi
+  #    memory: 512Mi
+  #    cpu: 0.2
 
   # nodeSelector:
     # agentpool: presto
