@@ -106,42 +106,44 @@ images:
   zookeeper:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: guosijie/pulsar-all
+    tag: 2.5.1-test
     pullPolicy: IfNotPresent
   bookie:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: guosijie/pulsar-all
+    tag: 2.5.1-test
     pullPolicy: IfNotPresent
   presto:
-    repository: eabanonu/presto-pulsar
-    tag: v0.1.1
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: guosijie/pulsar-all
+    tag: 2.5.1-test
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: guosijie/pulsar-all
+    tag: 2.5.1-test
     pullPolicy: IfNotPresent
   broker:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: guosijie/pulsar-all
+    tag: 2.5.1-test
     pullPolicy: IfNotPresent
   proxy:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: guosijie/pulsar-all
+    tag: 2.5.1-test
     pullPolicy: IfNotPresent
   functions:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: guosijie/pulsar-all
+    tag: 2.5.1-test
   prometheus:
     repository: prom/prometheus
     tag: v1.6.3
@@ -369,8 +371,8 @@ zookeeper:
     persistence: true
     data:
       name: data
-      size: 10Gi
-      local_storage: false
+      size: 50Gi
+      local_storage: true
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -381,7 +383,7 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
-      local_storage: false
+      local_storage: true
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -484,7 +486,7 @@ bookkeeper:
     journal:
       name: journal
       size: 10Gi
-      local_storage: false
+      local_storage: true
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -495,7 +497,7 @@ bookkeeper:
     ledgers:
       name: ledgers
       size: 50Gi
-      local_storage: false
+      local_storage: true
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -602,8 +604,10 @@ pulsar_metadata:
   component: pulsar-init
   image:
     # the image used for running `pulsar-cluster-initialize` job
-    repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -828,7 +832,7 @@ prometheus:
     data:
       name: data
       size: 10Gi
-      local_storage: false
+      local_storage: true
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -968,48 +972,101 @@ rbac:
 
 # Deploy pulsar sql
 presto:
-  server:
-    workers: 2
-    # zookeeper servers
-    # the name of your zookeeper service and port
-    zookeepers: pulsar-zookeeper:2181
-    # broker servers
-    # the name of your broker service and port
-    brokers: http://pulsar-proxy:8080
-    node:
-      environment: production
-      dataDir: /pulsar/data
-    log:
-      presto:
-        level: DEBUG
+  coordinator:
+    component: coordinator
+    replicaCount: 1
+    tolerations: []
+    affinity:
+      anti_affinity: true
+    annotations: {}
+    gracePeriod: 10
+    ports:
+      http: 8081
+    resources:
+      requests:
+        memory: 4Gi
+        cpu: 2
+    # nodeSelector:
+      # cloud.google.com/gke-nodepool: default-pool
+    probe:
+      liveness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      readiness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      startup:
+        enabled: false
+        failureThreshold: 30
+        initialDelaySeconds: 10
+        periodSeconds: 30
     config:
-      path: /pulsar/custom
       http:
         port: 8081
       query:
-        maxMemory: "4GB"
-        maxMemoryPerNode: "1GB"
+        maxMemory: "1GB"
+        maxMemoryPerNode: "128MB"
     jvm:
-      maxHeapSize: "8G"
-      gcMethod:
-        type: "UseG1GC"
-        g1:
-          heapRegionSize: "32M"
+      memory: 2G
+    log:
+      presto:
+        level: DEBUG
+  worker:
+    component: worker
+    replicaCount: 2
+    tolerations: []
+    affinity:
+      anti_affinity: true
+    annotations: {}
+    gracePeriod: 10
+    ports:
+      http: 8081
+    resources:
+      requests:
+        memory: 4Gi
+        cpu: 2
+    # nodeSelector:
+      # cloud.google.com/gke-nodepool: default-pool
+    probe:
+      liveness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      readiness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      startup:
+        enabled: false
+        failureThreshold: 30
+        initialDelaySeconds: 10
+        periodSeconds: 30
+    config:
+      query:
+        maxMemory: "1GB"
+        maxMemoryPerNode: "128MB"
+    jvm:
+      memory: 2G
+    log:
+      presto:
+        level: DEBUG
+  node:
+    environment: production
+  catalog:
+    pulsar:
+      maxEntryReadBatchSize: "100"
+      targetNumSplits: "16"
+      maxSplitMessageQueueSize: "10000"
+      maxSplitEntryQueueSize: "1000"
+      namespaceDelimiterRewriteEnable: "true"
+      rewriteNamespaceDelimiter: "/"
+      bookkeeperThrottleValue: "0"
+      managedLedgerCacheSizeMB: "0"
   service:
     type: LoadBalancer
-  resources: {}
-  # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  #  requests:
-  #    memory: 512Mi
-  #    cpu: 0.2
-
-  # nodeSelector:
-    # agentpool: presto
-  tolerations: []
-  affinity: {}
-  annotations: {}
-  gracePeriod: 0

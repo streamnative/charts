@@ -33,8 +33,8 @@ spec:
       # This init container will wait for bookkeeper to be ready before
       # deploying the broker
       - name: wait-pulsar-manager-ready
-        image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
-        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        image: "{{ .Values.pulsar_metadata.image.repository }}:{{ .Values.pulsar_metadata.image.tag }}"
+        imagePullPolicy: {{ .Values.pulsar_metadata.image.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >
