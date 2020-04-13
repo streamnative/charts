@@ -42,7 +42,12 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.toolset.component }}
       annotations:
-{{ toYaml .Values.toolset.annotations | indent 8 }}
+        {{- if .Values.toolset.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/toolset-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{- with .Values.toolset.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.toolset.nodeSelector }}
       nodeSelector:

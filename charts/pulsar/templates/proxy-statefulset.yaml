@@ -44,6 +44,9 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.proxy.ports.http }}"
+        {{- if .Values.proxy.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/proxy-configmap.yaml") . | sha256sum }}
+        {{- end }}
 {{- with .Values.proxy.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -168,7 +171,7 @@ spec:
           {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 10 }}
       volumes:
-        {{- include "pulsar.toolset.log.volumes" . | nindent 8 }}
-        {{- include "pulsar.toolset.token.volumes" . | nindent 8 }}
-        {{- include "pulsar.toolset.certs.volumes" . | nindent 8 }}
+        {{- include "pulsar.proxy.log.volumes" . | nindent 8 }}
+        {{- include "pulsar.proxy.token.volumes" . | nindent 8 }}
+        {{- include "pulsar.proxy.certs.volumes" . | nindent 8 }}
 {{- end }}

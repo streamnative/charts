@@ -43,7 +43,12 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
       annotations:
-{{ toYaml .Values.zookeeper.annotations | indent 8 }}
+        {{- if .Values.zookeeper.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/zookeeper-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{- with .Values.zookeeper.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:

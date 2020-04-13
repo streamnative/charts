@@ -122,8 +122,9 @@ Define toolset tls certs volumes
 Define toolset log mounts
 */}}
 {{- define "pulsar.toolset.log.volumeMounts" -}}
-- mountPath: "{{ template "pulsar.home" .}}/conf"
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+  mountPath: "{{ template "pulsar.home" . }}/conf/log4j2.yaml"
+  subPath: log4j2.yaml
 {{- end }}
 
 {{/*
@@ -133,7 +134,4 @@ Define toolset log volumes
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
-    items:
-    - key: log4j2.yaml
-      path: log4j2.yaml
 {{- end }}
