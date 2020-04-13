@@ -21,15 +21,23 @@
 BINDIR=`dirname "$0"`
 CHARTS_HOME=`cd ${BINDIR}/..;pwd`
 OUTPUT_BIN=${CHARTS_HOME}/output/bin
+KIND_BIN=$OUTPUT_BIN/kind
 HELM=${OUTPUT_BIN}/helm
 KUBECTL=${OUTPUT_BIN}/kubectl
 NAMESPACE=pulsar
 CLUSTER=pulsar-ci
+CLUSTER_ID=$(uuidgen)
 
 function ci::create_cluster() {
     echo "Creating a kind cluster ..."
-    ${CHARTS_HOME}/hack/kind-cluster-build.sh --name pulsar-ci-$(uuidgen) -c 1 -v 10
+    ${CHARTS_HOME}/hack/kind-cluster-build.sh --name pulsar-ci-${CLUSTER_ID} -c 1 -v 10
     echo "Successfully created a kind cluster."
+}
+
+function ci::delete_cluster() {
+    echo "Deleteing a kind cluster ..."
+    ${KIND_BIN} delete cluster --name=pulsar-ci-${CLUSTER_ID}
+    echo "Successfully delete a kind cluster."
 }
 
 function ci::install_storage_provisioner() {
