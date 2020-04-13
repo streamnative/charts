@@ -28,7 +28,7 @@ CLUSTER=pulsar-ci
 
 function ci::create_cluster() {
     echo "Creating a kind cluster ..."
-    ${CHARTS_HOME}/hack/kind-cluster-build.sh --name pulsar-ci -c 1 -v 10
+    ${CHARTS_HOME}/hack/kind-cluster-build.sh --name pulsar-ci-$(uuidgen) -c 1 -v 10
     echo "Successfully created a kind cluster."
 }
 
