@@ -142,7 +142,6 @@ We provide some instructions to guide you through the preparation for the follow
     This command installs and starts StreamNative Platform.
 
     ```bash
-    $ cd charts 
     $ helm install <pulsar-release-name> streamnative/pulsar
     ```
 
