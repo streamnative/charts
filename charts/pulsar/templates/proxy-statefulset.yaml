@@ -144,7 +144,6 @@ spec:
         - >
           bin/apply-config-from-env.py conf/proxy.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
-          cp /logconf/conf/log4j2.yaml {{ template "pulsar.home" .}}/conf;
           echo "OK" > status;
           bin/pulsar proxy;
         ports:
@@ -164,88 +163,12 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-        {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled (or .Values.tls.proxy.enabled .Values.tls.broker.enabled)) }}
         volumeMounts:
-          - mountPath: "/logconf"
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j-config"
-          {{- if .Values.auth.authentication.enabled }}
-          {{- if eq .Values.auth.authentication.provider "jwt" }}
-          - mountPath: "/pulsar/keys"
-            name: token-keys
-            readOnly: true
-          - mountPath: "/pulsar/tokens"
-            name: proxy-token
-            readOnly: true
-          {{- end }}
-          {{- end }}
-          {{- if .Values.tls.proxy.enabled }}
-          - mountPath: "/pulsar/certs/proxy"
-            name: proxy-certs
-            readOnly: true
-          {{- end}}
-          {{- if .Values.tls.enabled }}
-          - mountPath: "/pulsar/certs/ca"
-            name: ca
-            readOnly: true
-          {{- end}}
-      {{- end}}
-      {{- if or .Values.auth.authentication.enabled (and .Values.tls.enabled .Values.tls.proxy.enabled) }}
+          {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 10 }}
       volumes:
-        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j-config"
-          configMap:
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-            items:
-            - key: log4j2.yaml
-              path: conf/log4j2.yaml
-        {{- if .Values.auth.authentication.enabled }}
-        {{- if eq .Values.auth.authentication.provider "jwt" }}
-        - name: token-keys
-          secret:
-            {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-            secretName: "{{ .Release.Name }}-token-asymmetric-key"
-            {{- end}}
-            {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-            secretName: "{{ .Release.Name }}-token-symmetric-key"
-            {{- end}}
-            items:
-              {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-              - key: SECRETKEY
-                path: token/secret.key
-              {{- else }}
-              - key: PUBLICKEY
-                path: token/public.key
-              {{- end}}
-        - name: proxy-token
-          secret:
-            secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.proxy }}"
-            items:
-              - key: TOKEN
-                path: proxy/token
-        {{- end}}
-        {{- end}}
-        {{- if .Values.tls.proxy.enabled }}
-        - name: ca
-          secret:
-          {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
-            secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
-            items:
-              - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
-                path: ca.crt
-          {{- end}}
-          {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
-            secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
-            items:
-              - key: ca.crt
-                path: ca.crt
-          {{- end}}
-        - name: proxy-certs
-          secret:
-            secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
-            items:
-              - key: tls.crt
-                path: tls.crt
-              - key: tls.key
-                path: tls.key
-        {{- end}}
-      {{- end}}
+        {{- include "pulsar.toolset.log.volumes" . | nindent 8 }}
+        {{- include "pulsar.toolset.token.volumes" . | nindent 8 }}
+        {{- include "pulsar.toolset.certs.volumes" . | nindent 8 }}
 {{- end }}

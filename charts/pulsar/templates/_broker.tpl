@@ -130,18 +130,18 @@ Define broker token volumes
 Define broker log mounts
 */}}
 {{- define "pulsar.broker.log.volumeMounts" -}}
-- mountPath: "/logconf"
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
+- mountPath: "{{ template "pulsar.home" .}}/conf"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
 {{- end }}
 
 {{/*
 Define broker log volumes
 */}}
 {{- define "pulsar.broker.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j-config"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
     items:
     - key: log4j2.yaml
-      path: conf/log4j2.yaml
+      path: log4j2.yaml
 {{- end }}

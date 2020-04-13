@@ -119,3 +119,23 @@ until bin/bookkeeper shell whatisinstanceid; do
 done;
 {{- end }}
 {{- end }}
+
+{{/*
+Define bookkeeper log mounts
+*/}}
+{{- define "pulsar.bookkeeper.log.volumeMounts" -}}
+- mountPath: "{{ template "pulsar.home" .}}/conf"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+{{- end }}
+
+{{/*
+Define bookkeeper log volumes
+*/}}
+{{- define "pulsar.bookkeeper.log.volumes" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+    items:
+    - key: log4j2.yaml
+      path: log4j2.yaml
+{{- end }}

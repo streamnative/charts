@@ -118,6 +118,8 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
         volumeMounts:
         {{- include "pulsar.autorecovery.certs.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.autorecovery.log.volumeMounts" . | nindent 8 }}
       volumes:
       {{- include "pulsar.autorecovery.certs.volumes" . | nindent 6 }}
+      {{- include "pulsar.autorecovery.log.volumes" . | nindent 6 }}
 {{- end }}

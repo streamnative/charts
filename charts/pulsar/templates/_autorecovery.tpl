@@ -78,3 +78,23 @@ until bin/bookkeeper shell whatisinstanceid; do
   sleep 3;
 done;
 {{- end }}
+
+{{/*
+Define autorecovery log mounts
+*/}}
+{{- define "pulsar.autorecovery.log.volumeMounts" -}}
+- mountPath: "{{ template "pulsar.home" .}}/conf"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+{{- end }}
+
+{{/*
+Define autorecovery log volumes
+*/}}
+{{- define "pulsar.autorecovery.log.volumes" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+    items:
+    - key: log4j2.yaml
+      path: log4j2.yaml
+{{- end }}
