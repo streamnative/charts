@@ -119,9 +119,6 @@ We provide some instructions to guide you through the preparation for the follow
     ```bash
     git clone https://github.com/streamnative/charts.git
     ```
-    ```bash
-    cd charts
-    ```
 
 2. Run `prepare_helm_release.sh` to create required kubernetes resources for installing this Helm chart.
     - A k8s namespace for installing the Pulsar release (if `-c` is specified)
@@ -144,7 +141,8 @@ We provide some instructions to guide you through the preparation for the follow
 
     This command installs and starts StreamNative Platform.
 
-    ```bash 
+    ```bash
+    $ cd charts 
     $ helm install <pulsar-release-name> streamnative/pulsar
     ```
 
