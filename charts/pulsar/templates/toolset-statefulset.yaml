@@ -42,7 +42,12 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.toolset.component }}
       annotations:
-{{ toYaml .Values.toolset.annotations | indent 8 }}
+        {{- if .Values.toolset.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/toolset-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{- with .Values.toolset.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.toolset.nodeSelector }}
       nodeSelector:
@@ -72,45 +77,11 @@ spec:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
         volumeMounts:
-        {{- if .Values.auth.authentication.enabled }}
-        {{- if eq .Values.auth.authentication.provider "jwt" }}
-        - mountPath: "/pulsar/tokens"
-          name: client-token
-          readOnly: true
-        {{- end }}
-        {{- end }}
-        {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
-        - mountPath: "/pulsar/certs/proxy-ca"
-          name: proxy-ca
-          readOnly: true
-        {{- end}}
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
       volumes:
-      {{- if .Values.auth.authentication.enabled }}
-      {{- if eq .Values.auth.authentication.provider "jwt" }}
-      - name: client-token
-        secret:
-          secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
-          items:
-            - key: TOKEN
-              path: client/token
-      {{- end}}
-      {{- end}}
-      {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
-      - name: proxy-ca
-        secret:
-        {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
-          secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
-          items:
-            - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
-              path: ca.crt
-        {{- end}}
-        {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
-          secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
-          items:
-            - key: ca.crt
-              path: ca.crt
-        {{- end}}
-      {{- end}}
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
+      {{- include "pulsar.toolset.token.volumes" . | nindent 6 }}
+      {{- include "pulsar.toolset.log.volumes" . | nindent 6 }}
 {{- end }}

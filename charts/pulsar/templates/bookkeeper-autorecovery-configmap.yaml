@@ -30,4 +30,5 @@ data:
   # common config
   {{- include "pulsar.bookkeeper.config.common" . | nindent 2 }}
 {{ toYaml .Values.autorecovery.configData | indent 2 }}
+{{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 2 }}
 {{- end }}

@@ -140,7 +140,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.4
+    tag: 0.0.5
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
@@ -380,6 +380,8 @@ zookeeper:
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
   ##
+  # Automtically Roll Deployments when configmap is changed
+  autoRollDeployment: true
   configData:
     PULSAR_MEM: >
       "
@@ -494,6 +496,8 @@ bookkeeper:
   ## Bookkeeper configmap
   ## templates/bookkeeper-configmap.yaml
   ##
+  # Automtically Roll Deployments when configmap is changed
+  autoRollDeployment: true
   configData:
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
@@ -574,6 +578,8 @@ autorecovery:
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
+  # Automtically Roll Deployments when configmap is changed
+  autoRollDeployment: true
   configData:
     BOOKIE_MEM: >
       "
@@ -642,6 +648,8 @@ broker:
   ## Broker configmap
   ## templates/broker-configmap.yaml
   ##
+  # Automtically Roll Deployments when configmap is changed
+  autoRollDeployment: true
   configData:
     PULSAR_MEM: >
       "
@@ -724,6 +732,8 @@ proxy:
   ## Proxy configmap
   ## templates/proxy-configmap.yaml
   ##
+  # Automtically Roll Deployments when configmap is changed
+  autoRollDeployment: true
   configData:
     PULSAR_MEM: >
       "
@@ -784,6 +794,8 @@ toolset:
   ## Bastion configmap
   ## templates/bastion-configmap.yaml
   ##
+  # Automtically Roll Deployments when configmap is changed
+  autoRollDeployment: true
   configData:
     PULSAR_MEM: >
       "

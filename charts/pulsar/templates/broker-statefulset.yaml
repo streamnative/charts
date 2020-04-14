@@ -44,6 +44,9 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.broker.ports.http }}"
+        {{- if .Values.broker.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/broker-configmap.yaml") . | sha256sum }}
+        {{- end }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -195,8 +198,10 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         volumeMounts:
           {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
       volumes:
       {{- include "pulsar.broker.token.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
+      {{- include "pulsar.broker.log.volumes" . | nindent 6 }}
 {{- end }}
