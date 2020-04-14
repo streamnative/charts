@@ -17,28 +17,33 @@
 # under the License.
 #
 
-{{- if .Values.components.presto }}
+{{- if .Values.components.sql_worker }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "presto.coordinator" . }}
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.coordinator.component }}"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: presto-coordinator
+    component: {{ .Values.presto.coordinator.component }}
 data:
   node.properties: |
-    node.environment={{ .Values.presto.server.node.environment }}
-    node.data-dir={{ .Values.presto.server.node.dataDir }}
+    node.environment={{ .Values.presto.node.environment }}
+    node.data-dir={{ template "pulsar.home" . }}/data
   jvm.config: |
     -server
-    -Xmx{{ .Values.presto.server.jvm.maxHeapSize }}
-    -XX:+{{ .Values.presto.server.jvm.gcMethod.type }}
-    -XX:G1HeapRegionSize={{ .Values.presto.server.jvm.gcMethod.g1.heapRegionSize }}
-    -XX:+UseGCOverheadLimit
-    -XX:+ExplicitGCInvokesConcurrent
-    -XX:+HeapDumpOnOutOfMemoryError
+    -Xmx{{ .Values.presto.coordinator.jvm.memory }}
+    -XX:+UseG1GC
+    -XX:+UnlockExperimentalVMOptions
+    -XX:+AggressiveOpts
+    -XX:+DoEscapeAnalysis
+    -XX:ParallelGCThreads=4
+    -XX:ConcGCThreads=4
+    -XX:G1NewSizePercent=50
+    -XX:+DisableExplicitGC
+    -XX:-ResizePLAB
     -XX:+ExitOnOutOfMemoryError
+    -XX:+PerfDisableSharedMem
   config.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
@@ -60,20 +65,42 @@ data:
     #
 
     coordinator=true
-    http-server.http.port={{ .Values.presto.server.config.http.port }}
+    http-server.http.port={{ .Values.presto.coordinator.ports.http }}
     discovery-server.enabled=true
-    discovery.uri=http://{{ template "pulsar.fullname" . }}-presto:{{ .Values.presto.server.config.http.port }}
-    query.max-memory={{ .Values.presto.server.config.query.maxMemory }}
-    query.max-memory-per-node={{ .Values.presto.server.config.query.maxMemoryPerNode }}
-{{- if gt (int .Values.presto.server.workers) 0 }}
+    discovery.uri=http://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}
+    query.max-memory={{ .Values.presto.coordinator.config.query.maxMemory }}
+    query.max-memory-per-node={{ .Values.presto.coordinator.config.query.maxMemoryPerNode }}
+    distributed-joins-enabled=true
+{{- if gt (int .Values.presto.worker.replicaCount) 0 }}
     node-scheduler.include-coordinator=false
 {{- else }}
     node-scheduler.include-coordinator=true
 {{- end }}
 
   log.properties: |
-    
-    com.facebook.presto={{ .Values.presto.server.log.presto.level }}
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #   http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    com.facebook.presto={{ .Values.presto.coordinator.log.presto.level }}
+    com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory=WARN
+    com.ning.http.client=WARN
+    com.facebook.presto.server.PluginManager={{ .Values.presto.coordinator.log.presto.level }}
   
   pulsar.properties: |
     #
@@ -94,28 +121,30 @@ data:
     # specific language governing permissions and limitations
     # under the License.
     
-    
     # name of the connector to be displayed in the catalog
     connector.name=pulsar
+    {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
     # the url of Pulsar broker service
-    pulsar.broker-service-url={{ .Values.presto.server.brokers }}
-    # pulsar.broker-service-url={{ .Values.presto.server.brokers }}
+    pulsar.broker-service-url=https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}/
+    {{- else }}
+    # the url of Pulsar broker service
+    pulsar.broker-service-url=http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
+    {{- end }}
     # URI of Zookeeper cluster
-    pulsar.zookeeper-uri={{ .Values.presto.server.zookeepers }}
+    pulsar.zookeeper-uri={{ template "pulsar.zookeeper.connect" . }}
     # minimum number of entries to read at a single time
-    pulsar.max-entry-read-batch-size=100
+    pulsar.max-entry-read-batch-size={{ .Values.presto.catalog.pulsar.maxEntryReadBatchSize }}
     # default number of splits to use per query
-    pulsar.target-num-splits=2
+    pulsar.target-num-splits={{ .Values.presto.catalog.pulsar.targetNumSplits }}
     # max message queue size
-    pulsar.max-split-message-queue-size=10000
+    pulsar.max-split-message-queue-size={{ .Values.presto.catalog.pulsar.maxSplitMessageQueueSize }}
     # max entry queue size
-    pulsar.max-split-entry-queue-size=1000
+    pulsar.max-split-entry-queue-size={{ .Values.presto.catalog.pulsar.maxSplitEntryQueueSize }}
     # Rewrite namespace delimiter
     # Warn: avoid using symbols allowed by Namespace (a-zA-Z_0-9 -=:%)
     # to prevent erroneous rewriting
-    pulsar.namespace-delimiter-rewrite-enable=false
-    pulsar.rewrite-namespace-delimiter=/
-    
+    pulsar.namespace-delimiter-rewrite-enable={{ .Values.presto.catalog.pulsar.namespaceDelimiterRewriteEnable }}
+    pulsar.rewrite-namespace-delimiter={{ .Values.presto.catalog.pulsar.rewriteNamespaceDelimiter }}
     
     ####### TIERED STORAGE OFFLOADER CONFIGS #######
     
@@ -123,7 +152,7 @@ data:
     #pulsar.managed-ledger-offload-driver = aws-s3
     
     ## The directory to locate offloaders
-    #pulsar.offloaders-directory = /pulsar/offloaders
+    #pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
     
     ## Maximum number of thread pool threads for ledger offloading
     #pulsar.managed-ledger-offload-max-threads = 2
@@ -134,28 +163,32 @@ data:
     #  "s3ManagedLedgerOffloadRegion": "us-west-2", \
     #  "s3ManagedLedgerOffloadServiceEndpoint": "http://s3.amazonaws.com"}
     
-    
     ####### AUTHENTICATION CONFIGS #######
-    
+    {{- if .Values.auth.authentication.enabled }}
+    {{- if eq .Values.auth.authentication.provider "jwt" }}
     ## the authentication plugin to be used to authenticate to Pulsar cluster
-    #pulsar.auth-plugin =
+    pulsar.auth-plugin = org.apache.pulsar.client.impl.auth.AuthenticationToken
     
     ## the authentication parameter to be used to authenticate to Pulsar cluster
-    #pulsar.auth-params =
+    pulsar.auth-params = file:///pulsar/tokens/client/token
+    {{- end }} 
+    {{- end }} 
     
+    {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
     ## Accept untrusted TLS certificate
-    #pulsar.tls-allow-insecure-connection =
+    pulsar.tls-allow-insecure-connection = false
     
     ## Whether to enable hostname verification on TLS connections
-    #pulsar.tls-hostname-verification-enable =
+    pulsar.tls-hostname-verification-enable = false
     
     ## Path for the trusted TLS certificate file
-    #pulsar.tls-trust-cert-file-path =
+    pulsar.tls-trust-cert-file-path = /pulsar/certs/proxy-ca/ca.crt
+    {{- end }}
     
     ####### BOOKKEEPER CONFIGS #######
     
     # Entries read count throttling-limit per seconds, 0 is represents disable the throttle, default is 0.
-    pulsar.bookkeeper-throttle-value = 0
+    pulsar.bookkeeper-throttle-value = {{ .Values.presto.catalog.pulsar.bookkeeperThrottleValue }}
     
     # The number of threads used by Netty to handle TCP connections,
     # default is 2 * Runtime.getRuntime().availableProcessors().
@@ -165,13 +198,12 @@ data:
     # default is Runtime.getRuntime().availableProcessors().
     # pulsar.bookkeeper-num-worker-threads =
     
-    
     ####### MANAGED LEDGER CONFIGS #######
     
     # Amount of memory to use for caching data payload in managed ledger. This memory
     # is allocated from JVM direct memory and it's shared across all the managed ledgers
     # running in same sql worker. 0 is represents disable the cache, default is 0.
-    pulsar.managed-ledger-cache-size-MB = 0
+    pulsar.managed-ledger-cache-size-MB = {{ .Values.presto.catalog.pulsar.managedLedgerCacheSizeMB }}
     
     # Number of threads to be used for managed ledger tasks dispatching,
     # default is Runtime.getRuntime().availableProcessors().
@@ -180,12 +212,4 @@ data:
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().
     # pulsar.managed-ledger-num-scheduler-threads =
-
-  docker-presto.sh: |
-    #!/bin/bash 
-    cp {{ .Values.presto.server.config.path }}/*.properties $PRESTO_CONF_DIR
-    cp {{ .Values.presto.server.config.path }}/*.config $PRESTO_CONF_DIR
-    cp {{ .Values.presto.server.config.path }}/pulsar.properties $PRESTO_CONF_DIR/catalog
-    cp {{ .Values.presto.server.config.path }}/pulsar.properties presto/etc/data/etc/catalog  
-    launcher run
 {{- end }}

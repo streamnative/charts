@@ -84,7 +84,7 @@ components:
   # pulsar manager
   pulsar_manager: true
   # pulsar sql
-  presto: false
+  sql_worker: false
 
 ## Monitoring Components
 ##
@@ -116,8 +116,10 @@ images:
     tag: v1.0.0
     pullPolicy: IfNotPresent
   presto:
-    repository: eabanonu/presto-pulsar
-    tag: v0.0.15
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/platform
+    tag: v1.0.0
     pullPolicy: IfNotPresent
   autorecovery:
     # repository: apachepulsar/pulsar-all
@@ -982,46 +984,101 @@ rbac:
 
 # Deploy pulsar sql
 presto:
-  server:
-    workers: 2
-    # zookeeper servers
-    zookeepers: {}
-    # broker servers
-    brokers: {}
-    node:
-      environment: production
-      dataDir: /presto/etc/data
-    log:
-      presto:
-        level: DEBUG
+  coordinator:
+    component: coordinator
+    replicaCount: 1
+    tolerations: []
+    affinity:
+      anti_affinity: true
+    annotations: {}
+    gracePeriod: 10
+    ports:
+      http: 8081
+    resources:
+      requests:
+        memory: 4Gi
+        cpu: 2
+    # nodeSelector:
+      # cloud.google.com/gke-nodepool: default-pool
+    probe:
+      liveness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      readiness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      startup:
+        enabled: false
+        failureThreshold: 30
+        initialDelaySeconds: 10
+        periodSeconds: 30
     config:
-      path: /etc/presto
       http:
         port: 8081
       query:
-        maxMemory: "4GB"
-        maxMemoryPerNode: "1GB"
+        maxMemory: "1GB"
+        maxMemoryPerNode: "128MB"
     jvm:
-      maxHeapSize: "8G"
-      gcMethod:
-        type: "UseG1GC"
-        g1:
-          heapRegionSize: "32M"
+      memory: 2G
+    log:
+      presto:
+        level: DEBUG
+  worker:
+    component: worker
+    replicaCount: 2
+    tolerations: []
+    affinity:
+      anti_affinity: true
+    annotations: {}
+    gracePeriod: 10
+    ports:
+      http: 8081
+    resources:
+      requests:
+        memory: 4Gi
+        cpu: 2
+    # nodeSelector:
+      # cloud.google.com/gke-nodepool: default-pool
+    probe:
+      liveness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      readiness:
+        enabled: true
+        failureThreshold: 10
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      startup:
+        enabled: false
+        failureThreshold: 30
+        initialDelaySeconds: 10
+        periodSeconds: 30
+    config:
+      query:
+        maxMemory: "1GB"
+        maxMemoryPerNode: "128MB"
+    jvm:
+      memory: 2G
+    log:
+      presto:
+        level: DEBUG
+  node:
+    environment: production
+  catalog:
+    pulsar:
+      maxEntryReadBatchSize: "100"
+      targetNumSplits: "16"
+      maxSplitMessageQueueSize: "10000"
+      maxSplitEntryQueueSize: "1000"
+      namespaceDelimiterRewriteEnable: "true"
+      rewriteNamespaceDelimiter: "/"
+      bookkeeperThrottleValue: "0"
+      managedLedgerCacheSizeMB: "0"
   service:
     type: LoadBalancer
-  resources: {}
-  # BE CAREFUL WITH RESOURCE ELSE YOU END UP WITH ISSUES
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  #  requests:
-  #    memory: 512Mi
-  #    cpu: 0.2
-
-  # nodeSelector:
-    # agentpool: presto
-  tolerations: []
-  affinity: {}
-  annotations: {}
-  gracePeriod: 0
