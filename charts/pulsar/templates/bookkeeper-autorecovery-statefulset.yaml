@@ -45,6 +45,9 @@ spec:
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
+        {{- if .Values.autorecovery.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/bookkeeper-autorecovery-configmap.yaml") . | sha256sum }}
+        {{- end }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -118,6 +121,8 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
         volumeMounts:
         {{- include "pulsar.autorecovery.certs.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.autorecovery.log.volumeMounts" . | nindent 8 }}
       volumes:
       {{- include "pulsar.autorecovery.certs.volumes" . | nindent 6 }}
+      {{- include "pulsar.autorecovery.log.volumes" . | nindent 6 }}
 {{- end }}

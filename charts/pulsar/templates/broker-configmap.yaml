@@ -90,7 +90,7 @@ data:
   PF_kubernetesContainerFactory_changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
   PF_kubernetesContainerFactory_changeConfigMapNamespace: {{ .Values.namespace }}
   {{- end }}
-  
+
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.broker.ports.http }}"
   {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
@@ -143,4 +143,7 @@ data:
   bookkeeperUseV2WireProtocol: "false"
   {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}
+  # Include log configuration file, If you want to configure the log level and other configuration
+  # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
+{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 2 }}
 {{- end }}
