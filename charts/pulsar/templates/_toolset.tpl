@@ -81,7 +81,7 @@ Define toolset tls certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: toolset-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
+    secretName: "{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -89,7 +89,7 @@ Define toolset tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+    secretName: "{{ .Release.Name }}-ca-tls"
     items:
     - key: ca.crt
       path: ca.crt
@@ -110,7 +110,7 @@ Define toolset tls certs volumes
         path: ca.crt
   {{- end}}
   {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
-    secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+    secretName: "{{ .Release.Name }}-ca-tls"
     items:
       - key: ca.crt
         path: ca.crt

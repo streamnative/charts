@@ -57,7 +57,7 @@ Define zookeeper certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: zookeeper-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.zookeeper.cert_name }}"
+    secretName: "{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -65,7 +65,7 @@ Define zookeeper certs volumes
         path: tls.key
 - name: ca
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+    secretName: "{{ .Release.Name }}-ca-tls"
     items:
       - key: ca.crt
         path: ca.crt

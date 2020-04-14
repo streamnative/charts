@@ -156,7 +156,7 @@ spec:
         {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
         - name: ca
           secret:
-            secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+            secretName: "{{ .Release.Name }}-ca-tls"
             items:
               - key: ca.crt
                 path: ca.crt
