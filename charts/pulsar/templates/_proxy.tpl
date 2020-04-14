@@ -77,14 +77,14 @@ Define proxy certs volumes
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
-    secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+    secretName: "{{ .Release.Name }}-ca-tls"
     items:
       - key: ca.crt
         path: ca.crt
   {{- end }}
 - name: proxy-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+    secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
     items:
       - key: tls.crt
         path: tls.crt
