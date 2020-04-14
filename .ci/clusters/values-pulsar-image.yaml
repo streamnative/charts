@@ -27,7 +27,7 @@ monitoring:
   alert_manager: false
 
 volumes:
-  local_storage: true
+  persistence: false
 
 # disabled AntiAffinity
 affinity:
