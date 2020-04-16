@@ -707,6 +707,8 @@ broker:
 ##
 functions:
   component: functions-worker
+  enableCustomizerRuntime: false
+  runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
 
 ## Pulsar: Proxy Cluster
 ## templates/proxy-statefulset.yaml

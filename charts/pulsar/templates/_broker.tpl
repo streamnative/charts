@@ -143,3 +143,24 @@ Define broker log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
 {{- end }}
+
+{{/*
+Define custom runtime options mounts
+*/}}
+{{- define "pulsar.broker.runtime.volumeMounts" -}}
+{{- if .Values.functions.enableCustomizerRuntime }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-runtime"
+  mountPath: "{{ template "pulsar.home" .}}/extraLibs"
+{{- end }}
+{{- end }}
+
+{{/*
+Define broker runtime volumes
+*/}}
+{{- define "pulsar.broker.runtime.volumes" -}}
+{{- if .Values.functions.enableCustomizerRuntime }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-runtime"
+  hostPath:
+    path: /proc
+{{- end }}
+{{- end }}

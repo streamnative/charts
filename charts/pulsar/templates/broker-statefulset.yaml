@@ -166,6 +166,8 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
+          echo $'\n' >> conf/pulsar_env.sh;
+          echo "PULSAR_EXTRA_CLASSPATH=/sn-platform/extraLibs" >> conf/pulsar_env.sh;
           bin/apply-config-from-env.py conf/broker.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
           bin/gen-yml-from-env.py conf/functions_worker.yml;
@@ -200,8 +202,10 @@ spec:
           {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.broker.runtime.volumeMounts" . | nindent 10 }}
       volumes:
       {{- include "pulsar.broker.token.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.log.volumes" . | nindent 6 }}
+      {{- include "pulsar.broker.runtime.volumes" . | nindent 6 }}
 {{- end }}
