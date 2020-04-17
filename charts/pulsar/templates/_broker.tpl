@@ -150,7 +150,7 @@ Define custom runtime options mounts
 {{- define "pulsar.broker.runtime.volumeMounts" -}}
 {{- if .Values.functions.enableCustomizerRuntime }}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-runtime"
-  mountPath: "{{ template "pulsar.home" .}}/extraLibs"
+  mountPath: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"
 {{- end }}
 {{- end }}
 
