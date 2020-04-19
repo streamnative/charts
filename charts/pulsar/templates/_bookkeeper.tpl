@@ -124,7 +124,7 @@ done;
 Define bookkeeper log mounts
 */}}
 {{- define "pulsar.bookkeeper.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-log4j2"
   mountPath: "{{ template "pulsar.home" .}}/conf/log4j2.yaml"
   subPath: log4j2.yaml
 {{- end }}
@@ -133,7 +133,7 @@ Define bookkeeper log mounts
 Define bookkeeper log volumes
 */}}
 {{- define "pulsar.bookkeeper.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-log4j2"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
 {{- end }}

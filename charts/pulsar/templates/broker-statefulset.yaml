@@ -166,6 +166,7 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
+          {{- include "pulsar.broker.kop.settings" . | nindent 10 }}
           bin/apply-config-from-env.py conf/broker.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
           bin/gen-yml-from-env.py conf/functions_worker.yml;
@@ -192,6 +193,15 @@ spec:
           containerPort: {{ .Values.broker.ports.https }}
         - name: pulsarssl
           containerPort: {{ .Values.broker.ports.pulsarssl }}
+        {{- end }}
+        {{- if .Values.components.kop }}
+        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        - name: kafkassl
+          containerPort: {{ .Values.kop.ports.ssl }}
+        {{- else }}
+        - name: kafkaPlainText
+          containerPort: {{ .Values.kop.ports.plaintext }}
+        {{- end }}
         {{- end }}
         envFrom:
         - configMapRef:

@@ -33,15 +33,22 @@ spec:
   # prometheus needs to access /metrics endpoint
   - name: http
     port: {{ .Values.broker.ports.http }}
-  {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
-  - name: pulsar
-    port: {{ .Values.broker.ports.pulsar }}
-  {{- end }}
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
   - name: https
     port: {{ .Values.broker.ports.https }}
   - name: pulsarssl
     port: {{ .Values.broker.ports.pulsarssl }}
+  {{- if .Values.components.kop }}
+  - name: kafkassl
+    port: {{ .Values.kop.ports.ssl }}
+  {{- end }}
+  {{- else }}
+  - name: pulsar
+    port: {{ .Values.broker.ports.pulsar }}
+  {{- if .Values.components.kop }}
+  - name: kafkaPlainText
+    port: {{ .Values.kop.ports.plaintext }}
+  {{- end }}
   {{- end }}
   clusterIP: None
   selector:

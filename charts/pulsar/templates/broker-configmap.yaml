@@ -142,6 +142,18 @@ data:
   # https://github.com/apache/bookkeeper/pull/2300
   bookkeeperUseV2WireProtocol: "false"
   {{- end }}
+  {{- if .Values.components.kop }}
+  messagingProtocols: "kafka"
+  {{- if .Values.auth.authentication.enabled }}
+  {{- if eq .Values.auth.authentication.provider "jwt" }}
+  PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+  {{- end }}
+  {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/broker.keystore.jks
+  PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/broker.truststore.jks
+  {{- end }}
+  {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}
   # Include log configuration file, If you want to configure the log level and other configuration
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf

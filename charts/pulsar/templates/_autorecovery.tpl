@@ -83,7 +83,7 @@ done;
 Define autorecovery log mounts
 */}}
 {{- define "pulsar.autorecovery.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}-log4j2"
   mountPath: "{{ template "pulsar.home" . }}/conf/log4j2.yaml"
   subPath: log4j2.yaml
 {{- end }}
@@ -92,7 +92,7 @@ Define autorecovery log mounts
 Define autorecovery log volumes
 */}}
 {{- define "pulsar.autorecovery.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}-log4j2"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
 {{- end }}
