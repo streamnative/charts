@@ -23,8 +23,21 @@ Define the broker znode
 Define broker zookeeper client tls settings
 */}}
 {{- define "pulsar.broker.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
+{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
 /pulsar/keytool/keytool.sh broker {{ template "pulsar.broker.hostname" . }} true;
+{{- end }}
+{{- end }}
+
+{{/*
+Define broker kop settings
+*/}}
+{{- define "pulsar.broker.kop.settings" -}}
+{{- if .Values.components.kop }}
+{{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+export PULSAR_PREFIX_listeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.ssl }}";
+{{- else }}
+export PULSAR_PREFIX_listeners="PLAINTEXT://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.plaintext }}";
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -39,7 +52,7 @@ Define broker tls certs mounts
 - name: ca
   mountPath: "/pulsar/certs/ca"
   readOnly: true
-{{- if .Values.tls.zookeeper.enabled }}
+{{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
   subPath: keytool.sh
@@ -66,7 +79,7 @@ Define broker tls certs volumes
     items:
     - key: ca.crt
       path: ca.crt
-{{- if .Values.tls.zookeeper.enabled }}
+{{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
 - name: keytool
   configMap:
     name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
@@ -130,7 +143,7 @@ Define broker token volumes
 Define broker log mounts
 */}}
 {{- define "pulsar.broker.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j2"
   mountPath: "{{ template "pulsar.home" .}}/conf/log4j2.yaml"
   subPath: log4j2.yaml
 {{- end }}
@@ -139,7 +152,7 @@ Define broker log mounts
 Define broker log volumes
 */}}
 {{- define "pulsar.broker.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j2"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
 {{- end }}
