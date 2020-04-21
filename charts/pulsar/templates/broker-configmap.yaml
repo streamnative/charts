@@ -55,6 +55,10 @@ data:
   PF_connectorsDirectory: ./connectors
   PF_containerFactory: k8s
   PF_numFunctionPackageReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
+  {{- if .Values.functions.enableCustomizerRuntime }}
+  PF_runtimeCustomizerClassName: {{ .Values.functions.runtimeCustomizerClassName }}
+  PULSAR_EXTRA_CLASSPATH: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"
+  {{- end }}
   # support version >= 2.5.0
   PF_functionRuntimeFactoryConfigs_pulsarRootDir: {{ template "pulsar.home" . }}
   PF_kubernetesContainerFactory_pulsarRootDir: {{ template "pulsar.home" . }}

@@ -210,8 +210,10 @@ spec:
           {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.broker.runtime.volumeMounts" . | nindent 10 }}
       volumes:
       {{- include "pulsar.broker.token.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.log.volumes" . | nindent 6 }}
+      {{- include "pulsar.broker.runtime.volumes" . | nindent 6 }}
 {{- end }}
