@@ -81,7 +81,7 @@ Define zookeeper certs volumes
 Define zookeeper log mounts
 */}}
 {{- define "pulsar.zookeeper.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-log4j2"
   mountPath: "{{ template "pulsar.home" . }}/conf/log4j2.yaml"
   subPath: log4j2.yaml
 {{- end }}
@@ -90,7 +90,7 @@ Define zookeeper log mounts
 Define zookeeper log volumes
 */}}
 {{- define "pulsar.zookeeper.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-log4j2"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
 {{- end }}

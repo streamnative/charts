@@ -18,7 +18,8 @@
 #
 
 # script to process key/cert to keystore and truststore
-{{- if or .Values.tls.zookeeper.enabled .Values.tls.pulsar_manager.enabled }}
+{{- if .Values.tls.enabled }}
+{{- if or .Values.tls.zookeeper.enabled (or .Values.tls.pulsar_manager.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -87,13 +88,29 @@ data:
     ensureFileNotEmpty ${trustStoreFile}
     
     if [[ "x${isClient}" == "xtrue" ]]; then
+        echo "update tls client settings ..."
+{{- if .Values.tls.zookeeper.enabled }}
         echo $'\n' >> conf/pulsar_env.sh
         echo "PULSAR_EXTRA_OPTS=\"${PULSAR_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=${keyStoreFile} -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=${trustStoreFile} -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> conf/pulsar_env.sh
         echo $'\n' >> conf/bkenv.sh
         echo "BOOKIE_EXTRA_OPTS=\"${BOOKIE_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=${keyStoreFile} -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=${trustStoreFile} -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> conf/bkenv.sh
+        echo $'\n' >> conf/bkenv.sh
+{{- end }}
+{{- if and .Values.tls.broker.enabled .Values.components.kop }}
+        echo $'\n' >> conf/broker.conf
+        echo "kopSslKeystorePassword=${PASSWORD}" >> conf/broker.conf
+        echo $'\n' >> conf/broker.conf
+        echo "kopSslKeyPassword=${PASSWORD}" >> conf/broker.conf
+        echo $'\n' >> conf/broker.conf
+        echo "kopSslTruststorePassword=${PASSWORD}" >> conf/broker.conf
+{{- end }}
     else
+        echo "update tls client settings ..."
+{{- if .Values.tls.zookeeper.enabled }}
         echo $'\n' >> conf/pulsar_env.sh
         echo "PULSAR_EXTRA_OPTS=\"${PULSAR_EXTRA_OPTS} -Dzookeeper.ssl.keyStore.location=${keyStoreFile} -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=${trustStoreFile} -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> conf/pulsar_env.sh
+{{- end }}
     fi
     echo ${PASSWORD} > conf/password
+{{- end }}
 {{- end }}
