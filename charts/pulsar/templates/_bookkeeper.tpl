@@ -90,11 +90,11 @@ Define bookie tls config
 {{- define "pulsar.bookkeeper.config.tls" -}}
 {{- if and .Values.tls.enabled .Values.tls.bookie.enabled }}
 PULSAR_PREFIX_tlsProviderFactoryClass: org.apache.bookkeeper.tls.TLSContextFactory
-PULSAR_PREFIX_tlsCertificatePath: /pulsar/certs/bookie/tls.crt  
+PULSAR_PREFIX_tlsCertificatePath: /pulsar/certs/bookie/tls.crt
 PULSAR_PREFIX_tlsKeyStoreType: PEM
 PULSAR_PREFIX_tlsKeyStore: /pulsar/certs/bookie/tls.key
 PULSAR_PREFIX_tlsTrustStoreType: PEM
-PULSAR_PREFIX_tlsTrustStore: /pulsar/certs/ca/ca.crt 
+PULSAR_PREFIX_tlsTrustStore: /pulsar/certs/ca/ca.crt
 {{- end }}
 {{- end }}
 
@@ -136,4 +136,45 @@ Define bookkeeper log volumes
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+{{- end }}
+{{/*Define bookkeeper datadog annotation*/}}
+{{- define  "pulsar.bookkeeper.datadog.annotation" -}}
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.check_names: |
+  ["openmetrics"]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.instances: |
+  [
+    {
+      "prometheus_url": "http://%%host%%:%%port%%/metrics",
+      "namespace": "{{ .Values.datadog.namespace }}",
+      "metrics": {{ .Values.datadog.metrics }},
+      "health_service_check": true,
+      "prometheus_timeout": 1000,
+      "max_returned_metrics": 1000000,
+      "type_overrides": {
+        "jvm_memory_bytes_used": "gauge",
+        "jvm_memory_bytes_committed": "gauge",
+        "jvm_memory_bytes_max": "gauge",
+        "jvm_memory_bytes_init": "gauge",
+        "jvm_memory_pool_bytes_used": "gauge",
+        "jvm_memory_pool_bytes_committed": "gauge",
+        "jvm_memory_pool_bytes_max": "gauge",
+        "jvm_memory_pool_bytes_init": "gauge",
+        "jvm_memory_direct_bytes_used": "gauge",
+        "jvm_threads_current": "gauge",
+        "jvm_threads_daemon": "gauge",
+        "jvm_threads_peak": "gauge",
+        "jvm_threads_started_total": "gauge",
+        "jvm_threads_deadlocked": "gauge",
+        "jvm_threads_deadlocked_monitor": "gauge",
+        "jvm_gc_collection_seconds_count": "gauge",
+        "jvm_gc_collection_seconds_sum": "gauge",
+        "jvm_memory_direct_bytes_max": "gauge"
+      },
+      "tags": [
+        "pulsar-bookie: {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+      ]
+    }
+  ]
 {{- end }}

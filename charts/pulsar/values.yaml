@@ -99,7 +99,7 @@ monitoring:
   # alerting - alert-manager
   alert_manager: true
   # monitoring - datadog
-  datadog: true
+  datadog: false
 
 ## Images
 ##
@@ -864,6 +864,9 @@ prometheus:
 datadog:
   component: datadog
   namespace: pulsar
+  metrics: [
+    "_*"
+  ]
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-deployment.yaml
