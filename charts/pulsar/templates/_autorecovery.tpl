@@ -47,7 +47,7 @@ Define autorecovery tls certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: autorecovery-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.autorecovery.cert_name }}"
+    secretName: "{{ .Release.Name }}-{{ .Values.tls.autorecovery.cert_name }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -55,7 +55,7 @@ Define autorecovery tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+    secretName: "{{ .Release.Name }}-ca-tls"
     items:
     - key: ca.crt
       path: ca.crt
@@ -83,7 +83,7 @@ done;
 Define autorecovery log mounts
 */}}
 {{- define "pulsar.autorecovery.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}-log4j2"
   mountPath: "{{ template "pulsar.home" . }}/conf/log4j2.yaml"
   subPath: log4j2.yaml
 {{- end }}
@@ -92,7 +92,7 @@ Define autorecovery log mounts
 Define autorecovery log volumes
 */}}
 {{- define "pulsar.autorecovery.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}-log4j2"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
 {{- end }}

@@ -59,7 +59,7 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.toolset.gracePeriod }}
       containers:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+      - name: "pulsar"
         image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
       {{- if .Values.toolset.resources }}
@@ -80,8 +80,30 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
+      - name: "kafka"
+        image: "confluentinc/cp-kafka:5.0.0"
+        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        workingDir: {{ template "pulsar.home" . }}
+      {{- if .Values.toolset.resources }}
+        resources:
+{{ toYaml .Values.toolset.resources | indent 10 }}
+      {{- end }}
+        command: ["sh", "-c"]
+        args:
+        - >
+          {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 10 }}
+          {{- include "pulsar.toolset.kafka.settings" . | nindent 10 }}
+          sleep 10000000000
+        envFrom:
+        - configMapRef:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+        volumeMounts:
+        {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.toolset.kafka.conf.volumeMounts" . | nindent 8 }}
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.token.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.log.volumes" . | nindent 6 }}
+      {{- include "pulsar.toolset.kafka.conf.volumes" . | nindent 6 }}
 {{- end }}

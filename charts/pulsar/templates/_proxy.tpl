@@ -77,14 +77,14 @@ Define proxy certs volumes
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
-    secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+    secretName: "{{ .Release.Name }}-ca-tls"
     items:
       - key: ca.crt
         path: ca.crt
   {{- end }}
 - name: proxy-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+    secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -97,7 +97,7 @@ Define proxy certs volumes
 Define proxy log mounts
 */}}
 {{- define "pulsar.proxy.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j2"
   mountPath: "{{ template "pulsar.home" . }}/conf/log4j2.yaml"
   subPath: log4j2.yaml
 {{- end }}
@@ -106,7 +106,7 @@ Define proxy log mounts
 Define proxy log volumes
 */}}
 {{- define "pulsar.proxy.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j2"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
 {{- end }}

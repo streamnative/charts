@@ -30,7 +30,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
@@ -70,7 +70,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
@@ -109,7 +109,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.bookie.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.bookie.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
@@ -147,7 +147,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.autorecovery.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.autorecovery.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
@@ -178,46 +178,11 @@ spec:
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
-  namespace: {{ .Values.namespace }}
-spec:
-  # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
-  duration: "{{ .Values.tls.common.duration }}"
-  renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
-  # The use of the common name field has been deprecated since 2000 and is
-  # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}.{{ .Values.namespace }}.svc.cluster.local"
-  isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
-  usages:
-    - server auth
-    - client auth
-  dnsNames:
-    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}.{{ .Values.namespace }}.svc.cluster.local"
-    -  "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
-  # Issuer references are always required.
-  issuerRef:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
-    # We can reference ClusterIssuers by changing the kind here.
-    # The default value is Issuer (i.e. a locally namespaced Issuer)
-    kind: Issuer
-    # This is optional since cert-manager will default to this value however
-    # if you are using an external issuer, change this to that issuer group.
-    group: cert-manager.io
----
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
-metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.zookeeper.cert_name }}"
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.zookeeper.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
@@ -255,7 +220,7 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   # Secret names are always required.
-  secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.pulsar_manager.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.pulsar_manager.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
@@ -274,6 +239,44 @@ spec:
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}.{{ .Values.namespace }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+  # Issuer references are always required.
+  issuerRef:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: Issuer
+    # This is optional since cert-manager will default to this value however
+    # if you are using an external issuer, change this to that issuer group.
+    group: cert-manager.io
+---
+{{- end }}
+
+{{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop) }}
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
+  namespace: {{ .Values.namespace }}
+spec:
+  # Secret names are always required.
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}"
+  duration: "{{ .Values.tls.common.duration }}"
+  renewBefore: "{{ .Values.tls.common.renewBefore }}"
+  organization:
+{{ toYaml .Values.tls.common.organization | indent 2 }}
+  # The use of the common name field has been deprecated since 2000 and is
+  # discouraged from being used.
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}.{{ .Values.namespace }}.svc.cluster.local"
+  isCA: false
+  keySize: {{ .Values.tls.common.keySize }}
+  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
+  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}.{{ .Values.namespace }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"

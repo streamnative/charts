@@ -17,6 +17,8 @@
 # under the License.
 #
 
+# Flag to control whether to run initialize job
+initialize: true
 
 ###
 ### K8S Settings
@@ -85,6 +87,8 @@ components:
   pulsar_manager: true
   # pulsar sql
   sql_worker: false
+  # kop
+  kop: false
 
 ## Monitoring Components
 ##
@@ -622,6 +626,12 @@ pulsar_metadata:
   # configurationStore:
   configurationStoreMetadataPrefix: ""
 
+## Pulsar: KoP Protocol Handler
+kop:
+  ports:
+    plaintext: 9092
+    ssl: 9093
+
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml
 ##
@@ -710,6 +720,9 @@ broker:
 ##
 functions:
   component: functions-worker
+  enableCustomizerRuntime: false
+  runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
+  pulsarExtraClasspath: "extraLibs"
 
 ## Pulsar: Proxy Cluster
 ## templates/proxy-statefulset.yaml

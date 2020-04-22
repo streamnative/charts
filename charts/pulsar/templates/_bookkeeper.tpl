@@ -48,7 +48,7 @@ Define bookie tls certs volumes
 {{- if and .Values.tls.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
 - name: bookie-certs
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.bookie.cert_name }}"
+    secretName: "{{ .Release.Name }}-{{ .Values.tls.bookie.cert_name }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -56,7 +56,7 @@ Define bookie tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ template "pulsar.fullname" . }}-ca-tls"
+    secretName: "{{ .Release.Name }}-ca-tls"
     items:
     - key: ca.crt
       path: ca.crt
@@ -124,7 +124,7 @@ done;
 Define bookkeeper log mounts
 */}}
 {{- define "pulsar.bookkeeper.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-log4j2"
   mountPath: "{{ template "pulsar.home" .}}/conf/log4j2.yaml"
   subPath: log4j2.yaml
 {{- end }}
@@ -133,7 +133,7 @@ Define bookkeeper log mounts
 Define bookkeeper log volumes
 */}}
 {{- define "pulsar.bookkeeper.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-log4j2"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
 {{- end }}
