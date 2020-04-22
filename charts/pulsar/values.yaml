@@ -1194,14 +1194,6 @@ loki:
     table_manager:
       retention_deletes_enabled: false
       retention_period: 0s
-  datasource:
-    apiVersion: 1
-    datasources:
-      - name: Loki
-        type: loki
-        access: proxy
-        url: http://sn-platform-pulsar-loki:3100
-        version: 1
 
   ## Additional Loki container arguments, e.g. log level (debug, info, warn, error)
   extraArgs: {}
