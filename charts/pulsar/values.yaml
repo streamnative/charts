@@ -883,6 +883,9 @@ grafana:
   tolerations: []
   gracePeriod: 0
   port: 3000
+  sidecar:
+    datasources:
+      enabled: true
   resources:
     requests:
       memory: 250Mi
@@ -1095,3 +1098,437 @@ presto:
       managedLedgerCacheSizeMB: "0"
   service:
     type: LoadBalancer
+
+loki:
+  component: loki
+  enabled: true
+  image:
+    repository: grafana/loki
+    tag: 1.4.1
+    pullPolicy: IfNotPresent
+
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ##
+    # pullSecrets:
+    #   - myRegistrKeySecretName
+
+  ingress:
+    enabled: false
+    annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: chart-example.local
+        paths: []
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  ## Affinity for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+  # podAntiAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - loki
+  #     topologyKey: "kubernetes.io/hostname"
+
+  ## StatefulSet annotations
+  annotations: {}
+
+  # enable tracing for debug, need install jaeger and specify right jaeger_agent_host
+  tracing:
+    jaegerAgentHost:
+
+  config:
+    auth_enabled: false
+    ingester:
+      chunk_idle_period: 3m
+      chunk_block_size: 262144
+      chunk_retain_period: 1m
+      max_transfer_retries: 0
+      lifecycler:
+        ring:
+          kvstore:
+            store: inmemory
+          replication_factor: 1
+
+        ## Different ring configs can be used. E.g. Consul
+        # ring:
+        #   store: consul
+        #   replication_factor: 1
+        #   consul:
+        #     host: "consul:8500"
+        #     prefix: ""
+        #     httpclienttimeout: "20s"
+        #     consistentreads: true
+    limits_config:
+      enforce_metric_name: false
+      reject_old_samples: true
+      reject_old_samples_max_age: 168h
+    schema_config:
+      configs:
+        - from: 2020-04-22
+          store: boltdb
+          object_store: filesystem
+          schema: v9
+          index:
+            prefix: index_
+            period: 168h
+    server:
+      http_listen_port: 3100
+    storage_config:
+      boltdb:
+        directory: /data/loki/index
+      filesystem:
+        directory: /data/loki/chunks
+    chunk_store_config:
+      max_look_back_period: 0
+    table_manager:
+      retention_deletes_enabled: false
+      retention_period: 0s
+  datasource:
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://sn-platform-pulsar-loki:3100
+        version: 1
+
+  ## Additional Loki container arguments, e.g. log level (debug, info, warn, error)
+  extraArgs: {}
+  # log.level: debug
+
+  livenessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/network-policies/
+  networkPolicy:
+    enabled: false
+
+  ## The app name of loki clients
+  client: {}
+  # name:
+
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+  ## If you set enabled as "True", you need :
+  ## - create a pv which above 10Gi and has same namespace with loki
+  ## - keep storageClassName same with below setting
+  persistence:
+    enabled: false
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    annotations: {}
+    # subPath: ""
+    # existingClaim:
+
+  ## Pod Labels
+  podLabels: {}
+
+  ## Pod Annotations
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "http-metrics"
+
+  podManagementPolicy: OrderedReady
+
+  ## Assign a PriorityClassName to pods if set
+  # priorityClassName:
+
+  rbac:
+    create: true
+    pspEnabled: true
+
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 45
+
+  replicas: 1
+
+  resources: {}
+  # limits:
+  #   cpu: 200m
+  #   memory: 256Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  securityContext:
+    fsGroup: 10001
+    runAsGroup: 10001
+    runAsNonRoot: true
+    runAsUser: 10001
+
+  service:
+    type: ClusterIP
+    nodePort:
+    port: 3100
+    annotations: {}
+    labels: {}
+
+  serviceAccount:
+    create: true
+    name:
+    annotations: {}
+
+  terminationGracePeriodSeconds: 4800
+
+  ## Tolerations for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  # The values to set in the PodDisruptionBudget spec
+  # If not set then a PodDisruptionBudget will not be created
+  podDisruptionBudget: {}
+  # minAvailable: 1
+  # maxUnavailable: 1
+
+  updateStrategy:
+    type: RollingUpdate
+
+  serviceMonitor:
+    enabled: false
+    interval: ""
+    additionalLabels: {}
+    # scrapeTimeout: 10s
+
+  initContainers: []
+  ## Init containers to be added to the loki pod.
+  # - name: my-init-container
+  #   image: busybox:latest
+  #   command: ['sh', '-c', 'echo hello']
+
+  extraContainers: []
+  ## Additional containers to be added to the loki pod.
+  # - name: reverse-proxy
+  #   image: angelbarrera92/basic-auth-reverse-proxy:dev
+  #   args:
+  #     - "serve"
+  #     - "--upstream=http://localhost:3100"
+  #     - "--auth-config=/etc/reverse-proxy-conf/authn.yaml"
+  #   ports:
+  #     - name: http
+  #       containerPort: 11811
+  #       protocol: TCP
+  #   volumeMounts:
+  #     - name: reverse-proxy-auth-config
+  #       mountPath: /etc/reverse-proxy-conf
+
+
+  extraVolumes: []
+  ## Additional volumes to the loki pod.
+  # - name: reverse-proxy-auth-config
+  #   secret:
+  #     secretName: reverse-proxy-auth-config
+
+  ## Extra volume mounts that will be added to the loki container
+  extraVolumeMounts: []
+
+  extraPorts: []
+  ## Additional ports to the loki services. Useful to expose extra container ports.
+  # - port: 11811
+  #   protocol: TCP
+  #   name: http
+  #   targetPort: http
+
+  # Extra env variables to pass to the loki container
+  env: []
+
+promtail:
+  component: promtail
+  ## Affinity for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  annotations: {}
+
+  # The update strategy to apply to the DaemonSet
+  ##
+  deploymentStrategy: {}
+  #  rollingUpdate:
+  #    maxUnavailable: 1
+  #  type: RollingUpdate
+
+  initContainer:
+    enabled: false
+    fsInotifyMaxUserInstances: 128
+
+  image:
+    repository: grafana/promtail
+    tag: 1.4.1
+    pullPolicy: IfNotPresent
+
+  livenessProbe: {}
+
+  loki:
+    serviceName: ""
+    servicePort: 3100
+    serviceScheme: https
+    user: user
+    password: pass
+
+  nameOverride: promtail
+
+  ## Node labels for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  pipelineStages:
+    - docker: {}
+
+  ## Pod Labels
+  podLabels: {}
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "http-metrics"
+
+  ## Assign a PriorityClassName to pods if set
+  # priorityClassName:
+
+  rbac:
+    create: true
+    pspEnabled: true
+
+  readinessProbe:
+    failureThreshold: 5
+    httpGet:
+      path: /ready
+      port: http-metrics
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
+
+  resources: {}
+  #  limits:
+  #    cpu: 200m
+  #    memory: 128Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 128Mi
+
+  # Custom scrape_configs to override the default ones in the configmap
+  scrapeConfigs: []
+
+  # Custom scrape_configs together with the default ones in the configmap
+  extraScrapeConfigs: []
+
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsGroup: 0
+    runAsUser: 0
+
+  serviceAccount:
+    create: true
+    name:
+
+  ## Tolerations for pod assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations:
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+
+  # Extra volumes to scrape logs from
+  volumes:
+    - name: docker
+      hostPath:
+        path: /var/lib/docker/containers
+    - name: pods
+      hostPath:
+        path: /var/log/pods
+
+  # Custom volumes together with the default ones
+  extraVolumes: []
+
+  volumeMounts:
+    - name: docker
+      mountPath: /var/lib/docker/containers
+      readOnly: true
+    - name: pods
+      mountPath: /var/log/pods
+      readOnly: true
+
+  # Custom volumeMounts together with the default ones
+  extraVolumeMounts: []
+
+  config:
+    client:
+      # Maximum wait period before sending batch
+      batchwait: 1s
+      # Maximum batch size to accrue before sending, unit is byte
+      batchsize: 102400
+
+      # Maximum time to wait for server to respond to a request
+      timeout: 10s
+
+      backoff_config:
+        # Initial backoff time between retries
+        minbackoff: 100ms
+        # Maximum backoff time between retries
+        maxbackoff: 5s
+        # Maximum number of retries when sending batches, 0 means infinite retries
+        maxretries: 20
+
+      # The labels to add to any time series or alerts when communicating with loki
+      external_labels: {}
+
+    server:
+      http_listen_port: 3101
+
+    positions:
+      filename: /run/promtail/positions.yaml
+    target_config:
+      # Period to resync directories being watched and files being tailed
+      sync_period: 10s
+
+  serviceMonitor:
+    enabled: false
+    interval: ""
+    additionalLabels: {}
+    # scrapeTimeout: 10s
+
+  # Extra env variables to pass to the promtail container
+  env: []
+
+  # enable and configure if using the syslog scrape config
+  syslogService:
+    enabled: false
+    type: ClusterIP
+    port: 1514
+    ## Specify the nodePort value for the LoadBalancer and NodePort service types.
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+    ##
+    # nodePort:
+    ## Provide any additional annotations which may be required. This can be used to
+    ## set the LoadBalancer service type to internal only.
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#internal-load-balancer
+    ##
+    annotations: {}
+    labels: {}
+    ## Use loadBalancerIP to request a specific static IP,
+    ## otherwise leave blank
+    ##
+    loadBalancerIP:
+    # loadBalancerSourceRanges: []
+    ## Set the externalTrafficPolicy in the Service to either Cluster or Local
+    # externalTrafficPolicy: Cluster
+

@@ -1,0 +1,65 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.promtail.syslogService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "promtail.fullname" . }}-syslog
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ template "promtail.name" . }}
+    chart: {{ template "promtail.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    {{- with .Values.promtail.syslogService.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- toYaml .Values.promtail.syslogService.annotations | nindent 4 }}
+spec:
+  type: {{ .Values.promtail.syslogService.type }}
+  {{- if .Values.promtail.syslogService.clusterIP }}
+  clusterIP: {{ .Values.promtail.syslogService.clusterIP }}
+  {{end}}
+  {{- if .Values.promtail.syslogService.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.promtail.syslogService.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.promtail.syslogService.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.promtail.syslogService.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+  {{- if .Values.promtail.syslogService.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ .Values.promtail.syslogService.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.promtail.syslogService.port }}
+      protocol: TCP
+      name: syslog
+      targetPort: syslog
+{{- if (and (eq .Values.promtail.syslogService.type "NodePort") (not (empty .Values.promtail.syslogService.nodePort))) }}
+      nodePort: {{ .Values.promtail.syslogService.nodePort }}
+{{- end }}
+{{- if .Values.promtail.extraPorts }}
+{{ toYaml .Values.promtail.extraPorts | indent 4}}
+{{- end }}
+  selector:
+    app: {{ template "promtail.name" . }}
+    release: {{ .Release.Name }}
+{{- end }}
