@@ -865,7 +865,7 @@ datadog:
   component: datadog
   namespace: pulsar
   metrics: [
-    "_*"
+    "\"_*\""
   ]
 
 ## Monitoring Stack: Grafana
