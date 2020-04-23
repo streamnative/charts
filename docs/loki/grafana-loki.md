@@ -60,3 +60,5 @@ And you can use `10.11.12.13:3000` access grafana Website, the `user` and `passw
 user: admin
 password: admin
 ```
+
+![loki](./img/loki.png)
