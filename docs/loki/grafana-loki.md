@@ -51,10 +51,10 @@ Output:
 
 ```text
 NAME                                        TYPE           CLUSTER-IP    EXTERNAL-IP      PORT(S)                         AGE
-sn-platform-pulsar-grafana                  LoadBalancer   10.0.27.218   104.197.202.34   3000:32118/TCP                  86s
+sn-platform-pulsar-grafana                  LoadBalancer   1.2.3.4       10.11.12.13      3000:32118/TCP                  86s
 ```
 
-And you can use `104.197.202.34:3000` access grafana Website, the `user` and `password` as follows:
+And you can use `10.11.12.13:3000` access grafana Website, the `user` and `password` as follows:
 
 ```text
 user: admin
