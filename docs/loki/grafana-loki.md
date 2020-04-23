@@ -44,7 +44,7 @@ $ helm upgrade --install sn-platform-pulsar-loki --namespace pulsar loki/loki-st
 ## Get grafana service in your cluster
 
 ```bash
-$ kubectl get service -n pulsar
+$ kubectl get service -n pulsar | grep "sn-platform-pulsar-grafana"
 ```
 
 Output:
