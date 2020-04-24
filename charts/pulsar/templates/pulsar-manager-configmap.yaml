@@ -72,7 +72,7 @@ data:
   {{- else }}
       --redirect.scheme=http \
   {{- end}}
-      --redirect.host=localhost \
+      --redirect.host={{ .Values.pulsar_manager.redirect.host }} \
       --redirect.port={{ .Values.pulsar_manager.ports.frontend }} \
       --default.environment.name={{ template "pulsar.fullname" . }} \
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
