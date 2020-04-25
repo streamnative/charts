@@ -72,6 +72,10 @@ spec:
           value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/
         - name: PULSAR_CLUSTER
           value: {{ template "pulsar.fullname" . }}
+        - name: GF_LOKI_URL
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.grafana.datasources.loki }}:3100/
+        - name: GF_LOKI_DATASOURCE_NAME
+          value: {{ template "pulsar.fullname" . }}-{{ .Values.grafana.datasources.loki }}
         - name: GRAFANA_ADMIN_USER
           valueFrom:
             secretKeyRef:

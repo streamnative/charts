@@ -42,6 +42,9 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.broker.component }}
       annotations:
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.broker.datadog.annotation" . | nindent 8 }}
+        {{- end }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.broker.ports.http }}"
         {{- if .Values.broker.autoRollDeployment }}

@@ -94,3 +94,49 @@ Define zookeeper log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
 {{- end }}
+{{/*Define zookeeper datadog annotation*/}}
+{{- define "pulsar.zookeeper.datadog.annotation"}}
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.check_names: |
+  ["openmetrics"]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.instances: |
+  [
+    {
+      "prometheus_url": "http://%%host%%:%%port%%/metrics",
+      "namespace": "{{ .Values.datadog.namespace }}",
+      "metrics": {{ .Values.datadog.metrics }},
+      "health_service_check": true,
+      "prometheus_timeout": 1000,
+      "max_returned_metrics": 1000000,
+      "type_overrides": {
+        "jvm_memory_bytes_used": "gauge",
+        "jvm_memory_bytes_committed": "gauge",
+        "jvm_memory_bytes_max": "gauge",
+        "jvm_memory_bytes_init": "gauge",
+        "jvm_memory_pool_bytes_used": "gauge",
+        "jvm_memory_pool_bytes_committed": "gauge",
+        "jvm_memory_pool_bytes_max": "gauge",
+        "jvm_memory_pool_bytes_init": "gauge",
+        "jvm_classes_loaded": "gauge",
+        "jvm_classes_loaded_total": "counter",
+        "jvm_classes_unloaded_total": "counter",
+        "jvm_buffer_pool_used_bytes": "gauge",
+        "jvm_buffer_pool_capacity_bytes": "gauge",
+        "jvm_buffer_pool_used_buffers": "gauge",
+        "jvm_threads_current": "gauge",
+        "jvm_threads_daemon": "gauge",
+        "jvm_threads_peak": "gauge",
+        "jvm_threads_started_total": "counter",
+        "jvm_threads_deadlocked": "gauge",
+        "jvm_threads_deadlocked_monitor": "gauge",
+        "jvm_gc_collection_seconds_count": "gauge",
+        "jvm_gc_collection_seconds_sum": "gauge",
+        "jvm_memory_direct_bytes_max": "gauge"
+      },
+      "tags": [
+        "pulsar-zookeeper: {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+      ]
+    }
+  ]
+{{- end}}

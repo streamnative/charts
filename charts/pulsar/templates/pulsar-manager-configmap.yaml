@@ -82,6 +82,7 @@ data:
       {{- else }}
       --redirect.scheme=http \
       {{- end }}
+  {{- end}}
       --redirect.host={{ .Values.pulsar_manager.redirect.host }} \
       --redirect.port={{ .Values.pulsar_manager.ports.frontend }} \
   {{- end }}
