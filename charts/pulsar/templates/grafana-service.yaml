@@ -31,7 +31,9 @@ metadata:
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
-  type: {{ .Values.grafana.service.type }}
+{{- with .Values.grafana.service.spec }}
+{{ toYaml . | indent 2 }}
+{{- end }}
   ports:
     - name: server
       port: {{ .Values.grafana.port }}

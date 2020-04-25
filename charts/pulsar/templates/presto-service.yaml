@@ -25,7 +25,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 spec:
-  type: {{ .Values.presto.service.type }}
+{{- with .Values.presto.service.spec }}
+{{ toYaml . | indent 2 }}
+{{- end }}
   ports:
     - port: {{ .Values.presto.coordinator.ports.http }}
       targetPort: {{ .Values.presto.coordinator.ports.http }}

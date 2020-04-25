@@ -39,10 +39,12 @@ data:
         - targets: ['{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}:{{ .Values.alert_manager.port }}']
 {{- end }}
     scrape_configs:
-    - job_name: 'prometheus'
-      static_configs:
-      - targets: ['localhost:9090']
     - job_name: 'kubernetes-pods'
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "jwt" }}
+      bearer_token_file: /pulsar/tokens/client/token
+{{- end }}
+{{- end }}
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
