@@ -64,16 +64,25 @@ spec:
         - name: server
           containerPort: {{ .Values.grafana.port }}
         env:
+        {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+        # for supporting apachepulsar/pulsar-grafana
+        - name: PROMETHEUS_URL
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/prometheus
+        # for supporting streamnative/apache-pulsar-grafana-dashboard
+        - name: PULSAR_PROMETHEUS_URL
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/prometheus
+        {{- else }}
         # for supporting apachepulsar/pulsar-grafana
         - name: PROMETHEUS_URL
           value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/
         # for supporting streamnative/apache-pulsar-grafana-dashboard
         - name: PULSAR_PROMETHEUS_URL
           value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/
+        {{- end }}
         - name: PULSAR_CLUSTER
           value: {{ template "pulsar.fullname" . }}
         - name: GF_LOKI_URL
-          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.grafana.datasources.loki }}:3100/
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.grafana.datasources.loki }}.{{ .Release.Namespace }}.svc.cluster.local:3100/
         - name: GF_LOKI_DATASOURCE_NAME
           value: {{ template "pulsar.fullname" . }}-{{ .Values.grafana.datasources.loki }}
         - name: GRAFANA_ADMIN_USER

@@ -26,6 +26,11 @@ home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/pulsar
 icon: http://pulsar.apache.org/img/pulsar.svg
+dependencies:
+- name: loki-stack
+  version: 0.36.1
+  repository: https://grafana.github.io/loki/charts
+  condition: monitoring.loki
 maintainers:
 - name: StreamNative Support
   email: support@streamnative.io

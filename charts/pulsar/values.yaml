@@ -102,6 +102,8 @@ monitoring:
   node_exporter: true
   # alerting - alert-manager
   alert_manager: true
+  # monitoring - loki
+  loki: true
   # monitoring - datadog
   datadog: false
 
