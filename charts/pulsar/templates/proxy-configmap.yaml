@@ -50,7 +50,7 @@ data:
   brokerWebServiceURLTLS: https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
   tlsEnabledWithBroker: "true"
   tlsCertRefreshCheckDurationSec: "300"
-  brokerClientTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  brokerClientTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
   {{- end }}
   {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
   brokerServiceURL: pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }}

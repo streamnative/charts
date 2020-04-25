@@ -55,10 +55,13 @@ Define proxy certs mounts
 - mountPath: "/pulsar/certs/proxy"
   name: proxy-certs
   readOnly: true
-{{- end }}
-{{- if .Values.tls.enabled }}
 - mountPath: "/pulsar/certs/ca"
-  name: ca
+  name: proxy-ca
+  readOnly: true
+{{- end }}
+{{- if .Values.tls.broker.enabled }}
+- mountPath: "/pulsar/certs/broker"
+  name: broker-ca
   readOnly: true
 {{- end }}
 {{- end }}
@@ -69,7 +72,7 @@ Define proxy certs volumes
 */}}
 {{- define "pulsar.proxy.certs.volumes" -}}
 {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-- name: ca
+- name: proxy-ca
   secret:
   {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
     secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
@@ -90,6 +93,14 @@ Define proxy certs volumes
         path: tls.crt
       - key: tls.key
         path: tls.key
+{{- end }}
+{{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+- name: broker-ca
+  secret:
+    secretName: "{{ .Release.Name }}-ca-tls"
+    items:
+      - key: ca.crt
+        path: ca.crt
 {{- end }}
 {{- end }}
 

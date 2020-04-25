@@ -274,7 +274,6 @@ certs:
           project: "[YOUR GCP PROJECT ID]"
           serviceAccountSecretRef:
             name: "[NAME OF SECRET]"
-            namespace: "[NAMESPACE OF THE SECRET]"
             key: "[KEY OF SECRET]"
   lets_encrypt:
     # TODO: add a link about how to configure lets encrypt CA
@@ -996,6 +995,8 @@ pulsar_manager:
     password: "welovepulsar"
     description: "Pulsar Manager Admin"
     email: support@pulsar.io
+  redirect:
+    host: localhost
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
