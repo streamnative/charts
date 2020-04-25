@@ -903,7 +903,8 @@ grafana:
   service:
     type: LoadBalancer
     annotations: {}
-
+  datasources:
+    loki: loki
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
 ##
