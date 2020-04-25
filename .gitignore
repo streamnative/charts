@@ -11,3 +11,5 @@
 .chart-packages/**
 .chart-index/**
 .vs/
+charts/**/*.tgz
+charts/**/*.lock
