@@ -19,7 +19,7 @@
 
 {{- if .Values.monitoring.alert_manager }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
   namespace: {{ .Values.namespace }}
@@ -27,17 +27,22 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.alert_manager.component }}
 spec:
+  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
   replicas: {{ .Values.alert_manager.replicaCount }}
   selector:
     matchLabels:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.alert_manager.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.alert_manager.component }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/alertmanager-configmap.yaml") . | sha256sum }}
 {{- with .Values.alert_manager.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -59,6 +64,19 @@ spec:
         resources:
 {{ toYaml .Values.alert_manager.resources | indent 10 }}
        {{- end }}
+        command: ["sh", "-c"]
+        args:
+          - |
+            /bin/alertmanager \
+              --config.file=/etc/alertmanager/alertmanager.yml \
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+  {{- if .Values.ingress.controller.services.https.enabled }}
+              --web.external-url https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/ \
+  {{- else }}
+              --web.external-url http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/ \
+  {{- end }}
+  {{- end }}
+              --storage.path=/alertmanager
         ports:
         - name: server
           containerPort: {{ .Values.alert_manager.port }}

@@ -19,7 +19,7 @@
 
 {{- if .Values.monitoring.prometheus }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
   namespace: {{ .Values.namespace }}
@@ -27,18 +27,25 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.prometheus.component }}
 spec:
+  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
   replicas: {{ .Values.prometheus.replicaCount }}
   selector:
     matchLabels:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.prometheus.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.prometheus.component }}
       annotations:
-{{ toYaml .Values.prometheus.annotations | indent 8 }}
+        checksum/config: {{ include (print $.Template.BasePath "/prometheus-configmap.yaml") . | sha256sum }}
+{{- with .Values.prometheus.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
     {{- if .Values.prometheus.nodeSelector }}
       nodeSelector:
@@ -60,6 +67,21 @@ spec:
         resources:
 {{ toYaml .Values.prometheus.resources | indent 10 }}
       {{- end }}
+        command: ["sh", "-c"]
+        args:
+          - |
+            /bin/prometheus \
+              -config.file=/etc/prometheus/prometheus.yml \
+              -storage.local.path=/prometheus \
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+  {{- if .Values.ingress.controller.services.https.enabled }}
+              -web.external-url https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/ \
+  {{- else }}
+              -web.external-url http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/ \
+  {{- end }}
+  {{- end }}
+              -web.console.libraries=/usr/share/prometheus/console_libraries \
+              -web.console.templates=/usr/share/prometheus/consoles
         ports:
         - name: server
           containerPort: {{ .Values.prometheus.port }}
@@ -68,6 +90,7 @@ spec:
           mountPath: /etc/prometheus
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
           mountPath: /prometheus
+        {{- include "pulsar.prometheus.token.volumeMounts" . | nindent 8 }}
       volumes:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
         configMap:
@@ -81,4 +104,5 @@ spec:
         persistentVolumeClaim:
           claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
     {{- end }}
+    {{- include "pulsar.prometheus.token.volumes" . | nindent 6 }}
 {{- end }}

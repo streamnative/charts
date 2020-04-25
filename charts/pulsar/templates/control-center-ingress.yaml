@@ -31,6 +31,15 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
   annotations:
+{{- if .Values.ingress.control_center.tls.enabled }}
+{{- if not .Values.ingress.controller.services.http.enabled }}
+    ingress.kubernetes.io/ssl-redirect: "true"
+{{- end }}
+{{- if and .Values.certs.public_issuer.enabled }}
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/issuer: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
+{{- end }}
+{{- end }}
     kubernetes.io/ingress.class: nginx
   {{- with .Values.ingress.control_center.annotations }}
     {{- toYaml . | nindent 4 }}
@@ -42,21 +51,37 @@ spec:
         {{- if .Values.external_dns.domain_filter }}
         - {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
         {{- end }}
-      secretName: {{ .secretName }}
+      secretName: {{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress
 {{- end }}
   rules:
     {{- if .Values.external_dns.domain_filter }}
     - host: {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
       http:
         paths:
-          - path: /manager
-            backend:
-              serviceName: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
-              servicePort: {{ .Values.pulsar_manager.port }}
+          {{- if .Values.monitoring.grafana }}
           - path: /grafana
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.grafana.component }}"
               servicePort: {{ .Values.grafana.port }}
+          {{- end }}
+          {{- if .Values.monitoring.alert_manager }}
+          - path: /alerts
+            backend:
+              serviceName: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
+              servicePort: {{ .Values.alert_manager.port }}
+          {{- end }}
+          {{- if .Values.monitoring.prometheus }}
+          - path: /prometheus
+            backend:
+              serviceName: "{{ $fullName }}-{{ .Values.prometheus.component }}"
+              servicePort: {{ .Values.prometheus.port }}
+          {{- end }}
+          {{- if .Values.components.pulsar_manager }}
+          - path: /
+            backend:
+              serviceName: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
+              servicePort: {{ .Values.pulsar_manager.ports.frontend }}
+          {{- end }}
     {{- end }}
 {{- end }}
 {{- end }}

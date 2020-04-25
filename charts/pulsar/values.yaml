@@ -160,7 +160,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.5
+    tag: 0.0.6
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
@@ -317,6 +317,11 @@ ingress:
     ports:
       http: 80
       https: 443
+    services:
+      http:
+        enabled: false
+      https:
+        enabled: true
   control_center:
     enabled: true
     component: control-center
@@ -900,7 +905,8 @@ grafana:
   ## templates/grafana-service.yaml
   ##
   service:
-    type: LoadBalancer
+    spec:
+      clusterIP: None
     annotations: {}
   datasources:
     loki: loki
@@ -929,7 +935,8 @@ alert_manager:
       memory: 250Mi
       cpu: 0.1
   service:
-    type: ClusterIP
+    spec:
+      clusterIP: None
     annotations: {}
 
 ## Components Stack: pulsar_manager
@@ -984,7 +991,8 @@ pulsar_manager:
   ## templates/pulsar-manager-service.yaml
   ##
   service:
-    type: LoadBalancer
+    spec:
+      clusterIP: None
     annotations: {}
   ## pulsar manager configmap
   ## templates/pulsar-manager-configmap.yaml
@@ -1106,4 +1114,5 @@ presto:
       bookkeeperThrottleValue: "0"
       managedLedgerCacheSizeMB: "0"
   service:
-    type: LoadBalancer
+    spec:
+      type: clusterIP

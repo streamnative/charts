@@ -16,32 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-{{- if .Values.ingress.controller.enabled }}
+{{- if .Values.monitoring.grafana }}
 apiVersion: v1
-kind: Service
+kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.controller.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.ingress.controller.component }}
-spec:
-  type: LoadBalancer
-  ports:
-  {{- if .Values.ingress.controller.services.http.enabled }}
-  - name: http
-    port: {{ .Values.ingress.controller.ports.http }}
-    targetPort: http
-    protocol: TCP
-  {{- end }}
-  {{- if .Values.ingress.controller.services.https.enabled }}
-  - name: https
-    port: {{ .Values.ingress.controller.ports.https }}
-    targetPort: https
-    protocol: TCP
-  {{- end }}
-  selector:
-    {{- include "pulsar.matchLabels" . | nindent 4 }}
-    component: {{ .Values.ingress.controller.component }}
+    component: {{ .Values.grafana.component }}
+data:
+{{ (.Files.Glob "conf/grafana/grafana.ini").AsConfig | indent 2 }}
 {{- end }}

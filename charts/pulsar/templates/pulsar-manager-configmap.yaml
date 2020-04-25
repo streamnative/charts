@@ -67,13 +67,24 @@ data:
   {{- end }}
       --bookie.host="http://{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}:{{ .Values.bookkeeper.ports.http }}" \
       --bookie.enable=true \
-  {{- if and .Values.tls.enabled .Values.tls.pulsar_manager.enabled }}
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+      {{- if .Values.ingress.control_center.tls.enabled }}
       --redirect.scheme=https \
-  {{- else }}
+      --redirect.port=443 \
+      {{- else }}
       --redirect.scheme=http \
-  {{- end}}
+      --redirect.port=80 \
+      {{- end }}
+      --redirect.host={{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }} \
+  {{- else }}
+      {{- if and .Values.tls.enabled .Values.tls.pulsar_manager.enabled }}
+      --redirect.scheme=https \
+      {{- else }}
+      --redirect.scheme=http \
+      {{- end }}
       --redirect.host={{ .Values.pulsar_manager.redirect.host }} \
       --redirect.port={{ .Values.pulsar_manager.ports.frontend }} \
+  {{- end }}
       --default.environment.name={{ template "pulsar.fullname" . }} \
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
       --default.environment.service_url=https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }} \
