@@ -43,6 +43,9 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
       annotations:
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 8 }}
+        {{- end }}
         {{- if .Values.zookeeper.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/zookeeper-configmap.yaml") . | sha256sum }}
         {{- end }}
@@ -97,6 +100,8 @@ spec:
           bin/generate-zookeeper-config.sh conf/zookeeper.conf;
           bin/pulsar zookeeper;
         ports:
+        - name: metrics
+          containerPort: {{ .Values.zookeeper.ports.metrics }}
         - name: client
           containerPort: {{ .Values.zookeeper.ports.client }}
         - name: follower

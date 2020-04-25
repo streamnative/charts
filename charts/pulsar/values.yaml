@@ -102,6 +102,8 @@ monitoring:
   node_exporter: true
   # alerting - alert-manager
   alert_manager: true
+  # monitoring - datadog
+  datadog: false
 
 ## Images
 ##
@@ -337,6 +339,7 @@ zookeeper:
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
   replicaCount: 3
   ports:
+    metrics: 8000
     client: 2181
     clientTls: 2281
     follower: 2888
@@ -870,6 +873,13 @@ prometheus:
   ##
   service:
     annotations: {}
+
+datadog:
+  component: datadog
+  namespace: pulsar
+  metrics: [
+    "\"_*\""
+  ]
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-deployment.yaml
