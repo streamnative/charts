@@ -154,7 +154,7 @@ images:
     tag: v1.0.0
   prometheus:
     repository: prom/prometheus
-    tag: v1.6.3
+    tag: v2.17.2
     pullPolicy: IfNotPresent
   alert_manager:
     repository: prom/alertmanager
@@ -844,6 +844,78 @@ toolset:
 ### Monitoring Stack : Prometheus / Grafana
 #############################################################
 
+configmapReload:
+  prometheus:
+    ## If false, the configmap-reload container will not be deployed
+    ##
+    enabled: true
+    ## configmap-reload container name
+    ##
+    name: configmap-reload
+    ## configmap-reload container image
+    ##
+    image:
+      repository: jimmidyson/configmap-reload
+      tag: v0.3.0
+      pullPolicy: IfNotPresent
+    
+    ## Additional configmap-reload container arguments
+    ##
+    extraArgs: {}
+    ## Additional configmap-reload volume directories
+    ##
+    extraVolumeDirs: []
+
+    ## Additional configmap-reload mounts
+    ##
+    extraConfigmapMounts: []
+      # - name: prometheus-alerts
+      #   mountPath: /etc/alerts.d
+      #   subPath: ""
+      #   configMap: prometheus-alerts
+      #   readOnly: true
+
+    ## configmap-reload resource requests and limits
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ##
+    resources: {}
+  alertmanager:
+    ## If false, the configmap-reload container will not be deployed
+    ##
+    enabled: true
+
+    ## configmap-reload container name
+    ##
+    name: configmap-reload
+
+    ## configmap-reload container image
+    ##
+    image:
+      repository: jimmidyson/configmap-reload
+      tag: v0.3.0
+      pullPolicy: IfNotPresent
+
+    ## Additional configmap-reload container arguments
+    ##
+    extraArgs: {}
+    ## Additional configmap-reload volume directories
+    ##
+    extraVolumeDirs: []
+
+    ## Additional configmap-reload mounts
+    ##
+    extraConfigmapMounts: []
+      # - name: prometheus-alerts
+      #   mountPath: /etc/alerts.d
+      #   subPath: ""
+      #   configMap: prometheus-alerts
+      #   readOnly: true
+
+    ## configmap-reload resource requests and limits
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ##
+    resources: {}
+
 ## Monitoring Stack: Prometheus
 ## templates/prometheus-deployment.yaml
 ##
@@ -874,6 +946,27 @@ prometheus:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+  args:
+    ## Prometheus data retention period (default if not specified is 15 days)
+    ##
+    retention: "15d"
+  securityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+    runAsGroup: 65534
+    fsGroup: 65534
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+
   ## Prometheus service
   ## templates/prometheus-service.yaml
   ##
@@ -940,6 +1033,33 @@ alert_manager:
     spec:
       clusterIP: None
     annotations: {}
+  securityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+    runAsGroup: 65534
+    fsGroup: 65534
+  probe:
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  # alert manager config
+  config:
+    global:
+      resolve_timeout: 1m
+    route:
+      group_interval: 1m
+      repeat_interval: 10m
+      receiver: 'pagerduty-notifications'
+    receivers:
+      - name: 'pagerduty-notifications'
+        pagerduty_configs:
+        - service_key: "[PAGER DUTRY SERVICE KEY]"
+          send_resolved: true
+  # add alert rules below
+  rules:
+    groups:
 
 ## Components Stack: pulsar_manager
 ## templates/pulsar-manager.yaml
