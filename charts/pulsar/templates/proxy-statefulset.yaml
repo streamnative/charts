@@ -42,6 +42,9 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.proxy.component }}
       annotations:
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.proxy.datadog.annotation" . | nindent 8 }}
+        {{- end }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.proxy.ports.http }}"
         {{- if .Values.proxy.autoRollDeployment }}

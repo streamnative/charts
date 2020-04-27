@@ -121,3 +121,26 @@ Define proxy log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
 {{- end }}
+{{/*
+Define proxy datadog annotation
+*/}}
+{{- define "pulsar.proxy.datadog.annotation" -}}
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.check_names: |
+  ["openmetrics"]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.instances: |
+  [
+    {
+      "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      "namespace": "{{ .Values.datadog.namespace }}",
+      "metrics": {{ .Values.datadog.metrics }},
+      "health_service_check": true,
+      "prometheus_timeout": 1000,
+      "max_returned_metrics": 1000000,
+      "tags": [
+        "pulsar-zookeeper: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+      ]
+    }
+  ]
+{{- end }}
