@@ -858,7 +858,7 @@ configmapReload:
       repository: jimmidyson/configmap-reload
       tag: v0.3.0
       pullPolicy: IfNotPresent
-    
+
     ## Additional configmap-reload container arguments
     ##
     extraArgs: {}
