@@ -33,10 +33,17 @@ data:
     global:
       scrape_interval: 15s
 {{- if .Values.monitoring.alert_manager }}
+    rule_files:
+      - 'rules.yml'
     alerting:
       alertmanagers:
       - static_configs:
         - targets: ['{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}:{{ .Values.alert_manager.port }}']
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+        path_prefix: /alerts
+  {{- else }}
+        path_prefix: /
+  {{- end }}
 {{- end }}
     scrape_configs:
     - job_name: 'kubernetes-pods'
@@ -71,4 +78,10 @@ data:
       - source_labels: [__meta_kubernetes_pod_name]
         action: replace
         target_label: kubernetes_pod_name
+  rules.yml: |
+{{- if .Values.monitoring.alert_manager -}}
+{{- with .Values.alert_manager.rules }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
 {{- end }}

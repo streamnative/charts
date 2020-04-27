@@ -146,7 +146,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.compon
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.instances: |
   [
     {
-      "prometheus_url": "http://%%host%%:%%port%%/metrics",
+      "prometheus_url": "http://%%host%%:{{ .Values.bookkeeper.ports.http }}/metrics",
       "namespace": "{{ .Values.datadog.namespace }}",
       "metrics": {{ .Values.datadog.metrics }},
       "health_service_check": true,

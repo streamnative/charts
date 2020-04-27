@@ -42,7 +42,6 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.prometheus.component }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/prometheus-configmap.yaml") . | sha256sum }}
 {{- with .Values.prometheus.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -59,7 +58,41 @@ spec:
       serviceAccount: "{{ template "pulsar.fullname" . }}-{{ .Values.rbac.roleName }}"
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.prometheus.gracePeriod }}
+      {{- if .Values.prometheus.securityContext }}
+      securityContext:
+{{ toYaml .Values.prometheus.securityContext | indent 8 }}
+      {{- end }}
       containers:
+      {{- if .Values.configmapReload.prometheus.enabled }}
+      - name: {{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.configmapReload.prometheus.name }}
+        image: "{{ .Values.configmapReload.prometheus.image.repository }}:{{ .Values.configmapReload.prometheus.image.tag }}"
+        imagePullPolicy: "{{ .Values.configmapReload.prometheus.image.pullPolicy }}"
+        args:
+          - --volume-dir=/etc/config
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}/prometheus/-/reload
+  {{- else }}
+          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}/-/reload
+  {{- end }}
+        {{- range $key, $value := .Values.configmapReload.prometheus.extraArgs }}
+          - --{{ $key }}={{ $value }}
+        {{- end }}
+        {{- range .Values.configmapReload.prometheus.extraVolumeDirs }}
+          - --volume-dir={{ . }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.configmapReload.prometheus.resources | indent 10 }}
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+            readOnly: true
+        {{- range .Values.configmapReload.prometheus.extraConfigmapMounts }}
+          - name: {{ $.Values.configmapReload.prometheus.name }}-{{ .name }}
+            mountPath: {{ .mountPath }}
+            subPath: {{ .subPath }}
+            readOnly: {{ .readOnly }}
+        {{- end }}
+      {{- end }} 
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
         image: "{{ .Values.images.prometheus.repository }}:{{ .Values.images.prometheus.tag }}"
         imagePullPolicy: {{ .Values.images.prometheus.pullPolicy }}
@@ -67,34 +100,66 @@ spec:
         resources:
 {{ toYaml .Values.prometheus.resources | indent 10 }}
       {{- end }}
-        command: ["sh", "-c"]
         args:
-          - |
-            /bin/prometheus \
-              -config.file=/etc/prometheus/prometheus.yml \
-              -storage.local.path=/prometheus \
+          - --config.file=/etc/config/prometheus.yml
+          {{- if .Values.prometheus.args.retention }}
+          - --storage.tsdb.retention.time={{ .Values.prometheus.args.retention }}
+          {{- end }}
+          - --storage.tsdb.path=/prometheus
+          - --web.console.libraries=/etc/prometheus/console_libraries
+          - --web.console.templates=/etc/prometheus/consoles
   {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
   {{- if .Values.ingress.controller.services.https.enabled }}
-              -web.external-url https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/ \
+          - --web.external-url=https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/
   {{- else }}
-              -web.external-url http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/ \
+          - --web.external-url=http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/
   {{- end }}
   {{- end }}
-              -web.console.libraries=/usr/share/prometheus/console_libraries \
-              -web.console.templates=/usr/share/prometheus/consoles
+          - --web.enable-lifecycle
         ports:
         - name: server
           containerPort: {{ .Values.prometheus.port }}
+        {{- if .Values.prometheus.probe.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+            path: /prometheus/-/ready
+  {{- else }}
+            path: /-/ready
+  {{- end }}
+            port: {{ .Values.prometheus.port }}
+          initialDelaySeconds: {{ .Values.prometheus.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.prometheus.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.prometheus.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.prometheus.probe.liveness.enabled }}
+        livenessProbe:
+          httpGet:
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+            path: /prometheus/-/healthy
+  {{- else }}
+            path: /-/healthy
+  {{- end }}
+            port: {{ .Values.prometheus.port }}
+          initialDelaySeconds: {{ .Values.prometheus.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.prometheus.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.prometheus.probe.liveness.failureThreshold }}
+        {{- end }}
         volumeMounts:
-        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
-          mountPath: /etc/prometheus
+        - name: config-volume
+          mountPath: /etc/config
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
           mountPath: /prometheus
         {{- include "pulsar.prometheus.token.volumeMounts" . | nindent 8 }}
       volumes:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-config"
+      - name: config-volume
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
+    {{- range .Values.configmapReload.prometheus.extraConfigmapMounts }}
+      - name: {{ $.Values.configmapReload.prometheus.name }}-{{ .name }}
+        configMap:
+          name: {{ .configMap }}
+    {{- end }}
     {{- if not (and .Values.volumes.persistence .Values.prometheus.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
         emptyDir: {}

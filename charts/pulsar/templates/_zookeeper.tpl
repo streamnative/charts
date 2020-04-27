@@ -103,7 +103,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.compone
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.instances: |
   [
     {
-      "prometheus_url": "http://%%host%%:%%port%%/metrics",
+      "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
       "namespace": "{{ .Values.datadog.namespace }}",
       "metrics": {{ .Values.datadog.metrics }},
       "health_service_check": true,

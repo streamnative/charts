@@ -42,7 +42,6 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.alert_manager.component }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/alertmanager-configmap.yaml") . | sha256sum }}
 {{- with .Values.alert_manager.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -57,6 +56,24 @@ spec:
      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.alert_manager.gracePeriod }}
       containers:
+      {{- if .Values.configmapReload.alertmanager.enabled }}
+      - name: {{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}-{{ .Values.configmapReload.alertmanager.name }}
+        image: "{{ .Values.configmapReload.alertmanager.image.repository }}:{{ .Values.configmapReload.alertmanager.image.tag }}"
+        imagePullPolicy: "{{ .Values.configmapReload.alertmanager.image.pullPolicy }}"
+        args:
+          - --volume-dir=/etc/config
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+          - --webhook-url=http://127.0.0.1:{{ .Values.alert_manager.port }}/alerts/-/reload
+  {{- else }}
+          - --webhook-url=http://127.0.0.1:{{ .Values.alert_manager.port }}/-/reload
+  {{- end }}
+        resources:
+{{ toYaml .Values.configmapReload.alertmanager.resources | indent 12 }}
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+            readOnly: true
+      {{- end }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
         image: "{{ .Values.images.alert_manager.repository }}:{{ .Values.images.alert_manager.tag }}"
         imagePullPolicy: {{ .Values.images.alert_manager.pullPolicy }}
@@ -64,20 +81,44 @@ spec:
         resources:
 {{ toYaml .Values.alert_manager.resources | indent 10 }}
        {{- end }}
-        command: ["sh", "-c"]
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
         args:
-          - |
-            /bin/alertmanager \
-              --config.file=/etc/alertmanager/alertmanager.yml \
+          - --config.file=/etc/config/alertmanager.yml
+          - --cluster.advertise-address=$(POD_IP):6783
+          - --storage.path=/alertmanager
   {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
   {{- if .Values.ingress.controller.services.https.enabled }}
-              --web.external-url https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/ \
+          - --web.external-url=https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/
   {{- else }}
-              --web.external-url http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/ \
+          - --web.external-url=http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/
   {{- end }}
   {{- end }}
-              --storage.path=/alertmanager
         ports:
         - name: server
           containerPort: {{ .Values.alert_manager.port }}
+        {{- if .Values.alert_manager.probe.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+            path: /alerts/-/ready
+  {{- else }}
+            path: /-/ready
+  {{- end }}
+            port: {{ .Values.alert_manager.port }}
+          initialDelaySeconds: {{ .Values.alert_manager.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.alert_manager.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.alert_manager.probe.readiness.failureThreshold }}
+        {{- end }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
 {{- end }}
