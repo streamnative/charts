@@ -138,8 +138,15 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "jwt" }}
+      "extra_headers": {
+          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
+      },
+{{- end }}
+{{- end }}
       "tags": [
-        "pulsar-zookeeper: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
       ]
     }
   ]
