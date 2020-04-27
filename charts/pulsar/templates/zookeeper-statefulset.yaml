@@ -94,10 +94,17 @@ spec:
         # PULSAR_EXTRA_OPTS="${PULSAR_EXTRA_OPTS} -Dzookeeper.serverCnxnFactory=org.apache.zookeeper.server.NettyServerCnxnFactory -Dzookeeper.ssl.keyStore.location=/pulsar/certs/zookeeper/tls.key -Dzookeeper.ssl.trustStore.location=/pulsar/certs/ca/ca.crt"
         args:
         - >
+          export PULSAR_EXTRA_OPTS=-Dzookeeper.skipACL=yes;
           bin/apply-config-from-env.py conf/zookeeper.conf;
           bin/apply-config-from-env.py conf/pulsar_env.sh;
           {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
-          bin/generate-zookeeper-config.sh conf/zookeeper.conf;
+          echo "reconfigEnabled=true" >> conf/zookeeper.conf;
+          echo "quorumListenOnAllIPs=true" >> conf/zookeeper.conf;
+          echo "peerType=observer" >> conf/zookeeper.conf;
+          echo "server.1=platform-pulsar-zookeeper-0.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant" >> conf/zookeeper.conf;
+          echo "server.2=platform-pulsar-zookeeper-1.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant" >> conf/zookeeper.conf;
+          echo "server.3=platform-pulsar-zookeeper-2.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant" >> conf/zookeeper.conf;
+          bin/generate-zookeeper-conf.sh conf/zookeeper.conf;
           bin/pulsar zookeeper;
         ports:
         - name: metrics
@@ -152,6 +159,7 @@ spec:
           mountPath: /pulsar/data
         {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.zookeeper.conf2.volumeMounts" . | nindent 8 }}
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.zookeeper.volumes.persistence) }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
@@ -159,6 +167,7 @@ spec:
       {{- end }}
       {{- include "pulsar.zookeeper.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.log.volumes" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.conf2.volumes" . | nindent 6 }}
 {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   volumeClaimTemplates:
   - metadata:

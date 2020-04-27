@@ -37,7 +37,7 @@ data:
   {{- end }}
 
   # Broker settings
-  clusterName: {{ template "pulsar.fullname" . }}
+  clusterName: "platform-pulsar"
   exposeTopicLevelMetricsInPrometheus: "true"
   numHttpServerThreads: "8"
   zooKeeperSessionTimeoutMillis: "30000"

@@ -94,6 +94,7 @@ Define zookeeper log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
 {{- end }}
+<<<<<<< Updated upstream
 {{/*Define zookeeper datadog annotation*/}}
 {{- define "pulsar.zookeeper.datadog.annotation"}}
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.check_names: |
@@ -140,3 +141,22 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.compone
     }
   ]
 {{- end}}
+
+{{/*
+Define zookeeper conf mounts
+*/}}
+{{- define "pulsar.zookeeper.conf2.volumeMounts" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-conf2"
+  mountPath: "{{ template "pulsar.home" . }}/bin/generate-zookeeper-conf.sh"
+  subPath: generate-zookeeper-conf.sh
+{{- end }}
+
+{{/*
+Define zookeeper conf volumes
+*/}}
+{{- define "pulsar.zookeeper.conf2.volumes" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-conf2"
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-generate-zookeeper-configmap"
+    defaultMode: 0755
+{{- end }}

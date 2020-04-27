@@ -18,7 +18,7 @@
 #
 
 # Flag to control whether to run initialize job
-initialize: true
+initialize: false
 
 ###
 ### K8S Settings
@@ -78,13 +78,13 @@ components:
   # broker
   broker: true
   # functions
-  functions: true
+  functions: false
   # proxy
   proxy: true
   # toolset
   toolset: true
   # pulsar manager
-  pulsar_manager: true
+  pulsar_manager: false
   # pulsar sql
   sql_worker: false
   # kop
@@ -95,15 +95,15 @@ components:
 ## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
   # monitoring - prometheus
-  prometheus: true
+  prometheus: false
   # monitoring - grafana
-  grafana: true
+  grafana: false
   # monitoring - node_exporter
-  node_exporter: true
+  node_exporter: false
   # alerting - alert-manager
-  alert_manager: true
+  alert_manager: false
   # monitoring - loki
-  loki: true
+  loki: false
   # monitoring - datadog
   datadog: false
 
@@ -338,6 +338,14 @@ ingress:
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
 ##
+
+old_zookeeper:
+  migrate: true
+  replicaCount: 3
+  old_release_name: platform_pulsar
+  observer_mode: observer
+  servers: "server.1=platform-pulsar-zookeeper-0.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant \nserver.2=platform-pulsar-zookeeper-1.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant \nserver.3=platform-pulsar-zookeeper-2.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant"
+
 zookeeper:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
