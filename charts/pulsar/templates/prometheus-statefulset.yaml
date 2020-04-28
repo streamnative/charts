@@ -69,11 +69,7 @@ spec:
         imagePullPolicy: "{{ .Values.configmapReload.prometheus.image.pullPolicy }}"
         args:
           - --volume-dir=/etc/config
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}/prometheus/-/reload
-  {{- else }}
-          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}/-/reload
-  {{- end }}
+          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}{{ template "pulsar.control_center_path.prometheus" . }}/-/reload
         {{- range $key, $value := .Values.configmapReload.prometheus.extraArgs }}
           - --{{ $key }}={{ $value }}
         {{- end }}
@@ -108,12 +104,8 @@ spec:
           - --storage.tsdb.path=/prometheus
           - --web.console.libraries=/etc/prometheus/console_libraries
           - --web.console.templates=/etc/prometheus/consoles
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-  {{- if .Values.ingress.controller.services.https.enabled }}
-          - --web.external-url=https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/
-  {{- else }}
-          - --web.external-url=http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/prometheus/
-  {{- end }}
+  {{- if .Values.ingress.control_center.enabled }}
+          - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.prometheus" . }}/
   {{- end }}
           - --web.enable-lifecycle
         ports:

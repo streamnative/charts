@@ -62,11 +62,7 @@ spec:
         imagePullPolicy: "{{ .Values.configmapReload.alertmanager.image.pullPolicy }}"
         args:
           - --volume-dir=/etc/config
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-          - --webhook-url=http://127.0.0.1:{{ .Values.alert_manager.port }}/alerts/-/reload
-  {{- else }}
-          - --webhook-url=http://127.0.0.1:{{ .Values.alert_manager.port }}/-/reload
-  {{- end }}
+          - --webhook-url=http://127.0.0.1:{{ .Values.alert_manager.port }}{{ template "pulsar.control_center_path.alertmanager" . }}/-/reload
         resources:
 {{ toYaml .Values.configmapReload.alertmanager.resources | indent 12 }}
         volumeMounts:
@@ -91,12 +87,8 @@ spec:
           - --config.file=/etc/config/alertmanager.yml
           - --cluster.advertise-address=$(POD_IP):6783
           - --storage.path=/alertmanager
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-  {{- if .Values.ingress.controller.services.https.enabled }}
-          - --web.external-url=https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/
-  {{- else }}
-          - --web.external-url=http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/alerts/
-  {{- end }}
+  {{- if .Values.ingress.control_center.enabled }}
+          - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.alertmanager" . }}/
   {{- end }}
         ports:
         - name: server

@@ -327,6 +327,9 @@ ingress:
   control_center:
     enabled: true
     component: control-center
+    # Set external domain of the load balancer of ingress controller
+    # external_domain: your.external.control.center.domain
+    # external_domain_scheme: https://
     tls:
       enabled: false
     annotations: {}
@@ -804,6 +807,7 @@ proxy:
   service:
     annotations: {}
     type: LoadBalancer
+    extraSpec: {}
   ## Proxy PodDisruptionBudget
   ## templates/proxy-pdb.yaml
   ##
