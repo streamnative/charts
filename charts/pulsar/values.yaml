@@ -566,11 +566,6 @@ bookkeeper:
       -Xloggc:/var/log/bookie-gc.log
       -XX:G1LogLevel=finest
       "
-    # configure the memory settings based on jvm memory settings
-    dbStorage_writeCacheMaxSizeMb: "32"
-    dbStorage_readAheadCacheMaxSizeMb: "32"
-    dbStorage_rocksDB_writeBufferSizeMB: "8"
-    dbStorage_rocksDB_blockCacheSize: "8388608"
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
