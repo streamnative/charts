@@ -38,4 +38,8 @@ spec:
   selector:
     {{- include "pulsar.matchLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
+  # bookkeeper uses statefulset for getting stable bookie identifier.
+  # it is okay to publish endpoints that are not ready because bookkeeper client
+  # already has the ability to handle bookie failures.
+  publishNotReadyAddresses: true
 {{- end }}
