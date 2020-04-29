@@ -58,4 +58,7 @@ spec:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}
     component: {{ .Values.proxy.component }}
+  {{- with .Values.proxy.service.extraSpec }}
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
 {{- end }}

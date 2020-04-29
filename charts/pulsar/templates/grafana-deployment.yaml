@@ -97,16 +97,11 @@ spec:
               key: PASSWORD
         - name: GRAFANA_CFG_FILE
           value: {{ template "pulsar.home" . }}/conf/grafana.ini
-{{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+{{- if .Values.ingress.control_center.enabled }}
         - name: GRAFANA_DOMAIN
-          value: {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
-        {{- if .Values.ingress.controller.services.https.enabled }}
+          value: {{ template "pulsar.control_center_domain" . }}
         - name: GRAFANA_ROOT_URL
-          value: https://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/grafana/
-        {{- else }}
-        - name: GRAFANA_ROOT_URL
-          value: http://{{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}/grafana/
-        {{- end }}
+          value: {{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.grafana" . }}/
         - name: GRAFANA_SERVE_FROM_SUB_PATH
           value: "true"
 {{- else }}

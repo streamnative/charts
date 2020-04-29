@@ -67,7 +67,7 @@ data:
   {{- end }}
       --bookie.host="http://{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}:{{ .Values.bookkeeper.ports.http }}" \
       --bookie.enable=true \
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
+  {{- if .Values.ingress.control_center.enabled }}
       {{- if .Values.ingress.control_center.tls.enabled }}
       --redirect.scheme=https \
       --redirect.port=443 \
@@ -75,7 +75,7 @@ data:
       --redirect.scheme=http \
       --redirect.port=80 \
       {{- end }}
-      --redirect.host={{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }} \
+      --redirect.host={{ template "pulsar.control_center_domain" . }} \
   {{- else }}
       {{- if and .Values.tls.enabled .Values.tls.pulsar_manager.enabled }}
       --redirect.scheme=https \

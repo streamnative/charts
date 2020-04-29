@@ -69,7 +69,7 @@ Define toolset token volumes
 Define toolset tls certs mounts
 */}}
 {{- define "pulsar.toolset.certs.volumeMounts" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled) }}
 - name: toolset-certs
   mountPath: "/pulsar/certs/toolset"
   readOnly: true
@@ -93,7 +93,7 @@ Define toolset tls certs mounts
 Define toolset tls certs volumes
 */}}
 {{- define "pulsar.toolset.certs.volumes" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled) }}
 - name: toolset-certs
   secret:
     secretName: "{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}"
@@ -123,14 +123,13 @@ Define toolset tls certs volumes
     items:
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
-  {{- end}}
-  {{- if not (and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme")) }}
+  {{- else }}
     secretName: "{{ .Release.Name }}-ca-tls"
     items:
       - key: ca.crt
         path: ca.crt
-  {{- end}}
-{{- end}}
+  {{- end }}
+{{- end }}
 {{- end }}
 
 {{/*

@@ -327,6 +327,9 @@ ingress:
   control_center:
     enabled: true
     component: control-center
+    # Set external domain of the load balancer of ingress controller
+    # external_domain: your.external.control.center.domain
+    # external_domain_scheme: https://
     tls:
       enabled: false
     annotations: {}
@@ -563,11 +566,6 @@ bookkeeper:
       -Xloggc:/var/log/bookie-gc.log
       -XX:G1LogLevel=finest
       "
-    # configure the memory settings based on jvm memory settings
-    dbStorage_writeCacheMaxSizeMb: "32"
-    dbStorage_readAheadCacheMaxSizeMb: "32"
-    dbStorage_rocksDB_writeBufferSizeMB: "8"
-    dbStorage_rocksDB_blockCacheSize: "8388608"
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -804,6 +802,7 @@ proxy:
   service:
     annotations: {}
     type: LoadBalancer
+    extraSpec: {}
   ## Proxy PodDisruptionBudget
   ## templates/proxy-pdb.yaml
   ##

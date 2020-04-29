@@ -80,6 +80,7 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
+      {{- if .Values.components.kop }}
       - name: "kafka"
         image: "confluentinc/cp-kafka:5.0.0"
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
@@ -101,6 +102,7 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.kafka.conf.volumeMounts" . | nindent 8 }}
+      {{- end }}
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.token.volumes" . | nindent 6 }}
