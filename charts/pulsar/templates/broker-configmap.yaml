@@ -112,9 +112,11 @@ data:
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
+  authenticateOriginalAuthData: "true"
   {{- if .Values.auth.authorization.enabled }}
   authorizationEnabled: "true"
   superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }}
+  proxyRoles: {{ .Values.auth.superUsers.proxy }}
   {{- end }}
   {{- if eq .Values.auth.authentication.provider "jwt" }}
   # token authentication configuration

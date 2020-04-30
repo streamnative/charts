@@ -29,6 +29,7 @@ metadata:
 data:
   clusterName: {{ template "pulsar.fullname" . }}
   httpNumThreads: "8"
+  httpOutputBufferSize: "512"
   statusFilePath: "{{ template "pulsar.home" . }}/status"
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.proxy.ports.http }}"
@@ -61,6 +62,7 @@ data:
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
+  forwardAuthorizationCredentials: "true"
   {{- if .Values.auth.authorization.enabled }}
   # disable authorization on proxy and forward authorization credentials to broker
   authorizationEnabled: "false"
