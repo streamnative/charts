@@ -140,3 +140,68 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.compone
     }
   ]
 {{- end}}
+
+{{/*
+Define zookeeper data mounts
+*/}}
+{{- define "pulsar.zookeeper.data.volumeMounts" -}}
+{{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+  mountPath: "/pulsar/data/zookeeper"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
+  mountPath: "/pulsar/data/zookeeper-datalog"
+{{- else }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+  mountPath: "/pulsar/data"
+{{- end }}
+{{- end }}
+
+{{/*
+Define zookeeper data volumes
+*/}}
+{{- define "pulsar.zookeeper.data.volumes" -}}
+{{- if not (and .Values.volumes.persistence .Values.zookeeper.volumes.persistence) }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+  emptyDir: {}
+{{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
+  emptyDir: {}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Define zookeeper data volumes
+*/}}
+{{- define "pulsar.zookeeper.data.volumeClaimTemplates" -}}
+{{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
+- metadata:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+  spec:
+    accessModes: [ "ReadWriteOnce" ]
+    resources:
+      requests:
+        storage: {{ .Values.zookeeper.volumes.data.size }}
+  {{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage)) .Values.zookeeper.volumes.data.storageClass }}
+    storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+  {{- end }}
+  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
+    storageClassName: "local-storage"
+  {{- end }}
+{{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
+- metadata:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
+  spec:
+    accessModes: [ "ReadWriteOnce" ]
+    resources:
+      requests:
+        storage: {{ .Values.zookeeper.volumes.dataLog.size }}
+  {{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.dataLog.local_storage)) .Values.zookeeper.volumes.dataLog.storageClass }}
+    storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
+  {{- end }}
+  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.dataLog.local_storage }}
+    storageClassName: "local-storage"
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

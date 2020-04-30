@@ -148,31 +148,13 @@ spec:
           failureThreshold: {{ .Values.zookeeper.probe.startup.failureThreshold }}
         {{- end }}
         volumeMounts:
-        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-          mountPath: /pulsar/data
+        {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
       volumes:
-      {{- if not (and .Values.volumes.persistence .Values.zookeeper.volumes.persistence) }}
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-        emptyDir: {}
-      {{- end }}
+      {{- include "pulsar.zookeeper.data.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.log.volumes" . | nindent 6 }}
-{{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   volumeClaimTemplates:
-  - metadata:
-      name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: {{ .Values.zookeeper.volumes.data.size }}
-    {{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage)) .Values.zookeeper.volumes.data.storageClass }}
-      storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-    {{- end }}
-    {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
-      storageClassName: "local-storage"
-    {{- end }}
-{{- end }}
+  {{- include "pulsar.zookeeper.data.volumeClaimTemplates" . | nindent 2 }}
 {{- end }}

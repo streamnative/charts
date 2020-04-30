@@ -385,6 +385,10 @@ zookeeper:
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
+    # Add a flag here for backward compatibility. Ideally we should
+    # use two disks for production workloads. This flag might be
+    # removed in the future releases to stick to two-disks mode.
+    useSeparateDiskForTxlog: false
     data:
       name: data
       size: 50Gi
@@ -512,6 +516,8 @@ bookkeeper:
         # type: pd-ssd
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+        # extraParameters:
+        #   iopsPerGB: "50"
     ledgers:
       name: ledgers
       size: 50Gi
@@ -523,6 +529,8 @@ bookkeeper:
         # type: pd-ssd
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+        # extraParameters:
+        #   iopsPerGB: "50"
   ## Bookkeeper configmap
   ## templates/bookkeeper-configmap.yaml
   ##
