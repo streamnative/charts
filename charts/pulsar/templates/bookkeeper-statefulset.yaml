@@ -54,6 +54,7 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-acct"
     {{- if .Values.bookkeeper.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.bookkeeper.nodeSelector | indent 8 }}
