@@ -32,6 +32,9 @@ provisioner: {{ .Values.bookkeeper.volumes.journal.storageClass.provisioner }}
 parameters:
   type: {{ .Values.bookkeeper.volumes.journal.storageClass.type }}
   fsType: {{ .Values.bookkeeper.volumes.journal.storageClass.fsType }}
+{{- with .Values.bookkeeper.volumes.journal.storageClass.extraParameters }}
+{{ toYaml . | indent 2 }}
+{{- end }}
 {{- end }}
 ---
 
@@ -48,6 +51,9 @@ provisioner: {{ .Values.bookkeeper.volumes.ledgers.storageClass.provisioner }}
 parameters:
   type: {{ .Values.bookkeeper.volumes.ledgers.storageClass.type }}
   fsType: {{ .Values.bookkeeper.volumes.ledgers.storageClass.fsType }}
+{{- with .Values.bookkeeper.volumes.ledgers.storageClass.extraParameters }}
+{{ toYaml . | indent 2 }}
+{{- end }}
 {{- end }}
 
 {{- end }}

@@ -29,6 +29,10 @@ metadata:
     component: {{ .Values.zookeeper.component }}
 data:
   dataDir: /pulsar/data/zookeeper
+  {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
+  # use a seperate disk for tx log
+  PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
+  {{- end }}
   PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
   serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
   # enable zookeeper tls
