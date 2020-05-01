@@ -26,6 +26,8 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.ingress.controller.component }}
+data:
+  use-forwarded-headers: "true"
 
 ---
 kind: ConfigMap

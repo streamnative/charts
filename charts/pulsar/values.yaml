@@ -219,7 +219,7 @@ tls:
   toolset:
     cert_name: tls-toolset
   pulsar_manager:
-    enabled: true
+    enabled: false
     cert_name: tls-pulsar-manager
 
 # Enable or disable broker authentication and authorization.
@@ -286,10 +286,9 @@ certs:
         #     key: "[KEY OF SECRET]"
         #   role: "[ASSUME A ROLE]"
   lets_encrypt:
-    # TODO: add a link about how to configure lets encrypt CA
     ca_ref:
-      secretName: [SECRET STORES lets encrypt CA]
-      keyName: [KEY IN THE SECRET STORES let encrypt CA]
+      secretName: "[SECRET STORES lets encrypt CA]"
+      keyName: "[KEY IN THE SECRET STORES let encrypt CA]"
 
 ## External DNS
 ## templates/external-dns.yaml
@@ -315,10 +314,20 @@ external_dns:
   securityContext: {}
 
 ## Ingresses for exposing Pulsar services
-## templates/control-center-ingress.yaml
-##
-## Ingresses for exposing pulsar services publicly
 ingress:
+  ## templates/proxy-service-ingress.yaml
+  ##
+  ## Ingresses for exposing pulsar service publicly
+  proxy:
+    enabled: false
+    tls:
+      enabled: true
+    type: LoadBalancer
+    annotations: {}
+    extraSpec: {}
+  ## templates/control-center-ingress.yaml
+  ##
+  ## Ingresses for exposing monitoring/management services publicly
   controller:
     enabled: false
     rbac: true
@@ -332,11 +341,9 @@ ingress:
     ports:
       http: 80
       https: 443
-    services:
-      http:
-        enabled: false
-      https:
-        enabled: true
+    # flag whether to terminate the tls at the loadbalancer level
+    tls:
+      termination: false
   control_center:
     enabled: true
     component: control-center
@@ -826,7 +833,7 @@ proxy:
     pulsarssl: 6651
   service:
     annotations: {}
-    type: LoadBalancer
+    type: ClusterIP
     extraSpec: {}
   ## Proxy PodDisruptionBudget
   ## templates/proxy-pdb.yaml

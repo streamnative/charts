@@ -21,7 +21,7 @@ control center url
     {{- if .Values.ingress.control_center.external_domain }}
 {{- printf "%s%s" .Values.ingress.control_center.external_domain_scheme .Values.ingress.control_center.external_domain -}}
     {{- else -}}
-        {{- if .Values.ingress.controller.services.https.enabled }}
+        {{- if .Values.ingress.control_center.tls.enabled }}
 {{- printf "https://admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
         {{- else -}}
 {{- printf "http://admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
@@ -62,5 +62,16 @@ control center path: prometheus
 {{- print "/prometheus" -}}
 {{- else -}}
 {{- print "" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+pulsar controller ingress target port for http endpoint
+*/}}
+{{- define "pulsar.control_center.ingress.targetPort" -}}
+{{- if and .Values.ingress.control_center.tls.enabled (not .Values.ingress.controller.tls.termination) }}
+{{- print "https" -}}
+{{- else -}}
+{{- print "http" -}}
 {{- end -}}
 {{- end -}}

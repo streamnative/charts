@@ -20,9 +20,9 @@
 #!/usr/bin/env bash
 
 BINDIR=`dirname "$0"`
-HELM_HOME=`cd $BINDIR/..;pwd`
+HELM_HOME=`cd $BINDIR/../..;pwd`
 
-cd $HELM_HOME/conf
+cd $HELM_HOME/hack/pulsar/conf
 
 CA_NAME=lets-encrypt-x3-cross-signed
 PEM="${CA_NAME}.pem"
