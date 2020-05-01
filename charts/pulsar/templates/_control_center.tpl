@@ -36,7 +36,7 @@ control center url
 control center path: alert manager
 */}}
 {{- define "pulsar.control_center_path.alertmanager" -}}
-{{- if .Values.ingress.control_center.enabled -}}
+{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.alertmanager -}}
 {{- print "/alerts" -}}
 {{- else -}}
 {{- print "" -}}
@@ -47,7 +47,7 @@ control center path: alert manager
 control center path: grafana
 */}}
 {{- define "pulsar.control_center_path.grafana" -}}
-{{- if .Values.ingress.control_center.enabled -}}
+{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana -}}
 {{- print "/grafana" -}}
 {{- else -}}
 {{- print "" -}}
@@ -58,7 +58,7 @@ control center path: grafana
 control center path: prometheus
 */}}
 {{- define "pulsar.control_center_path.prometheus" -}}
-{{- if .Values.ingress.control_center.enabled -}}
+{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.prometheus -}}
 {{- print "/prometheus" -}}
 {{- else -}}
 {{- print "" -}}

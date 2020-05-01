@@ -87,7 +87,7 @@ spec:
           - --config.file=/etc/config/alertmanager.yml
           - --cluster.advertise-address=$(POD_IP):6783
           - --storage.path=/alertmanager
-  {{- if .Values.ingress.control_center.enabled }}
+  {{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.alertmanager }}
           - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.alertmanager" . }}/
   {{- end }}
         ports:
@@ -96,11 +96,7 @@ spec:
         {{- if .Values.alert_manager.probe.readiness.enabled }}
         readinessProbe:
           httpGet:
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-            path: /alerts/-/ready
-  {{- else }}
-            path: /-/ready
-  {{- end }}
+            path: {{ template "pulsar.control_center_path.alertmanager" . }}/-/ready
             port: {{ .Values.alert_manager.port }}
           initialDelaySeconds: {{ .Values.alert_manager.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.alert_manager.probe.readiness.periodSeconds }}
