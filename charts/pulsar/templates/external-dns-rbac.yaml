@@ -23,6 +23,10 @@ kind: ServiceAccount
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}"
   namespace: {{ .Values.namespace }}
+  annotations:
+{{- with .Values.external_dns.serviceAcct.annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1

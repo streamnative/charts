@@ -270,13 +270,21 @@ certs:
       # change this to production endpoint once you successfully test it
       # server: https://acme-v02.api.letsencrypt.org/directory
       server: https://acme-staging-v02.api.letsencrypt.org/directory
+      solver: clouddns
       solvers:
         clouddns:
           # TODO: add a link about how to configure this section
           project: "[YOUR GCP PROJECT ID]"
+          accessKeyID: [accessKeyID of the user who is able to manage the external DNS]
           serviceAccountSecretRef:
             name: "[NAME OF SECRET]"
             key: "[KEY OF SECRET]"
+        # route53:
+        #   region: "[ROUTE53 REGION]"
+        #   secretAccessKeySecretRef:
+        #     name: "[NAME OF SECRET]"
+        #     key: "[KEY OF SECRET]"
+        #   role: "[ASSUME A ROLE]"
   lets_encrypt:
     # TODO: add a link about how to configure lets encrypt CA
     ca_ref:
@@ -299,7 +307,12 @@ external_dns:
   providers:
     google:
       # project: external-dns-test
-      project:
+      project: "[GOOGLE PROJECT ID]"
+    aws:
+      zoneType: public
+  serviceAcct:
+    annotations: {}
+  securityContext: {}
 
 ## Ingresses for exposing Pulsar services
 ## templates/control-center-ingress.yaml
