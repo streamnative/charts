@@ -31,7 +31,7 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
-      serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}"
+      serviceAccountName: {{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}
       containers:
       - name: external-dns
         image: registry.opensource.zalan.do/teapot/external-dns:latest
@@ -47,8 +47,15 @@ spec:
         - --google-project={{ .Values.external_dns.providers.google.project }}
         {{- end }}
         {{- end }}
+        {{- if eq .Values.external_dns.provider "aws" }}
+        - --aws-zone-type={{ .Values.external_dns.providers.aws.zoneType }}
+        {{- end }}
         # would prevent ExternalDNS from deleting any records, omit to enable full synchronization
         - --policy={{ .Values.external_dns.policy }}
         - --registry={{ .Values.external_dns.registry }}
         - --txt-owner-id={{ .Values.external_dns.owner_id }}
+      securityContext:
+      {{- with .Values.external_dns.securityContext }}
+      {{ toYaml . | indent 6 }}
+      {{- end }}
 {{- end }}
