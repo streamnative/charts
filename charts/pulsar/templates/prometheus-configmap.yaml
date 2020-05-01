@@ -39,11 +39,7 @@ data:
       alertmanagers:
       - static_configs:
         - targets: ['{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}:{{ .Values.alert_manager.port }}']
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-        path_prefix: /alerts
-  {{- else }}
-        path_prefix: /
-  {{- end }}
+        path_prefix: {{ template "pulsar.control_center_path.alertmanager" . }}/
 {{- end }}
     scrape_configs:
     - job_name: 'kubernetes-pods'

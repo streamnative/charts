@@ -64,21 +64,12 @@ spec:
         - name: server
           containerPort: {{ .Values.grafana.port }}
         env:
-        {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
         # for supporting apachepulsar/pulsar-grafana
         - name: PROMETHEUS_URL
-          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/prometheus
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/{{ template "pulsar.control_center_path.prometheus" . }}
         # for supporting streamnative/apache-pulsar-grafana-dashboard
         - name: PULSAR_PROMETHEUS_URL
-          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/prometheus
-        {{- else }}
-        # for supporting apachepulsar/pulsar-grafana
-        - name: PROMETHEUS_URL
-          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/
-        # for supporting streamnative/apache-pulsar-grafana-dashboard
-        - name: PULSAR_PROMETHEUS_URL
-          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/
-        {{- end }}
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/{{ template "pulsar.control_center_path.prometheus" . }}
         - name: PULSAR_CLUSTER
           value: {{ template "pulsar.fullname" . }}
         - name: GF_LOKI_URL
@@ -97,7 +88,7 @@ spec:
               key: PASSWORD
         - name: GRAFANA_CFG_FILE
           value: {{ template "pulsar.home" . }}/conf/grafana.ini
-{{- if .Values.ingress.control_center.enabled }}
+{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana }}
         - name: GRAFANA_DOMAIN
           value: {{ template "pulsar.control_center_domain" . }}
         - name: GRAFANA_ROOT_URL

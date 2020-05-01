@@ -104,7 +104,7 @@ spec:
           - --storage.tsdb.path=/prometheus
           - --web.console.libraries=/etc/prometheus/console_libraries
           - --web.console.templates=/etc/prometheus/consoles
-  {{- if .Values.ingress.control_center.enabled }}
+  {{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.prometheus }}
           - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.prometheus" . }}/
   {{- end }}
           - --web.enable-lifecycle
@@ -114,11 +114,7 @@ spec:
         {{- if .Values.prometheus.probe.readiness.enabled }}
         readinessProbe:
           httpGet:
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-            path: /prometheus/-/ready
-  {{- else }}
-            path: /-/ready
-  {{- end }}
+            path: {{ template "pulsar.control_center_path.prometheus" . }}/-/ready
             port: {{ .Values.prometheus.port }}
           initialDelaySeconds: {{ .Values.prometheus.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.prometheus.probe.readiness.periodSeconds }}
@@ -127,11 +123,7 @@ spec:
         {{- if .Values.prometheus.probe.liveness.enabled }}
         livenessProbe:
           httpGet:
-  {{- if and .Values.external_dns.enabled .Values.ingress.control_center.enabled }}
-            path: /prometheus/-/healthy
-  {{- else }}
-            path: /-/healthy
-  {{- end }}
+            path: {{ template "pulsar.control_center_path.prometheus" . }}/-/healthy
             port: {{ .Values.prometheus.port }}
           initialDelaySeconds: {{ .Values.prometheus.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.prometheus.probe.liveness.periodSeconds }}

@@ -58,19 +58,19 @@ spec:
     - host: {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
       http:
         paths:
-          {{- if .Values.monitoring.grafana }}
+          {{- if and .Values.monitoring.grafana .Values.ingress.control_center.endpoints.grafana }}
           - path: /grafana
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.grafana.component }}"
               servicePort: {{ .Values.grafana.port }}
           {{- end }}
-          {{- if .Values.monitoring.alert_manager }}
+          {{- if and .Values.monitoring.alert_manager .Values.ingress.control_center.endpoints.alertmanager }}
           - path: /alerts
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
               servicePort: {{ .Values.alert_manager.port }}
           {{- end }}
-          {{- if .Values.monitoring.prometheus }}
+          {{- if and .Values.monitoring.prometheus .Values.ingress.control_center.endpoints.prometheus }}
           - path: /prometheus
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.prometheus.component }}"
