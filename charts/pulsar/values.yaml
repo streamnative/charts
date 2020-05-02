@@ -1007,9 +1007,27 @@ prometheus:
 datadog:
   component: datadog
   namespace: pulsar
-  metrics: [
-    "\"_*\""
-  ]
+  components:
+    zookeeper:
+      enabled: false
+      metrics: [
+        "\"_*\""
+      ]
+    bookkeeper:
+      enabled: false
+      metrics: [
+        "\"_*\""
+      ]
+    broker:
+      enabled: false
+      metrics: [
+        "\"_*\""
+      ]
+    proxy:
+      enabled: false
+      metrics: [
+        "\"_*\""
+      ]
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-deployment.yaml

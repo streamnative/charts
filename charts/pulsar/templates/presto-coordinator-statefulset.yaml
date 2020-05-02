@@ -42,7 +42,7 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.presto.coordinator.component }}
       annotations:
-        prometheus.io/scrape: "true"
+        prometheus.io/scrape: "false"
         prometheus.io/port: "{{ .Values.presto.coordinator.ports.http }}"
 {{- with .Values.presto.coordinator.annotations }}
 {{ toYaml . | indent 8 }}
