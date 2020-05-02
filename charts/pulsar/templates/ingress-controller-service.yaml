@@ -26,22 +26,33 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.ingress.controller.component }}
+  annotations:
+  {{- if .Values.external_dns.enabled }}
+    {{- if .Values.external_dns.domain_filter }}
+    external-dns.alpha.kubernetes.io/hostname: {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
+    {{- end }}
+  {{- end }}
+  {{- with .Values.ingress.controller.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: LoadBalancer
   ports:
-  {{- if .Values.ingress.controller.services.http.enabled }}
-  - name: http
-    port: {{ .Values.ingress.controller.ports.http }}
-    targetPort: http
-    protocol: TCP
-  {{- end }}
-  {{- if .Values.ingress.controller.services.https.enabled }}
+  {{- if .Values.ingress.control_center.tls.enabled }}
   - name: https
     port: {{ .Values.ingress.controller.ports.https }}
-    targetPort: https
+    targetPort: {{ template "pulsar.control_center.ingress.targetPort" . }}
+    protocol: TCP
+  {{- else }}
+  - name: http
+    port: {{ .Values.ingress.controller.ports.http }}
+    targetPort: {{ template "pulsar.control_center.ingress.targetPort" . }}
     protocol: TCP
   {{- end }}
   selector:
     {{- include "pulsar.matchLabels" . | nindent 4 }}
     component: {{ .Values.ingress.controller.component }}
+  {{- with .Values.ingress.controller.extraSpec }}
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
 {{- end }}

@@ -151,3 +151,25 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }
     }
   ]
 {{- end }}
+
+{{/*
+pulsar ingress target port for http endpoint
+*/}}
+{{- define "pulsar.proxy.ingress.targetPort.admin" -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+{{- print "https" -}}
+{{- else -}}
+{{- print "http" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+pulsar ingress target port for http endpoint
+*/}}
+{{- define "pulsar.proxy.ingress.targetPort.data" -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+{{- print "pulsarssl" -}}
+{{- else -}}
+{{- print "pulsar" -}}
+{{- end -}}
+{{- end -}}

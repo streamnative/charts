@@ -29,7 +29,6 @@ metadata:
 data:
   clusterName: {{ template "pulsar.fullname" . }}
   httpNumThreads: "8"
-  httpOutputBufferSize: "512"
   statusFilePath: "{{ template "pulsar.home" . }}/status"
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.proxy.ports.http }}"
@@ -45,6 +44,7 @@ data:
   tlsCertificateFilePath: "/pulsar/certs/proxy/tls.crt"
   tlsKeyFilePath: "/pulsar/certs/proxy/tls.key"
   tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  {{- end }}
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
   # if broker enables TLS, configure proxy to talk to broker using TLS
   brokerServiceURLTLS: pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsarssl }}
@@ -56,7 +56,6 @@ data:
   {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
   brokerServiceURL: pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }}
   brokerWebServiceURL: http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
-  {{- end }}
   {{- end }}
 
   # Authentication Settings
