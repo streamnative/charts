@@ -139,6 +139,7 @@ Define bookkeeper log volumes
 {{- end }}
 {{/*Define bookkeeper datadog annotation*/}}
 {{- define  "pulsar.bookkeeper.datadog.annotation" -}}
+{{- if .Values.datadog.components.bookkeeper.enabled }}
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.init_configs: |
@@ -148,7 +149,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.compon
     {
       "prometheus_url": "http://%%host%%:{{ .Values.bookkeeper.ports.http }}/metrics",
       "namespace": "{{ .Values.datadog.namespace }}",
-      "metrics": {{ .Values.datadog.metrics }},
+      "metrics": {{ .Values.datadog.components.bookkeeper.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
@@ -177,4 +178,5 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.compon
       ]
     }
   ]
+{{- end }}
 {{- end }}

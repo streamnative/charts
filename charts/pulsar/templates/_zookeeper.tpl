@@ -94,8 +94,10 @@ Define zookeeper log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
 {{- end }}
+
 {{/*Define zookeeper datadog annotation*/}}
 {{- define "pulsar.zookeeper.datadog.annotation"}}
+{{- if .Values.datadog.components.zookeeper.enabled }}
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.init_configs: |
@@ -105,7 +107,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.compone
     {
       "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
       "namespace": "{{ .Values.datadog.namespace }}",
-      "metrics": {{ .Values.datadog.metrics }},
+      "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
@@ -139,7 +141,8 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.compone
       ]
     }
   ]
-{{- end}}
+{{- end }}
+{{- end }}
 
 {{/*
 Define zookeeper data mounts

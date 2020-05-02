@@ -158,6 +158,7 @@ Define broker log volumes
 {{- end }}
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
+{{- if .Values.datadog.components.broker.enabled }}
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.init_configs: |
@@ -167,7 +168,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
       "namespace": "{{ .Values.datadog.namespace }}",
-      "metrics": {{ .Values.datadog.metrics }},
+      "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
@@ -243,7 +244,9 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
       ]
     }
   ]
-{{- end}}
+{{- end }}
+{{- end }}
+
 {{/*
 Define custom runtime options mounts
 */}}
