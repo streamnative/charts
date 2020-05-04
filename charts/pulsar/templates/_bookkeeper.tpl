@@ -22,6 +22,32 @@ Define bookie zookeeper client tls settings
 {{- end }}
 {{- end }}
 
+{{- define "pulsar.bookkeeper.journal.pvc.name" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}
+{{- end }}
+
+{{- define "pulsar.bookkeeper.ledgers.pvc.name" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}
+{{- end }}
+
+{{- define "pulsar.bookkeeper.journal.storage.class" -}}
+{{- if and (not (and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage)) .Values.bookkeeper.volumes.journal.storageClass }}
+{{ template "pulsar.bookkeeper.journal.pvc.name" . }}
+{{- end }}
+{{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage }}
+{{- print "local-storage" -}}
+{{- end }}
+{{- end }}
+
+{{- define "pulsar.bookkeeper.ledgers.storage.class" -}}
+{{- if and (not (and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage)) .Values.bookkeeper.volumes.ledgers.storageClass }}
+{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}
+{{- end -}}
+{{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage }}
+{{- print "local-storage" -}}
+{{- end }}
+{{- end }}
+
 {{/*
 Define bookie tls certs mounts
 */}}

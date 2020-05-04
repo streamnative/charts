@@ -580,6 +580,8 @@ bookkeeper:
   ##
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
+  placementPolicy:
+    rackAware: true
   configData:
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
