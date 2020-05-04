@@ -152,6 +152,7 @@ images:
     # tag: 2.5.0
     repository: streamnative/platform
     tag: v1.0.0
+    pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
     tag: v2.17.2
@@ -357,6 +358,25 @@ ingress:
     tls:
       enabled: false
     annotations: {}
+
+imagePuller:
+  component: image-puller
+  pullSecret:
+    enabled: false
+  hook:
+    enabled: true
+    image:
+      name: streamnative/k8s-image-awaiter
+      tag: '0.1.0'
+  rbac:
+    enabled: true
+  continuous:
+    enabled: true
+  pause:
+    image:
+      name: gcr.io/google_containers/pause
+      tag: '3.1'
+
 
 ######################################################################
 # Below are settings for each component
