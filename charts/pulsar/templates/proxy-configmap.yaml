@@ -66,9 +66,9 @@ data:
   # disable authorization on proxy and forward authorization credentials to broker
   authorizationEnabled: "false"
   forwardAuthorizationCredentials: "true"
-  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }}
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
   {{- end }}
-  {{- if eq .Values.auth.authentication.provider "jwt" }}
+  {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
   # token authentication configuration
   authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
   brokerClientAuthenticationParameters: "file:///pulsar/tokens/proxy/token"

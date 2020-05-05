@@ -115,10 +115,10 @@ data:
   authenticateOriginalAuthData: "true"
   {{- if .Values.auth.authorization.enabled }}
   authorizationEnabled: "true"
-  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }}
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
   proxyRoles: {{ .Values.auth.superUsers.proxy }}
   {{- end }}
-  {{- if eq .Values.auth.authentication.provider "jwt" }}
+  {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
   # token authentication configuration
   authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
   brokerClientAuthenticationParameters: "file:///pulsar/tokens/broker/token"

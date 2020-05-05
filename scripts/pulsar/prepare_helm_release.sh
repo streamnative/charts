@@ -96,7 +96,7 @@ namespace=${namespace:-pulsar}
 release=${release:-pulsar-dev}
 cc_admin=${cc_admin:-pulsar}
 cc_password=${cc_password:-pulsar}
-pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin"}
+pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-manager-admin"}
 
 function generate_cc_admin_credentials() {
     local secret_name="${release}-admin-secret"
