@@ -45,16 +45,16 @@ data:
     echo 'Starting Pulsar Manager Back end';
     /pulsar-manager/pulsar-backend-entrypoint.sh;
   backend_entrypoint.sh: |
-    /pulsar-manager/pulsar-manager/bin/pulsar-manager \
+    {{ .Values.pulsar_manager.scripts.backend_entrypoint.command }} \
       --spring.datasource.initialization-mode=never \
       --spring.datasource.driver-class-name=org.postgresql.Driver \
       --spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/pulsar_manager \
-      --spring.datasource.username=pulsar \
-      --spring.datasource.password=pulsar \
+      --spring.datasource.username={{ .Values.pulsar_manager.spring.datasource.username }} \
+      --spring.datasource.password={{ .Values.pulsar_manager.spring.datasource.password }} \
       --pagehelper.helperDialect=postgresql \
   {{- if .Values.auth.authentication.enabled }}
-  {{- if eq .Values.auth.authentication.provider "jwt" }}
-      --backend.jwt.token="$(cat /pulsar/tokens/broker/token)" \
+  {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
+      --backend.jwt.token="$(cat /pulsar/tokens/pulsar_manager/token)" \
   {{- if .Values.auth.authentication.jwt.usingSecretKey }}
       --jwt.broker.token.mode=SECRET \
       --jwt.broker.secret.key=file:///pulsar/keys/token/secret.key \
@@ -100,5 +100,8 @@ data:
   {{- else }}
       --tls.enabled=false \
   {{- end}}
+  {{- range .Values.pulsar_manager.scripts.backend_entrypoint.extraArgs }}
+  {{ toYaml . | indent 4 }}
+  {{- end }}
       --pulsar.peek.message=true
 {{- end }}

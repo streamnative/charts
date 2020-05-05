@@ -242,7 +242,9 @@ auth:
     proxy: "proxy-admin"
     # pulsar-admin client to broker/proxy communication
     client: "admin"
-
+  # Enable vault based authentication
+  vault:
+    enabled: false
 ######################################################################
 # External dependencies
 ######################################################################
@@ -1198,6 +1200,15 @@ pulsar_manager:
     email: support@pulsar.io
   redirect:
     host: localhost
+  scripts:
+    backend_entrypoint:
+      command: /pulsar-manager/pulsar-manager/bin/pulsar-manager
+      # extra arguments
+      # extraArgs:
+  spring:
+    datasource:
+      username: pulsar
+      password: pulsar
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
