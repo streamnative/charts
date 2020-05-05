@@ -1,0 +1,39 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- /*
+The hook-image-puller daemonset will be created with the highest priority during
+helm upgrades. It's task is to pull the required images on all nodes. When the
+image-awaiter job confirms the required images to be pulled, the daemonset is
+deleted. Only then will the actual helm upgrade start.
+*/}}
+{{- if .Values.imagePuller.hook.enabled }}
+{{- $_ := merge (dict "hook" true "componentPrefix" "hook-") . }}
+{{- include "pulsar.imagePuller.daemonset" $_ }}
+{{- end }}
+---
+{{- /*
+The continuous-image-puller daemonset task is to pull required images to nodes
+that are added in between helm upgrades, for example by manually adding a node
+or by the cluster autoscaler.
+*/}}
+{{- if .Values.imagePuller.continuous.enabled }}
+{{- $_ := merge (dict "hook" false "componentPrefix" "continuous-") . }}
+{{ include "pulsar.imagePuller.daemonset" $_ }}
+{{- end }}
