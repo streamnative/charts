@@ -364,14 +364,14 @@ imagePuller:
   pullSecret:
     enabled: false
   hook:
-    enabled: true
+    enabled: false
     image:
       name: streamnative/k8s-image-awaiter
       tag: '0.1.0'
   rbac:
     enabled: true
   continuous:
-    enabled: true
+    enabled: false
   pause:
     image:
       name: gcr.io/google_containers/pause
