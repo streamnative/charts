@@ -140,7 +140,14 @@ We provide some instructions to guide you through the preparation for the follow
     ./scripts/pulsar/prepare_helm_release.sh -n <k8s-namespace> -k <pulsar-release-name> -c
     ```
 
-3. Use the Pulsar Helm charts to install StreamNative Platform. 
+3. Add loki Helm Charts repository and update charts.
+
+    ```bash
+    $ helm repo add loki https://grafana.github.io/loki/charts
+    $ helm dependency update pulsar
+    ```
+
+4. Use the Pulsar Helm charts to install StreamNative Platform. 
 
     This command installs and starts StreamNative Platform.
 
@@ -148,7 +155,7 @@ We provide some instructions to guide you through the preparation for the follow
     $ helm install <pulsar-release-name> streamnative/pulsar
     ```
 
-4. Access the Pulsar cluster
+5. Access the Pulsar cluster
 
     The default values will create a `ClusterIP` for the proxy you can use to interact with the cluster. To find the IP address of proxy use:
 
