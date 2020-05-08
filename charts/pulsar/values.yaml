@@ -81,6 +81,8 @@ components:
   functions: true
   # proxy
   proxy: true
+  # pulsar detector
+  pulsar_detector: true
   # toolset
   toolset: true
   # pulsar manager
@@ -147,6 +149,12 @@ images:
     repository: streamnative/platform
     tag: v1.0.0
     pullPolicy: IfNotPresent
+  pulsar_detector:
+    # repository: apachepulsar/pulsar-all
+    # tag: 2.5.0
+    repository: streamnative/sn-pulsar
+    tag: 2.5.1-6
+    pullPolicy: IfNotPresent
   functions:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
@@ -201,6 +209,10 @@ tls:
   proxy:
     enabled: false
     cert_name: tls-proxy
+  # settings for generating certs for proxy
+  pulsar_detector:
+    enabled: false
+    cert_name: tls-pulsar-detector
   # settings for generating certs for broker
   broker:
     enabled: false
@@ -784,6 +796,30 @@ functions:
   runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
   pulsarExtraClasspath: "extraLibs"
 
+
+## Pulsar: pulsar detector
+## templates/pulsar-detector-statefulset.yaml
+##
+pulsar_detector:
+  component: pulsar-detector
+  replicaCount: 1
+
+  gracePeriod: 30
+  port: 9000
+  ## Proxy service
+  ## templates/pulsar-detector-service.yaml
+  ##
+  service:
+    spec:
+      clusterIP: None
+    annotations: {}
+
+  ## Pulsar detector PodDisruptionBudget
+  ## templates/pulsar-detector-pdb.yaml
+  ##
+  pdb:
+    usePolicy: true
+    maxUnavailable: 1
 ## Pulsar: Proxy Cluster
 ## templates/proxy-statefulset.yaml
 ##
