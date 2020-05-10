@@ -1078,6 +1078,10 @@ grafana:
     annotations: {}
   datasources:
     loki: loki
+  admin:
+    user: pulsar
+    password: pulsar
+
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
 ##

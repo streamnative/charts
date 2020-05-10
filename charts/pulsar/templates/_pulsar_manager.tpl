@@ -73,9 +73,11 @@ Define pulsar_manager token mounts
 {{- define "pulsar.pulsar_manager.token.volumeMounts" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if not .Values.auth.vault.enabled }}
 - mountPath: "/pulsar/keys"
   name: token-keys
   readOnly: true
+{{- end }}
 - mountPath: "/pulsar/tokens"
   name: pulsar-manager-token
   readOnly: true
@@ -89,6 +91,7 @@ Define pulsar-manager token volumes
 {{- define "pulsar.pulsar_manager.token.volumes" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if not .Values.auth.vault.enabled }}
 - name: token-keys
   secret:
     {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
@@ -107,6 +110,7 @@ Define pulsar-manager token volumes
       - key: PRIVATEKEY
         path: token/private.key
       {{- end}}
+{{- end }}
 - name: pulsar-manager-token
   secret:
     secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.pulsar_manager }}"
