@@ -59,6 +59,7 @@ spec:
       port: {{ .Values.proxy.ports.pulsarssl }}
       protocol: TCP
     {{- end }}
+  clusterIP: None
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}
