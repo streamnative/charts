@@ -94,9 +94,11 @@ Define broker token mounts
 {{- define "pulsar.broker.token.volumeMounts" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if not .Values.auth.vault.enabled }}
 - mountPath: "/pulsar/keys"
   name: token-keys
   readOnly: true
+{{- end }}
 - mountPath: "/pulsar/tokens"
   name: broker-token
   readOnly: true
@@ -110,6 +112,7 @@ Define broker token volumes
 {{- define "pulsar.broker.token.volumes" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if not .Values.auth.vault.enabled }}
 - name: token-keys
   secret:
     {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
@@ -128,6 +131,7 @@ Define broker token volumes
       - key: PRIVATEKEY
         path: token/private.key
       {{- end}}
+{{- end }}
 - name: broker-token
   secret:
     secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"

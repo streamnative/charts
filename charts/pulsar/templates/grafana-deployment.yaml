@@ -73,19 +73,19 @@ spec:
         - name: PULSAR_CLUSTER
           value: {{ template "pulsar.fullname" . }}
         - name: GF_LOKI_URL
-          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.grafana.datasources.loki }}.{{ .Release.Namespace }}.svc.cluster.local:3100/
+          value: http://{{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}.{{ .Release.Namespace }}.svc.cluster.local:3100/
         - name: GF_LOKI_DATASOURCE_NAME
-          value: {{ template "pulsar.fullname" . }}-{{ .Values.grafana.datasources.loki }}
+          value: {{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}
         - name: GRAFANA_ADMIN_USER
           valueFrom:
             secretKeyRef:
-              name: "{{ .Release.Name }}-admin-secret"
-              key: USER
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-secret"
+              key: GRAFANA_ADMIN_USER
         - name: GRAFANA_ADMIN_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: "{{ .Release.Name }}-admin-secret"
-              key: PASSWORD
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-secret"
+              key: GRAFANA_ADMIN_PASSWORD
         - name: GRAFANA_CFG_FILE
           value: {{ template "pulsar.home" . }}/conf/grafana.ini
 {{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana }}
