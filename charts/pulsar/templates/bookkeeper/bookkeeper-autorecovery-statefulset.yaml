@@ -46,7 +46,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
         {{- if .Values.autorecovery.autoRollDeployment }}
-        checksum/config: {{ include (print $.Template.BasePath "/bookkeeper-autorecovery-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/bookkeeper/bookkeeper-autorecovery-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
