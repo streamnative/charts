@@ -48,7 +48,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.proxy.ports.http }}"
         {{- if .Values.proxy.autoRollDeployment }}
-        checksum/config: {{ include (print $.Template.BasePath "/proxy-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/proxy/proxy-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.proxy.annotations }}
 {{ toYaml . | indent 8 }}

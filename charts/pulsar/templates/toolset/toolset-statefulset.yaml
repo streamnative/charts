@@ -43,7 +43,7 @@ spec:
         component: {{ .Values.toolset.component }}
       annotations:
         {{- if .Values.toolset.autoRollDeployment }}
-        checksum/config: {{ include (print $.Template.BasePath "/toolset-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/toolset/toolset-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.toolset.annotations }}
 {{ toYaml . | indent 8 }}
