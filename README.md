@@ -33,11 +33,13 @@ This Helm Chart includes all the components of Apache Pulsar for a complete expe
     - [x] Function workers
     - [x] Proxies
     - [x] Kafka-on-Pulsar
+    - [x] Presto
 - [x] StreamNative Control Center:
     - [x] Pulsar Manager
     - [x] Node Exporter
     - [x] Prometheus
     - [x] Grafana
+    - [x] Grafana Loki
     - [x] Alert Manager
 
 It includes support for:
@@ -50,7 +52,7 @@ It includes support for:
         - [x] Proxy
         - [x] Broker
         - [x] Toolset
-        - [ ] Kafka-on-Pulsar
+        - [x] Kafka-on-Pulsar
         - [x] Bookie
         - [x] ZooKeeper
     - [x] Authentication
@@ -69,6 +71,9 @@ It includes support for:
     - [x] Thread Runtime
 - [x] Operations
     - [x] Independent Image Versions for all components, enabling controlled upgrades
+- [x] External Connectivies
+    - [x] External DNS
+    - [x] Control Center Ingress
 
 ## Requirements
 
@@ -96,8 +101,10 @@ helm repo add streamnative https://charts.streamnative.io
 
 To use the helm chart:
 
+> NOTE: Please specify `--set initialize=true` to start initialize jobs to initialize the cluster metadata for both bookkeeper and pulsar clusters.
+
 ```bash
-helm install <release-name> streamnative/pulsar
+helm upgrade --install [--set initialize=true] <release-name> streamnative/pulsar
 ```
 
 ## Kubernetes cluster preparation
@@ -149,10 +156,12 @@ We provide some instructions to guide you through the preparation for the follow
 
 4. Use the Pulsar Helm charts to install StreamNative Platform. 
 
+> NOTE: Please specify `--set initialize=true` to start initialize jobs to initialize the cluster metadata for both bookkeeper and pulsar clusters.
+
     This command installs and starts StreamNative Platform.
 
     ```bash 
-    $ helm install <pulsar-release-name> streamnative/pulsar
+    $ helm upgrade --install [--set initialize=true] <pulsar-release-name> streamnative/pulsar
     ```
 
 5. Access the Pulsar cluster
