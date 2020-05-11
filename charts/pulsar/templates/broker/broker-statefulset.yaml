@@ -48,7 +48,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.broker.ports.http }}"
         {{- if .Values.broker.autoRollDeployment }}
-        checksum/config: {{ include (print $.Template.BasePath "/broker-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/broker/broker-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 8 }}

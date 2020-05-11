@@ -48,7 +48,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
         {{- if .Values.bookkeeper.autoRollDeployment }}
-        checksum/config: {{ include (print $.Template.BasePath "/bookkeeper-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/bookkeeper/bookkeeper-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.bookkeeper.annotations }}
 {{ toYaml . | indent 8 }}

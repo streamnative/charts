@@ -45,7 +45,7 @@ spec:
 {{- with .Values.pulsar_manager.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-        checksum/config: {{ include (print $.Template.BasePath "/pulsar-manager-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/pulsar-manager/pulsar-manager-configmap.yaml") . | sha256sum }}
     spec:
     {{- if .Values.pulsar_manager.nodeSelector }}
       nodeSelector:

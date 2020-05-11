@@ -38,7 +38,7 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.grafana.component }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/grafana-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/grafana/grafana-configmap.yaml") . | sha256sum }}
 {{- with .Values.grafana.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
