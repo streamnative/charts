@@ -25,6 +25,7 @@ Permissions to be used by the hook-image-awaiter job
 {{- /*
 This service account...
 */ -}}
+# service account
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -40,6 +41,7 @@ metadata:
 {{- /*
 ... will be used by this role...
 */}}
+# service role
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -59,6 +61,7 @@ rules:
 {{- /*
 ... as declared by this binding.
 */}}
+# service role binding
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:

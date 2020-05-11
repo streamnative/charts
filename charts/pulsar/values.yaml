@@ -81,8 +81,6 @@ components:
   functions: true
   # proxy
   proxy: true
-  # pulsar detector
-  pulsar_detector: true
   # toolset
   toolset: true
   # pulsar manager
@@ -91,6 +89,8 @@ components:
   sql_worker: false
   # kop
   kop: false
+  # pulsar detector
+  pulsar_detector: false
 
 ## Monitoring Components
 ##
@@ -924,6 +924,12 @@ toolset:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:
+    BOOKIE_MEM: >
+      "
+      -Xms64M
+      -Xmx128M
+      -XX:MaxDirectMemorySize=128M
+      "
     PULSAR_MEM: >
       "
       -Xms64M
