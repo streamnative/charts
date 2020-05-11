@@ -23,6 +23,7 @@ Returns an image-puller daemonset. Two daemonsets will be created like this.
 - continuous-image-puller: for newly added nodes image pulling
 */}}
 {{- define "pulsar.imagePuller.daemonset" -}}
+# image puller daemonset
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:

@@ -25,6 +25,7 @@ required images on all nodes as they are used as init containers with a dummy
 command.
 */}}
 {{- if .Values.imagePuller.hook.enabled -}}
+# wait for images to be pulled
 apiVersion: batch/v1
 kind: Job
 metadata:
