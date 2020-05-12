@@ -43,6 +43,19 @@ data:
   zooKeeperSessionTimeoutMillis: "30000"
   statusFilePath: "{{ template "pulsar.home" . }}/status"
 
+  ## Offloading settings
+  {{- if .Values.broker.offload.enable }}
+  offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
+  managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+
+  # gcs
+  gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcsManagedLedgerOffloadRegion }}
+  gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcsManagedLedgerOffloadBucket }}
+  gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
+  gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
+  gcsManagedLedgerOffloadServiceAccountKeyFile: "{{ template "pulsar.home" . }}/{{ template "pulsar.broker.offload.serviceAccountKeyPath" . }}"
+  {{- end }}
+
   # Function Worker Settings
   # function worker configuration
   {{- if not .Values.components.functions }}

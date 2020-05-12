@@ -140,8 +140,8 @@ images:
   broker:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: streamnative/platform-all
+    tag: v1.0.1
     pullPolicy: IfNotPresent
   proxy:
     # repository: apachepulsar/pulsar-all
@@ -786,6 +786,13 @@ broker:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  offload:
+    enable: true
+    managedLedgerOffloadDriver: google-cloud-storage
+    gcsManagedLedgerOffloadRegion: pulsar-topic-offload-1
+    gcsManagedLedgerOffloadBucket: europe-west3
+    gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
+    gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
