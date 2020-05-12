@@ -53,7 +53,7 @@ data:
   gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcsManagedLedgerOffloadBucket }}
   gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
   gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
-  gcsManagedLedgerOffloadServiceAccountKeyFile: "{{ template "pulsar.home" . }}/{{ template "pulsar.broker.offload.serviceAccountKeyPath" . }}"
+  gcsManagedLedgerOffloadServiceAccountKeyFile: "{{ .Values.broker.offload.gcsManagedLedgerOffloadServiceAccountKeyFile }}"
   {{- end }}
 
   # Function Worker Settings

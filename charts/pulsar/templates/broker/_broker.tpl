@@ -273,21 +273,12 @@ Define broker runtime volumes
 {{- end }}
 
 {{/*
-Define offload service account key file path
-*/}}
-{{- define "pulsar.broker.offload.serviceAccountKeyPath" -}}
-{{ range $path, $_ := .Files.Glob "offload-secret-key/service-account-key-file.json" }}
-{{- print $path -}}
-{{- end }}
-{{- end }}
-
-{{/*
 Define offload options mounts
 */}}
 {{- define "pulsar.broker.offload.volumeMounts" -}}
 {{- if .Values.broker.offload.enable }}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-offload"
-  mountPath: "{{ template "pulsar.home" .}}/offload"
+  mountPath: "{{ .Values.broker.offload.gcsManagedLedgerOffloadServiceAccountKeyFile }}"
 {{- end }}
 {{- end }}
 
