@@ -20,7 +20,7 @@
 
 function git::fetch_tags() {
     echo "Fetching tags ..."
-    git fetch --unshallow origin
+    git fetch --tags
     git describe --tags --abbrev=0
 }
 
