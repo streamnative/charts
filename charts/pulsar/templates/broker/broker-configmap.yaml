@@ -54,6 +54,8 @@ data:
   gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
   gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
   gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/keys/gcs.json"
+  managedLedgerMinLedgerRolloverTimeMinutes: "{{ .Values.broker.offload.managedLedgerMinLedgerRolloverTimeMinutes }}"
+  managedLedgerMaxEntriesPerLedger: "{{ .Values.broker.offload.managedLedgerMaxEntriesPerLedger }}"
   {{- end }}
 
   # Function Worker Settings

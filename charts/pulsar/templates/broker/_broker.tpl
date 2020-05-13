@@ -290,7 +290,7 @@ Define offload options mounts
 {{- if .Values.broker.offload.enable }}
 - name: service-account-key-file
   secret:
-    secretName: "gcs-secret-1"
+    secretName: "{{ .Release.Name }}-service-account-secret"
     items:
       - key: gcs.json
         path: gcs.json

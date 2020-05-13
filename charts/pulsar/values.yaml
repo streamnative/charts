@@ -793,6 +793,8 @@ broker:
     gcsManagedLedgerOffloadBucket: europe-west3
     gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
     gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
+    managedLedgerMinLedgerRolloverTimeMinutes: "10"
+    managedLedgerMaxEntriesPerLedger: "50000"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
