@@ -55,6 +55,7 @@ function release::find_changed_charts() {
 function release::package_chart() {
     local chart=$1
     echo "Packaging chart '$chart'..."
+    helm dependency update ${CHARTS_HOME}/charts/$chart
     helm package ${CHARTS_HOME}/charts/$chart --destination ${CHARTS_PKGS}
 }
 
