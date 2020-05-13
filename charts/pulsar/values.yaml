@@ -787,7 +787,7 @@ broker:
     usePolicy: true
     maxUnavailable: 1
   offload:
-    enable: true
+    enable: false
     managedLedgerOffloadDriver: google-cloud-storage
     gcsManagedLedgerOffloadRegion: pulsar-topic-offload-1
     gcsManagedLedgerOffloadBucket: europe-west3
