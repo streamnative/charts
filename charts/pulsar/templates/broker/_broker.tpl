@@ -277,8 +277,9 @@ Define offload options mounts
 */}}
 {{- define "pulsar.broker.offload.volumeMounts" -}}
 {{- if .Values.broker.offload.enable }}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-offload"
-  mountPath: "{{ .Values.broker.offload.gcsManagedLedgerOffloadServiceAccountKeyFile }}"
+- name: service-account-key-file
+  mountPath: "/pulsar/keys"
+  readOnly: true
 {{- end }}
 {{- end }}
 
@@ -287,9 +288,12 @@ Define offload options mounts
 */}}
 {{- define "pulsar.broker.offload.volumes" -}}
 {{- if .Values.broker.offload.enable }}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-offload"
-  hostPath:
-    path: /proc
+- name: service-account-key-file
+  secret:
+    secretName: "gcs-secret-1"
+    items:
+      - key: gcs.json
+        path: gcs.json
 {{- end }}
 {{- end }}
 

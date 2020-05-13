@@ -793,7 +793,6 @@ broker:
     gcsManagedLedgerOffloadBucket: europe-west3
     gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
     gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
-    gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/offload-secret-key/service-account-key-file.json"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
