@@ -21,6 +21,7 @@
 function git::fetch_tags() {
     echo "Fetching tags ..."
     git fetch --tags
+    git describe --tags --abbrev=0
 }
 
 function git::find_latest_tag() {
