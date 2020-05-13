@@ -106,9 +106,9 @@ for chart in $(release::find_changed_charts charts); do
     release::package_chart ${chart}
 done
 
-release::upload_packages
-release::update_chart_index
+# release::upload_packages
+# release::update_chart_index
 
-if [[ "x${PUBLISH_CHARTS}" == "xtrue" ]]; then
-    release::publish_charts
-fi
+# if [[ "x${PUBLISH_CHARTS}" == "xtrue" ]]; then
+#     release::publish_charts
+# fi
