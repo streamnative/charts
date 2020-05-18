@@ -41,4 +41,8 @@ spec:
   selector:
     {{- include "pulsar.matchLabels" . | nindent 4 }}
     component: {{ .Values.grafana.component }}
+{{- if .Values.grafana.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.grafana.service.loadBalancerSourceRanges | indent 4 }}
+{{- end }}
 {{- end }}
