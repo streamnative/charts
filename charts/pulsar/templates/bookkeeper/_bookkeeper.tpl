@@ -101,6 +101,7 @@ Define bookie common config
 {{- define "pulsar.bookkeeper.config.common" -}}
 zkServers: "{{ template "pulsar.zookeeper.connect" . }}"
 zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+metadataServiceUri: "zk+hierarchical://{{ template "pulsar.zookeeper.connect" . }}/ledgers"
 # enable bookkeeper http server
 httpServerEnabled: "true"
 httpServerPort: "{{ .Values.bookkeeper.ports.http }}"

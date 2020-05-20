@@ -60,6 +60,7 @@ spec:
                 bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} create {{ .Values.metadataPrefix }} 'created for pulsar cluster "{{ template "pulsar.fullname" . }}"' || yes &&
                 {{- end }}
                 bin/bookkeeper shell initnewcluster;
+                echo "bookkeeper cluster initialized."
             fi
         envFrom:
         - configMapRef:

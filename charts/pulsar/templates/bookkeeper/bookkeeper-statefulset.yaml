@@ -143,6 +143,8 @@ spec:
           {{- include "pulsar.bookkeeper.zookeeper.tls.settings" . | nindent 10 }}
           {{- if eq .Values.images.bookie.repository "streamnative/sn-pulsar" }}
           scripts/run-bookie.sh;
+          {{- else if eq .Values.images.bookie.repository "streamnative/sn-bookkeeper" }}
+          bin/bookkeeper bookie
           {{- else }}
           bin/pulsar bookie;
           {{- end }}

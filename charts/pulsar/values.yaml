@@ -122,6 +122,8 @@ images:
   bookie:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
+    # When using sn-bookkeeper images, you need to diable the liveness check and readiness check. Because the check
+    # path is not existent in the bookkeeper HTTP service.
     repository: streamnative/platform
     tag: v1.0.0
     pullPolicy: IfNotPresent
@@ -536,6 +538,8 @@ bookkeeper:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
+    # When using sn-bookkeeper images, you need to diable the liveness check and readiness check. Because the check
+    # path is not existent in the bookkeeper HTTP service.
     liveness:
       enabled: true
       failureThreshold: 60
