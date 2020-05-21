@@ -47,15 +47,25 @@ data:
   {{- if .Values.broker.offload.enable }}
   offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
   managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
-
-  # gcs
-  gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcsManagedLedgerOffloadRegion }}
-  gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcsManagedLedgerOffloadBucket }}
-  gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
-  gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
-  gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/keys/gcs.json"
   managedLedgerMinLedgerRolloverTimeMinutes: "{{ .Values.broker.offload.managedLedgerMinLedgerRolloverTimeMinutes }}"
   managedLedgerMaxEntriesPerLedger: "{{ .Values.broker.offload.managedLedgerMaxEntriesPerLedger }}"
+
+  # gcs
+  {{- if .Values.broker.offload.gcs.enable }}
+  gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadRegion }}
+  gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadBucket }}
+  gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
+  gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
+  ## Authentication with GCS
+  gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/keys/gcs.json"
+  {{- end }}
+  # aws-s3
+  {{- if .Values.broker.offload.s3.enable }}
+  s3ManagedLedgerOffloadRegion: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}
+  s3ManagedLedgerOffloadBucket: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}
+  s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
+  s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
+  {{- end }}
   {{- end }}
 
   # Function Worker Settings
