@@ -133,10 +133,6 @@ We provide some instructions to guide you through the preparation for the follow
 
 2. Run `prepare_helm_release.sh` to create required kubernetes resources for installing this Helm chart.
     - A k8s namespace for installing the Pulsar release (if `-c` is specified)
-    - Create a secret for storing the username and password of control center administrator.
-      The username and password can be passed to the script by specifying flags `--control-center-admin`
-      and `--control-center-password`. The username and password are used for logging into Grafana dashboard
-      and Pulsar Manager.
     - Create the JWT secret keys and tokens for three superusers: `broker-admin`, `proxy-admin`, and `admin`.
       By default, it generates asymmeric pubic/private key pair. You can choose to generate symmeric secret key
       by specifying `--symmetric` in the following command.

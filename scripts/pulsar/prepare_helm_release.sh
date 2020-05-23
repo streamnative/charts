@@ -29,11 +29,9 @@ Options:
        -n,--namespace                   the k8s namespace to install the pulsar helm chart
        -k,--release                     the pulsar helm release name
        -s,--symmetric                   generate symmetric secret key. If not provided, an asymmetric pair of keys are generated.
-       --control-center-admin           the user name of control center administrator
-       --control-center-password        the password of control center administrator
        --pulsar-superusers              the superusers of pulsar cluster. a comma separated list of super users.
        -c,--create-namespace            flag to create k8s namespace.
-       --service-account-key-file       the path of service account key file.
+       --service-gcs-account-key-file   the path of GCS service account key file.
 Usage:
     $0 --namespace pulsar --release pulsar-release
 EOF
@@ -62,17 +60,7 @@ case $key in
     shift
     shift
     ;;
-    --control-center-admin)
-    cc_admin="$2"
-    shift
-    shift
-    ;;
-    --control-center-password)
-    cc_password="$2"
-    shift
-    shift
-    ;;
-    --service-account-key-file)
+    --service-gcs-account-key-file)
     service_account_file="$2"
     shift
     shift
@@ -100,23 +88,16 @@ done
 
 namespace=${namespace:-pulsar}
 release=${release:-pulsar-dev}
-cc_admin=${cc_admin:-pulsar}
-cc_password=${cc_password:-pulsar}
-service_account_file=${service_account_file:-"/pulsar/keys/gcs.json"}
+service_gcs_account_file=${service_gcs_account_file:-"/pulsar/keys/gcs.json"}
 pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-manager-admin"}
 
-function generate_cc_admin_credentials() {
-    local secret_name="${release}-admin-secret"
-    kubectl create secret generic ${secret_name} -n ${namespace} \
-        --from-literal="USER=${cc_admin}" --from-literal="PASSWORD=${cc_password}"
-}
-
 function generate_service_account_credentials() {
-    local secret_name="${release}-service-account-secret"
+    local secret_name="${release}-gcs-service-account-secret"
     kubectl create secret generic ${secret_name} -n ${namespace} \
-        --from-file="gcs.json=${service_account_file}"
+        --from-file="gcs.json=${service_gcs_account_file}"
 }
 
+pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-manager-admin"}
 
 function do_create_namespace() {
     if [[ "${create_namespace}" == "true" ]]; then
@@ -125,9 +106,6 @@ function do_create_namespace() {
 }
 
 do_create_namespace
-
-echo "create the credentials for the admin user of control center (grafana & pulsar-manager)"
-generate_cc_admin_credentials
 
 echo "create the credentials for the service account key file (offload data to gcs)"
 generate_service_account_credentials

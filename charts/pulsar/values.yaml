@@ -772,8 +772,8 @@ broker:
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       "
-    AWS_ACCESS_KEY_ID: ABC123456789
-    AWS_SECRET_ACCESS_KEY: ded7db27a4558e2ea8bbf0bf37ae0e8521618f366c
+    AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
+    AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
@@ -789,20 +789,20 @@ broker:
     usePolicy: true
     maxUnavailable: 1
   offload:
-    enable: false
+    enabled: false
     managedLedgerOffloadDriver: aws-s3
     managedLedgerMinLedgerRolloverTimeMinutes: "1"
     managedLedgerMaxEntriesPerLedger: "5000"
     gcs:
-      enable: false
-      gcsManagedLedgerOffloadRegion: pulsar-topic-offload-1
-      gcsManagedLedgerOffloadBucket: europe-west3
+      enabled: false
+      gcsManagedLedgerOffloadRegion: "[YOUR REGION OF GCS]"
+      gcsManagedLedgerOffloadBucket: "[YOUR BUCKET OF GCS]"
       gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
       gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
     s3:
-      enable: false
-      s3ManagedLedgerOffloadRegion: us-west-2
-      s3ManagedLedgerOffloadBucket: test-offload-1
+      enabled: false
+      s3ManagedLedgerOffloadRegion: "[YOUR REGION OF S3]"
+      s3ManagedLedgerOffloadBucket: "[YOUR BUCKET OF S3]"
       s3ManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
       s3ManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
 

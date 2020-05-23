@@ -55,6 +55,7 @@ function release::find_changed_charts() {
 function release::package_chart() {
     local chart=$1
     echo "Packaging chart '$chart'..."
+    helm dependency update ${CHARTS_HOME}/charts/$chart
     helm package ${CHARTS_HOME}/charts/$chart --destination ${CHARTS_PKGS}
 }
 
@@ -82,6 +83,8 @@ function release::publish_charts() {
 # install cr
 # hack::ensure_cr
 docker pull quay.io/helmpack/chart-releaser:v${CR_VERSION}
+
+git::fetch_tags
 
 latest_tag=$(git::find_latest_tag)
 echo "Latest tag: $latest_tag"
