@@ -52,6 +52,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      securityContext:
+{{- with .Values.autorecovery.securityContext }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     {{- if .Values.autorecovery.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.autorecovery.nodeSelector | indent 8 }}
@@ -98,6 +102,12 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
         volumeMounts:
         {{- include "pulsar.autorecovery.certs.volumeMounts" . | nindent 8 }}
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.autorecovery.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
         image: "{{ .Values.images.autorecovery.repository }}:{{ .Values.images.autorecovery.tag }}"

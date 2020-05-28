@@ -54,6 +54,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      securityContext:
+{{- with .Values.bookkeeper.securityContext }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-acct"
     {{- if .Values.bookkeeper.nodeSelector }}
       nodeSelector:
@@ -100,6 +104,12 @@ spec:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         volumeMounts:
         {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 8 }}
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.bookkeeper.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"

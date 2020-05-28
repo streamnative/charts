@@ -396,6 +396,10 @@ imagePuller:
 # Below are settings for each component
 ######################################################################
 
+## Common properties applied to pulsar components
+common:
+  extraInitContainers: {}
+
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
 ##
@@ -434,6 +438,7 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
+  securityContext: {}
   tolerations: []
   gracePeriod: 30
   resources:
@@ -469,6 +474,7 @@ zookeeper:
         # type: pd-ssd
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+  extraInitContainers: {}
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
   ##
@@ -554,6 +560,7 @@ bookkeeper:
   affinity:
     anti_affinity: true
   annotations: {}
+  securityContext: {}
   tolerations: []
   gracePeriod: 30
   resources:
@@ -589,6 +596,7 @@ bookkeeper:
         # provisioner: kubernetes.io/gce-pd
         # extraParameters:
         #   iopsPerGB: "50"
+  extraInitContainers: {}
   ## Bookkeeper configmap
   ## templates/bookkeeper-configmap.yaml
   ##
@@ -662,12 +670,14 @@ autorecovery:
   affinity:
     anti_affinity: true
   annotations: {}
+  securityContext: {}
   # tolerations: []
   gracePeriod: 30
   resources:
     requests:
       memory: 64Mi
       cpu: 0.05
+  extraInitContainers: {}
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
@@ -739,11 +749,13 @@ broker:
     anti_affinity: true
   annotations: {}
   tolerations: []
+  securityContext: {}
   gracePeriod: 30
   resources:
     requests:
       memory: 512Mi
       cpu: 0.2
+  extraInitContainers: {}
   ## Broker configmap
   ## templates/broker-configmap.yaml
   ##
@@ -849,12 +861,14 @@ proxy:
   affinity:
     anti_affinity: true
   annotations: {}
+  securityContext: {}
   tolerations: []
   gracePeriod: 30
   resources:
     requests:
       memory: 128Mi
       cpu: 0.2
+  extraInitContainers: {}
   ## Proxy configmap
   ## templates/proxy-configmap.yaml
   ##
