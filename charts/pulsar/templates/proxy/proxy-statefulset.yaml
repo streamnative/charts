@@ -54,6 +54,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      securityContext:
+{{- with .Values.proxy.securityContext }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-acct"
     {{- if .Values.proxy.nodeSelector }}
       nodeSelector:
@@ -111,6 +115,12 @@ spec:
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.proxy.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
         image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"

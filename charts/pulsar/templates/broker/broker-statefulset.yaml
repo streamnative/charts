@@ -54,6 +54,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      securityContext:
+{{- with .Values.broker.securityContext }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-acct"
     {{- if .Values.broker.nodeSelector }}
       nodeSelector:
@@ -131,6 +135,12 @@ spec:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         volumeMounts:
         {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.broker.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
