@@ -4,10 +4,9 @@
 pulsar home
 */}}
 {{- define "pulsar.home" -}}
-{{- if eq .Values.images.broker.repository "streamnative/platform" }}
+{{- if or (eq .Values.images.broker.repository "streamnative/platform") (eq .Values.images.broker.repository "streamnative/platform-all") }}
 {{- print "/sn-platform" -}}
-{{- end -}}
-{{- if not (eq .Values.images.broker.repository "streamnative/platform") }}
+{{- else }}
 {{- print "/pulsar" -}}
 {{- end -}}
 {{- end -}}

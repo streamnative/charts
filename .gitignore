@@ -13,3 +13,6 @@
 .vs/
 charts/**/*.tgz
 charts/**/*.lock
+
+PRIVATEKEY
+PUBLICKEY

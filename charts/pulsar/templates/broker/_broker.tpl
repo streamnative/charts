@@ -271,3 +271,29 @@ Define broker runtime volumes
     path: /proc
 {{- end }}
 {{- end }}
+
+{{/*
+Define gcs offload options mounts
+*/}}
+{{- define "pulsar.broker.offload.volumeMounts" -}}
+{{- if .Values.broker.offload.gcs.enabled }}
+- name: service-account-key-file
+  mountPath: "/pulsar/keys"
+  readOnly: true
+{{- end }}
+{{- end }}
+
+{{/*
+Define gcs offload options mounts
+*/}}
+{{- define "pulsar.broker.offload.volumes" -}}
+{{- if .Values.broker.offload.gcs.enabled }}
+- name: service-account-key-file
+  secret:
+    secretName: "{{ .Release.Name }}-service-account-secret"
+    items:
+      - key: gcs.json
+        path: gcs.json
+{{- end }}
+{{- end }}
+

@@ -31,6 +31,7 @@ Options:
        -s,--symmetric                   generate symmetric secret key. If not provided, an asymmetric pair of keys are generated.
        --pulsar-superusers              the superusers of pulsar cluster. a comma separated list of super users.
        -c,--create-namespace            flag to create k8s namespace.
+       --service-gcs-account-key-file   the path of GCS service account key file.
 Usage:
     $0 --namespace pulsar --release pulsar-release
 EOF
@@ -59,6 +60,11 @@ case $key in
     shift
     shift
     ;;
+    --service-gcs-account-key-file)
+    service_account_file="$2"
+    shift
+    shift
+    ;;
     --pulsar-superusers)
     pulsar_superusers="$2"
     shift
@@ -82,6 +88,15 @@ done
 
 namespace=${namespace:-pulsar}
 release=${release:-pulsar-dev}
+service_gcs_account_file=${service_gcs_account_file:-"/pulsar/keys/gcs.json"}
+pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-manager-admin"}
+
+function generate_service_account_credentials() {
+    local secret_name="${release}-gcs-service-account-secret"
+    kubectl create secret generic ${secret_name} -n ${namespace} \
+        --from-file="gcs.json=${service_gcs_account_file}"
+}
+
 pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-manager-admin"}
 
 function do_create_namespace() {
@@ -91,6 +106,9 @@ function do_create_namespace() {
 }
 
 do_create_namespace
+
+echo "create the credentials for the service account key file (offload data to gcs)"
+generate_service_account_credentials
 
 extra_opts=""
 if [[ "${symmetric}" == "true" ]]; then
@@ -128,5 +146,8 @@ echo
 
 echo "The credentials of the administrator of Control Center (Grafana & Pulsar Manager)"
 echo "is stored at secret '${release}-admin-secret"
+
+echo "The credentials of the service account key file (offload data to gcs)"
+echo "is stored at secret '${release}-service-account-secret"
 echo
 
