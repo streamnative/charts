@@ -19,7 +19,7 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
-Expand the name of the chart.
+Expand to the namespace pulsar installs into.
 */}}
 {{- define "pulsar.namespace" -}}
 {{- default .Release.Namespace .Values.namespace -}}
