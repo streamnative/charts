@@ -23,7 +23,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-init"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.pulsar_manager.component }}

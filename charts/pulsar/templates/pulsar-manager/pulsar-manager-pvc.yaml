@@ -23,7 +23,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-{{ .Values.pulsar_manager.volumes.data.name }}"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
 spec:
   resources:
     requests:

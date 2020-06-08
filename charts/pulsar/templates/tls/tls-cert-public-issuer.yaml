@@ -24,7 +24,7 @@ apiVersion: cert-manager.io/v1alpha2
 kind: Issuer
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
 spec:
   acme:
     email: {{ .Values.certs.issuers.acme.email }}

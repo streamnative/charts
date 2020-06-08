@@ -23,7 +23,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: "{{ template "pulsar.fullname" . }}-nginx-ingress-serviceaccount"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -88,7 +88,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: "{{ template "pulsar.fullname" . }}-nginx-ingress-role"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     app: {{ template "pulsar.name" . }}
     chart: {{ template "pulsar.chart" . }}
@@ -133,7 +133,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
   name: "{{ template "pulsar.fullname" . }}-nginx-ingress-role-nisa-binding"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     app: {{ template "pulsar.name" . }}
     chart: {{ template "pulsar.chart" . }}
@@ -145,7 +145,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: "{{ template "pulsar.fullname" . }}-nginx-ingress-serviceaccount"
-    namespace: {{ .Values.namespace }}
+    namespace: {{ template "pulsar.namespace" . }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1beta1
@@ -159,7 +159,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: "{{ template "pulsar.fullname" . }}-nginx-ingress-serviceaccount"
-    namespace: {{ .Values.namespace }}
+    namespace: {{ template "pulsar.namespace" . }}
 
 ---
 {{- end }}

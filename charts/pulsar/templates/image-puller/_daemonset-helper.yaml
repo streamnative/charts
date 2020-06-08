@@ -28,7 +28,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ template "pulsar.fullname" . }}-{{ print .componentPrefix "image-puller" }}
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
   {{- if .hook }}

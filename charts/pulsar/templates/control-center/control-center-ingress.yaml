@@ -26,7 +26,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
   annotations:

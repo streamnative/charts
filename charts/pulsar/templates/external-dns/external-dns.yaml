@@ -22,7 +22,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
 spec:
   strategy:
     type: Recreate
