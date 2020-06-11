@@ -30,7 +30,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.imagePuller.component }}
@@ -59,6 +59,6 @@ spec:
             - -ca-path=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
             - -auth-token-path=/var/run/secrets/kubernetes.io/serviceaccount/token
             - -api-server-address=https://$(KUBERNETES_SERVICE_HOST):$(KUBERNETES_SERVICE_PORT)
-            - -namespace={{ .Values.namespace }}
+            - -namespace={{ template "pulsar.namespace" . }}
             - -daemonset={{ template "pulsar.fullname" . }}-hook-image-puller
 {{- end }}

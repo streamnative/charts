@@ -22,7 +22,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: "{{ template "pulsar.fullname" . }}-nginx-configuration"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.ingress.controller.component }}
@@ -34,7 +34,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: "{{ template "pulsar.fullname" . }}-tcp-services"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.ingress.controller.component }}
@@ -43,7 +43,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: "{{ template "pulsar.fullname" . }}-udp-services"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.ingress.controller.component }}

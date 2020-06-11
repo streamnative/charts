@@ -22,7 +22,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.node_exporter.component }}"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.node_exporter.component }}

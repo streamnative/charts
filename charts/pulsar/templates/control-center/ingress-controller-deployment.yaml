@@ -23,7 +23,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.controller.component }}"
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.ingress.controller.component }}
@@ -60,10 +60,10 @@ spec:
         imagePullPolicy: {{ .Values.images.nginx_ingress_controller.pullPolicy }}
         args:
         - /nginx-ingress-controller
-        - --configmap={{ .Values.namespace }}/{{ template "pulsar.fullname" . }}-nginx-configuration
-        - --tcp-services-configmap={{ .Values.namespace }}/{{ template "pulsar.fullname" . }}-tcp-services
-        - --udp-services-configmap={{ .Values.namespace }}/{{ template "pulsar.fullname" . }}-udp-services
-        - --publish-service={{ .Values.namespace }}/{{ template "pulsar.fullname" . }}-{{ .Values.ingress.controller.component }}
+        - --configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-nginx-configuration
+        - --tcp-services-configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-tcp-services
+        - --udp-services-configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-udp-services
+        - --publish-service={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-{{ .Values.ingress.controller.component }}
         - --annotations-prefix=nginx.ingress.kubernetes.io
         securityContext:
           allowPrivilegeEscalation: true

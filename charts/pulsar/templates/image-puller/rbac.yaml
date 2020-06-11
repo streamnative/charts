@@ -30,7 +30,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
   annotations:
@@ -46,7 +46,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
   annotations:
@@ -66,7 +66,7 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ .Values.namespace }}
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
   annotations:
@@ -76,7 +76,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-    namespace: {{ .Values.namespace }}
+    namespace: {{ template "pulsar.namespace" . }}
 roleRef:
   kind: Role
   name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
