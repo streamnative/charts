@@ -482,8 +482,10 @@ zookeeper:
   autoRollDeployment: true
   configData:
     PULSAR_MEM: >
-      "
       -Xms64m -Xmx128m
+    PULSAR_GC: >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
       -Dcom.sun.management.jmxremote
       -Djute.maxbuffer=10485760
       -XX:+ParallelRefProcEnabled
@@ -493,12 +495,6 @@ zookeeper:
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
       -Dzookeeper.forceSync=no
-      "
-    PULSAR_GC: >
-      "
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      "
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
   ##
@@ -607,20 +603,15 @@ bookkeeper:
   configData:
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
-      "
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
-      "
     # we use `bin/pulsar` for starting bookie daemons
     PULSAR_MEM: >
-      "
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
-      "
     PULSAR_GC: >
-      "
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -XX:+ParallelRefProcEnabled
@@ -641,7 +632,6 @@ bookkeeper:
       -verbosegc
       -Xloggc:/var/log/bookie-gc.log
       -XX:G1LogLevel=finest
-      "
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -685,9 +675,7 @@ autorecovery:
   autoRollDeployment: true
   configData:
     BOOKIE_MEM: >
-      "
       -Xms64m -Xmx64m
-      "
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
@@ -762,16 +750,9 @@ broker:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:
-    BOOKIE_MEM: >
-      "
-      -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
-      "
     PULSAR_MEM: >
-      "
       -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
-      "
     PULSAR_GC: >
-      "
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -Dio.netty.leakDetectionLevel=disabled
@@ -787,7 +768,6 @@ broker:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      "
     AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
     AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
     managedLedgerDefaultEnsembleSize: "3"
@@ -899,8 +879,10 @@ proxy:
   autoRollDeployment: true
   configData:
     PULSAR_MEM: >
-      "
       -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+    PULSAR_GC: >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
       -Dio.netty.leakDetectionLevel=disabled
       -Dio.netty.recycler.linkCapacity=1024
       -XX:+ParallelRefProcEnabled
@@ -914,12 +896,6 @@ proxy:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      "
-    PULSAR_GC: >
-      "
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      "
   ## Proxy service
   ## templates/proxy-service.yaml
   ##
@@ -961,18 +937,10 @@ toolset:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:
-    BOOKIE_MEM: >
-      "
-      -Xms64M
-      -Xmx128M
-      -XX:MaxDirectMemorySize=128M
-      "
     PULSAR_MEM: >
-      "
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
-      "
 
 #############################################################
 ### Monitoring Stack : Prometheus / Grafana
