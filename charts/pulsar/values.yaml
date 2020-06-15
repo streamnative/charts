@@ -114,52 +114,36 @@ monitoring:
 ## Control what images to use for each component
 images:
   zookeeper:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   bookie:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   presto:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   autorecovery:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   broker:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform-all
-    tag: v1.0.1
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   proxy:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   pulsar_detector:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/sn-pulsar
-    tag: 2.5.1-6
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   functions:
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    repository: streamnative/platform
-    tag: v1.0.0
+    repository: streamnative/pulsar-all
+    tag: 2.6.0-sn-candidate-2
     pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -482,8 +466,10 @@ zookeeper:
   autoRollDeployment: true
   configData:
     PULSAR_MEM: >
-      "
       -Xms64m -Xmx128m
+    PULSAR_GC: >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
       -Dcom.sun.management.jmxremote
       -Djute.maxbuffer=10485760
       -XX:+ParallelRefProcEnabled
@@ -493,12 +479,6 @@ zookeeper:
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
       -Dzookeeper.forceSync=no
-      "
-    PULSAR_GC: >
-      "
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      "
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
   ##
@@ -607,20 +587,15 @@ bookkeeper:
   configData:
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
-      "
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
-      "
     # we use `bin/pulsar` for starting bookie daemons
     PULSAR_MEM: >
-      "
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
-      "
     PULSAR_GC: >
-      "
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -XX:+ParallelRefProcEnabled
@@ -641,7 +616,6 @@ bookkeeper:
       -verbosegc
       -Xloggc:/var/log/bookie-gc.log
       -XX:G1LogLevel=finest
-      "
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -685,9 +659,7 @@ autorecovery:
   autoRollDeployment: true
   configData:
     BOOKIE_MEM: >
-      "
       -Xms64m -Xmx64m
-      "
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
@@ -763,8 +735,10 @@ broker:
   autoRollDeployment: true
   configData:
     PULSAR_MEM: >
-      "
       -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+    PULSAR_GC: >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
       -Dio.netty.leakDetectionLevel=disabled
       -Dio.netty.recycler.linkCapacity=1024
       -XX:+ParallelRefProcEnabled
@@ -778,12 +752,6 @@ broker:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      "
-    PULSAR_GC: >
-      "
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      "
     AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
     AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
     managedLedgerDefaultEnsembleSize: "3"
@@ -895,8 +863,10 @@ proxy:
   autoRollDeployment: true
   configData:
     PULSAR_MEM: >
-      "
       -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+    PULSAR_GC: >
+      -XX:+UseG1GC
+      -XX:MaxGCPauseMillis=10
       -Dio.netty.leakDetectionLevel=disabled
       -Dio.netty.recycler.linkCapacity=1024
       -XX:+ParallelRefProcEnabled
@@ -910,12 +880,6 @@ proxy:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      "
-    PULSAR_GC: >
-      "
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      "
   ## Proxy service
   ## templates/proxy-service.yaml
   ##
@@ -957,18 +921,10 @@ toolset:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:
-    BOOKIE_MEM: >
-      "
-      -Xms64M
-      -Xmx128M
-      -XX:MaxDirectMemorySize=128M
-      "
     PULSAR_MEM: >
-      "
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
-      "
 
 #############################################################
 ### Monitoring Stack : Prometheus / Grafana
