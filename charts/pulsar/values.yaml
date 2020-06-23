@@ -768,6 +768,10 @@ broker:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  ### Broker service account
+  ## templates/broker-service-account.yaml
+  service_account:
+    annotations: {}
   offload:
     enabled: false
     managedLedgerOffloadDriver: aws-s3
