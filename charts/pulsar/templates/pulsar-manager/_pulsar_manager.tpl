@@ -52,7 +52,7 @@ Define the pulsar-manager service
 Define the pulsar-manager hostname
 */}}
 {{- define "pulsar.pulsar_manager.hostname" -}}
-${HOSTNAME}.{{ template "pulsar.pulsar_manager.service" . }}.{{ .Values.namespace }}.svc.cluster.local
+${HOSTNAME}.{{ template "pulsar.pulsar_manager.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
 {{- end -}}
 
 
