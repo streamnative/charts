@@ -181,7 +181,6 @@ spec:
         - >
           {{- include "pulsar.broker.kop.settings" . | nindent 10 }}
           bin/apply-config-from-env.py conf/broker.conf;
-          bin/apply-config-from-env.py conf/pulsar_env.sh;
           bin/gen-yml-from-env.py conf/functions_worker.yml;
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
@@ -191,7 +190,6 @@ spec:
             sleep 10;
             bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
           done;
-          cat conf/pulsar_env.sh;
           bin/pulsar broker;
         ports:
         # prometheus needs to access /metrics endpoint
