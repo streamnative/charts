@@ -149,7 +149,6 @@ spec:
         args:
         - >
           bin/apply-config-from-env.py conf/bookkeeper.conf;
-          bin/apply-config-from-env.py conf/pulsar_env.sh;
           {{- include "pulsar.bookkeeper.zookeeper.tls.settings" . | nindent 10 }}
           {{- if eq .Values.images.bookie.repository "streamnative/sn-pulsar" }}
           scripts/run-bookie.sh;
