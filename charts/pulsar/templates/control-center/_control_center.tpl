@@ -6,7 +6,7 @@ control center domain
     {{- if .Values.ingress.control_center.external_domain }}
 {{- printf "%s" .Values.ingress.control_center.external_domain -}}
     {{- else -}}
-{{- printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
+{{- printf "admin.%s.%s" .Release.Name .Values.domain.suffix -}}
     {{- end -}}
 {{- else -}}
 {{- print "" -}}
@@ -22,9 +22,9 @@ control center url
 {{- printf "%s%s" .Values.ingress.control_center.external_domain_scheme .Values.ingress.control_center.external_domain -}}
     {{- else -}}
         {{- if .Values.ingress.control_center.tls.enabled }}
-{{- printf "https://admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
+{{- printf "https://admin.%s.%s" .Release.Name .Values.domain.suffix -}}
         {{- else -}}
-{{- printf "http://admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
+{{- printf "http://admin.%s.%s" .Release.Name .Values.domain.suffix -}}
         {{- end -}}
     {{- end -}}
 {{- else -}}

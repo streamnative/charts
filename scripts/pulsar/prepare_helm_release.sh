@@ -25,13 +25,13 @@ usage() {
     cat <<EOF
 This script is used to bootstrap the pulsar namespace before deploying a helm chart. 
 Options:
-       -h,--help                        prints the usage message
-       -n,--namespace                   the k8s namespace to install the pulsar helm chart
-       -k,--release                     the pulsar helm release name
-       -s,--symmetric                   generate symmetric secret key. If not provided, an asymmetric pair of keys are generated.
-       --pulsar-superusers              the superusers of pulsar cluster. a comma separated list of super users.
-       -c,--create-namespace            flag to create k8s namespace.
-       --service-gcs-account-key-file   the path of GCS service account key file.
+       -h,--help                                prints the usage message
+       -n,--namespace                           the k8s namespace to install the pulsar helm chart
+       -k,--release                             the pulsar helm release name
+       -s,--symmetric                           generate symmetric secret key. If not provided, an asymmetric pair of keys are generated.
+       --pulsar-superusers                      the superusers of pulsar cluster. a comma separated list of super users.
+       -c,--create-namespace                    flag to create k8s namespace.
+       --gcs-offloader-service-account-keyfile  the path of key file of GCS offloader service account.
 Usage:
     $0 --namespace pulsar --release pulsar-release
 EOF
@@ -39,6 +39,7 @@ EOF
 
 symmetric=false
 create_namespace=false
+gcs_offloader_enabled=false
 
 while [[ $# -gt 0 ]]
 do
@@ -59,8 +60,9 @@ case $key in
     shift
     shift
     ;;
-    --service-gcs-account-key-file)
-    service_account_file="$2"
+    --gcs-offloader-service-account-keyfile)
+    gcs_offloader_service_account_keyfile="$2"
+    gcs_offloader_enabled=true
     shift
     shift
     ;;
@@ -87,13 +89,13 @@ done
 
 namespace=${namespace:-pulsar}
 release=${release:-pulsar-dev}
-service_gcs_account_file=${service_gcs_account_file:-"/pulsar/keys/gcs.json"}
+gcs_offloader_service_account_keyfile=${gcs_offloader_service_account_keyfile:-"/pulsar/keys/gcs.json"}
 pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-manager-admin"}
 
-function generate_service_account_credentials() {
-    local secret_name="${release}-gcs-service-account-secret"
+function generate_gcs_offloader_service_account_keyfile() {
+    local secret_name="${release}-gcs-offloader-service-account"
     kubectl create secret generic ${secret_name} -n ${namespace} \
-        --from-file="gcs.json=${service_gcs_account_file}"
+        --from-file="gcs.json=${gcs_offloader_service_account_keyfile}"
 }
 
 pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-manager-admin"}
@@ -106,8 +108,10 @@ function do_create_namespace() {
 
 do_create_namespace
 
-echo "create the credentials for the service account key file (offload data to gcs)"
-generate_service_account_credentials
+if [[ "${gcs_offloader_enabled}" == "true" ]]; then
+    echo "create the credentials for the service account key file (offload data to gcs)"
+    generate_gcs_offloader_service_account_keyfile
+fi
 
 extra_opts=""
 if [[ "${symmetric}" == "true" ]]; then
@@ -146,7 +150,10 @@ echo
 echo "The credentials of the administrator of Control Center (Grafana & Pulsar Manager)"
 echo "is stored at secret '${release}-admin-secret"
 
-echo "The credentials of the service account key file (offload data to gcs)"
-echo "is stored at secret '${release}-service-account-secret"
+if [[ "${gcs_offloader_enabled}" == "true" ]]; then
+    echo "The credentials of the key file of GCS offloader"
+    echo "is stored at secret '${release}-gcs-offloader-service-account"
+fi
+
 echo
 

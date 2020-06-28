@@ -47,8 +47,6 @@ data:
   {{- if .Values.broker.offload.enabled }}
   offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
   managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
-  managedLedgerMinLedgerRolloverTimeMinutes: "{{ .Values.broker.offload.managedLedgerMinLedgerRolloverTimeMinutes }}"
-  managedLedgerMaxEntriesPerLedger: "{{ .Values.broker.offload.managedLedgerMaxEntriesPerLedger }}"
 
   # gcs
   {{- if .Values.broker.offload.gcs.enabled }}
@@ -57,7 +55,7 @@ data:
   gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
   gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
   ## Authentication with GCS
-  gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/keys/gcs.json"
+  gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
   {{- end }}
   # aws-s3
   {{- if .Values.broker.offload.s3.enabled }}

@@ -277,8 +277,8 @@ Define gcs offload options mounts
 */}}
 {{- define "pulsar.broker.offload.volumeMounts" -}}
 {{- if .Values.broker.offload.gcs.enabled }}
-- name: service-account-key-file
-  mountPath: "/pulsar/keys"
+- name: gcs-offloader-service-acccount
+  mountPath: /pulsar/srvaccts
   readOnly: true
 {{- end }}
 {{- end }}
@@ -288,9 +288,9 @@ Define gcs offload options mounts
 */}}
 {{- define "pulsar.broker.offload.volumes" -}}
 {{- if .Values.broker.offload.gcs.enabled }}
-- name: service-account-key-file
+- name: gcs-offloader-service-acccount
   secret:
-    secretName: "{{ .Release.Name }}-service-account-secret"
+    secretName: "{{ .Release.Name }}-gcs-offloader-service-account"
     items:
       - key: gcs.json
         path: gcs.json

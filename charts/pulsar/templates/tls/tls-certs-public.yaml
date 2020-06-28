@@ -29,9 +29,9 @@ metadata:
 spec:
   # Secret names are always required.
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  commonName: {{ printf "data.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
+  commonName: {{ template "pulsar.service_domain" . }}
   dnsNames:
-    - {{ printf "data.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
+    - {{ template "pulsar.service_domain" . }}
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
