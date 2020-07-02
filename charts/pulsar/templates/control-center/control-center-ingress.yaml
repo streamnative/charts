@@ -46,7 +46,7 @@ metadata:
   {{- end }}
 spec:
 {{- if and .Values.ingress.control_center.tls.enabled (not .Values.ingress.controller.tls.termination) }}
-  {{- if .Values.domain.suffix }}
+  {{- if .Values.domain.enabled }}
   tls:
     - hosts:
         - {{ template "pulsar.control_center_domain" . }}

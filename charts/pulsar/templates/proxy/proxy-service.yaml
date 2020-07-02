@@ -28,7 +28,7 @@ metadata:
     component: {{ .Values.proxy.component }}
   annotations:
   {{- if and .Values.external_dns.enabled (not .Values.ingress.proxy.enabled) }}
-    {{- if .Values.domain.suffix }}
+    {{- if .Values.domain.enabled }}
     external-dns.alpha.kubernetes.io/hostname: {{ template "pulsar.service_domain" . }}
     {{- end }}
   {{- end }}

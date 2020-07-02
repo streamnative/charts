@@ -2,7 +2,7 @@
 pulsar service domain
 */}}
 {{- define "pulsar.service_domain" -}}
-{{- if .Values.domain.suffix -}}
+{{- if .Values.domain.enabled -}}
 {{- printf "data.%s.%s" .Release.Name .Values.domain.suffix -}}
 {{- else -}}
 {{- print "" -}}
