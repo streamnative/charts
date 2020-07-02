@@ -46,10 +46,10 @@ metadata:
   {{- end }}
 spec:
 {{- if and .Values.ingress.control_center.tls.enabled (not .Values.ingress.controller.tls.termination) }}
-  {{- if .Values.external_dns.domain_filter }}
+  {{- if .Values.domain.enabled }}
   tls:
     - hosts:
-        - {{ printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter }}
+        - {{ template "pulsar.control_center_domain" . }}
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress
   {{- end }}
 {{- end }}

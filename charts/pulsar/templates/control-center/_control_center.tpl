@@ -6,7 +6,11 @@ control center domain
     {{- if .Values.ingress.control_center.external_domain }}
 {{- printf "%s" .Values.ingress.control_center.external_domain -}}
     {{- else -}}
-{{- printf "admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
+        {{- if .Values.domain.enabled }}
+{{- printf "admin.%s.%s" .Release.Name .Values.domain.suffix -}}
+        {{- else -}}
+{{- printf "" -}}
+        {{- end -}}
     {{- end -}}
 {{- else -}}
 {{- print "" -}}
@@ -21,10 +25,14 @@ control center url
     {{- if .Values.ingress.control_center.external_domain }}
 {{- printf "%s%s" .Values.ingress.control_center.external_domain_scheme .Values.ingress.control_center.external_domain -}}
     {{- else -}}
-        {{- if .Values.ingress.control_center.tls.enabled }}
-{{- printf "https://admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
+        {{- if .Values.domain.enabled }}
+            {{- if .Values.ingress.control_center.tls.enabled }}
+{{- printf "https://admin.%s.%s" .Release.Name .Values.domain.suffix -}}
+            {{- else -}}
+{{- printf "http://admin.%s.%s" .Release.Name .Values.domain.suffix -}}
+            {{- end -}}
         {{- else -}}
-{{- printf "http://admin.%s.%s" .Release.Name .Values.external_dns.domain_filter -}}
+{{- printf "" -}}
         {{- end -}}
     {{- end -}}
 {{- else -}}

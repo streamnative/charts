@@ -274,7 +274,6 @@ certs:
         clouddns:
           # TODO: add a link about how to configure this section
           project: "[YOUR GCP PROJECT ID]"
-          accessKeyID: [accessKeyID of the user who is able to manage the external DNS]
           serviceAccountSecretRef:
             name: "[NAME OF SECRET]"
             key: "[KEY OF SECRET]"
@@ -311,6 +310,11 @@ external_dns:
   serviceAcct:
     annotations: {}
   securityContext: {}
+
+## Domain requested from External DNS
+domain:
+  enabled: false
+  suffix: test.pulsar.example.local
 
 ## Ingresses for exposing Pulsar services
 ingress:
@@ -775,8 +779,6 @@ broker:
   offload:
     enabled: false
     managedLedgerOffloadDriver: aws-s3
-    managedLedgerMinLedgerRolloverTimeMinutes: "1"
-    managedLedgerMaxEntriesPerLedger: "5000"
     gcs:
       enabled: false
       gcsManagedLedgerOffloadRegion: "[YOUR REGION OF GCS]"

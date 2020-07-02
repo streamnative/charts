@@ -1,4 +1,16 @@
 {{/*
+pulsar service domain
+*/}}
+{{- define "pulsar.service_domain" -}}
+{{- if .Values.domain.enabled -}}
+{{- printf "data.%s.%s" .Release.Name .Values.domain.suffix -}}
+{{- else -}}
+{{- print "" -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
 Define proxy token mounts
 */}}
 {{- define "pulsar.proxy.token.volumeMounts" -}}
