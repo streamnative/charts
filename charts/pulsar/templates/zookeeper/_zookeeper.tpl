@@ -208,3 +208,22 @@ Define zookeeper data volumes
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define zookeeper gen-zk-conf volume mounts
+*/}}
+{{- define "pulsar.zookeeper.genzkconf.volumeMounts" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-genzkconf"
+  mountPath: "{{ template "pulsar.home" . }}/bin/gen-zk-conf.sh"
+  subPath: gen-zk-conf.sh
+{{- end }}
+
+{{/*
+Define zookeeper gen-zk-conf volumes
+*/}}
+{{- define "pulsar.zookeeper.genzkconf.volumes" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-genzkconf"
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-genzkconf-configmap"
+    defaultMode: 0755
+{{- end }}
