@@ -466,6 +466,17 @@ zookeeper:
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
   ##
+  # The initial myid used for generating myid for each zookeeper pod.
+  initialMyId: 0
+  # reconfig settings
+  reconfig:
+    enabled: false
+    peerType: "observer"
+    # The zookeeper servers to observe/join
+    zkServers:
+    - server.1=platform-pulsar-zookeeper-0.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant
+    - server.2=platform-pulsar-zookeeper-1.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant
+    - server.3=platform-pulsar-zookeeper-2.platform-pulsar-zookeeper.pulsar.svc.cluster.local:2888:3888:participant
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:

@@ -107,7 +107,12 @@ spec:
         - >
           bin/apply-config-from-env.py conf/zookeeper.conf;
           {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
-          bin/generate-zookeeper-config.sh conf/zookeeper.conf;
+          {{- if .Values.zookeeper.reconfig.enabled }}
+          {{- range $server := .Values.zookeeper.reconfig.zkServers }}
+          echo "{{ $server }}" >> conf/zookeeper.conf;
+          {{- end }}
+          {{- end }}
+          bin/gen-zk-conf.sh conf/zookeeper.conf {{ .Values.zookeeper.initialMyId }};
           bin/pulsar zookeeper;
         ports:
         - name: metrics
@@ -161,10 +166,12 @@ spec:
         {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.zookeeper.genzkconf.volumeMounts" . | nindent 8 }}
       volumes:
       {{- include "pulsar.zookeeper.data.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.log.volumes" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.genzkconf.volumes" . | nindent 6 }}
   volumeClaimTemplates:
   {{- include "pulsar.zookeeper.data.volumeClaimTemplates" . | nindent 2 }}
 {{- end }}
