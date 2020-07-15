@@ -525,13 +525,6 @@ bookkeeper:
   ## BookKeeper Cluster Initialize
   ## templates/bookkeeper-cluster-initialize.yaml
   metadata:
-    image:
-      # the image used for running `bookkeeper-cluster-initialize` job
-      # repository: apachepulsar/pulsar-all
-      # tag: 2.5.0
-      repository: streamnative/platform
-      tag: v1.0.0
-      pullPolicy: IfNotPresent
     ## Set the resources used for running `bin/bookkeeper shell initnewcluster`
     ##
     resources:
@@ -702,6 +695,12 @@ pulsar_metadata:
   ## set an existing configuration store
   # configurationStore:
   configurationStoreMetadataPrefix: ""
+
+  ## optional, you can provide your own zookeeper metadata store for other components
+  # to use this, you should explicit set components.zookeeper to false
+  #
+  # userProvidedZookeepers: "zk01.example.com:2181,zk02.example.com:2181"
+
   # set the cluster name. if empty or not specified,
   # it will use helm release name to generate a cluster name.
   clusterName: ""
