@@ -6,11 +6,7 @@ control center domain
     {{- if .Values.ingress.control_center.external_domain }}
 {{- printf "%s" .Values.ingress.control_center.external_domain -}}
     {{- else -}}
-        {{- if .Values.domain.enabled }}
 {{- printf "admin.%s.%s" .Release.Name .Values.domain.suffix -}}
-        {{- else -}}
-{{- printf "" -}}
-        {{- end -}}
     {{- end -}}
 {{- else -}}
 {{- print "" -}}
