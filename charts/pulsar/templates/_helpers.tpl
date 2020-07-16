@@ -77,3 +77,14 @@ Create the match labels.
 app: {{ template "pulsar.name" . }}
 release: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Pulsar Cluster Name.
+*/}}
+{{- define "pulsar.cluster" -}}
+{{- if .Values.pulsar_metadata.clusterName }}
+{{- .Values.pulsar_metadata.clusterName }}
+{{- else }}
+{{- template "pulsar.fullname" . }}
+{{- end }}
+{{- end }}
