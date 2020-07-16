@@ -27,7 +27,11 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
 data:
+  {{- if .Values.pulsar_metadata.clusterName }}
+  clusterName: {{ .Values.pulsar_metadata.clusterName }}
+  {{- else }}
   clusterName: {{ template "pulsar.fullname" . }}
+  {{- end }}
   httpNumThreads: "8"
   statusFilePath: "{{ template "pulsar.home" . }}/status"
   # prometheus needs to access /metrics endpoint

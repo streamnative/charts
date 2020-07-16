@@ -37,7 +37,11 @@ data:
   {{- end }}
 
   # Broker settings
+  {{- if .Values.pulsar_metadata.clusterName }}
+  clusterName: {{ .Values.pulsar_metadata.clusterName }}
+  {{- else }}
   clusterName: {{ template "pulsar.fullname" . }}
+  {{- end }}
   exposeTopicLevelMetricsInPrometheus: "true"
   numHttpServerThreads: "8"
   zooKeeperSessionTimeoutMillis: "30000"

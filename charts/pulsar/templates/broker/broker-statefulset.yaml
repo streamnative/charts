@@ -214,6 +214,13 @@ spec:
           containerPort: {{ .Values.kop.ports.plaintext }}
         {{- end }}
         {{- end }}
+        env:
+        {{- if .Values.broker.advertisedPodIP }}
+        - name: advertisedAddress
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
