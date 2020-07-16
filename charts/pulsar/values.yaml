@@ -749,7 +749,7 @@ broker:
   tolerations: []
   securityContext: {}
   gracePeriod: 30
-  # flag to advertise pod ip address  
+  # flag to advertise pod ip address
   advertisedPodIP: false
   resources:
     requests:
