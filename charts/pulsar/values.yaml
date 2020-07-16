@@ -328,6 +328,14 @@ ingress:
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+  ## templates/broker-service-ingress.yaml
+  ##
+  ## Ingresses for exposing pulsar service publicly
+  broker:
+    enabled: false
+    type: LoadBalancer
+    annotations: {}
+    extraSpec: {}
   ## templates/control-center-ingress.yaml
   ##
   ## Ingresses for exposing monitoring/management services publicly
@@ -694,6 +702,9 @@ pulsar_metadata:
   ## set an existing configuration store
   # configurationStore:
   configurationStoreMetadataPrefix: ""
+  # set the cluster name. if empty or not specified,
+  # it will use helm release name to generate a cluster name.
+  clusterName: ""
 
 ## Pulsar: KoP Protocol Handler
 kop:
@@ -738,6 +749,8 @@ broker:
   tolerations: []
   securityContext: {}
   gracePeriod: 30
+  # flag to advertise pod ip address
+  advertisedPodIP: false
   resources:
     requests:
       memory: 512Mi

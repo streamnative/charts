@@ -99,10 +99,10 @@ spec:
           - >-
             {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 12 }}
             {{- if .Values.pulsar_metadata.configurationStore }}
-            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} get {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} get {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/"{{ template "pulsar.cluster" . }}"; do
             {{- end }}
             {{- if not .Values.pulsar_metadata.configurationStore }}
-            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.zookeeper.connect" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.fullname" . }}; do
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.zookeeper.connect" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
             {{- end }}
               echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
@@ -213,6 +213,13 @@ spec:
         - name: kafkaPlainText
           containerPort: {{ .Values.kop.ports.plaintext }}
         {{- end }}
+        {{- end }}
+        env:
+        {{- if .Values.broker.advertisedPodIP }}
+        - name: advertisedAddress
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         {{- end }}
         envFrom:
         - configMapRef:
