@@ -89,7 +89,7 @@ spec:
           - >
             {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 12 }}
             bin/pulsar initialize-cluster-metadata \
-              --cluster {{ template "pulsar.fullname" . }} \
+              --cluster {{ template "pulsar.cluster" . }} \
               --zookeeper {{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }} \
               {{- if .Values.pulsar_metadata.configurationStore }}
               --configuration-store {{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }} \

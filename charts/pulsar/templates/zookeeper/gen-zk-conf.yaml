@@ -32,6 +32,7 @@ data:
     
     CONF_FILE=$1
     IDX=$2
+    PEER_TYPE=$3
     
     if [ $? != 0 ]; then
         echo "Error: Failed to apply changes to config file"
@@ -45,7 +46,7 @@ data:
     ((IDX++))
     for SERVER in $(echo $ZOOKEEPER_SERVERS | tr "," "\n")
     do
-        echo "server.$IDX=$SERVER.$DOMAIN:2888:3888" >> $CONF_FILE
+        echo "server.$IDX=$SERVER.$DOMAIN:2888:3888:${PEER_TYPE};2181" >> $CONF_FILE
     
         if [ "$HOSTNAME" == "$SERVER" ]; then
             MY_ID=$IDX

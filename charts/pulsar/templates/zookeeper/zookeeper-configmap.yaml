@@ -42,9 +42,9 @@ data:
   {{- end }}
   {{- if .Values.zookeeper.reconfig.enabled }}
   PULSAR_PREFIX_reconfigEnabled: "true"
-  PULSAR_PREFIX_peerType: {{ .Values.zookeeper.reconfig.peerType }}
   PULSAR_PREFIX_quorumListenOnAllIPs: "true"
   {{- end }}
+  PULSAR_PREFIX_peerType: {{ .Values.zookeeper.peerType }}
 {{ toYaml .Values.zookeeper.configData | indent 2 }}
   # Include log configuration file, If you want to configure the log level and other configuration
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf

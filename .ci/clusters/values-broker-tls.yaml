@@ -19,12 +19,15 @@
 
 components:
   pulsar_manager: false
+  # disable auto recovery
+  autorecovery: false
 
 monitoring:
   prometheus: false
   grafana: false
   node_exporter: false
   alert_manager: false
+  loki: false
 
 volumes:
   local_storage: true
@@ -32,10 +35,6 @@ volumes:
 # disabled AntiAffinity
 affinity:
   anti_affinity: false
-
-# disable auto recovery
-components:
-  autorecovery: false
 
 zookeeper:
   replicaCount: 1
