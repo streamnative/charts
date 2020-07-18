@@ -80,5 +80,10 @@ spec:
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
               servicePort: {{ .Values.pulsar_manager.ports.frontend }}
+          {{- else }}
+          - path: /
+            backend:
+              serviceName: default
+              servicePort: 80
           {{- end }}
 {{- end }}

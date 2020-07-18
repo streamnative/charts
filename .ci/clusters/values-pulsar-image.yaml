@@ -19,12 +19,15 @@
 
 components:
   pulsar_manager: false
+  # disable auto recovery
+  autorecovery: false
 
 monitoring:
   prometheus: false
   grafana: false
   node_exporter: false
   alert_manager: false
+  loki: false
 
 volumes:
   persistence: false
@@ -32,10 +35,6 @@ volumes:
 # disabled AntiAffinity
 affinity:
   anti_affinity: false
-
-# disable auto recovery
-components:
-  autorecovery: false
 
 zookeeper:
   replicaCount: 1
@@ -74,24 +73,24 @@ toolset:
 images:
   zookeeper:
     repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    tag: latest
   bookie:
     repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    tag: latest
   autorecovery:
     repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    tag: latest
   broker:
     repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    tag: latest
   functions:
     repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    tag: latest
   proxy:
     repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    tag: latest
 
 pulsar_metadata:
   image:
     repository: apachepulsar/pulsar-all
-    tag: 2.5.0
+    tag: latest
