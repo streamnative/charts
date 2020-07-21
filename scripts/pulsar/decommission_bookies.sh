@@ -18,6 +18,8 @@
 # under the License.
 #
 
+set -e
+
 CHART_HOME=$(unset CDPATH && cd $(dirname "${BASH_SOURCE[0]}")/../.. && pwd)
 cd ${CHART_HOME}
 
@@ -89,6 +91,6 @@ do
     j=$((i-1))
     echo kubectl -n ${namespace} scale --replicas=${j} sts/${statefulset}
     kubectl -n ${namespace} scale --replicas=${j} sts/${statefulset}
-    echo kubectl -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.ci.svc.cluster.local:3181
-    kubectl -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.ci.svc.cluster.local:3181
+    echo kubectl -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.${namespace}.svc.cluster.local:3181
+    kubectl -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.${namespace}.svc.cluster.local:3181
 done
