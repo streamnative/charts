@@ -32,9 +32,33 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
 provisioner: {{ .Values.zookeeper.volumes.data.storageClass.provisioner }}
+{{- if .Values.zookeeper.volumes.data.storageClass.volumeBindingMode }}
+volumeBindingMode: {{ .Values.zookeeper.volumes.data.storageClass.volumeBindingMode }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.data.storageClass.reclaimPolicy }}
+reclaimPolicy: {{ .Values.zookeeper.volumes.data.storageClass.reclaimPolicy }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.data.storageClass.allowVolumeExpansion }}
+allowVolumeExpansion: {{ .Values.zookeeper.volumes.data.storageClass.allowVolumeExpansion }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.data.storageClass.mountOptions }}
+mountOptions:
+{{- with .Values.zookeeper.volumes.data.storageClass.mountOptions }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.data.storageClass.allowedTopologies }}
+allowedTopologies:
+{{- with .Values.zookeeper.volumes.data.storageClass.allowedTopologies }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
 parameters:
   type: {{ .Values.zookeeper.volumes.data.storageClass.type }}
   fsType: {{ .Values.zookeeper.volumes.data.storageClass.fsType }}
+{{- with .Values.zookeeper.volumes.data.storageClass.extraParameters }}
+{{ toYaml . | indent 2 }}
+{{- end }}
 {{- end }}
 ---
 
@@ -49,9 +73,33 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
 provisioner: {{ .Values.zookeeper.volumes.dataLog.storageClass.provisioner }}
+{{- if .Values.zookeeper.volumes.dataLog.storageClass.volumeBindingMode }}
+volumeBindingMode: {{ .Values.zookeeper.volumes.dataLog.storageClass.volumeBindingMode }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.dataLog.storageClass.reclaimPolicy }}
+reclaimPolicy: {{ .Values.zookeeper.volumes.dataLog.storageClass.reclaimPolicy }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.dataLog.storageClass.allowVolumeExpansion }}
+allowVolumeExpansion: {{ .Values.zookeeper.volumes.dataLog.storageClass.allowVolumeExpansion }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.dataLog.storageClass.mountOptions }}
+mountOptions:
+{{- with .Values.zookeeper.volumes.dataLog.storageClass.mountOptions }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
+{{- if .Values.zookeeper.volumes.dataLog.storageClass.allowedTopologies }}
+allowedTopologies:
+{{- with .Values.zookeeper.volumes.dataLog.storageClass.allowedTopologies }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
 parameters:
   type: {{ .Values.zookeeper.volumes.dataLog.storageClass.type }}
   fsType: {{ .Values.zookeeper.volumes.dataLog.storageClass.fsType }}
+{{- with .Values.zookeeper.volumes.dataLog.storageClass.extraParameters }}
+{{ toYaml . | indent 2 }}
+{{- end }}
 {{- end }}
 ---
 
