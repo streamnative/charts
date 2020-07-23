@@ -29,6 +29,27 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
 provisioner: {{ .Values.bookkeeper.volumes.journal.storageClass.provisioner }}
+{{- if .Values.bookkeeper.volumes.journal.storageClass.volumeBindingMode }}
+volumeBindingMode: {{ .Values.bookkeeper.volumes.journal.storageClass.volumeBindingMode }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.journal.storageClass.reclaimPolicy }}
+reclaimPolicy: {{ .Values.bookkeeper.volumes.journal.storageClass.reclaimPolicy }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.journal.storageClass.allowVolumeExpansion }}
+allowVolumeExpansion: {{ .Values.bookkeeper.volumes.journal.storageClass.allowVolumeExpansion }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.journal.storageClass.mountOptions }}
+mountOptions:
+{{- with .Values.bookkeeper.volumes.journal.storageClass.mountOptions }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.journal.storageClass.allowedTopologies }}
+allowedTopologies:
+{{- with .Values.bookkeeper.volumes.journal.storageClass.allowedTopologies }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
 parameters:
   type: {{ .Values.bookkeeper.volumes.journal.storageClass.type }}
   fsType: {{ .Values.bookkeeper.volumes.journal.storageClass.fsType }}
@@ -48,6 +69,27 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
 provisioner: {{ .Values.bookkeeper.volumes.ledgers.storageClass.provisioner }}
+{{- if .Values.bookkeeper.volumes.ledgers.storageClass.volumeBindingMode }}
+volumeBindingMode: {{ .Values.bookkeeper.volumes.ledgers.storageClass.volumeBindingMode }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.ledgers.storageClass.reclaimPolicy }}
+reclaimPolicy: {{ .Values.bookkeeper.volumes.ledgers.storageClass.reclaimPolicy }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.ledgers.storageClass.allowVolumeExpansion }}
+allowVolumeExpansion: {{ .Values.bookkeeper.volumes.ledgers.storageClass.allowVolumeExpansion }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.ledgers.storageClass.mountOptions }}
+mountOptions:
+{{- with .Values.bookkeeper.volumes.ledgers.storageClass.mountOptions }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
+{{- if .Values.bookkeeper.volumes.ledgers.storageClass.allowedTopologies }}
+allowedTopologies:
+{{- with .Values.bookkeeper.volumes.ledgers.storageClass.allowedTopologies }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
 parameters:
   type: {{ .Values.bookkeeper.volumes.ledgers.storageClass.type }}
   fsType: {{ .Values.bookkeeper.volumes.ledgers.storageClass.fsType }}

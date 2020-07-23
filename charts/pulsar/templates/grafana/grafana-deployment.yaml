@@ -96,6 +96,8 @@ spec:
         - name: GRAFANA_SERVE_FROM_SUB_PATH
           value: "true"
 {{- else }}
+        - name: GRAFANA_DOMAIN
+          value: localhost 
         - name: GRAFANA_ROOT_URL
           value: http://localhost:3000
         - name: GRAFANA_SERVE_FROM_SUB_PATH

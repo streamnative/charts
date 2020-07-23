@@ -461,6 +461,13 @@ zookeeper:
         # type: pd-ssd
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+        # allowVolumeExpansion: false
+        # volumeBindingMode: Immediate
+        # reclaimPolicy: Retain
+        # allowedTopologies:
+        # mountOptions:
+        # extraParameters:
+        #   iopsPerGB: "50"
     dataLog:
       name: datalog
       size: 10Gi
@@ -472,6 +479,13 @@ zookeeper:
         # type: pd-ssd
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+        # allowVolumeExpansion: false
+        # volumeBindingMode: Immediate
+        # reclaimPolicy: Retain
+        # allowedTopologies:
+        # mountOptions:
+        # extraParameters:
+        #   iopsPerGB: "50"
   extraInitContainers: {}
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
@@ -576,6 +590,11 @@ bookkeeper:
         # type: pd-ssd
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+        # allowVolumeExpansion: false
+        # volumeBindingMode: Immediate
+        # reclaimPolicy: Retain
+        # allowedTopologies:
+        # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
     ledgers:
@@ -589,6 +608,11 @@ bookkeeper:
         # type: pd-ssd
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+        # allowVolumeExpansion: false
+        # volumeBindingMode: Immediate
+        # reclaimPolicy: Retain
+        # allowedTopologies:
+        # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
   extraInitContainers: {}
