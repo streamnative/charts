@@ -88,7 +88,7 @@ data:
   PF_functionRuntimeFactoryConfigs_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
   PF_functionRuntimeFactoryConfigs_submittingInsidePod: "true"
   PF_functionRuntimeFactoryConfigs_installUserCodeDependencies: "true"
-  PF_functionRuntimeFactoryConfigs_jobNamespace: {{ template "pulsar.namespace" . }}
+  PF_functionRuntimeFactoryConfigs_jobNamespace: {{ template "pulsar.functions.namespace" . }}
   PF_functionRuntimeFactoryConfigs_expectedMetricsCollectionInterval: "30"
   {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
   PF_functionRuntimeFactoryConfigs_pulsarAdminUrl: "http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}/"
@@ -104,7 +104,7 @@ data:
   PF_kubernetesContainerFactory_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
   PF_kubernetesContainerFactory_submittingInsidePod: "true"
   PF_kubernetesContainerFactory_installUserCodeDependencies: "true"
-  PF_kubernetesContainerFactory_jobNamespace: {{ template "pulsar.namespace" . }}
+  PF_kubernetesContainerFactory_jobNamespace: {{ template "pulsar.functions.namespace" . }}
   PF_kubernetesContainerFactory_expectedMetricsCollectionInterval: "30"
   {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
   PF_kubernetesContainerFactory_pulsarAdminUrl: "http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}/"
