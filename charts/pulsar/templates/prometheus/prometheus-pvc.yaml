@@ -29,11 +29,14 @@ spec:
     requests:
       storage: {{ .Values.prometheus.volumes.data.size }}
   accessModes: [ "ReadWriteOnce" ]
-{{- if and (not (and .Values.volumes.local_storage .Values.prometheus.volumes.data.local_storage)) .Values.prometheus.volumes.data.storageClass }}
-  storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
-{{- end }}
 {{- if and .Values.volumes.local_storage .Values.prometheus.volumes.data.local_storage }}
   storageClassName: "local-storage"
+{{- else }}
+  {{- if  .Values.prometheus.volumes.data.storageClass }}
+  storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+  {{- else if .Values.prometheus.volumes.data.storageClassName }}
+  storageClassName: {{ .Values.prometheus.volumes.data.storageClassName }}
+  {{- end -}}
 {{- end }}
 {{- end }}
 {{- end }}
