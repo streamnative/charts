@@ -31,20 +31,26 @@ Define bookie zookeeper client tls settings
 {{- end }}
 
 {{- define "pulsar.bookkeeper.journal.storage.class" -}}
-{{- if and (not (and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage)) .Values.bookkeeper.volumes.journal.storageClass }}
-{{ template "pulsar.bookkeeper.journal.pvc.name" . }}
-{{- end }}
 {{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage }}
-{{- print "local-storage" -}}
+  {{- print "local-storage" -}}
+{{- else }}
+  {{- if  .Values.bookkeeper.volumes.journal.storageClass }}
+    {{ template "pulsar.bookkeeper.journal.pvc.name" . }}
+  {{- else if .Values.bookkeeper.volumes.journal.storageClassName }}
+    {{- print .Values.bookkeeper.volumes.journal.storageClassName }}
+  {{- end -}}
 {{- end }}
 {{- end }}
 
 {{- define "pulsar.bookkeeper.ledgers.storage.class" -}}
-{{- if and (not (and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage)) .Values.bookkeeper.volumes.ledgers.storageClass }}
-{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}
-{{- end -}}
 {{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage }}
-{{- print "local-storage" -}}
+  {{- print "local-storage" -}}
+{{- else }}
+  {{- if  .Values.bookkeeper.volumes.ledgers.storageClass }}
+    {{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}
+  {{- else if .Values.bookkeeper.volumes.ledgers.storageClassName }}
+    {{- print .Values.bookkeeper.volumes.ledgers.storageClassName }}
+  {{- end -}}
 {{- end }}
 {{- end }}
 

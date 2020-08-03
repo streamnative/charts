@@ -190,11 +190,14 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.data.size }}
-  {{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage)) .Values.zookeeper.volumes.data.storageClass }}
-    storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-  {{- end }}
   {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
     storageClassName: "local-storage"
+  {{- else }}
+    {{- if  .Values.zookeeper.volumes.data.storageClass }}
+    storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+    {{- else if .Values.zookeeper.volumes.data.storageClassName }}
+    storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
+    {{- end -}}
   {{- end }}
 {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
 - metadata:
@@ -204,11 +207,14 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.dataLog.size }}
-  {{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.dataLog.local_storage)) .Values.zookeeper.volumes.dataLog.storageClass }}
-    storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
-  {{- end }}
-  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.dataLog.local_storage }}
+  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
     storageClassName: "local-storage"
+  {{- else }}
+    {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
+    storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
+    {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
+    storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
+    {{- end -}}
   {{- end }}
 {{- end }}
 {{- end }}

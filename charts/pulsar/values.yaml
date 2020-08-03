@@ -454,38 +454,40 @@ zookeeper:
       name: data
       size: 50Gi
       local_storage: true
+      # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
       # storageClass:
-        # type: pd-ssd
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
-        # allowVolumeExpansion: false
-        # volumeBindingMode: Immediate
-        # reclaimPolicy: Retain
-        # allowedTopologies:
-        # mountOptions:
-        # extraParameters:
-        #   iopsPerGB: "50"
+      #   type: pd-ssd
+      #   fsType: xfs
+      #   provisioner: kubernetes.io/gce-pd
+      #   allowVolumeExpansion: false
+      #   volumeBindingMode: Immediate
+      #   reclaimPolicy: Retain
+      #   allowedTopologies:
+      #   mountOptions:
+      #   extraParameters:
+      #     iopsPerGB: "50"
     dataLog:
       name: datalog
       size: 10Gi
       local_storage: true
+      # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
       # storageClass:
-        # type: pd-ssd
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
-        # allowVolumeExpansion: false
-        # volumeBindingMode: Immediate
-        # reclaimPolicy: Retain
-        # allowedTopologies:
-        # mountOptions:
-        # extraParameters:
-        #   iopsPerGB: "50"
+      #   type: pd-ssd
+      #   fsType: xfs
+      #   provisioner: kubernetes.io/gce-pd
+      #   allowVolumeExpansion: false
+      #   volumeBindingMode: Immediate
+      #   reclaimPolicy: Retain
+      #   allowedTopologies:
+      #   mountOptions:
+      #   extraParameters:
+      #     iopsPerGB: "50"
   extraInitContainers: {}
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
@@ -583,24 +585,26 @@ bookkeeper:
       name: journal
       size: 10Gi
       local_storage: true
+      # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
       # storageClass:
-        # type: pd-ssd
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
-        # allowVolumeExpansion: false
-        # volumeBindingMode: Immediate
-        # reclaimPolicy: Retain
-        # allowedTopologies:
-        # mountOptions:
-        # extraParameters:
-        #   iopsPerGB: "50"
+      #   type: pd-ssd
+      #   fsType: xfs
+      #   provisioner: kubernetes.io/gce-pd
+      #   allowVolumeExpansion: false
+      #   volumeBindingMode: Immediate
+      #   reclaimPolicy: Retain
+      #   allowedTopologies:
+      #   mountOptions:
+      #   extraParameters:
+      #     iopsPerGB: "50"
     ledgers:
       name: ledgers
       size: 50Gi
       local_storage: true
+      # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -1083,6 +1087,7 @@ prometheus:
       name: data
       size: 10Gi
       local_storage: true
+      # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -1268,6 +1273,7 @@ pulsar_manager:
       name: data
       size: 10Gi
       local_storage: true
+      # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
