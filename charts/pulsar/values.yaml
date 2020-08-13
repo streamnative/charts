@@ -852,6 +852,8 @@ functions:
   pulsarExtraClasspath: "extraLibs"
   # Specify the namespace to run pulsar functions
   jobNamespace: ""
+  # Specify the pulsar root directory
+  pulsarRootDir: ""
 
 ## Pulsar: pulsar detector
 ## templates/pulsar-detector-statefulset.yaml

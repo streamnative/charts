@@ -83,8 +83,8 @@ data:
   PULSAR_EXTRA_CLASSPATH: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"
   {{- end }}
   # support version >= 2.5.0
-  PF_functionRuntimeFactoryConfigs_pulsarRootDir: {{ template "pulsar.home" . }}
-  PF_kubernetesContainerFactory_pulsarRootDir: {{ template "pulsar.home" . }}
+  PF_functionRuntimeFactoryConfigs_pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
+  PF_kubernetesContainerFactory_pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
   PF_functionRuntimeFactoryConfigs_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
   PF_functionRuntimeFactoryConfigs_submittingInsidePod: "true"
   PF_functionRuntimeFactoryConfigs_installUserCodeDependencies: "true"

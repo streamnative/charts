@@ -35,7 +35,7 @@ Define bookie zookeeper client tls settings
   {{- print "local-storage" -}}
 {{- else }}
   {{- if  .Values.bookkeeper.volumes.journal.storageClass }}
-    {{ template "pulsar.bookkeeper.journal.pvc.name" . }}
+    {{- template "pulsar.bookkeeper.journal.pvc.name" . }}
   {{- else if .Values.bookkeeper.volumes.journal.storageClassName }}
     {{- print .Values.bookkeeper.volumes.journal.storageClassName }}
   {{- end -}}
@@ -47,7 +47,7 @@ Define bookie zookeeper client tls settings
   {{- print "local-storage" -}}
 {{- else }}
   {{- if  .Values.bookkeeper.volumes.ledgers.storageClass }}
-    {{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}
+    {{- template "pulsar.bookkeeper.ledgers.pvc.name" . }}
   {{- else if .Values.bookkeeper.volumes.ledgers.storageClassName }}
     {{- print .Values.bookkeeper.volumes.ledgers.storageClassName }}
   {{- end -}}
