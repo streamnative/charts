@@ -6,6 +6,28 @@ Define the pulsar brroker service
 {{- end }}
 
 {{/*
+Define the service url
+*/}}
+{{- define "pulsar.broker.service.url" -}}
+{{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+pulsar+ssl://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.pulsarssl }}
+{{- else -}}
+pulsar://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.pulsar }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the web service url
+*/}}
+{{- define "pulsar.web.service.url" -}}
+{{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+https://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
+{{- else -}}
+http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Define the hostname
 */}}
 {{- define "pulsar.broker.hostname" -}}
