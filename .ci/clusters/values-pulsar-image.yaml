@@ -49,7 +49,7 @@ bookkeeper:
   metadata:
     image:
       repository: apachepulsar/pulsar-all
-      tag: 2.5.0
+      tag: 2.6.1
 
 broker:
   replicaCount: 1

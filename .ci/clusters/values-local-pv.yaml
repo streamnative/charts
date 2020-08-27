@@ -30,7 +30,7 @@ monitoring:
   loki: false
 
 volumes:
-  local_storage: false
+  local_storage: true
 
 # disabled AntiAffinity
 affinity:
