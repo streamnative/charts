@@ -436,7 +436,7 @@ zookeeper:
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
-    type: requiredDuringSchedulingIgnoredDuringExecution
+    type: preferredDuringSchedulingIgnoredDuringExecution
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
@@ -577,7 +577,7 @@ bookkeeper:
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
-    type: requiredDuringSchedulingIgnoredDuringExecution
+    type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
   securityContext: {}
   tolerations: []
