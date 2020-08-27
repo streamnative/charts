@@ -115,35 +115,35 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -155,7 +155,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.9
+    tag: 0.0.11
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
@@ -729,7 +729,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-4
+    tag: 2.6.0-sn-21
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -870,6 +870,29 @@ functions:
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
+  configData:
+    downloadDirectory: download/pulsar_functions
+    pulsarFunctionsNamespace: public/functions
+    functionMetadataTopicName: metadata
+    clusterCoordinationTopicName: coordinate
+    numHttpServerThreads: 8
+    schedulerClassName: "org.apache.pulsar.functions.worker.scheduler.RoundRobinScheduler"
+    functionAssignmentTopicName: "assignments"
+    failureCheckFreqMs: 30000
+    rescheduleTimeoutMs: 60000
+    initialBrokerReconnectMaxRetries: 60
+    assignmentWriteMaxRetries: 60
+    instanceLivenessCheckFreqMs: 30000
+    # Frequency how often worker performs compaction on function-topics
+    topicCompactionFrequencySec: 1800
+    # kubernetes runtime
+    functionRuntimeFactoryClassName: org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory
+    # Connectors
+    connectorsDirectory: ./connectors
+    functionsDirectory: ./functions
+    narExtractionDirectory: ""
+  functionRuntimeFactoryConfigs:
+    pulsarRootDir: /pulsar
 
 ## Pulsar: pulsar detector
 ## templates/pulsar-detector-statefulset.yaml
