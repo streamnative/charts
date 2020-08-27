@@ -68,42 +68,13 @@ data:
 
   # Function Worker Settings
   # function worker configuration
-  {{- if not .Values.components.functions }}
-  functionsWorkerEnabled: "false"
-  {{- end }}
   {{- if .Values.components.functions }}
   functionsWorkerEnabled: "true"
-  PF_functionRuntimeFactoryClassName: "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory"
-  PF_pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
-  PF_connectorsDirectory: ./connectors
-  PF_containerFactory: k8s
-  PF_numFunctionPackageReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
   {{- if .Values.functions.enableCustomizerRuntime }}
-  PF_runtimeCustomizerClassName: {{ .Values.functions.runtimeCustomizerClassName }}
   PULSAR_EXTRA_CLASSPATH: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"
   {{- end }}
-  # support version >= 2.5.0
-  PF_functionRuntimeFactoryConfigs_pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
-  PF_kubernetesContainerFactory_pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
-  PF_functionRuntimeFactoryConfigs_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
-  PF_functionRuntimeFactoryConfigs_submittingInsidePod: "true"
-  PF_functionRuntimeFactoryConfigs_installUserCodeDependencies: "true"
-  PF_functionRuntimeFactoryConfigs_jobNamespace: {{ template "pulsar.functions.namespace" . }}
-  PF_functionRuntimeFactoryConfigs_expectedMetricsCollectionInterval: "30"
-  PF_functionRuntimeFactoryConfigs_pulsarAdminUrl: {{ template "pulsar.web.service.url" . }}
-  PF_functionRuntimeFactoryConfigs_pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }} 
-  PF_functionRuntimeFactoryConfigs_changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
-  PF_functionRuntimeFactoryConfigs_changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
-  # support version < 2.5.0
-  PF_kubernetesContainerFactory_pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
-  PF_kubernetesContainerFactory_submittingInsidePod: "true"
-  PF_kubernetesContainerFactory_installUserCodeDependencies: "true"
-  PF_kubernetesContainerFactory_jobNamespace: {{ template "pulsar.functions.namespace" . }}
-  PF_kubernetesContainerFactory_expectedMetricsCollectionInterval: "30"
-  PF_kubernetesContainerFactory_pulsarAdminUrl: {{ template "pulsar.web.service.url" . }}
-  PF_kubernetesContainerFactory_pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }}
-  PF_kubernetesContainerFactory_changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
-  PF_kubernetesContainerFactory_changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
+  {{- else }}
+  functionsWorkerEnabled: "false"
   {{- end }}
 
   # prometheus needs to access /metrics endpoint

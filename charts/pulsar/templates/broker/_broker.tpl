@@ -182,6 +182,29 @@ Define broker log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
 {{- end }}
+
+{{/*
+Define function worker config volume mount
+*/}}
+{{- define "pulsar.function.worker.config.volumeMounts" -}}
+{{- if .Values.components.functions }}
+- name: "function-worker-config"
+  mountPath: "{{ template "pulsar.home" . }}/conf/functions_worker.yml"
+  subPath: functions_worker.yml
+{{- end }}
+{{- end }}
+
+{{/*
+Define function worker config volume
+*/}}
+{{- define "pulsar.function.worker.config.volumes" -}}
+{{- if .Values.components.functions }}
+- name: "function-worker-config"
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-configfile"
+{{- end }}
+{{- end }}
+
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
