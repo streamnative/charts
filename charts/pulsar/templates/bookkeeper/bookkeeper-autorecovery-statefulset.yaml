@@ -69,13 +69,14 @@ spec:
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
+          {{ .Values.autorecovery.affinity.type }}:
+          {{ if eq .Values.autorecovery.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
           - labelSelector:
               matchExpressions:
               - key: "app"
                 operator: In
                 values:
-                - "{{ template "pulsar.name" . }}-{{ .Values.bookkeeper.component }}"
+                - "{{ template "pulsar.name" . }}"
               - key: "release"
                 operator: In
                 values:
@@ -83,8 +84,27 @@ spec:
               - key: "component"
                 operator: In
                 values:
-                - {{ .Values.bookkeeper.component }}
+                - {{ .Values.autorecovery.component }}
             topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                      - "{{ template "pulsar.name" . }}"
+                    - key: "release"
+                      operator: In
+                      values:
+                      - {{ .Release.Name }}
+                    - key: "component" 
+                      operator: In
+                      values:
+                      - {{ .Values.autorecovery.component }}
+                topologyKey: "kubernetes.io/hostname"
+          {{ end }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       initContainers:
