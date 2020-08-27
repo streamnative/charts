@@ -155,7 +155,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.9
+    tag: 0.0.11
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
