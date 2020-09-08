@@ -44,6 +44,7 @@ spec:
 
       containers:
       - name: external-dns
+        # latest tag might end up breaking the charts - we have new addition to the ClusterRole apiGroups
         image: k8s.gcr.io/external-dns/external-dns:v0.7.3
         args:
         - --source=service
@@ -60,20 +61,23 @@ spec:
         {{- if eq .Values.external_dns.provider "aws" }}
         - --aws-zone-type={{ .Values.external_dns.providers.aws.zoneType }}
         {{- end }}
+        {{- if eq .Values.external_dns.provider "azure" }}
+        - --azure-resource-group={{ .Values.external_dns.providers.azure.resource_group }}
+        {{- end }}
         # would prevent ExternalDNS from deleting any records, omit to enable full synchronization
         - --policy={{ .Values.external_dns.policy }}
         - --registry={{ .Values.external_dns.registry }}
         - --txt-owner-id={{ .Values.external_dns.owner_id }}
+      {{- if eq .Values.external_dns.provider "azure" }}
         volumeMounts:
-          {{- range .Values.external_dns.extraMounts }}
-          - name: {{ .mountName }}
-            mountPath: {{ .mountPath }}
-          {{- end }}
-        env:
-          {{- range .Values.external_dns.extraEnv }}
-          - name: {{ .name }}
-            value: {{ .value }}
-          {{- end }}
+        - name: azure-config-file
+          mountPath: /etc/kubernetes
+          readOnly: true
+      volumes:
+      - name: azure-config-file
+        secret:
+          secretName: azure-config-file
+      {{- end }}
       securityContext:
       {{- with .Values.external_dns.securityContext }}
       {{ toYaml . | indent 6 }}

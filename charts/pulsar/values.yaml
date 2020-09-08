@@ -182,6 +182,7 @@ images:
     tag: v0.16.0
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
+    # This repo is deprecated, to get the newer version working RBAC needs to be updated
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: 0.26.2
     pullPolicy: "IfNotPresent"
@@ -202,8 +203,8 @@ tls:
     organization:
       - pulsar
     keySize: 4096
-    keyAlgorithm: rsa
-    keyEncoding: pkcs8
+    keyAlgorithm: RSA
+    keyEncoding: PKCS8
   # settings for generating certs for proxy
   proxy:
     enabled: false
@@ -223,6 +224,7 @@ tls:
     cert_name: tls-bookie
   # settings for generating certs for zookeeper
   zookeeper:
+   ## ATTENTION: when tls is enabled, presto does not connect
     enabled: false
     cert_name: tls-zookeeper
   # settings for generating certs for recovery
@@ -232,7 +234,7 @@ tls:
   toolset:
     cert_name: tls-toolset
   pulsar_manager:
-    enabled: false
+    enabled: true
     cert_name: tls-pulsar-manager
   presto:
     enabled: false
@@ -274,12 +276,14 @@ auth:
 ## Cert manager is used for automatically provisioning TLS certificates
 ## for components within a Pulsar cluster
 certs:
+  # echo <service principal password> | openssl base64
+  password: "[Azure Service principal secret in base64]"
   internal_issuer:
-    enabled: false
+    enabled: true
     component: internal-cert-issuer
     type: selfsigning
   public_issuer:
-    enabled: false
+    enabled: true
     component: public-cert-issuer
     type: acme
   issuers:
@@ -306,10 +310,22 @@ certs:
         #     name: "[NAME OF SECRET]"
         #     key: "[KEY OF SECRET]"
         #   role: "[ASSUME A ROLE]"
+        azuredns:
+          clientID: "[Azure Service Principal Id]"
+          clientSecretSecretRef:
+          # The following is the secret we created in Kubernetes. Issuer will use this to present challenge to Azure DNS.
+            name: secret-azuredns-config
+            key: password
+          subscriptionID: "[Azure subscription Id]"
+          tenantID: "[Azure tenant id]"
+          resourceGroupName: "[Azure Resource Group]"
+          hostedZoneName: pulsar.example.local
+          # Azure Cloud Environment, default to AzurePublicCloud
+          environment: AzurePublicCloud
   lets_encrypt:
     ca_ref:
-      secretName: "[SECRET STORES lets encrypt CA]"
-      keyName: "[KEY IN THE SECRET STORES let encrypt CA]"
+      secretName: "letsencrypt"
+      keyName: "tls.key"
 
 ## External DNS
 ## templates/external-dns.yaml
@@ -330,6 +346,12 @@ external_dns:
       project: "[GOOGLE PROJECT ID]"
     aws:
       zoneType: public
+    azure:
+      resource_group: pulsar
+      tenant_id: tenant_id
+      subscription_id: subscription_id
+      client_id: service_principal_id
+      client_secret: service_principal_secret
   serviceAcct:
     annotations: {}
   securityContext: {}
@@ -350,7 +372,7 @@ ingress:
   proxy:
     enabled: false
     tls:
-      enabled: true
+      enabled: false
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
@@ -405,7 +427,7 @@ ingress:
     # external_domain: your.external.control.center.domain
     # external_domain_scheme: https://
     tls:
-      enabled: false
+      enabled: true
     annotations: {}
 
 imagePuller:
