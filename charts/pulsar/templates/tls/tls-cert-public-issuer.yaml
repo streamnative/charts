@@ -20,7 +20,7 @@
 {{- if .Values.external_dns.enabled }}
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if eq .Values.certs.public_issuer.type "acme" }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
