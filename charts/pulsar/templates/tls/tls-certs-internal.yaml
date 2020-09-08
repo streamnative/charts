@@ -63,7 +63,7 @@ spec:
 {{- end }}
 
 {{- if or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
@@ -102,7 +102,7 @@ spec:
 {{- end }}
 
 {{- if or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.bookie.cert_name }}"
@@ -140,7 +140,7 @@ spec:
 {{- end }}
 
 {{- if .Values.tls.zookeeper.enabled }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.autorecovery.cert_name }}"
@@ -175,7 +175,7 @@ spec:
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
 ---
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.zookeeper.cert_name }}"
@@ -213,7 +213,7 @@ spec:
 {{- end }}
 
 {{- if or .Values.tls.pulsar_manager.enabled .Values.tls.broker.enabled }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.pulsar_manager.cert_name }}"
@@ -252,7 +252,7 @@ spec:
 {{- end }}
 
 {{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop) }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.toolset.cert_name }}"
