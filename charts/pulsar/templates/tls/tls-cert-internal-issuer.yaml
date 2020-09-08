@@ -27,7 +27,6 @@ metadata:
 spec:
   selfSigned: {}
 ---
-
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -49,7 +48,6 @@ spec:
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
 ---
-
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
