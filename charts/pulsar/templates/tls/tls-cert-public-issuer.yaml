@@ -54,6 +54,7 @@ spec:
 {{ toYaml .Values.certs.issuers.acme.solvers.azuredns | indent 10 }}
       {{- end }}
       {{- end }}
+---
 {{- end }}
 {{- end }}
 {{- end }}

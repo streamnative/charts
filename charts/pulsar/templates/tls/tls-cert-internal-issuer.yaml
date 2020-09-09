@@ -56,5 +56,6 @@ metadata:
 spec:
   ca:
     secretName: "{{ .Release.Name }}-ca-tls"
+---
 {{- end }}
 {{- end }}
