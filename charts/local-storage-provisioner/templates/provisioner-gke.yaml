@@ -31,7 +31,7 @@ data:
        hostDir: {{ .Values.gke.hostDir }}
        mountDir:  {{ .Values.gke.mountDir }}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: "{{ template "chart.fullname" . }}"
