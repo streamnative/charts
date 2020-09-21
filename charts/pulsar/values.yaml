@@ -1164,6 +1164,8 @@ prometheus:
   ## templates/prometheus-service.yaml
   ##
   service:
+    # expose the load balancer
+    # type: LoadBalancer
     annotations: {}
 
 datadog:
