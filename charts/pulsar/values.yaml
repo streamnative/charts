@@ -892,7 +892,6 @@ functions:
     functionsDirectory: ./functions
     narExtractionDirectory: ""
   functionRuntimeFactoryConfigs:
-    pulsarRootDir: /pulsar
 
 ## Pulsar: pulsar detector
 ## templates/pulsar-detector-statefulset.yaml
