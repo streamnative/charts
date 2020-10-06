@@ -97,7 +97,7 @@ data:
   authenticateOriginalAuthData: "true"
   {{- if .Values.auth.authorization.enabled }}
   authorizationEnabled: "true"
-  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
   proxyRoles: {{ .Values.auth.superUsers.proxy }}
   {{- end }}
   {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
