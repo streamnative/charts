@@ -586,6 +586,17 @@ bookkeeper:
     requests:
       memory: 512Mi
       cpu: 0.2
+  # Definition of the serviceAccount used to run bookies.
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -798,6 +809,17 @@ broker:
       memory: 512Mi
       cpu: 0.2
   extraInitContainers: {}
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
   ## Broker configmap
   ## templates/broker-configmap.yaml
   ##
@@ -840,6 +862,7 @@ broker:
     maxUnavailable: 1
   ### Broker service account
   ## templates/broker-service-account.yaml
+  # deprecated: use `serviceAccount` section to configure service account.
   service_account:
     annotations: {}
   offload:
@@ -902,6 +925,19 @@ pulsar_detector:
 
   gracePeriod: 30
   port: 9000
+
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -957,6 +993,17 @@ proxy:
       memory: 128Mi
       cpu: 0.2
   extraInitContainers: {}
+  # Definition of the serviceAccount used to run proxies.
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
   ## Proxy configmap
   ## templates/proxy-configmap.yaml
   ##
@@ -1124,6 +1171,17 @@ prometheus:
     requests:
       memory: 256Mi
       cpu: 0.1
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
   volumes:
     # use a persistent volume or emptyDir
     persistence: true

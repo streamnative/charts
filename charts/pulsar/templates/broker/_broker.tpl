@@ -342,3 +342,15 @@ Define gcs offload options mounts
 {{- end }}
 {{- end }}
 
+{{/*Define broker service account*/}}
+{{- define "pulsar.broker.serviceAccount" -}}
+{{- if .Values.broker.serviceAccount.create -}}
+    {{- if .Values.broker.serviceAccount.name -}}
+{{ .Values.broker.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.broker.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
