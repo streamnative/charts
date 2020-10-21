@@ -193,6 +193,17 @@ pulsar ingress target port for http endpoint
 {{- end -}}
 
 {{/*
+pulsar ingress target port for websocket endpoint
+*/}}
+{{- define "pulsar.proxy.ingress.targetPort.websocket" -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+{{- print "websockettls" -}}
+{{- else -}}
+{{- print "websocket" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Pulsar Broker Service URL
 */}}
 {{- define "pulsar.proxy.broker.service.url" -}}

@@ -51,6 +51,11 @@ spec:
     - name: pulsar
       port: {{ .Values.proxy.ports.pulsar }}
       protocol: TCP
+    {{- if .Values.proxy.websocket.enabled }}
+    - name: websocket
+      port: {{ .Values.proxy.ports.websocket }}
+      protocol: TCP
+    {{- end }}
     {{- end }}
     {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
     - name: https
@@ -59,6 +64,11 @@ spec:
     - name: pulsarssl
       port: {{ .Values.proxy.ports.pulsarssl }}
       protocol: TCP
+    {{- if .Values.proxy.websocket.enabled }}
+    - name: websockettls
+      port: {{ .Values.proxy.ports.websockettls }}
+      protocol: TCP
+    {{- end }}
     {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}

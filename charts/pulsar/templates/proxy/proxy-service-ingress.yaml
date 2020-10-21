@@ -47,6 +47,10 @@ spec:
       port: {{ .Values.proxy.ports.pulsarssl }}
       protocol: TCP
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.data" . }}
+    - name: websockettls
+      port: {{ .Values.proxy.ports.websockettls }}
+      protocol: TCP
+      targetPort: {{ template "pulsar.proxy.ingress.targetPort.websocket" . }}
     {{- else }}
     - name: http
       port: {{ .Values.proxy.ports.http }}
@@ -56,6 +60,10 @@ spec:
       port: {{ .Values.proxy.ports.pulsar }}
       protocol: TCP
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.data" . }}
+    - name: websocket
+      port: {{ .Values.proxy.ports.websocket }}
+      protocol: TCP
+      targetPort: {{ template "pulsar.proxy.ingress.targetPort.websocket" . }}
     {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}

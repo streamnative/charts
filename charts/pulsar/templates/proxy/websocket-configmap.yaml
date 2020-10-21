@@ -17,70 +17,65 @@
 # under the License.
 #
 
-{{- if .Values.components.proxy }}
+{{- if and .Values.components.proxy .Values.proxy.websocket.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.websocket.component }}"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.proxy.component }}
+    component: {{ .Values.proxy.websocket.component }}
 data:
   clusterName: {{ template "pulsar.cluster" . }}
-  httpNumThreads: "8"
+  zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  {{- if .Values.pulsar_metadata.configurationStore }}
+  configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
+  {{- end }}
+  {{- if not .Values.pulsar_metadata.configurationStore }}
+  configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  {{- end }}
   statusFilePath: "{{ template "pulsar.home" . }}/status"
   # prometheus needs to access /metrics endpoint
-  webServicePort: "{{ .Values.proxy.ports.http }}"
-  {{- if or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled) }}
-  servicePort: "{{ .Values.proxy.ports.pulsar }}"
-  brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }} 
-  brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}  
-  {{- end }}
+  webServicePort: "{{ .Values.proxy.ports.websocket }}"
   {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  tlsEnabledInProxy: "true"
-  servicePortTls: "{{ .Values.proxy.ports.pulsarssl }}"
-  webServicePortTls: "{{ .Values.proxy.ports.https }}"
+  webServicePortTls: "{{ .Values.proxy.ports.websockettls }}"
   tlsCertificateFilePath: "/pulsar/certs/proxy/tls.crt"
   tlsKeyFilePath: "/pulsar/certs/proxy/tls.key"
   tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   {{- end }}
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
   # if broker enables TLS, configure proxy to talk to broker using TLS
-  brokerServiceURLTLS: {{ template "pulsar.proxy.broker.service.url.tls" . }}
-  brokerWebServiceURLTLS: {{ template "pulsar.proxy.web.service.url.tls" . }} 
-  tlsEnabledWithBroker: "true"
+  brokerServiceUrlTls: {{ template "pulsar.proxy.broker.service.url.tls" . }}
+  serviceUrlTls: {{ template "pulsar.proxy.web.service.url.tls" . }} 
   tlsCertRefreshCheckDurationSec: "300"
+  brokerClientTlsEnabled: "true"
   brokerClientTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
-  {{- end }}
-  {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
-  brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }} 
-  brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}  
+  {{- else }}
+  brokerServiceUrl: {{ template "pulsar.proxy.broker.service.url" . }} 
+  serviceUrl: {{ template "pulsar.proxy.web.service.url" . }}  
   {{- end }}
 
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
-  forwardAuthorizationCredentials: "true"
   {{- if .Values.auth.authorization.enabled }}
-  # disable authorization on proxy and forward authorization credentials to broker
-  authorizationEnabled: "false"
-  forwardAuthorizationCredentials: "true"
-  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
+  authorizationEnabled: "true"
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
   {{- end }}
   {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
   # token authentication configuration
   authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
-  brokerClientAuthenticationParameters: "file:///pulsar/tokens/proxy/token"
+  brokerClientAuthenticationParameters: "file:///pulsar/tokens/websocket/token"
   brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
   {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-  tokenSecretKey: "file:///pulsar/keys/token/secret.key"
+  PULSAR_PREFIX_tokenSecretKey: "file:///pulsar/keys/token/secret.key"
   {{- else }}
-  tokenPublicKey: "file:///pulsar/keys/token/public.key"
+  PULSAR_PREFIX_tokenPublicKey: "file:///pulsar/keys/token/public.key"
   {{- end }}
   {{- end }}
   {{- end }}
-{{ toYaml .Values.proxy.configData | indent 2 }}
+{{ toYaml .Values.proxy.websocket.configData | indent 2 }}
   # Include log configuration file, If you want to configure the log level and other configuration
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
 {{ (.Files.Glob "conf/proxy/log4j2.yaml").AsConfig | indent 2 }}
