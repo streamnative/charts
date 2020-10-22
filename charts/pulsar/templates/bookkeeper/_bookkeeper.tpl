@@ -169,6 +169,7 @@ Define bookkeeper log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
 {{- end }}
+
 {{/*Define bookkeeper datadog annotation*/}}
 {{- define  "pulsar.bookkeeper.datadog.annotation" -}}
 {{- if .Values.datadog.components.bookkeeper.enabled }}
@@ -212,3 +213,16 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.compon
   ]
 {{- end }}
 {{- end }}
+
+{{/*Define bookkeeper service account*/}}
+{{- define "pulsar.bookkeeper.serviceAccount" -}}
+{{- if .Values.bookkeeper.serviceAccount.create -}}
+    {{- if .Values.bookkeeper.serviceAccount.name -}}
+{{ .Values.bookkeeper.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.bookkeeper.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
