@@ -9,7 +9,6 @@ pulsar service domain
 {{- end -}}
 {{- end -}}
 
-
 {{/*
 Define proxy token mounts
 */}}
@@ -244,5 +243,18 @@ Pulsar Web Service URL
 {{- .Values.proxy.brokerWebServiceURLTLS -}}
 {{- else -}}
 https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
+{{- end -}}
+{{- end -}}
+
+{{/*Define proxy service account*/}}
+{{- define "pulsar.proxy.serviceAccount" -}}
+{{- if .Values.proxy.serviceAccount.create -}}
+    {{- if .Values.proxy.serviceAccount.name -}}
+{{ .Values.proxy.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.proxy.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
