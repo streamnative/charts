@@ -54,7 +54,7 @@ spec:
       tolerations:
 {{ toYaml .Values.prometheus.tolerations | indent 8 }}
     {{- end }}
-    {{- if .Values.rbac.enable }}
+    {{- if and .Values.rbac.enable .Values.prometheus.serviceAccount.use }}
       serviceAccount: {{ template "pulsar.prometheus.serviceAccount" . }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.prometheus.gracePeriod }}
