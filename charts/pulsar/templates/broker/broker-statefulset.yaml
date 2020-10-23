@@ -58,7 +58,9 @@ spec:
 {{- with .Values.broker.securityContext }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+    {{- if or .Values.broker.serviceAccount.use .Values.components.functions }}
       serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
+    {{- end }}
     {{- if .Values.broker.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.broker.nodeSelector | indent 8 }}

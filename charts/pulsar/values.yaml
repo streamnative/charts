@@ -593,6 +593,8 @@ bookkeeper:
       cpu: 0.2
   # Definition of the serviceAccount used to run bookies.
   serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
     # Specifies whether a service account should be created
     create: true
     # The name of the service account to use.
@@ -816,6 +818,8 @@ broker:
   extraInitContainers: {}
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
     # Specifies whether a service account should be created
     create: true
     # The name of the service account to use.
@@ -933,6 +937,8 @@ pulsar_detector:
 
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
     # Specifies whether a service account should be created
     create: true
     # The name of the service account to use.
@@ -1000,6 +1006,8 @@ proxy:
   extraInitContainers: {}
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
     # Specifies whether a service account should be created
     create: true
     # The name of the service account to use.
@@ -1202,6 +1210,8 @@ prometheus:
       cpu: 0.1
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
     # Specifies whether a service account should be created
     create: true
     # The name of the service account to use.

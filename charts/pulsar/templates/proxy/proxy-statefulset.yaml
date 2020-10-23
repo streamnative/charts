@@ -58,7 +58,9 @@ spec:
 {{- with .Values.proxy.securityContext }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+    {{- if .Values.proxy.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.proxy.serviceAccount" . }}
+    {{- end }}
     {{- if .Values.proxy.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.proxy.nodeSelector | indent 8 }}
