@@ -1428,6 +1428,13 @@ pulsar_manager:
   ## templates/pulsar-manager-service.yaml
   ##
   service:
+    # expose the load balancer
+    # type: LoadBalancer
+    spec: {}
+    annotations: {}
+    ports:
+      frontend: 9527
+  backend_service:
     spec:
       clusterIP: None
     annotations: {}
