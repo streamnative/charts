@@ -29,13 +29,19 @@ metadata:
   annotations:
 {{ toYaml .Values.pulsar_manager.service.annotations | indent 4 }}
 spec:
+{{- if .Values.pulsar_manager.service.type }}
+  type: {{ .Values.pulsar_manager.service.type }}
+{{- else }}
+  clusterIP: None
+{{- end }}
 {{- with .Values.pulsar_manager.service.spec }}
 {{ toYaml . | indent 2 }}
 {{- end }}
   ports:
     - name: frontend
-      port: {{ .Values.pulsar_manager.ports.frontend }}
+      port: {{ .Values.pulsar_manager.service.ports.frontend }}
       protocol: TCP
+      targetPort: {{ .Values.pulsar_manager.ports.frontend }}
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}
