@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart (ZK & BK TLS Only)
+name: Precommit - Pulsar Helm Chart (Service Account Disabled)
 on:
   pull_request:
     branches:
@@ -44,6 +44,6 @@ jobs:
 
       - name: Run chart-testing (install)
         run: |
-          .ci/chart_test.sh .ci/clusters/values-zkbk-tls.yaml
+          .ci/chart_test.sh .ci/clusters/values-sa-disabled.yaml
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'

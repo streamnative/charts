@@ -29,7 +29,11 @@ metadata:
   annotations:
 {{ toYaml .Values.prometheus.service.annotations | indent 4 }}
 spec:
+{{- if .Values.prometheus.service.type }}
+  type: {{ .Values.prometheus.service.type }}
+{{- else }}
   clusterIP: None
+{{- end }}
   ports:
     - name: server
       port: {{ .Values.prometheus.port }}

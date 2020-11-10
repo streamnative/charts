@@ -42,7 +42,9 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.pulsar_detector.component }}
     spec:
-      {{/*serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}-acct"*/}}
+    {{- if .Values.pulsar_detector.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
+    {{- end }}
       terminationGracePeriodSeconds: {{ .Values.pulsar_detector.gracePeriod }}
       initContainers:
       # This init container will wait for zookeeper to be ready before

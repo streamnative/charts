@@ -32,24 +32,24 @@ Define bookie zookeeper client tls settings
 
 {{- define "pulsar.bookkeeper.journal.storage.class" -}}
 {{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage }}
-  {{- print "local-storage" -}}
+storageClassName: "local-storage"
 {{- else }}
   {{- if  .Values.bookkeeper.volumes.journal.storageClass }}
-    {{- template "pulsar.bookkeeper.journal.pvc.name" . }}
+storageClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
   {{- else if .Values.bookkeeper.volumes.journal.storageClassName }}
-    {{- print .Values.bookkeeper.volumes.journal.storageClassName }}
+storageClassName: "{{ .Values.bookkeeper.volumes.journal.storageClassName }}"
   {{- end -}}
 {{- end }}
 {{- end }}
 
 {{- define "pulsar.bookkeeper.ledgers.storage.class" -}}
 {{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage }}
-  {{- print "local-storage" -}}
+storageClassName: "local-storage"
 {{- else }}
   {{- if  .Values.bookkeeper.volumes.ledgers.storageClass }}
-    {{- template "pulsar.bookkeeper.ledgers.pvc.name" . }}
+storageClassName: "{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}"
   {{- else if .Values.bookkeeper.volumes.ledgers.storageClassName }}
-    {{- print .Values.bookkeeper.volumes.ledgers.storageClassName }}
+storageClassName: "{{ .Values.bookkeeper.volumes.ledgers.storageClassName }}"
   {{- end -}}
 {{- end }}
 {{- end }}
@@ -169,6 +169,7 @@ Define bookkeeper log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
 {{- end }}
+
 {{/*Define bookkeeper datadog annotation*/}}
 {{- define  "pulsar.bookkeeper.datadog.annotation" -}}
 {{- if .Values.datadog.components.bookkeeper.enabled }}
@@ -212,3 +213,16 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.compon
   ]
 {{- end }}
 {{- end }}
+
+{{/*Define bookkeeper service account*/}}
+{{- define "pulsar.bookkeeper.serviceAccount" -}}
+{{- if .Values.bookkeeper.serviceAccount.create -}}
+    {{- if .Values.bookkeeper.serviceAccount.name -}}
+{{ .Values.bookkeeper.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.bookkeeper.serviceAccount.name }}
+{{- end -}}
+{{- end -}}

@@ -58,7 +58,9 @@ spec:
 {{- with .Values.bookkeeper.securityContext }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-      serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-acct"
+    {{- if .Values.bookkeeper.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
+    {{- end }}
     {{- if .Values.bookkeeper.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.bookkeeper.nodeSelector | indent 8 }}
@@ -225,7 +227,7 @@ spec:
       resources:
         requests:
           storage: {{ .Values.bookkeeper.volumes.journal.size }}
-      storageClassName: "{{ template "pulsar.bookkeeper.journal.storage.class" . }}"
+      {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 6 }}
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
     spec:
@@ -233,6 +235,6 @@ spec:
       resources:
         requests:
           storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
-      storageClassName: "{{ template "pulsar.bookkeeper.ledgers.storage.class" . }}"
+      {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 6 }}
 {{- end }}
 {{- end }}

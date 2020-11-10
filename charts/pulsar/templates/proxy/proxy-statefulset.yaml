@@ -58,7 +58,9 @@ spec:
 {{- with .Values.proxy.securityContext }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-      serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-acct"
+    {{- if .Values.proxy.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.proxy.serviceAccount" . }}
+    {{- end }}
     {{- if .Values.proxy.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.proxy.nodeSelector | indent 8 }}
@@ -185,9 +187,6 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          pwd;
-          ls .;
-          ls conf;
           bin/apply-config-from-env.py conf/proxy.conf;
           echo "OK" > status;
           bin/pulsar proxy;
@@ -212,7 +211,67 @@ spec:
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 10 }}
+      {{- if .Values.proxy.websocket.enabled }}
+      - name: websocket
+        image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
+        imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
+        {{- if .Values.proxy.probe.liveness.enabled }}
+        livenessProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.proxy.ports.websocket }}
+          initialDelaySeconds: {{ .Values.proxy.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.proxy.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.proxy.probe.liveness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.proxy.probe.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.proxy.ports.websocket }}
+          initialDelaySeconds: {{ .Values.proxy.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.proxy.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.proxy.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.proxy.probe.startup.enabled }}
+        startupProbe:
+          httpGet:
+            path: /status.html
+            port: {{ .Values.proxy.ports.websocket }}
+          initialDelaySeconds: {{ .Values.proxy.probe.startup.initialDelaySeconds }}
+          periodSeconds: {{ .Values.proxy.probe.startup.periodSeconds }}
+          failureThreshold: {{ .Values.proxy.probe.startup.failureThreshold }}
+        {{- end }}
+        {{- if .Values.proxy.resources }}
+        resources:
+{{ toYaml .Values.proxy.resources | indent 10 }}
+        {{- end }}
+        command: ["sh", "-c"]
+        args:
+        - >
+          cat /pulsar/tokens/websocket/token;
+          bin/apply-config-from-env.py conf/websocket.conf;
+          echo "OK" > status;
+          bin/pulsar websocket;
+        ports:
+        - name: websocket
+          containerPort: {{ .Values.proxy.ports.websocket }}
+        {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
+        - name: websockettls
+          containerPort: {{ .Values.proxy.ports.websockettls }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.websocket.component }}"
+        volumeMounts:
+          {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.websocket.token.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 10 }}
+      {{- end }}
       volumes:
+        {{- if .Values.proxy.websocket.enabled }}
+        {{- include "pulsar.websocket.token.volumes" . | nindent 8 }}
+        {{- end }}
         {{- include "pulsar.proxy.log.volumes" . | nindent 8 }}
         {{- include "pulsar.proxy.token.volumes" . | nindent 8 }}
         {{- include "pulsar.proxy.certs.volumes" . | nindent 8 }}

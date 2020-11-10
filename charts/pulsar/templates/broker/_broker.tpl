@@ -35,18 +35,19 @@ ${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespa
 {{- end -}}
 
 {{/*
-Define the broker znode
+Define the broker znode prefix
 */}}
-{{- define "pulsar.broker.znode" -}}
-{{ .Values.metadataPrefix }}/loadbalance/brokers/{{ template "pulsar.broker.hostname" . }}:{{ .Values.broker.ports.http }}
+{{- define "pulsar.broker.znode.prefix" -}}
+{{ .Values.metadataPrefix }}/loadbalance/brokers/
 {{- end }}
 
 {{/*
 Define broker zookeeper client tls settings
+NOTE: `BROKER_ADDRESS` should be set before using this template
 */}}
 {{- define "pulsar.broker.zookeeper.tls.settings" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
-/pulsar/keytool/keytool.sh broker {{ template "pulsar.broker.hostname" . }} true;
+/pulsar/keytool/keytool.sh broker ${BROKER_ADDRESS} true;
 {{- end }}
 {{- end }}
 
@@ -342,3 +343,15 @@ Define gcs offload options mounts
 {{- end }}
 {{- end }}
 
+{{/*Define broker service account*/}}
+{{- define "pulsar.broker.serviceAccount" -}}
+{{- if .Values.broker.serviceAccount.create -}}
+    {{- if .Values.broker.serviceAccount.name -}}
+{{ .Values.broker.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.broker.serviceAccount.name }}
+{{- end -}}
+{{- end -}}

@@ -58,7 +58,9 @@ spec:
 {{- with .Values.broker.securityContext }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-      serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-acct"
+    {{- if or .Values.broker.serviceAccount.use .Values.components.functions }}
+      serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
+    {{- end }}
     {{- if .Values.broker.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.broker.nodeSelector | indent 8 }}
@@ -117,6 +119,12 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
+
+            {{- if .Values.broker.advertisedPodIP }}
+            export BROKER_ADDRESS="${advertisedAddress}"
+            {{- else }}
+            export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+            {{- end }}
             {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 12 }}
             {{- if .Values.pulsar_metadata.configurationStore }}
             until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} get {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/"{{ template "pulsar.cluster" . }}"; do
@@ -136,6 +144,12 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
+
+            {{- if .Values.broker.advertisedPodIP }}
+            export BROKER_ADDRESS="${advertisedAddress}"
+            {{- else }}
+            export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+            {{- end }}
             {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 12 }}
             bin/apply-config-from-env.py conf/bookkeeper.conf;
             until bin/bookkeeper shell whatisinstanceid; do
@@ -198,17 +212,25 @@ spec:
       {{- end }}
         command: ["sh", "-c"]
         args:
+        # NOTE: We need to set `BROKER_ADDRESS` at the beginning. Because
+        # other scripts will use this variable.
         - >
+
+        {{- if .Values.broker.advertisedPodIP }}
+          export BROKER_ADDRESS="${advertisedAddress}"
+        {{- else }}
+          export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+        {{- end }}
           {{- include "pulsar.broker.kop.settings" . | nindent 10 }}
           bin/apply-config-from-env.py conf/broker.conf;
-          bin/gen-yml-from-env.py conf/functions_worker.yml;
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
-          bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
+          BROKER_ZNODE="{{ template "pulsar.broker.znode.prefix" . }}${BROKER_ADDRESS}:{{ .Values.broker.ports.http }}"
+          bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get ${BROKER_ZNODE};
           while [ $? -eq 0 ]; do
-            echo "broker {{ template "pulsar.broker.hostname" . }} znode still exists ... check in 10 seconds ...";
+            echo "broker ${BROKER_ADDRESS} znode still exists ... check in 10 seconds ...";
             sleep 10;
-            bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ template "pulsar.broker.znode" . }};
+            bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get ${BROKER_ZNODE};
           done;
           bin/pulsar broker;
         ports:

@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart (ZK & BK TLS Only)
+name: Precommit - Pulsar Helm Chart (Advertise Broker IP Address)
 on:
   pull_request:
     branches:
@@ -36,14 +36,14 @@ jobs:
       - name: Fetch history
         run: git fetch --prune --unshallow
 
-      - name: Run chart-testing (lint)
+      - name: Lint chart
         id: lint
         uses: helm/chart-testing-action@v1.0.0
         with:
           command: lint
 
-      - name: Run chart-testing (install)
+      - name: Install chart
         run: |
-          .ci/chart_test.sh .ci/clusters/values-zkbk-tls.yaml
+          .ci/chart_test.sh .ci/clusters/values-broker-ip.yaml
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'

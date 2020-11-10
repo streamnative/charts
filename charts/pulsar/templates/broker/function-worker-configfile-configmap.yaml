@@ -44,7 +44,9 @@ data:
       changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
       submittingInsidePod: true
       installUserCodeDependencies: true
-{{ toYaml .Values.functions.functionRuntimeFactoryConfigs | indent 6 }}
+{{- with .Values.functions.functionRuntimeFactoryConfigs }}
+{{ toYaml . | indent 6 }}
+{{- end }}
     # runtime customizer
     {{- if .Values.functions.enableCustomizerRuntime }}
     runtimeCustomizerClassName: {{ .Values.functions.runtimeCustomizerClassName }}

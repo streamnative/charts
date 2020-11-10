@@ -26,3 +26,16 @@ Define toolset token volumes
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*Define prometheus service account*/}}
+{{- define "pulsar.prometheus.serviceAccount" -}}
+{{- if .Values.prometheus.serviceAccount.create -}}
+    {{- if .Values.prometheus.serviceAccount.name -}}
+{{ .Values.prometheus.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.rbac.roleName }}
+    {{- end -}}
+{{- else -}}
+{{ .Values.prometheus.serviceAccount.name }}
+{{- end -}}
+{{- end -}}

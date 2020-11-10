@@ -25,7 +25,10 @@ initialize: true
 ###
 
 ## Namespace to deploy pulsar
-namespace: pulsar
+# NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
+#       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
+#       a higher control structure that is not part of the application.
+namespace: ""
 namespaceCreate: false
 
 ###
@@ -238,6 +241,8 @@ auth:
     broker: "broker-admin"
     # proxy to broker communication
     proxy: "proxy-admin"
+    # websocket proxy to broker communication
+    websocket: "ws-admin"
     # pulsar-admin client to broker/proxy communication
     client: "admin"
     # pulsar-manager to broker/proxy communication
@@ -608,6 +613,19 @@ bookkeeper:
     requests:
       memory: 512Mi
       cpu: 0.2
+  # Definition of the serviceAccount used to run bookies.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -820,6 +838,19 @@ broker:
       memory: 512Mi
       cpu: 0.2
   extraInitContainers: {}
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
   ## Broker configmap
   ## templates/broker-configmap.yaml
   ##
@@ -862,6 +893,7 @@ broker:
     maxUnavailable: 1
   ### Broker service account
   ## templates/broker-service-account.yaml
+  # deprecated: use `serviceAccount` section to configure service account.
   service_account:
     annotations: {}
   offload:
@@ -914,7 +946,6 @@ functions:
     functionsDirectory: ./functions
     narExtractionDirectory: ""
   functionRuntimeFactoryConfigs:
-    pulsarRootDir: /pulsar
 
 ## Pulsar: pulsar detector
 ## templates/pulsar-detector-statefulset.yaml
@@ -925,6 +956,21 @@ pulsar_detector:
 
   gracePeriod: 30
   port: 9000
+
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -980,6 +1026,41 @@ proxy:
       memory: 128Mi
       cpu: 0.2
   extraInitContainers: {}
+  # Definition of the serviceAccount used to run proxies.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+  websocket:
+    component: websocket
+    enabled: false
+    configData:
+      PULSAR_MEM: >
+        -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+      PULSAR_GC: >
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=10
+        -Dio.netty.leakDetectionLevel=disabled
+        -Dio.netty.recycler.linkCapacity=1024
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+AggressiveOpts
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
   ## Proxy configmap
   ## templates/proxy-configmap.yaml
   ##
@@ -1017,6 +1098,8 @@ proxy:
     https: 443
     pulsar: 6650
     pulsarssl: 6651
+    websocket: 9090
+    websockettls: 9443
   service:
     annotations: {}
     type: ClusterIP
@@ -1147,6 +1230,19 @@ prometheus:
     requests:
       memory: 256Mi
       cpu: 0.1
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -1187,6 +1283,8 @@ prometheus:
   ## templates/prometheus-service.yaml
   ##
   service:
+    # expose the load balancer
+    # type: LoadBalancer
     annotations: {}
 
 datadog:
@@ -1352,6 +1450,13 @@ pulsar_manager:
   ## templates/pulsar-manager-service.yaml
   ##
   service:
+    # expose the load balancer
+    # type: LoadBalancer
+    spec: {}
+    annotations: {}
+    ports:
+      frontend: 9527
+  backend_service:
     spec:
       clusterIP: None
     annotations: {}

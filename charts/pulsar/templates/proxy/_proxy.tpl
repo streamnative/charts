@@ -9,7 +9,6 @@ pulsar service domain
 {{- end -}}
 {{- end -}}
 
-
 {{/*
 Define proxy token mounts
 */}}
@@ -193,6 +192,17 @@ pulsar ingress target port for http endpoint
 {{- end -}}
 
 {{/*
+pulsar ingress target port for websocket endpoint
+*/}}
+{{- define "pulsar.proxy.ingress.targetPort.websocket" -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+{{- print "websockettls" -}}
+{{- else -}}
+{{- print "websocket" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Pulsar Broker Service URL
 */}}
 {{- define "pulsar.proxy.broker.service.url" -}}
@@ -233,5 +243,18 @@ Pulsar Web Service URL
 {{- .Values.proxy.brokerWebServiceURLTLS -}}
 {{- else -}}
 https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
+{{- end -}}
+{{- end -}}
+
+{{/*Define proxy service account*/}}
+{{- define "pulsar.proxy.serviceAccount" -}}
+{{- if .Values.proxy.serviceAccount.create -}}
+    {{- if .Values.proxy.serviceAccount.name -}}
+{{ .Values.proxy.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.proxy.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
