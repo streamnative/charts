@@ -83,9 +83,11 @@ Define toolset tls certs mounts
 {{- end }}
 {{- end }}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
+{{- if .Values.tls.proxy.untrustedCa }}
 - mountPath: "/pulsar/certs/proxy-ca"
   name: proxy-ca
   readOnly: true
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -116,6 +118,7 @@ Define toolset tls certs volumes
 {{- end }}
 {{- end }}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
+{{- if .Values.tls.proxy.untrustedCa }}
 - name: proxy-ca
   secret:
   {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
@@ -129,6 +132,7 @@ Define toolset tls certs volumes
       - key: ca.crt
         path: ca.crt
   {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 
