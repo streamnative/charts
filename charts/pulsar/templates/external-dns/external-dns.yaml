@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.external_dns.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}"
@@ -26,15 +26,25 @@ metadata:
 spec:
   strategy:
     type: Recreate
+  selector:
+    matchLabels:
+      {{- include "pulsar.template.labels" . | nindent 6 }}
   template:
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}
+      volumes:
+        {{- range .Values.external_dns.extraMounts }}
+        - name: {{ .mountName }}
+          {{ .type }}:
+            {{ toYaml .mountOpts }}
+        {{- end }}
+
       containers:
       - name: external-dns
-        image: registry.opensource.zalan.do/teapot/external-dns:latest
+        image: k8s.gcr.io/external-dns/external-dns:v0.7.3
         args:
         - --source=service
         - --source=ingress
@@ -54,6 +64,16 @@ spec:
         - --policy={{ .Values.external_dns.policy }}
         - --registry={{ .Values.external_dns.registry }}
         - --txt-owner-id={{ .Values.external_dns.owner_id }}
+        volumeMounts:
+          {{- range .Values.external_dns.extraMounts }}
+          - name: {{ .mountName }}
+            mountPath: {{ .mountPath }}
+          {{- end }}
+        env:
+          {{- range .Values.external_dns.extraEnv }}
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end }}
       securityContext:
       {{- with .Values.external_dns.securityContext }}
       {{ toYaml . | indent 6 }}

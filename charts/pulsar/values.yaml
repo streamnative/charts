@@ -196,6 +196,7 @@ tls:
   proxy:
     enabled: false
     cert_name: tls-proxy
+    untrustedCa: true
   # settings for generating certs for proxy
   pulsar_detector:
     enabled: false
@@ -317,6 +318,9 @@ external_dns:
   serviceAcct:
     annotations: {}
   securityContext: {}
+  extraMounts: []
+  extraEnv: []
+
 
 ## Domain requested from External DNS
 domain:

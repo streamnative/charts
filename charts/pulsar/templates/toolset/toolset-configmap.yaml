@@ -50,7 +50,9 @@ data:
   brokerServiceUrl: "pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsarssl }}/"
   useTls: "true"
   tlsAllowInsecureConnection: "false"
+  {{- if .Values.tls.proxy.untrustedCa }}
   tlsTrustCertsFilePath: "/pulsar/certs/proxy-ca/ca.crt"
+  {{- end }}
   tlsEnableHostnameVerification: "false"
   {{- end }}
   {{- if not (and .Values.tls.enabled .Values.tls.proxy.enabled) }}
@@ -63,8 +65,8 @@ data:
   {{- if eq .Values.auth.authentication.provider "jwt" }}
   authParams: "file:///pulsar/tokens/client/token"
   authPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-  {{- end }} 
-  {{- end }} 
+  {{- end }}
+  {{- end }}
 {{ toYaml .Values.toolset.configData | indent 2 }}
   # Include log configuration file, If you want to configure the log level and other configuration
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
