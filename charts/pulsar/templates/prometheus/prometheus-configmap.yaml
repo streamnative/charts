@@ -82,6 +82,12 @@ data:
       - source_labels: [__meta_kubernetes_pod_name]
         action: replace
         target_label: kubernetes_pod_name
+      metric_relabel_configs:
+{{- if .Values.prometheus.customRelabelConfigs -}}
+{{- with .Values.prometheus.customRelabelConfigs }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- end }}
     - job_name: 'kubernetes-nodes'
       scheme: https
       kubernetes_sd_configs:

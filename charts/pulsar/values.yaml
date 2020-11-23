@@ -1260,6 +1260,7 @@ prometheus:
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
+  customRelabelConfigs: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml

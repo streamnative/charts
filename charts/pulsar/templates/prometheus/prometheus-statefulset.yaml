@@ -42,9 +42,12 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.prometheus.component }}
       annotations:
-{{- with .Values.prometheus.annotations }}
-{{ toYaml . | indent 8 }}
-{{- end }}
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.prometheus.datadog.annotation" . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.prometheus.annotations }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
     spec:
     {{- if .Values.prometheus.nodeSelector }}
       nodeSelector:
@@ -88,7 +91,7 @@ spec:
             subPath: {{ .subPath }}
             readOnly: {{ .readOnly }}
         {{- end }}
-      {{- end }} 
+      {{- end }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
         image: "{{ .Values.images.prometheus.repository }}:{{ .Values.images.prometheus.tag }}"
         imagePullPolicy: {{ .Values.images.prometheus.pullPolicy }}
