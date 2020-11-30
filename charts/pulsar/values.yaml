@@ -1385,6 +1385,9 @@ alert_manager:
 ##
 pulsar_manager:
   component: pulsar-manager
+  # this can be used to indiciate to use vault auth for pulsar-manager
+  # even if authentication isn't enabled for other components
+  force_vault: false
   ports:
     frontend: 9527
     backend: 7750
