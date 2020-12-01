@@ -83,6 +83,11 @@ Define pulsar_manager token mounts
   readOnly: true
 {{- end }}
 {{- end }}
+{{- if .Values.pulsar_manager.force_vault }}
+- mountPath: "/pulsar/tokens"
+  name: pulsar-manager-token
+  readOnly: true
+{{- end }}
 {{- end }}
 
 {{/*
@@ -118,6 +123,14 @@ Define pulsar-manager token volumes
       - key: TOKEN
         path: pulsar_manager/token
 {{- end }}
+{{- end }}
+{{- if .Values.pulsar_manager.force_vault }}
+- name: pulsar-manager-token
+  secret:
+    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.pulsar_manager }}"
+    items:
+      - key: TOKEN
+        path: pulsar_manager/token
 {{- end }}
 {{- end }}
 
