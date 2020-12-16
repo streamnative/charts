@@ -46,7 +46,7 @@ spec:
   - name: pulsar
     port: {{ .Values.broker.ports.pulsar }}
   {{- if .Values.components.kop }}
-  - name: kafkaPlainText
+  - name: kafkaplaintext
     port: {{ .Values.kop.ports.plaintext }}
   {{- end }}
   {{- end }}
