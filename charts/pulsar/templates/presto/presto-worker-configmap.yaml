@@ -32,6 +32,7 @@ data:
     node.environment={{ .Values.presto.node.environment }}
     node.data-dir={{ template "pulsar.home" . }}/data
   jvm.config: |
+    -Dpresto-temporarily-allow-java8=true
     -server
     -Xmx{{ .Values.presto.worker.jvm.memory }}
     -XX:+UseG1GC

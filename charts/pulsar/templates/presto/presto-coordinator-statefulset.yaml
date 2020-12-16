@@ -126,11 +126,13 @@ spec:
           command: ["sh", "-c"]
           args:
             - >-
+              cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
+              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
           volumeMounts:
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
               name: config-volume
               subPath: node.properties
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/log.properties
