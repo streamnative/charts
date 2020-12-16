@@ -31,6 +31,7 @@ data:
     node.environment={{ .Values.presto.node.environment }}
     node.data-dir={{ template "pulsar.home" . }}/data
   jvm.config: |
+    -Dpresto-temporarily-allow-java8=true
     -server
     -Xmx{{ .Values.presto.coordinator.jvm.memory }}
     -XX:+UseG1GC
@@ -67,10 +68,9 @@ data:
     coordinator=true
     http-server.http.port={{ .Values.presto.coordinator.ports.http }}
     discovery-server.enabled=true
-    discovery.uri=http://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}
+    discovery.uri=http://localhost:{{ .Values.presto.coordinator.ports.http }}
     query.max-memory={{ .Values.presto.coordinator.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.coordinator.config.query.maxMemoryPerNode }}
-    distributed-joins-enabled=true
 {{- if gt (int .Values.presto.worker.replicaCount) 0 }}
     node-scheduler.include-coordinator=false
 {{- else }}
