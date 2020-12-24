@@ -222,6 +222,9 @@ tls:
   pulsar_manager:
     enabled: false
     cert_name: tls-pulsar-manager
+  presto:
+    enabled: false
+    cert_name: tls-presto
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -347,6 +350,19 @@ ingress:
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+  ## templates/presto-service-ingress.yaml
+  ##
+  ## Ingresses for exposing presto service publicly
+  presto:
+    enabled: false
+    tls:
+      enabled: true
+    type: LoadBalancer
+    annotations: {}
+    extraSpec: {}
+    ports:
+      http: 80
+      https: 443
   ## templates/control-center-ingress.yaml
   ##
   ## Ingresses for exposing monitoring/management services publicly
@@ -1478,6 +1494,18 @@ rbac:
 
 # Deploy pulsar sql
 presto:
+  security:
+    authentication:
+      jwt:
+        enabled: false
+        publicKeyFileName: "public.key"
+        publicKeyConfigMapName: '[PUBLIC KEY CM NAME]'
+        publicKeyConfigMapKey: 'public.key'
+    rules: >
+      {
+        "rules": [
+        ]
+      }
   coordinator:
     component: coordinator
     replicaCount: 1
@@ -1492,6 +1520,7 @@ presto:
     gracePeriod: 10
     ports:
       http: 8081
+      https: 8443
     resources:
       requests:
         memory: 4Gi

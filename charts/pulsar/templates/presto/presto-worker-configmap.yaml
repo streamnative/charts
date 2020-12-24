@@ -66,8 +66,23 @@ data:
     # under the License.
     #
     coordinator=false
+{{- if .Values.tls.presto.enabled }}
+    http-server.http.enabled=false
+    http-server.https.enabled=true
+    http-server.https.port={{ .Values.presto.coordinator.ports.https }}
+    http-server.https.keystore.path=<keystore path>
+    http-server.https.keystore.key=<keystore password>
+    internal-communication.https.required=true
+    internal-communication.https.keystore.path=<keystore path>
+    internal-communication.https.keystore.key=<keystore password>
+    discovery.uri=https://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.https }}
+{{- else }}
+    http-server.https.enabled=false
+    internal-communication.https.required=false
+    http-server.http.enabled=true
     http-server.http.port={{ .Values.presto.coordinator.ports.http }}
     discovery.uri=http://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}
+{{- end }}
     query.max-memory={{ .Values.presto.worker.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.worker.config.query.maxMemoryPerNode }}
   log.properties: |

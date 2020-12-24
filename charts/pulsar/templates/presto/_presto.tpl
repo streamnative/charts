@@ -13,3 +13,25 @@ Expand the name of the chart.
 {{- define "presto.service" -}}
 {{ template "pulsar.fullname" . }}-presto
 {{- end -}}
+
+{{/*
+presto service domain
+*/}}
+{{- define "presto.service_domain" -}}
+{{- if .Values.domain.enabled -}}
+{{- printf "presto.%s.%s" .Release.Name .Values.domain.suffix -}}
+{{- else -}}
+{{- print "" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+pulsar ingress target port for http endpoint
+*/}}
+{{- define "presto.ingress.targetPort.http" -}}
+{{- if .Values.tls.presto.enabled }}
+{{- print "https" -}}
+{{- else -}}
+{{- print "http" -}}
+{{- end -}}
+{{- end -}}
