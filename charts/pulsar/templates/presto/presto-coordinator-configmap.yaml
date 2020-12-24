@@ -66,15 +66,36 @@ data:
     #
 
     coordinator=true
+{{- if .Values.tls.presto.enabled }}
+    http-server.http.enabled=false
+    http-server.https.enabled=true
+    http-server.https.port={{ .Values.presto.coordinator.ports.https }}
+    http-server.https.keystore.path=<keystore path>
+    http-server.https.keystore.key=<keystore password>
+    discovery.uri=https://localhost:{{ .Values.presto.coordinator.ports.https }}
+    internal-communication.https.required=true
+    internal-communication.https.keystore.path=<keystore path>
+    internal-communication.https.keystore.key=<keystore password>
+{{- else }}
+    http-server.https.enabled=false
+    internal-communication.https.required=false
+    http-server.http.enabled=true
     http-server.http.port={{ .Values.presto.coordinator.ports.http }}
-    discovery-server.enabled=true
     discovery.uri=http://localhost:{{ .Values.presto.coordinator.ports.http }}
+{{- end }}
+    http-server.authentication.allow-forwarded-https=true
+    discovery-server.enabled=true
     query.max-memory={{ .Values.presto.coordinator.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.coordinator.config.query.maxMemoryPerNode }}
 {{- if gt (int .Values.presto.worker.replicaCount) 0 }}
     node-scheduler.include-coordinator=false
 {{- else }}
     node-scheduler.include-coordinator=true
+{{- end }}
+{{- if .Values.presto.security.authentication.jwt.enabled }}
+    # JWT Authentication
+    http-server.authentication.type=JWT
+    http.authentication.jwt.key-file={{ template "pulsar.home" . }}/conf/presto/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
 {{- end }}
 
   log.properties: |
@@ -212,4 +233,12 @@ data:
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().
     # pulsar.managed-ledger-num-scheduler-threads =
+
+  rules.json:
+{{ toYaml .Values.presto.security.rules | indent 2 }}
+  access-control.properties: |
+    # access-control.properties
+    access-control.name=file
+    security.config-file={{ template "pulsar.home" . }}/conf/presto/rules.json
+    security.refresh-period=60s
 {{- end }}
