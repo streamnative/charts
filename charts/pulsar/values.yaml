@@ -421,7 +421,7 @@ imagePuller:
 
 ## Common properties applied to pulsar components
 common:
-  extraInitContainers: {}
+  extraInitContainers: []
 
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
@@ -517,7 +517,7 @@ zookeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
-  extraInitContainers: {}
+  extraInitContainers: []
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
   ##
@@ -665,7 +665,7 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
-  extraInitContainers: {}
+  extraInitContainers: []
   ## Bookkeeper configmap
   ## templates/bookkeeper-configmap.yaml
   ##
@@ -744,7 +744,7 @@ autorecovery:
     requests:
       memory: 64Mi
       cpu: 0.05
-  extraInitContainers: {}
+  extraInitContainers: []
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
@@ -835,7 +835,9 @@ broker:
     requests:
       memory: 512Mi
       cpu: 0.2
-  extraInitContainers: {}
+  extraInitContainers: []
+  extraVolumes: []
+  extraVolumeMounts: []
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1023,7 +1025,9 @@ proxy:
     requests:
       memory: 128Mi
       cpu: 0.2
-  extraInitContainers: {}
+  extraInitContainers: []
+  extraVolumes: []
+  extraVolumeMounts: []
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
     # Specifies whether to use a service account to run this component
