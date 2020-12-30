@@ -97,6 +97,10 @@ spec:
           {{ end }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.presto.worker.gracePeriod }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}-worker
           image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"

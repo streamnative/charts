@@ -42,6 +42,10 @@ spec:
         prometheus.io/port: "10254"
         prometheus.io/scrape: "true"
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.ingress.controller.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.ingress.controller.nodeSelector | indent 8 }}
