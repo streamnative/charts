@@ -14,6 +14,10 @@ Expand the name of the chart.
 {{ template "pulsar.fullname" . }}-presto
 {{- end -}}
 
+{{- define "presto.worker.service" -}}
+{{ template "pulsar.fullname" . }}-presto-worker
+{{- end -}}
+
 {{/*
 presto service domain
 */}}

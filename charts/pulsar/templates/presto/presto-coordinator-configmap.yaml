@@ -79,11 +79,14 @@ data:
 {{- else }}
     http-server.https.enabled=false
     internal-communication.https.required=false
+    {{- if and .Values.ingress.presto.enabled .Values.ingress.presto.tls.enabled }}
+    http-server.authentication.allow-forwarded-https=true
+    dispatcher.forwarded-header=ACCEPT
+    {{- end }}
     http-server.http.enabled=true
     http-server.http.port={{ .Values.presto.coordinator.ports.http }}
     discovery.uri=http://localhost:{{ .Values.presto.coordinator.ports.http }}
 {{- end }}
-    http-server.authentication.allow-forwarded-https=true
     discovery-server.enabled=true
     query.max-memory={{ .Values.presto.coordinator.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.coordinator.config.query.maxMemoryPerNode }}
@@ -95,7 +98,7 @@ data:
 {{- if .Values.presto.security.authentication.jwt.enabled }}
     # JWT Authentication
     http-server.authentication.type=JWT
-    http.authentication.jwt.key-file={{ template "pulsar.home" . }}/conf/presto/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
+    http-server.authentication.jwt.key-file={{ template "pulsar.home" . }}/conf/presto/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
 {{- end }}
 
   log.properties: |

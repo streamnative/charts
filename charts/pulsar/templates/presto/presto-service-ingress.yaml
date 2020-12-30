@@ -42,12 +42,20 @@ spec:
     - name: https
       port: {{ .Values.ingress.presto.ports.https }}
       protocol: TCP
-      targetPort: {{ template "presto.ingress.targetPort.http" . }}
+{{- if .Values.tls.presto.enabled }}
+      targetPort: {{ .Values.presto.coordinator.ports.https }}
+{{- else }}
+      targetPort: {{ .Values.presto.coordinator.ports.http }}
+{{- end }}
     {{- else }}
     - name: http
       port: {{ .Values.ingress.presto.ports.http }}
       protocol: TCP
-      targetPort: {{ template "presto.ingress.targetPort.http" . }}
+{{- if .Values.tls.presto.enabled }}
+      targetPort: {{ .Values.presto.coordinator.ports.https }}
+{{- else }}
+      targetPort: {{ .Values.presto.coordinator.ports.http }}
+{{- end }}
     {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}
