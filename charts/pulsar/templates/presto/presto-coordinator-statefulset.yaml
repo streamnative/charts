@@ -27,7 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.presto.coordinator.component }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.coordinator.component }}"
+  serviceName: {{ template "presto.service" . }}
   replicas: {{ .Values.presto.coordinator.replicaCount }}
   selector:
     matchLabels:
@@ -128,10 +128,16 @@ spec:
             - >-
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.ip=${POD_IP}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
+          env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
           volumeMounts:
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
               name: config-volume

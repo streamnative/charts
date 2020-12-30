@@ -27,7 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.presto.worker.component }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}"
+  serviceName: {{ template "presto.worker.service" . }}
   replicas: {{ .Values.presto.worker.replicaCount }}
   selector:
     matchLabels:
@@ -130,9 +130,16 @@ spec:
             - >-
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.ip=${POD_IP}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
+          env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
           volumeMounts:
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
               name: config-volume
@@ -164,6 +171,10 @@ spec:
               name: ca
               readOnly: true
             {{- end}}
+          ports:
+            - name: http
+              containerPort: {{ .Values.presto.worker.ports.http }}
+              protocol: TCP
       volumes:
         {{- if .Values.auth.authentication.enabled }}
         {{- if eq .Values.auth.authentication.provider "jwt" }}

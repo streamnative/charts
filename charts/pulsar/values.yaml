@@ -1500,6 +1500,10 @@ presto:
         enabled: false
         publicKeyFileName: "public.key"
         publicKeyConfigMapName: '[PUBLIC KEY CM NAME]'
+        # the public key stored in the configmap should be persisted in PEM format.
+        # presto prefers the PEM format. If you generate the public key using `pulsar tokens` CLI,
+        # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
+        # to convert the public key file to a public key file in PEM format.
         publicKeyConfigMapKey: 'public.key'
     rules: >
       {
@@ -1555,6 +1559,9 @@ presto:
       presto:
         level: DEBUG
   worker:
+    service:
+      spec:
+        type: ClusterIP
     component: worker
     replicaCount: 2
     tolerations: []
