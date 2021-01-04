@@ -47,6 +47,10 @@ spec:
 {{- end }}
         checksum/config: {{ include (print $.Template.BasePath "/pulsar-manager/pulsar-manager-configmap.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.pulsar_manager.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.pulsar_manager.nodeSelector | indent 8 }}

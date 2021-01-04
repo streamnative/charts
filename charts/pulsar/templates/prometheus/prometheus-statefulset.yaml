@@ -49,6 +49,10 @@ spec:
         {{ toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.prometheus.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.prometheus.nodeSelector | indent 8 }}
