@@ -43,6 +43,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.grafana.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.grafana.nodeSelector | indent 8 }}
