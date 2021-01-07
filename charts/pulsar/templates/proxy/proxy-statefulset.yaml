@@ -215,6 +215,9 @@ spec:
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 10 }}
+{{- with .Values.proxy.extraVolumeMounts }}
+{{ toYaml . | indent 10 }}
+{{- end }}
       {{- if .Values.proxy.websocket.enabled }}
       - name: websocket
         image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
@@ -271,6 +274,9 @@ spec:
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.websocket.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 10 }}
+{{- with .Values.proxy.extraVolumeMounts }}
+{{ toYaml . | indent 10 }}
+{{- end }}
       {{- end }}
       volumes:
         {{- if .Values.proxy.websocket.enabled }}
@@ -279,4 +285,7 @@ spec:
         {{- include "pulsar.proxy.log.volumes" . | nindent 8 }}
         {{- include "pulsar.proxy.token.volumes" . | nindent 8 }}
         {{- include "pulsar.proxy.certs.volumes" . | nindent 8 }}
+{{- with .Values.proxy.extraVolumes }}
+{{ toYaml . | indent 8 }}
+{{- end }}
 {{- end }}
