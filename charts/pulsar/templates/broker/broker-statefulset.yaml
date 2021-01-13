@@ -173,6 +173,23 @@ spec:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         volumeMounts:
         {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+      {{- if .Values.components.state_storage }}
+      # This init container will wait for state storage to be ready before
+      # deploying the broker
+      - name: wait-state-storage-ready
+        image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            stateStorageServerNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }} | grep Name | wc -l)";
+            until [ ${stateStorageServerNumber} -ge 1 ]; do
+              echo "State storage cluster {{ template "pulsar.fullname" . }} isn't ready yet ... check in 10 seconds ...";
+              sleep 10;
+              stateStorageServerNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }} | grep Name | wc -l)";
+            done;
+            echo "State storage cluster is ready";
+      {{- end }}
 {{- with .Values.common.extraInitContainers }}
 {{ toYaml . | indent 6 }}
 {{- end }}

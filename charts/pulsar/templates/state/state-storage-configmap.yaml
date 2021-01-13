@@ -1,0 +1,57 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.components.state_storage }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.state_storage.component }}
+data:
+{{ toYaml .Values.state_storage.configData | indent 2 }}
+  bookkeeper.conf: |
+    metadataServiceUri=zk://{{ template "pulsar.zookeeper.connect" . }}/ledgers
+    # zkServers={{ template "pulsar.zookeeper.connect" . }}
+    ### Grpc Server ###
+
+    # the grpc server port to listen on. default is 4181
+    storageserver.grpc.port={{ .Values.state_storage.ports.grpc }}
+    
+    ### Storage ###
+    
+    # local storage directories for storing table ranges data (e.g. rocksdb sst files)
+    storage.range.store.dirs=/pulsar/data/bookkeeper/ranges
+    
+    # config the stats provider
+    statsProviderClass=org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
+
+    #### Replication Settings
+    dlog.bkcEnsembleSize={{ .Values.state_storage.storageConfig.ensembleSize }}
+    dlog.bkcWriteQuorumSize={{ .Values.state_storage.storageConfig.writeQuorumSize }}
+    dlog.bkcAckQuorumSize={{ .Values.state_storage.storageConfig.ackQuorumSize }}
+
+    # whether the storage server capable of serving readonly tables. default is false.
+    storage.serve.readonly.tables={{ .Values.state_storage.storageConfig.storageServeReadonlyTables }}
+    
+    # the cluster controller schedule interval, in milliseconds. default is 30 seconds.
+    storage.cluster.controller.schedule.interval.ms={{ .Values.state_storage.storageConfig.storageClusterControllerScheduleIntervalMs }}
+{{- end }}

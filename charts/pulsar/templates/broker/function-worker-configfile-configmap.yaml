@@ -29,6 +29,9 @@ metadata:
     component: {{ .Values.functions.component }}
 data:
   functions_worker.yml: |
+    {{- if .Values.components.state_storage }}
+    stateStorageServiceUrl: bk://{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}:4181
+    {{- end }}
     # Function package management
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
     pulsarServiceUrl: pulsar://localhost:6650

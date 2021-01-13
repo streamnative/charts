@@ -1,0 +1,200 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.components.state_storage }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.state_storage.component }}
+spec:
+  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}"
+  replicas: {{ .Values.state_storage.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.state_storage.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.state_storage.component }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.state_storage.ports.http }}"
+        {{- if .Values.state_storage.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/state/state-storage-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{- with .Values.state_storage.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      securityContext:
+{{- with .Values.state_storage.securityContext }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    {{- if .Values.state_storage.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.state_storage.serviceAccount" . }}
+    {{- end }}
+    {{- if .Values.state_storage.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.state_storage.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.state_storage.tolerations }}
+      tolerations:
+{{ toYaml .Values.state_storage.tolerations | indent 8 }}
+    {{- end }}
+      affinity:
+        {{- if and .Values.affinity.anti_affinity .Values.state_storage.affinity.anti_affinity}}
+        podAntiAffinity:
+          {{ .Values.state_storage.affinity.type }}:
+          {{ if eq .Values.state_storage.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
+          - labelSelector:
+              matchExpressions:
+              - key: "app"
+                operator: In
+                values:
+                - "{{ template "pulsar.name" . }}"
+              - key: "release"
+                operator: In
+                values:
+                - {{ .Release.Name }}
+              - key: "component"
+                operator: In
+                values:
+                - {{ .Values.state_storage.component }}
+            topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                      - "{{ template "pulsar.name" . }}"
+                    - key: "release"
+                      operator: In
+                      values:
+                      - {{ .Release.Name }}
+                    - key: "component" 
+                      operator: In
+                      values:
+                      - {{ .Values.state_storage.component }}
+                topologyKey: "kubernetes.io/hostname"
+          {{ end }}
+        {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.state_storage.gracePeriod }}
+      initContainers:
+      # This init container will wait for bookkeeper to be ready before
+      # deploying the broker
+      - name: wait-bookkeeper-ready
+        image: "{{ .Values.images.state_storage.repository }}:{{ .Values.images.state_storage.tag }}"
+        imagePullPolicy: {{ .Values.images.state_storage.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            bin/apply-config-from-env.py conf/bookkeeper.conf;
+            until bin/bookkeeper shell whatisinstanceid; do
+              echo "bookkeeper cluster is not initialized yet. backoff for 3 seconds ...";
+              sleep 3;
+            done;
+            echo "bookkeeper cluster is already initialized";
+            bookieServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }} | grep Name | wc -l)";
+            until [ ${bookieServiceNumber} -ge {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }} ]; do
+              echo "bookkeeper cluster {{ template "pulsar.fullname" . }} isn't ready yet ... check in 10 seconds ...";
+              sleep 10;
+              bookieServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }} | grep Name | wc -l)";
+            done;
+            echo "bookkeeper cluster is ready";
+        envFrom:
+          - configMapRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.state_storage.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+      containers:
+      - name: "state-storage-server"
+        image: "{{ .Values.images.state_storage.repository }}:{{ .Values.images.state_storage.tag }}"
+        imagePullPolicy: {{ .Values.images.state_storage.pullPolicy }}
+      {{- if .Values.state_storage.resources }}
+        resources:
+{{ toYaml .Values.state_storage.resources | indent 10 }}
+      {{- end }}
+        command: ["bash", "-c"]
+        args:
+        - >
+          bin/apply-config-from-env.py conf/bookkeeper.conf;
+          bin/bookkeeper org.apache.bookkeeper.stream.server.StreamStorageServer -c {{ template "pulsar.home" . }}/conf/bookkeeper.conf -p {{ .Values.state_storage.ports.grpc }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.state_storage.ports.grpc }}
+        - name: http
+          containerPort: {{ .Values.state_storage.ports.http }}
+        envFrom:
+        - configMapRef:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}"
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - mountPath: {{ template "pulsar.home" . }}/conf/bookkeeper.conf
+          name: config-volume
+          subPath: bookkeeper.conf
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}-{{ .Values.state_storage.volumes.data.name }}"
+          mountPath: /pulsar/data/bookkeeper/ranges
+      volumes:
+      - name: config-volume
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}"
+      {{- if not (and .Values.volumes.persistence .Values.state_storage.volumes.persistence) }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}-{{ .Values.state_storage.volumes.data.name }}"
+        emptyDir: {}
+      {{- end }}
+{{- if and .Values.volumes.persistence .Values.state_storage.volumes.persistence}}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.fullname" . }}-{{ .Values.state_storage.component }}-{{ .Values.state_storage.volumes.data.name }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.state_storage.volumes.data.size }}
+      {{- include "pulsar.state_storage.data.storage.class" . | nindent 6 }}
+{{- end }}
+{{- end }}
