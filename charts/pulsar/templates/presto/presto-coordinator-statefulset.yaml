@@ -158,13 +158,13 @@ spec:
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/catalog/pulsar.properties
               name: config-volume
               subPath: pulsar.properties
+            {{- if .Values.presto.security.authentication.jwt.enabled }}
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/rules.json
               name: config-volume
               subPath: rules.json
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/access-control.properties
               name: config-volume
               subPath: access-control.properties
-            {{- if .Values.presto.security.authentication.jwt.enabled }}
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
               name: public-key-volume
               subPath: {{ .Values.presto.security.authentication.jwt.publicKeyConfigMapKey  }}
