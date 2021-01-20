@@ -237,13 +237,21 @@ data:
     # default is Runtime.getRuntime().availableProcessors().
     # pulsar.managed-ledger-num-scheduler-threads =
 
-{{- if .Values.presto.security.authentication.jwt.enabled }}
+{{- if or .Values.presto.security.authentication.jwt.enabled .Values.presto.security.authentication.password.enabled }}
   rules.json:
 {{ toYaml .Values.presto.security.rules | indent 2 }}
+{{- end}}
+{{- if .Values.presto.security.authentication.jwt.enabled }}
   access-control.properties: |
     # access-control.properties
     access-control.name=file
     security.config-file={{ template "pulsar.home" . }}/conf/presto/rules.json
     security.refresh-period=60s
+{{- end}}
+{{- if .Values.presto.security.authentication.password.enabled }}
+  password-authenticator.properties: |
+    password-authenticator.name=file
+    file.password-file={{ template "pulsar.home" . }}/presto/{{ .Values.presto.security.authentication.password.passwordFileName }}
+    file.refresh-period=60s
 {{- end}}
 {{- end }}
