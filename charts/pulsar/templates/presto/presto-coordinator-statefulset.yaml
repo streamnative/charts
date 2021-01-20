@@ -158,10 +158,19 @@ spec:
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/catalog/pulsar.properties
               name: config-volume
               subPath: pulsar.properties
-            {{- if .Values.presto.security.authentication.jwt.enabled }}
+            {{- if or .Values.presto.security.authentication.jwt.enabled .Values.presto.security.authentication.password.enabled }}
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/rules.json
               name: config-volume
               subPath: rules.json
+            {{- end}}
+            {{- if .Values.presto.security.authentication.password.enabled }}
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/password-authenticator.properties
+              name: config-volume
+              subPath: password-authenticator.properties
+            - mountPath: {{ template "pulsar.home" . }}/presto
+              name: password-file-volume
+            {{- end}}
+            {{- if .Values.presto.security.authentication.jwt.enabled }}
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/access-control.properties
               name: config-volume
               subPath: access-control.properties
@@ -217,5 +226,13 @@ spec:
         - name: public-key-volume
           configMap:
             name: {{ .Values.presto.security.authentication.jwt.publicKeyConfigMapName  }}
+        {{- end}}
+        {{- if .Values.presto.security.authentication.password.enabled }}
+        - name: password-file-volume
+          secret:
+            secretName: {{ .Values.presto.security.authentication.password.passwordFileSecret }}
+            items:
+            - key: {{ .Values.presto.security.authentication.password.passwordFileSecretKey }}
+              path: {{ .Values.presto.security.authentication.password.passwordFileName }}
         {{- end}}
 {{- end }}

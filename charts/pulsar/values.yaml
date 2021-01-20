@@ -1500,6 +1500,19 @@ rbac:
 presto:
   security:
     authentication:
+      password:
+        enabled: false
+        # a K8S secret that stores the password file
+        #
+        # a) generate the password file `password.db`:
+        #    $ touch password.db
+        #    $ htpasswd -B -C 10 password.db <username>
+        #
+        # b) generate the secret: `kubectl -n pulsar create secret generic [PASSWORD FILE SECRET NAME] --from-file=password=password.db`
+        #    example: kubectl -n pulsar create secret generic prod-pulsar-presto-password --from-file=password=password.db
+        passwordFileName: "password.db"
+        passwordFileSecret: '[PASSWORD FILE SECRET NAME]'
+        passwordFileSecretKey: 'password'
       jwt:
         enabled: false
         publicKeyFileName: "public.key"
