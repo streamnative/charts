@@ -54,7 +54,10 @@ spec:
         args:
           - >
             apk add curl;
+            export CSRF_TOKEN=$(curl http://{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend:{{ .Values.pulsar_manager.ports.backend }}/pulsar-manager/csrf-token);
             curl -H "Content-Type: application/json" \
+                 -H "X-XSRF-TOKEN: $CSRF_TOKEN" \
+                 -H "Cookie: XSRF-TOKEN=$CSRF_TOKEN;" \
                  -X PUT \
                  http://{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend:{{ .Values.pulsar_manager.ports.backend }}/pulsar-manager/users/superuser \
                  -d '{"name": "{{ .Values.pulsar_manager.superuser.user }}", "password": "{{ .Values.pulsar_manager.superuser.password }}", "description": "{{ .Values.pulsar_manager.superuser.description }}", "email": "{{ .Values.pulsar_manager.superuser.email }}"}' 
