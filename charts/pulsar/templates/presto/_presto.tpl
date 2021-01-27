@@ -39,3 +39,16 @@ pulsar ingress target port for http endpoint
 {{- print "http" -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+pulsar presto worker image
+*/}}
+{{- define "presto.worker.image" -}}
+{{- if .Values.images.presto_worker }}
+image: "{{ .Values.images.presto_worker.repository }}:{{ .Values.images.presto_worker.tag }}"
+imagePullPolicy: {{ .Values.images.presto_worker.pullPolicy }}
+{{- else }}
+image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
+imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
+{{- end }}
+{{- end }}
