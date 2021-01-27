@@ -128,6 +128,10 @@ images:
     repository: streamnative/pulsar-all
     tag: 2.7.0.4
     pullPolicy: IfNotPresent
+  presto_worker:
+    repository: streamnative/pulsar-all
+    tag: 2.7.0.4
+    pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
     tag: 2.7.0.4
