@@ -103,8 +103,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}-worker
-          image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
-          imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
+          {{- include "presto.worker.image" . | nindent 10 }}
           {{- if .Values.presto.worker.probe.liveness.enabled }}
           livenessProbe:
             exec:
