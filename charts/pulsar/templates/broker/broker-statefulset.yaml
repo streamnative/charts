@@ -267,6 +267,18 @@ spec:
             fieldRef:
               fieldPath: status.podIP
         {{- end }}
+        {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.broker.offload.s3.secret }}
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.broker.offload.s3.secret }}
+              key: AWS_SECRET_ACCESS_KEY
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
