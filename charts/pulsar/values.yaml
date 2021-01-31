@@ -915,6 +915,7 @@ broker:
     annotations: {}
   offload:
     enabled: false
+    use: true
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false

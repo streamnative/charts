@@ -133,7 +133,7 @@ spec:
             - >-
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
-              echo "node.ip=${POD_IP}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.internal-address=${HOSTNAME}.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
