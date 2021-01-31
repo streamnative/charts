@@ -85,6 +85,7 @@ data:
 {{- end }}
     query.max-memory={{ .Values.presto.worker.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.worker.config.query.maxMemoryPerNode }}
+    query.max-total-memory-per-node={{ .Values.presto.worker.config.query.maxTotalMemoryPerNode }}
   log.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
@@ -206,11 +207,11 @@ data:
     
     # The number of threads used by Netty to handle TCP connections,
     # default is 2 * Runtime.getRuntime().availableProcessors().
-    # pulsar.bookkeeper-num-io-threads =
+    pulsar.bookkeeper-num-io-threads = {{ .Values.presto.catalog.pulsar.bookkeeperNumIOThreads }}
     
     # The number of worker threads used by bookkeeper client to submit operations,
     # default is Runtime.getRuntime().availableProcessors().
-    # pulsar.bookkeeper-num-worker-threads =
+    pulsar.bookkeeper-num-worker-threads = {{ .Values.presto.catalog.pulsar.bookkeeperNumWorkerThreads }}
     
     ####### MANAGED LEDGER CONFIGS #######
     
@@ -221,11 +222,11 @@ data:
     
     # Number of threads to be used for managed ledger tasks dispatching,
     # default is Runtime.getRuntime().availableProcessors().
-    # pulsar.managed-ledger-num-worker-threads =
+    pulsar.managed-ledger-num-worker-threads = {{ .Values.presto.catalog.pulsar.mlNumWorkerThreads }}
     
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().
-    # pulsar.managed-ledger-num-scheduler-threads =
+    pulsar.managed-ledger-num-scheduler-threads = {{ .Values.presto.catalog.pulsar.mlNumSchedulerThreads }}
   health_check.sh: |
     #!/bin/bash 
     curl --silent {{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(hostname -i)

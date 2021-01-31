@@ -153,6 +153,11 @@ images:
     repository: streamnative/pulsar-all
     tag: 2.7.0.6
     pullPolicy: IfNotPresent
+  # NOTE: allow overriding the toolset image
+  # toolset:
+  #   repository: streamnative/pulsar-all
+  #   tag: 2.7.0.4
+  #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
     tag: v2.17.2
@@ -910,6 +915,7 @@ broker:
     annotations: {}
   offload:
     enabled: false
+    use: true
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
@@ -1592,6 +1598,7 @@ presto:
       query:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
+        maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
     log:
@@ -1659,6 +1666,10 @@ presto:
       rewriteNamespaceDelimiter: "/"
       bookkeeperThrottleValue: "0"
       managedLedgerCacheSizeMB: "0"
+      bookkeeperNumIOThreads: "8"
+      bookkeeperNumWorkerThreads: "8"
+      mlNumWorkerThreads: "8"
+      mlNumSchedulerThreads: "8"
   service:
     spec:
       type: ClusterIP
