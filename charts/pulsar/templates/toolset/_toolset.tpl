@@ -184,7 +184,7 @@ pulsar toolset image
 image: "{{ .Values.images.toolset.repository }}:{{ .Values.images.toolset.tag }}"
 imagePullPolicy: {{ .Values.images.toolset.pullPolicy }}
 {{- else }}
-image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
 {{- end }}
 {{- end }}

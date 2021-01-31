@@ -1664,6 +1664,10 @@ presto:
       rewriteNamespaceDelimiter: "/"
       bookkeeperThrottleValue: "0"
       managedLedgerCacheSizeMB: "0"
+      bookkeeperNumIOThreads: "8"
+      bookkeeperNumWorkerThreads: "8"
+      mlNumWorkerThreads: "8"
+      mlNumSchedulerThreads: "8"
   service:
     spec:
       type: ClusterIP
