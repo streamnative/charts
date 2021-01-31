@@ -1597,6 +1597,7 @@ presto:
       query:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
+        maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
     log:

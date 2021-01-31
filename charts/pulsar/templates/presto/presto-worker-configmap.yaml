@@ -85,6 +85,7 @@ data:
 {{- end }}
     query.max-memory={{ .Values.presto.worker.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.worker.config.query.maxMemoryPerNode }}
+    query.max-total-memory-per-node={{ .Values.presto.worker.config.query.maxTotalMemoryPerNode }}
   log.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
