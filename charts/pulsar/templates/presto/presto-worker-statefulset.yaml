@@ -143,6 +143,18 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
+          {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_SECRET_ACCESS_KEY
+          {{- end }}
           volumeMounts:
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
               name: config-volume

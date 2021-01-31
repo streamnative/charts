@@ -156,20 +156,26 @@ data:
     
     ####### TIERED STORAGE OFFLOADER CONFIGS #######
     
+    {{- if and .Values.broker.offload.enabled .Values.presto.read_offload.enabled }}
     ## Driver to use to offload old data to long term storage
-    #pulsar.managed-ledger-offload-driver = aws-s3
+    pulsar.managed-ledger-offload-driver = {{ .Values.broker.offload.managedLedgerOffloadDriver }}
     
     ## The directory to locate offloaders
-    #pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
+    pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
     
     ## Maximum number of thread pool threads for ledger offloading
-    #pulsar.managed-ledger-offload-max-threads = 2
+    pulsar.managed-ledger-offload-max-threads = 2
     
+    {{- if .Values.broker.offload.s3.enabled }}
     ## Properties and configurations related to specific offloader implementation
-    #pulsar.offloader-properties = \
-    #  {"s3ManagedLedgerOffloadBucket": "offload-bucket", \
-    #  "s3ManagedLedgerOffloadRegion": "us-west-2", \
-    #  "s3ManagedLedgerOffloadServiceEndpoint": "http://s3.amazonaws.com"}
+    pulsar.offloader-properties = \
+      {"s3ManagedLedgerOffloadBucket": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}", \
+      "s3ManagedLedgerOffloadRegion": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}", \
+      "s3ManagedLedgerOffloadReadBufferSizeInBytes": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}", \
+      "s3ManagedLedgerOffloadServiceEndpoint": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}"}
+    {{- end }}
+
+    {{- end }}
     
     ####### AUTHENTICATION CONFIGS #######
     {{- if .Values.auth.authentication.enabled }}
