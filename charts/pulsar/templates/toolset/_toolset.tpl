@@ -175,3 +175,16 @@ Define toolset log volumes
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
 {{- end }}
 {{- end }}
+
+{{/*
+pulsar toolset image
+*/}}
+{{- define "pulsar.toolset.image" -}}
+{{- if .Values.images.toolset }}
+image: "{{ .Values.images.toolset.repository }}:{{ .Values.images.toolset.tag }}"
+imagePullPolicy: {{ .Values.images.toolset.pullPolicy }}
+{{- else }}
+image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+{{- end }}
+{{- end }}

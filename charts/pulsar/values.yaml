@@ -153,6 +153,11 @@ images:
     repository: streamnative/pulsar-all
     tag: 2.7.0.6
     pullPolicy: IfNotPresent
+  # NOTE: allow overriding the toolset image
+  # toolset:
+  #   repository: streamnative/pulsar-all
+  #   tag: 2.7.0.4
+  #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
     tag: v2.17.2
