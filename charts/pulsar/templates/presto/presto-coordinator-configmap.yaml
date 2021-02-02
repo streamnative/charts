@@ -90,6 +90,7 @@ data:
     discovery-server.enabled=true
     query.max-memory={{ .Values.presto.coordinator.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.coordinator.config.query.maxMemoryPerNode }}
+    query.max-total-memory-per-node={{ .Values.presto.worker.config.query.maxTotalMemoryPerNode }}
 {{- if gt (int .Values.presto.worker.replicaCount) 0 }}
     node-scheduler.include-coordinator=false
 {{- else }}
