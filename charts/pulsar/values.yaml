@@ -1359,6 +1359,22 @@ grafana:
     requests:
       memory: 250Mi
       cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+      # storageClassName: ""
+      ## If the storage class is left undefined when using persistence
+      ## the default storage class for the cluster will be used.
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
+  
   ## Grafana service
   ## templates/grafana-service.yaml
   ##

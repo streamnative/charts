@@ -111,8 +111,21 @@ spec:
         - name: "cfg"
           mountPath: "{{ template "pulsar.home" . }}/conf/grafana.ini"
           subPath: grafana.ini
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+          mountPath: /grafana #TODO: determine state location for grafana ex./var/lib/grafana
+        {{- include "pulsar.grafana.token.volumeMounts" . | nindent 8 }}
       volumes:
       - name: "cfg"
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+    {{- if not (and .Values.volumes.persistence .Values.grafana.volumes.persistence) }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+        emptyDir: {}
+    {{- end }}
+    {{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+        persistentVolumeClaim:
+          claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+    {{- end }}
+    {{- include "pulsar.grafana.token.volumes" . | nindent 6 }}
 {{- end }}
