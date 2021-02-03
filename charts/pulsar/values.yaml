@@ -1344,7 +1344,7 @@ datadog:
       ]
 
 ## Monitoring Stack: Grafana
-## templates/grafana-deployment.yaml
+## templates/grafana-statefulset.yaml
 ##
 grafana:
   component: grafana
