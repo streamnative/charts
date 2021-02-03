@@ -112,7 +112,7 @@ spec:
           mountPath: "{{ template "pulsar.home" . }}/conf/grafana.ini"
           subPath: grafana.ini
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
-          mountPath: /grafana #TODO: determine state location for grafana ex./var/lib/grafana
+          mountPath: /var/lib/grafana/pulsar
         {{- include "pulsar.grafana.token.volumeMounts" . | nindent 8 }}
       volumes:
       - name: "cfg"
