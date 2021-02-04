@@ -96,6 +96,22 @@ spec:
               key: GRAFANA_ADMIN_PASSWORD
         - name: GRAFANA_CFG_FILE
           value: {{ template "pulsar.home" . }}/conf/grafana.ini
+{{- if .Values.grafana.env.dataPath }}
+        - name: GF_PATHS_DATA
+          value: "{{ .Values.grafana.env.dataPath }}"
+{{- end }}
+{{- if .Values.grafana.env.pluginsPath }}
+        - name: GF_PATHS_PLUGINS
+          value: "{{ .Values.grafana.env.pluginsPath }}"
+{{- end }}
+{{- if .Values.grafana.env.logsPath }}
+        - name: GF_PATHS_LOGS
+          value: "{{ .Values.grafana.env.logsPath }}"
+{{- end }}
+{{- if .Values.grafana.env.provisioningPath }}
+        - name: GF_PATHS_PROVISIONING
+          value: "{{ .Values.grafana.env.provisioningPath }}"
+{{- end }}
 {{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana }}
         - name: GRAFANA_DOMAIN
           value: {{ template "pulsar.control_center_domain" . }}

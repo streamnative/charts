@@ -1359,6 +1359,12 @@ grafana:
     requests:
       memory: 250Mi
       cpu: 0.1
+  env:
+    ## environment variables since grafana.ini settings do not override in Docker container
+    # dataPath: /var/lib/grafana/pulsar/data
+    # pluginsPath: /var/lib/grafana/pulsar/plugins
+    # logsPath: /var/lib/grafana/pulsar/logs
+    # provisioningPath: /var/lib/grafana/pulsar_provisioning
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
