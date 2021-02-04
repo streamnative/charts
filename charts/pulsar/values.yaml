@@ -1292,7 +1292,7 @@ prometheus:
     ## Prometheus data retention period (default if not specified is 15 days)
     ##
     retention: "15d"
-  securityContext:
+  securityContext: 
     runAsUser: 65534
     runAsNonRoot: true
     runAsGroup: 65534
@@ -1365,6 +1365,12 @@ grafana:
     # pluginsPath: /var/lib/grafana/pulsar/plugins
     # logsPath: /var/lib/grafana/pulsar/logs
     # provisioningPath: /var/lib/grafana/pulsar_provisioning
+  securityContext:
+    # Grafana docker image user and groups: https://grafana.com/docs/grafana/latest/installation/docker/#migration-from-a-previous-version-of-the-docker-container-to-5-1-or-later
+    runAsUser: 472
+    runAsNonRoot: true
+    runAsGroup: 472
+    fsGroup: 472
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
