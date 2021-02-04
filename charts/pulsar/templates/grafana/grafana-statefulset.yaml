@@ -146,10 +146,16 @@ spec:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
         emptyDir: {}
     {{- end }}
-    {{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
-        persistentVolumeClaim:
-          claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
-    {{- end }}
     {{- include "pulsar.grafana.token.volumes" . | nindent 6 }}
+{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence}}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.grafana.volumes.data.size }}
+      {{- include "pulsar.grafana.volumes.storage.class" . | nindent 6 }}
+{{- end }}
 {{- end }}
