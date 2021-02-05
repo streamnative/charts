@@ -1361,6 +1361,7 @@ grafana:
       cpu: 0.1
   env:
     ## environment variables since grafana.ini settings do not override in Docker container
+    ## https://grafana.com/docs/grafana/latest/administration/configure-docker/#default-paths
     # dataPath: /var/lib/grafana/pulsar/data
     # pluginsPath: /var/lib/grafana/pulsar/plugins
     # logsPath: /var/lib/grafana/pulsar/logs

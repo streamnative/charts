@@ -137,7 +137,6 @@ spec:
           subPath: grafana.ini
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
           mountPath: /var/lib/grafana/pulsar
-        {{- include "pulsar.grafana.token.volumeMounts" . | nindent 8 }}
       volumes:
       - name: "cfg"
         configMap:
@@ -146,7 +145,6 @@ spec:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
         emptyDir: {}
     {{- end }}
-    {{- include "pulsar.grafana.token.volumes" . | nindent 6 }}
 {{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence}}
   volumeClaimTemplates:
   - metadata:
