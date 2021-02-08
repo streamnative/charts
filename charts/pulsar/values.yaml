@@ -1292,7 +1292,7 @@ prometheus:
     ## Prometheus data retention period (default if not specified is 15 days)
     ##
     retention: "15d"
-  securityContext: 
+  securityContext:
     runAsUser: 65534
     runAsNonRoot: true
     runAsGroup: 65534
@@ -1393,7 +1393,7 @@ grafana:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
-  
+
   ## Grafana service
   ## templates/grafana-service.yaml
   ##
