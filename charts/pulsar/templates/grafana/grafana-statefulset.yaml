@@ -100,6 +100,10 @@ spec:
               key: GRAFANA_ADMIN_PASSWORD
         - name: GRAFANA_CFG_FILE
           value: {{ template "pulsar.home" . }}/conf/grafana.ini
+        # {{- range .Values.grafana.configEnv }}
+        # - name: {{ .name }}
+        #   value: {{ .value }}
+        # {{- end }}
 {{- if .Values.grafana.env.dataPath }}
         - name: GF_PATHS_DATA
           value: "{{ .Values.grafana.env.dataPath }}"
