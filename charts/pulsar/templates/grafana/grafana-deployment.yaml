@@ -18,9 +18,9 @@
 #
 
 {{- if .Values.monitoring.grafana }}
-{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+{{- if not (and .Values.volumes.persistence .Values.grafana.volumes.persistence) }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
   namespace: {{ template "pulsar.namespace" . }}
@@ -28,15 +28,11 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.grafana.component }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
   replicas: {{ .Values.grafana.replicaCount }}
   selector:
     matchLabels:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.grafana.component }}
-  updateStrategy:
-    type: RollingUpdate
-  podManagementPolicy: OrderedReady
   template:
     metadata:
       labels:
@@ -61,10 +57,6 @@ spec:
 {{ toYaml .Values.grafana.tolerations | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.grafana.gracePeriod }}
-      {{- if .Values.grafana.volumes.securityContext }}
-      securityContext:
-{{ toYaml .Values.grafana.volumes.securityContext | indent 8 }}
-      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
         image: "{{ .Values.images.grafana.repository }}:{{ .Values.images.grafana.tag }}"
@@ -101,10 +93,6 @@ spec:
               key: GRAFANA_ADMIN_PASSWORD
         - name: GRAFANA_CFG_FILE
           value: {{ template "pulsar.home" . }}/conf/grafana.ini
-        {{- range .Values.grafana.volumes.env }}
-        - name: {{ .name }}
-          value: {{ .value }}
-        {{- end }}
 {{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana }}
         - name: GRAFANA_DOMAIN
           value: {{ template "pulsar.control_center_domain" . }}
@@ -124,20 +112,9 @@ spec:
         - name: "cfg"
           mountPath: "{{ template "pulsar.home" . }}/conf/grafana.ini"
           subPath: grafana.ini
-        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
-          mountPath: {{ .Values.grafana.volumes.mountPath }}
       volumes:
       - name: "cfg"
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
-  volumeClaimTemplates:
-  - metadata:
-      name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: {{ .Values.grafana.volumes.data.size }}
-      {{- include "pulsar.grafana.volumes.storage.class" . | nindent 6 }}
 {{- end }}
 {{- end }}
