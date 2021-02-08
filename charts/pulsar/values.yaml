@@ -1361,18 +1361,15 @@ grafana:
       cpu: 0.1
   ## environment variables since grafana.ini settings do not override in Docker container
   ## https://grafana.com/docs/grafana/latest/administration/configure-docker/#default-paths
-  configEnv: []
-    # [
-    #   GF_PATHS_DATA: /var/lib/grafana/pulsar/data,
-    #   GF_PATHS_PLUGINS: /var/lib/grafana/pulsar/plugins,
-    #   GF_PATHS_LOGS: /var/lib/grafana/pulsar/logs,
-    #   GF_PATHS_PROVISIONING: /var/lib/grafana/pulsar_provisioning,
-    # ]
-  env:
-    # dataPath: /var/lib/grafana/pulsar/data
-    # pluginsPath: /var/lib/grafana/pulsar/plugins
-    # logsPath: /var/lib/grafana/pulsar/logs
-    # provisioningPath: /var/lib/grafana/pulsar_provisioning
+  configEnv:
+    - name: GF_PATHS_DATA
+      value: /var/lib/grafana/pulsar/data
+    - name: GF_PATHS_PLUGINS
+      value: /var/lib/grafana/pulsar/plugin
+    # - name: GF_PATHS_LOGS
+    #   value: /var/lib/grafana/pulsar/logs
+    - name: GF_PATHS_PROVISIONING
+      value: /var/lib/grafana/pulsar_provisioning
   securityContext:
     # Grafana docker image user and groups: https://grafana.com/docs/grafana/latest/installation/docker/#migration-from-a-previous-version-of-the-docker-container-to-5-1-or-later
     runAsUser: 472
