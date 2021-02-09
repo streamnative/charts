@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// 
+//
 // Program used to delay a helm upgrade process until all relevant nodes have
 // pulled required images. It is an image-awaiter. It can simply wait because
 // the hook-image-puller daemonset that will get the images pulled is already

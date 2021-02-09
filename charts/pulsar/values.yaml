@@ -74,6 +74,8 @@ affinity:
 components:
   # zookeeper
   zookeeper: true
+  # zookeeper-operator
+  zookeeper_operator: true
   # bookkeeper
   bookkeeper: true
   # bookkeeper - autorecovery
