@@ -442,6 +442,7 @@ zookeeper:
   component: zookeeper
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
   replicaCount: 3
+  updateStrategy: RollingUpdate
   ports:
     metrics: 8000
     client: 2181

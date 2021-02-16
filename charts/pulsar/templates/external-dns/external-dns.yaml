@@ -34,7 +34,7 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}
+      serviceAccountName: {{ template "external_dns.serviceAccount" . }}
       volumes:
         {{- range .Values.external_dns.extraMounts }}
         - name: {{ .mountName }}
