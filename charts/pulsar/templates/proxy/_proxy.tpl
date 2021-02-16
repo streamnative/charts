@@ -13,6 +13,7 @@ pulsar service domain
       {{- end -}}
   {{- end -}}
 {{- end -}}
+{{- end -}}
 
 {{/*
 Define proxy token mounts
