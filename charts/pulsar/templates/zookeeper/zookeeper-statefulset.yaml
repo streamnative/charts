@@ -35,7 +35,7 @@ spec:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
-    type: RollingUpdate
+    type: {{ .Values.zookeeper.updateStrategy }}
   podManagementPolicy: OrderedReady
   template:
     metadata:
@@ -102,7 +102,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.zookeeper.component }}
