@@ -4,7 +4,7 @@ pulsar service domain
 {{- define "pulsar.service_domain" -}}
 {{- if .Values.ingress.proxy.enabled -}}
   {{- if .Values.ingress.proxy.external_domain }}
-{{- print "%s" .Values.ingress.proxy.external_domain -}}
+{{- print .Values.ingress.proxy.external_domain -}}
     {{- else -}}
       {{- if .Values.domain.enabled -}}
 {{- printf "data.%s.%s" .Release.Name .Values.domain.suffix -}}
