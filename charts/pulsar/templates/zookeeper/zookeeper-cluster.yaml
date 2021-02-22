@@ -76,7 +76,6 @@ spec:
     jvmOptions:
       memoryOptions: {{ .Values.zookeeper.configData.PULSAR_MEM }}
       gcOptions: {{ .Values.zookeeper.configData.PULSAR_GC }}
-  {{- if .Values.zookeeper.operator.adopt_existing }}
   apiObjects:
     clientService: { }
     headlessService:
@@ -85,14 +84,15 @@ spec:
     statefulSet:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  {{- if .Values.zookeeper.operator.adopt_existing }}
       updatePolicy:
       - image
       - env
+  {{- end }}
     configMap:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-  {{- end }}
 {{- end }}
