@@ -21,7 +21,7 @@
 apiVersion: zookeeper.streamnative.io/v1alpha1
 kind: ZooKeeperCluster
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  name: "{{ template "pulsar.fullname" . }}"
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/ignore-leader-check": "true"
@@ -56,8 +56,6 @@ spec:
       # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
 {{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 6 }}
   pod:
-    resources:
-{{ toYaml .Values.zookeeper.resources | indent 6 }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.zookeeper.component }}
@@ -68,14 +66,32 @@ spec:
 {{- with .Values.zookeeper.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+    resources:
+{{ toYaml .Values.zookeeper.resources | indent 6 }}
     securityContext:
 {{- with .Values.zookeeper.securityContext }}
 {{ toYaml . | indent 6 }}
 {{- end }}
     terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
     jvmOptions:
-      memoryOptions: {{ .Values.zookeeper.configData.PULSAR_MEM }}
-      gcOptions: {{ .Values.zookeeper.configData.PULSAR_GC }}
+      memoryOptions:
+      - {{ .Values.zookeeper.configData.PULSAR_MEM }}
+      gcOptions:
+      - {{ .Values.zookeeper.configData.PULSAR_GC }}
+  persistence:
+    data:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.zookeeper.volumes.data.size }}
+    dataLog:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.zookeeper.volumes.datalog.size }}
+    reclaimPolicy: Delete      
   apiObjects:
     clientService: { }
     headlessService:
