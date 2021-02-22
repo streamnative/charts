@@ -569,6 +569,9 @@ zookeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  operator:
+    enabled: false
+    adopt_existing: false
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml

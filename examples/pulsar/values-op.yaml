@@ -17,22 +17,34 @@
 # under the License.
 #
 
-# deploy zookeeper only when `components.zookeeper` is true
-{{- if and .Values.components.zookeeper (not .Values.zookeeper.operator.enabled) }}
-{{- if .Values.zookeeper.pdb.usePolicy }}
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.zookeeper.component }}
-spec:
-  selector:
-    matchLabels:
-      {{- include "pulsar.matchLabels" . | nindent 6 }}
-      component: {{ .Values.zookeeper.component }}
-  maxUnavailable: {{ .Values.zookeeper.pdb.maxUnavailable }}
-{{- end }}
-{{- end }}
+metadataPrefix: "/configuration-store"
+
+## start
+components:
+  # zookeeper
+  zookeeper: true
+  # bookkeeper
+  bookkeeper: false
+  # bookkeeper - autorecovery
+  autorecovery: false
+  # broker
+  broker: false
+  # proxy
+  proxy: false
+  # toolset
+  toolset: false
+  # pulsar manager
+  pulsar_manager: false
+
+monitoring:
+  # monitoring - prometheus
+  prometheus: false
+  # monitoring - grafana
+  grafana: false
+  # monitoring - node_exporter
+  node_exporter: false
+
+zookeeper:
+  operator:
+    enabled: true
+    adopt_existing: false
