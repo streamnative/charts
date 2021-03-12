@@ -1274,6 +1274,8 @@ prometheus:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
+    # specify to use a clusterRole, set to false to only allow in a single namespace
+    clusterRole: true
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
