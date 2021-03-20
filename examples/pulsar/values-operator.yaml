@@ -48,5 +48,5 @@ zookeeper:
   volumes:
     useSeparateDiskForTxlog: true
   operator:
-    enabled: true
+    enabled: false
   

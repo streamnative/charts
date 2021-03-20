@@ -24,6 +24,8 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/resource-policy": keep
 data:
   gen-zk-conf.sh: |
     #!/bin/bash
