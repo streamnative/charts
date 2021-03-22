@@ -25,7 +25,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
   annotations:
+    {{- if .Values.zookeeper.resourcePolicy.keep }}
     "helm.sh/resource-policy": keep
+    {{- end }}
 data:
   gen-zk-conf.sh: |
     #!/bin/bash
