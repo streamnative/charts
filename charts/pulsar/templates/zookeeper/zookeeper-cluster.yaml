@@ -18,7 +18,7 @@
 #
 # deploy zookeeper only when `components.zookeeper` is true
 {{- if .Values.components.zookeeper }}
-{{- if or .Values.zookeeper.operator.enabled }}
+{{- if .Values.zookeeper.operator.enabled }}
 apiVersion: zookeeper.streamnative.io/v1alpha1
 kind: ZooKeeperCluster
 metadata:
