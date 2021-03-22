@@ -573,6 +573,12 @@ zookeeper:
   ## templates/zookeeper-cluster.yaml
   operator:
     enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - default
+  ## Retention Policy
+  resourcePolicy:
+    keep: false
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml

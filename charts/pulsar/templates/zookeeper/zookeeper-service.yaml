@@ -28,7 +28,9 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
   annotations:
+    {{- if .Values.zookeeper.resourcePolicy.keep }}
     "helm.sh/resource-policy": keep
+    {{- end }}
 {{ toYaml .Values.zookeeper.service.annotations | indent 4 }}
 spec:
   ports:

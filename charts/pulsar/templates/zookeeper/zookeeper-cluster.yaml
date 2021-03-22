@@ -18,7 +18,7 @@
 #
 # deploy zookeeper only when `components.zookeeper` is true
 {{- if .Values.components.zookeeper }}
-{{- if or .Values.zookeeper.operator.enabled .Values.zookeeper.operator.adopt_existing }}
+{{- if or .Values.zookeeper.operator.enabled }}
 apiVersion: zookeeper.streamnative.io/v1alpha1
 kind: ZooKeeperCluster
 metadata:
@@ -169,21 +169,25 @@ spec:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
       updatePolicy:
-      - all
+        - all
     statefulSet:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
       updatePolicy:
-      - default
+      {{- if .Values.zookeeper.operator.adopt_existing }}
+      {{ .Values.zookeeper.operator.updatePolicy }}
+      {{- else }}
+        - all
+      {{- end }}
     configMap:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
       updatePolicy:
-      - all
+        - all
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
       updatePolicy:
-      - all
+        - all
 {{- end }}
 {{- end }}

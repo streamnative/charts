@@ -28,7 +28,9 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
   annotations:
+    {{- if .Values.zookeeper.resourcePolicy.keep }}
     "helm.sh/resource-policy": keep
+    {{- end }}
 data:
   dataDir: /pulsar/data/zookeeper
   {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
