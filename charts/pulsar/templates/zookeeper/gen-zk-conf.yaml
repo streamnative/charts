@@ -55,6 +55,10 @@ data:
     
     	((IDX++))
     done
+
+    if [[ -n "$OBSERVER_SERVER" ]]; then
+        echo "server.
+    if
     
     # For ZooKeeper container we need to initialize the ZK id
     if [ ! -z "$MY_ID" ]; then

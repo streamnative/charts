@@ -569,6 +569,23 @@ zookeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  customizeTool:
+    backup:
+      component: "backup"
+      enable: false
+      image:
+        repository: streamnative/metadata-tool
+        tag: 0.0.1
+        pullPolicy: IfNotPresent
+    restore:
+      component: "restore"
+      enable: false
+      image:
+        repository: streamnative/metadata-tool
+        tag: 0.0.1
+        pullPolicy: IfNotPresent
+      restoreFile: latest
+
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml

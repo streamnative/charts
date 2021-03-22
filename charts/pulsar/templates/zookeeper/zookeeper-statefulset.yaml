@@ -117,6 +117,15 @@ spec:
 {{- with .Values.zookeeper.extraInitContainers }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+      {{- if .Values.zookeeper.customizeTool.restore.enable }}
+      - name: restore-data
+        image: "{{ .Values.zookeeper.customizeTool.restore.image.repository}}:{{ .Values.zookeeper.customizeTool.restore.image.tag }}"
+        imagePullPolicy: {{ .Values.zookeeper.customizeTool.restore.image.pullPolicy }}
+        commands: ["sh", "-c"]
+        args:
+        ->
+          bin/pulsar-metadata-tool restore latest
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
         image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
@@ -154,6 +163,10 @@ spec:
           value:
             {{- $global := . }}
             {{ range $i, $e := until (.Values.zookeeper.replicaCount | int) }}{{ if ne $i 0 }},{{ end }}{{ template "pulsar.fullname" $global }}-{{ $global.Values.zookeeper.component }}-{{ printf "%d" $i }}{{ end }}
+        {{- if .Values.components.backup }}
+        - name: OBSERVER_SERVER
+          value:
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
