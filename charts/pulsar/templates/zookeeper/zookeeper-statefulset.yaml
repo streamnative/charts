@@ -50,7 +50,7 @@ spec:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 8 }}
         {{- end }}
-        {{- if .Values.zookeeper.autoRollDeployment }}
+        {{- if and .Values.zookeeper.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/zookeeper/zookeeper-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.zookeeper.annotations }}

@@ -168,8 +168,6 @@ spec:
     headlessService:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-      updatePolicy:
-        - all
     statefulSet:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
@@ -182,12 +180,8 @@ spec:
     configMap:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-      updatePolicy:
-        - all
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-      updatePolicy:
-        - all
 {{- end }}
 {{- end }}

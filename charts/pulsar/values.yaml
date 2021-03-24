@@ -574,8 +574,7 @@ zookeeper:
   operator:
     enabled: false
     adopt_existing: false
-    updatePolicy: >
-      - default
+    updatePolicy: []
   ## Retention Policy
   resourcePolicy:
     keep: false
