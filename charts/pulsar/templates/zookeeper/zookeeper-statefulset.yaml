@@ -111,21 +111,36 @@ spec:
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
+      {{- if .Values.zookeeper.customTools.restore.enable }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.customTools.restore.component }}"
+        image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+        - >
+          cat conf/pulsar-metadata-tool.properties;
+          cat conf/pulsar-metadata-tool/pulsar-metadata-tool.properties;
+          bin/pulsar-metadata-tool restore {{ .Values.zookeeper.customTools.restore.restorePoint }};
+{{/*          bin/pulsar-metadata-tool cleanup || true;*/}}
+        env:
+          - name: AWS_SECRET_ACCESS_KEY
+            value: "{{ .Values.zookeeper.customTools.restore.secrets.aws.accessSecret }}"
+          - name: AWS_ACCESS_KEY_ID
+            value: "{{ .Values.zookeeper.customTools.restore.secrets.aws.accessId }}"
+          - name: METADATA_TOOL_CONF
+            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        volumeMounts:
+        {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
+        - name: restore-config
+          mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+      {{- end }}
 {{- with .Values.common.extraInitContainers }}
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- with .Values.zookeeper.extraInitContainers }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-      {{- if .Values.zookeeper.customizeTool.restore.enable }}
-      - name: restore-data
-        image: "{{ .Values.zookeeper.customizeTool.restore.image.repository}}:{{ .Values.zookeeper.customizeTool.restore.image.tag }}"
-        imagePullPolicy: {{ .Values.zookeeper.customizeTool.restore.image.pullPolicy }}
-        commands: ["sh", "-c"]
-        args:
-        ->
-          bin/pulsar-metadata-tool restore latest
-      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
         image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
@@ -207,6 +222,11 @@ spec:
       {{- include "pulsar.zookeeper.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.log.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.genzkconf.volumes" . | nindent 6 }}
+      {{- if .Values.zookeeper.customTools.restore.enable }}
+      - name: restore-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+      {{- end }}
   volumeClaimTemplates:
   {{- include "pulsar.zookeeper.data.volumeClaimTemplates" . | nindent 2 }}
 {{- end }}

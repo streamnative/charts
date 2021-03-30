@@ -18,17 +18,31 @@
 #
 
 # deploy zookeeper only when `components.zookeeper` is true
-  {{- if .Values.components.zookeeper }}
+{{- if .Values.zookeeper.customTools.backup.enable }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
 data:
+  pulsar-metadata-tool.properties: |
+    zkServer=localhost:2181
+    zkDataDir=/pulsar/data/zookeeper
+    zkSnapshotDir=/pulsar/data/zookeeper
+    backupInterval=600
+    bucket=s3a://pulsar-metadata-backup-yong-dev
+    backupPrefix=zookeeper-test
+    downloadTimeout=60
+    managedLedgerPath=/managed-ledgers
+    webServerPort={{ .Values.zookeeper.customTools.backup.webServerPort }}
   dataDir: /pulsar/data/zookeeper
+  {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
+  # use a seperate disk for tx log
+  PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
+  {{- end }}
   PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
   serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
   # enable zookeeper tls
@@ -36,8 +50,13 @@ data:
   secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   {{- end }}
+  {{- if .Values.zookeeper.reconfig.enabled }}
+  PULSAR_PREFIX_reconfigEnabled: "true"
+  PULSAR_PREFIX_quorumListenOnAllIPs: "true"
+  {{- end }}
   PULSAR_PREFIX_peerType: "observer"
+{{ toYaml .Values.zookeeper.configData | indent 2 }}
   # Include log configuration file, If you want to configure the log level and other configuration
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
-  {{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 2 }}
-  {{- end }}
+{{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 2 }}
+{{- end }}

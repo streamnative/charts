@@ -77,17 +77,17 @@ components:
   # bookkeeper
   bookkeeper: true
   # bookkeeper - autorecovery
-  autorecovery: true
+  autorecovery: false
   # broker
   broker: true
   # functions
-  functions: true
+  functions: false
   # proxy
-  proxy: true
+  proxy: false
   # toolset
-  toolset: true
+  toolset: false
   # pulsar manager
-  pulsar_manager: true
+  pulsar_manager: false
   # pulsar sql
   sql_worker: false
   # kop
@@ -100,15 +100,15 @@ components:
 ## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
   # monitoring - prometheus
-  prometheus: true
+  prometheus: false
   # monitoring - grafana
-  grafana: true
+  grafana: false
   # monitoring - node_exporter
-  node_exporter: true
+  node_exporter: false
   # alerting - alert-manager
-  alert_manager: true
+  alert_manager: false
   # monitoring - loki
-  loki: true
+  loki: false
   # monitoring - datadog
   datadog: false
 
@@ -569,23 +569,28 @@ zookeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
-  customizeTool:
+  customTools:
     backup:
       component: "backup"
       enable: false
-      image:
-        repository: streamnative/metadata-tool
-        tag: 0.0.1
-        pullPolicy: IfNotPresent
+      repository: "zymap/metadata-tool"
+      tag: "v10"
+      webServerPort: "8088"
+      secrets:
+        aws:
+          accessId: ""
+          accessSecret: ""
     restore:
       component: "restore"
-      enable: false
-      image:
-        repository: streamnative/metadata-tool
-        tag: 0.0.1
-        pullPolicy: IfNotPresent
-      restoreFile: latest
-
+      enable: true
+      repository: "zymap/metadata-tool"
+      tag: "v15"
+      restorePoint: s3a://pulsar-metadata-backup-yong-dev/zookeeper-test-1617183795447.tar.gz
+      restoreVersion: "1"
+      secrets:
+        aws:
+          accessId: ""
+          accessSecret: ""
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -825,7 +830,7 @@ broker:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
-  replicaCount: 3
+  replicaCount: 1
   ports:
     http: 8080
     https: 8443
@@ -932,8 +937,8 @@ broker:
   service_account:
     annotations: {}
   offload:
-    enabled: false
-    use: true
+    enabled: true
+    use: false
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
@@ -1038,7 +1043,7 @@ proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
-  replicaCount: 3
+  replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:

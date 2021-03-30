@@ -18,27 +18,22 @@
 #
 
 # deploy zookeeper only when `components.zookeeper` is true
-{{- if .Values.zookeeper.customTools.backup.enable }}
+{{- if .Values.zookeeper.customTools.restore.enable }}
 apiVersion: v1
-kind: Service
+kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
   namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.zookeeper.component }}
-  annotations:
-{{ toYaml .Values.zookeeper.service.annotations | indent 4 }}
-spec:
-  ports:
-    - name: client
-      port: {{ .Values.zookeeper.ports.client }}
-    {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-    - name: client-tls
-      port: {{ .Values.zookeeper.ports.clientTls }}
-    {{- end }}
-  clusterIP: None
-  selector:
-    {{- include "pulsar.matchLabels" . | nindent 4 }}
-    component: {{ .Values.zookeeper.customTools.backup.component }}
+data:
+  pulsar-metadata-tool.properties: |
+    zkServer={{ template "pulsar.zookeeper.connect" . }}
+    zkDataDir=/pulsar/data/zookeeper
+    zkSnapshotDir=/pulsar/data/zookeeper
+    backupInterval=30
+    bucket=s3a://pulsar-metadata-backup-yong-dev
+    backupPrefix=test-cluster
+    downloadTimeout=60
+    managedLedgerPath=/managed-ledgers
+    webServerPort=8088
+    restoreVersion={{ .Values.zookeeper.customTools.restore.restoreVersion }}
 {{- end }}

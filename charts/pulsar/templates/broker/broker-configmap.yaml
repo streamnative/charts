@@ -46,6 +46,15 @@ data:
   ## Offloading settings
   {{- if .Values.broker.offload.enabled }}
   offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
+  AZURE_STORAGE_ACCOUNT: "offload"
+  AZURE_STORAGE_ACCESS_KEY: ""
+  PULSAR_PREFIX_managedLedgerOffloadDriver: "azureblob"
+  PULSAR_PREFIX_managedLedgerOffloadBucket: "offloadperf"
+  managedLedgerMaxSizePerLedgerMbytes: "10"
+  managedLedgerOffloadAutoTriggerSizeThresholdBytes: "1000000"
+  managedLedgerMinLedgerRolloverTimeMinutes: "1"
+  managedLedgerMaxLedgerRolloverTimeMinutes: "1"
+  managedLedgerMaxEntriesPerLedger: "1000"
 
   {{- if .Values.broker.offload.use }}
   managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
