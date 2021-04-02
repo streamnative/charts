@@ -124,7 +124,7 @@ spec:
       - name: cleanup-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
-      restartPolicy: Never
       {{- end }}
+      restartPolicy: Never
 {{- end }}
 {{- end }}
