@@ -17,7 +17,7 @@
 # under the License.
 #
 
-# deploy zookeeper only when `components.zookeeper` is true
+# deploy zookeeper only when `zookeeper.customTools.backup.enable` is true
 {{- if .Values.zookeeper.customTools.backup.enable }}
 apiVersion: v1
 kind: ConfigMap
