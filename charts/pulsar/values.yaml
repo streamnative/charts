@@ -569,6 +569,36 @@ zookeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  customTools:
+    backup:
+      component: "backup"
+      enable: false
+      repository: "streamnative/pulsar-metadata-tool"
+      tag: "2.7.1.2"
+      pullPolicy: IfNotPresent
+      webServerPort: "8088"
+    #  secrets:
+    #    aws:
+    #      secretName: "backup-aws-secret"
+    ## secret that stores AWS credentials. The secret should be created in the following
+    ## format.
+    ## ```
+    ## kubectl -n pulsar create secret generic \
+    ##   --from-literal=AWS_ACCESS_KEY_ID=[AWS ACCESS KEY] \
+    ##   --from-literal=AWS_SECRET_ACCESS_KEY=[AWS SECRET KEY] \
+    ##   [secret name]
+    ## ```
+    restore:
+      component: "restore"
+      enable: false
+      repository: "streamnative/pulsar-metadata-tool"
+      tag: "2.7.1.2"
+      pullPolicy: IfNotPresent
+      restorePoint: ""
+      restoreVersion: "1"
+#      secrets:
+#        aws:
+#          secretName: "restore-aws-secret"
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml

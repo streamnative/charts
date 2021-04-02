@@ -40,13 +40,19 @@ data:
     fi
     
     DOMAIN=`hostname -d`
+
+    if [ -n "${ZOOKEEPER_DOMAIN}" ]; then
+        ZOOKEEPER_DOMAIN="${ZOOKEEPER_DOMAIN}.$(cut -d '.' -f 2- <<<${DOMAIN})"
+    else
+        ZOOKEEPER_DOMAIN=$DOMAIN
+    fi
     
     # Generate list of servers and detect the current server ID,
     # based on the hostname
     ((IDX++))
     for SERVER in $(echo $ZOOKEEPER_SERVERS | tr "," "\n")
     do
-        echo "server.$IDX=$SERVER.$DOMAIN:2888:3888:${PEER_TYPE};2181" >> $CONF_FILE
+        echo "server.$IDX=$SERVER.$ZOOKEEPER_DOMAIN:2888:3888:${PEER_TYPE};2181" >> $CONF_FILE
     
         if [ "$HOSTNAME" == "$SERVER" ]; then
             MY_ID=$IDX
@@ -55,7 +61,12 @@ data:
     
     	((IDX++))
     done
-    
+
+    if [ -n "${OBSERVER_SERVER}" ]; then
+        echo "server.$IDX=${OBSERVER_SERVER}.$DOMAIN:2181:2888:observer" >> $CONF_FILE
+        MY_ID=$IDX
+    fi
+
     # For ZooKeeper container we need to initialize the ZK id
     if [ ! -z "$MY_ID" ]; then
         # Get ZK data dir
