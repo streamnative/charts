@@ -77,17 +77,17 @@ components:
   # bookkeeper
   bookkeeper: true
   # bookkeeper - autorecovery
-  autorecovery: false
+  autorecovery: true
   # broker
   broker: true
   # functions
-  functions: false
+  functions: true
   # proxy
-  proxy: false
+  proxy: true
   # toolset
-  toolset: false
+  toolset: true
   # pulsar manager
-  pulsar_manager: false
+  pulsar_manager: true
   # pulsar sql
   sql_worker: false
   # kop
@@ -100,15 +100,15 @@ components:
 ## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
   # monitoring - prometheus
-  prometheus: false
+  prometheus: true
   # monitoring - grafana
-  grafana: false
+  grafana: true
   # monitoring - node_exporter
-  node_exporter: false
+  node_exporter: true
   # alerting - alert-manager
-  alert_manager: false
+  alert_manager: true
   # monitoring - loki
-  loki: false
+  loki: true
   # monitoring - datadog
   datadog: false
 
@@ -573,24 +573,32 @@ zookeeper:
     backup:
       component: "backup"
       enable: false
-      repository: "zymap/metadata-tool"
-      tag: "v17"
+      repository: "streamnative/pulsar-metadata-tool"
+      tag: "2.7.1.2"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
-      secrets:
-        aws:
-          secretName: "backup-aws-secret"
+    #  secrets:
+    #    aws:
+    #      secretName: "backup-aws-secret"
+    ## secret that stores AWS credentials. The secret should be created in the following
+    ## format.
+    ## ```
+    ## kubectl -n pulsar create secret generic \
+    ##   --from-literal=AWS_ACCESS_KEY_ID=[AWS ACCESS KEY] \
+    ##   --from-literal=AWS_SECRET_ACCESS_KEY=[AWS SECRET KEY] \
+    ##   [secret name]
+    ## ```
     restore:
       component: "restore"
-      enable: true
-      repository: "zymap/metadata-tool"
-      tag: "v22"
+      enable: false
+      repository: "streamnative/pulsar-metadata-tool"
+      tag: "2.7.1.2"
       pullPolicy: IfNotPresent
-      restorePoint: s3a://pulsar-metadata-backup-yong-dev/yong-backup-test-1617285529528.tar.gz
+      restorePoint: ""
       restoreVersion: "1"
-      secrets:
-        aws:
-          secretName: "restore-aws-secret"
+#      secrets:
+#        aws:
+#          secretName: "restore-aws-secret"
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -830,7 +838,7 @@ broker:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
-  replicaCount: 1
+  replicaCount: 3
   ports:
     http: 8080
     https: 8443
@@ -937,8 +945,8 @@ broker:
   service_account:
     annotations: {}
   offload:
-    enabled: true
-    use: false
+    enabled: false
+    use: true
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
@@ -1043,7 +1051,7 @@ proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
-  replicaCount: 1
+  replicaCount: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
