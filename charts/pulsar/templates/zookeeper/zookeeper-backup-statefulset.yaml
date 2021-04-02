@@ -121,7 +121,7 @@ spec:
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
         image: "{{ .Values.zookeeper.customTools.backup.repository }}:{{ .Values.zookeeper.customTools.backup.tag }}"
-        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+        imagePullPolicy: {{ .Values.zookeeper.customTools.backup.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >
@@ -132,10 +132,18 @@ spec:
         - name: backup-config
           mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
         env:
-          - name: AWS_SECRET_ACCESS_KEY
-            value: "{{ .Values.zookeeper.customTools.backup.secrets.aws.accessSecret }}"
+        {{- if .Values.zookeeper.customTools.backup.secrets.aws.secretName }}
           - name: AWS_ACCESS_KEY_ID
-            value: "{{ .Values.zookeeper.customTools.backup.secrets.aws.accessId }}"
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.backup.secrets.aws.secretName }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.backup.secrets.aws.secretName }}
+                key: AWS_SECRET_ACCESS_KEY
+        {{- end }}
           - name: METADATA_TOOL_CONF
             value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
         ports:

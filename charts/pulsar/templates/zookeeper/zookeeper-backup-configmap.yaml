@@ -34,8 +34,7 @@ data:
     zkSnapshotDir=/pulsar/data/zookeeper
     backupInterval=600
     bucket=s3a://pulsar-metadata-backup-yong-dev
-    backupPrefix=zookeeper-test
-    downloadTimeout=60
+    backupPrefix=yong-backup-test
     managedLedgerPath=/managed-ledgers
     webServerPort={{ .Values.zookeeper.customTools.backup.webServerPort }}
   dataDir: /pulsar/data/zookeeper

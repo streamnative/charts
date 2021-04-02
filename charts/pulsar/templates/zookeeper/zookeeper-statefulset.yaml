@@ -114,19 +114,25 @@ spec:
       {{- if .Values.zookeeper.customTools.restore.enable }}
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.customTools.restore.component }}"
         image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
-        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+        imagePullPolicy: {{ .Values.zookeeper.customTools.restore.pullPolicy }}
         command: ["sh", "-c"]
         args:
         - >
-          cat conf/pulsar-metadata-tool.properties;
           cat conf/pulsar-metadata-tool/pulsar-metadata-tool.properties;
           bin/pulsar-metadata-tool restore {{ .Values.zookeeper.customTools.restore.restorePoint }};
-{{/*          bin/pulsar-metadata-tool cleanup || true;*/}}
         env:
-          - name: AWS_SECRET_ACCESS_KEY
-            value: "{{ .Values.zookeeper.customTools.restore.secrets.aws.accessSecret }}"
+          {{- if .Values.zookeeper.customTools.restore.secrets.aws.secretName }}
           - name: AWS_ACCESS_KEY_ID
-            value: "{{ .Values.zookeeper.customTools.restore.secrets.aws.accessId }}"
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.restore.secrets.aws.secretName }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.restore.secrets.aws.secretName }}
+                key: AWS_SECRET_ACCESS_KEY
+          {{- end }}
           - name: METADATA_TOOL_CONF
             value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
         volumeMounts:

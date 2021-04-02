@@ -58,6 +58,21 @@ spec:
               sleep 3;
             done;
             {{- end}}
+      {{- if .Values.zookeeper.customTools.restore.enable }}
+      - name: pulsar-metadata-cleanup
+        image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+        imagePullPolicy: "{{ .Values.zookeeper.customTools.restore.pullPolicy }}"
+        command: ["sh", "-c"]
+        args:
+          - >
+            bin/pulsar-metadata-tool cleanup
+        env:
+          - name: METADATA_TOOL_CONF
+            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        volumeMounts:
+          - name: cleanup-config
+            mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+      {{- end }}
       # This initContainer will wait for bookkeeper initnewcluster to complete
       # before initializing pulsar metadata
       - name: pulsar-bookkeeper-verify-clusterid
@@ -105,6 +120,11 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
+      {{- if .Values.zookeeper.customTools.restore.enable }}
+      - name: cleanup-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
       restartPolicy: Never
+      {{- end }}
 {{- end }}
 {{- end }}

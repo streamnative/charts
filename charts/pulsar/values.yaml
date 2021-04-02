@@ -574,23 +574,23 @@ zookeeper:
       component: "backup"
       enable: false
       repository: "zymap/metadata-tool"
-      tag: "v10"
+      tag: "v17"
+      pullPolicy: IfNotPresent
       webServerPort: "8088"
       secrets:
         aws:
-          accessId: ""
-          accessSecret: ""
+          secretName: "backup-aws-secret"
     restore:
       component: "restore"
       enable: true
       repository: "zymap/metadata-tool"
-      tag: "v15"
-      restorePoint: s3a://pulsar-metadata-backup-yong-dev/zookeeper-test-1617183795447.tar.gz
+      tag: "v22"
+      pullPolicy: IfNotPresent
+      restorePoint: s3a://pulsar-metadata-backup-yong-dev/yong-backup-test-1617285529528.tar.gz
       restoreVersion: "1"
       secrets:
         aws:
-          accessId: ""
-          accessSecret: ""
+          secretName: "restore-aws-secret"
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
