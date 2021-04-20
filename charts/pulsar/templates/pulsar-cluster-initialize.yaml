@@ -65,6 +65,10 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
+            {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 12 }}
+            export "$(cat conf/pulsar_env.sh | xargs)";
+            export "OPTS=${PULSAR_EXTRA_OPTS}";
+            env;
             bin/pulsar-metadata-tool cleanup
         env:
           - name: METADATA_TOOL_CONF
@@ -72,6 +76,7 @@ spec:
         volumeMounts:
           - name: cleanup-config
             mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+          {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 10 }}
       {{- end }}
       # This initContainer will wait for bookkeeper initnewcluster to complete
       # before initializing pulsar metadata
