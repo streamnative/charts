@@ -760,6 +760,16 @@ bookkeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  ## Operator Controller
+  ## templates/bookkeeper-cluster.yaml
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - finalizers
+  ## Retention Policy
+  resourcePolicy:
+    keep: false
 
 ## Pulsar: Bookkeeper AutoRecovery
 ## templates/autorecovery-statefulset.yaml
@@ -796,6 +806,15 @@ autorecovery:
   configData:
     BOOKIE_MEM: >
       -Xms64m -Xmx64m
+  ## Operator Controller
+  ## templates/bookkeeper-cluster.yaml
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: []
+  ## Retention Policy
+  resourcePolicy:
+    keep: false
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
