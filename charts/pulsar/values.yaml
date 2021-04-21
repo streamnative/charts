@@ -574,7 +574,7 @@ zookeeper:
       component: "backup"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.1.2"
+      tag: "2.7.0-1"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
     #  secrets:
@@ -592,7 +592,7 @@ zookeeper:
       component: "restore"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.1.2"
+      tag: "2.7.0-1"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
