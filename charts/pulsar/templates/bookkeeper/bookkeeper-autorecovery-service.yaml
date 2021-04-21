@@ -16,6 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+
 {{- if and .Values.components.autorecovery (not .Values.autorecovery.operator.enabled) }}
 apiVersion: v1
 kind: Service
