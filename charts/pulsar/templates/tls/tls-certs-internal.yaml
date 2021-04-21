@@ -37,7 +37,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -77,7 +77,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -116,7 +116,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -154,7 +154,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -189,7 +189,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -227,7 +227,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -266,7 +266,7 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  commonName: "*.{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
