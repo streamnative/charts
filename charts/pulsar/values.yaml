@@ -1035,7 +1035,7 @@ pulsar_detector:
   ##
   service:
     spec:
-      type: ClusterIP
+    # clusterIP: None
     annotations: {}
 
   ## Pulsar detector PodDisruptionBudget
@@ -1432,7 +1432,7 @@ grafana:
   ##
   service:
     spec:
-      type: ClusterIP
+    # type: ClusterIP
     annotations: {}
   datasources:
     loki: loki
@@ -1466,7 +1466,7 @@ alert_manager:
       cpu: 0.1
   service:
     spec:
-      type: ClusterIP
+    # clusterIP: None
     annotations: {}
   securityContext:
     runAsUser: 65534
