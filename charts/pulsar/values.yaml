@@ -1034,7 +1034,7 @@ pulsar_detector:
   ## templates/pulsar-detector-service.yaml
   ##
   service:
-    spec:
+    # spec:
     # clusterIP: None
     annotations: {}
 
@@ -1431,8 +1431,8 @@ grafana:
   ## templates/grafana-service.yaml
   ##
   service:
-    spec:
-    # type: ClusterIP
+    # spec:
+    # type: clusterIP
     annotations: {}
   datasources:
     loki: loki
@@ -1465,7 +1465,7 @@ alert_manager:
       memory: 250Mi
       cpu: 0.1
   service:
-    spec:
+    # spec:
     # clusterIP: None
     annotations: {}
   securityContext:
