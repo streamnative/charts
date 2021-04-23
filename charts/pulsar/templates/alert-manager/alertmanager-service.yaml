@@ -29,9 +29,13 @@ metadata:
   annotations:
         {{ toYaml .Values.alert_manager.service.annotations | indent 4 }}
 spec:
+{{- if .Values.alert_manager.service.spec }}
 {{- with .Values.alert_manager.service.spec }}
 {{ toYaml . | indent 2 }}
 {{- end }}
+{{- else }}
+  clusterIP: None
+{{- end}}
   ports:
     - name: server
       port: {{ .Values.alert_manager.port }}

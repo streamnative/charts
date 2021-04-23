@@ -31,8 +31,12 @@ metadata:
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
+{{- if .Values.grafana.service.spec }}
 {{- with .Values.grafana.service.spec }}
 {{ toYaml . | indent 2 }}
+{{- end }}
+{{- else }}
+  clusterIP: None
 {{- end }}
   ports:
     - name: server
