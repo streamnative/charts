@@ -229,6 +229,6 @@ data:
     pulsar.managed-ledger-num-scheduler-threads = {{ .Values.presto.catalog.pulsar.mlNumSchedulerThreads }}
   health_check.sh: |
     #!/bin/bash 
-    curl --silent {{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(hostname -i)
+    curl --silent {{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(hostname)
 {{- end }}
 {{- end }}
