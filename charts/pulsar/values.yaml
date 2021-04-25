@@ -94,6 +94,8 @@ components:
   kop: false
   # pulsar detector
   pulsar_detector: false
+  # superset
+  superset: false
 
 ## Monitoring Components
 ##
