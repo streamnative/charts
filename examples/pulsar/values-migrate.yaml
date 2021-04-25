@@ -1,0 +1,15 @@
+initialize: false
+
+zookeeper:
+  volumes:
+    data:
+      size: 20Gi
+
+grafana:
+  service:
+    spec:
+      type: LoadBalancer
+
+pulsar_manager:
+  service:
+    type: LoadBalancer
