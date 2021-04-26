@@ -82,7 +82,7 @@ entries:
     version: 2.7.0-rc-2
   - apiVersion: v1
     appVersion: 2.7.0
-    created: "2021-04-25T11:28:25.180319926Z"
+    created: "2021-04-26T23:44:09.442456008Z"
     dependencies:
     - condition: monitoring.loki
       name: loki-stack
@@ -93,7 +93,28 @@ entries:
       repository: https://apache.github.io/superset
       version: 0.1.1
     description: Apache Pulsar Helm chart for Kubernetes
-    digest: 705441c0fe6c85286b2a1f3a5bd4f4bb7e0523dd5c866eac1c9016e9405cd871
+    digest: 4f6ec284494bbf513b5667bb0ccb95ad3ae6962973e9379c70f48c862a44d5c0
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: pulsar
+    sources:
+    - https://github.com/streamnative/charts/pulsar
+    urls:
+    - https://github.com/streamnative/charts/releases/download/pulsar-2.7.0-rc-2/pulsar-2.7.0-rc-2.tgz
+    version: 2.7.0-rc-2
+  - apiVersion: v1
+    appVersion: 2.7.0
+    created: "2021-04-23T03:12:11.238148237Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/loki/charts
+      version: 0.36.1
+    description: Apache Pulsar Helm chart for Kubernetes
+    digest: a7586f2b297ed9962f84624df86c9bdd097c6d609a4448216cb7dcd4b2e1d1cd
     home: https://streamnative.io
     icon: http://pulsar.apache.org/img/pulsar.svg
     maintainers:
@@ -107,14 +128,18 @@ entries:
     version: 2.7.0-rc-1
   - apiVersion: v1
     appVersion: 2.7.0
-    created: "2021-04-23T03:12:11.238148237Z"
+    created: "2021-04-25T11:28:25.180319926Z"
     dependencies:
     - condition: monitoring.loki
       name: loki-stack
       repository: https://grafana.github.io/loki/charts
       version: 0.36.1
+    - condition: components.superset
+      name: superset
+      repository: https://apache.github.io/superset
+      version: 0.1.1
     description: Apache Pulsar Helm chart for Kubernetes
-    digest: a7586f2b297ed9962f84624df86c9bdd097c6d609a4448216cb7dcd4b2e1d1cd
+    digest: 705441c0fe6c85286b2a1f3a5bd4f4bb7e0523dd5c866eac1c9016e9405cd871
     home: https://streamnative.io
     icon: http://pulsar.apache.org/img/pulsar.svg
     maintainers:
