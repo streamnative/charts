@@ -145,6 +145,12 @@ Configuration:
         AppenderRef:
           - ref: Console
 
+      - name: io.streamnative.pulsar.broker.authorization.AuthorizationProviderVault
+        level: warn
+        additivity: false
+        AppenderRef:
+          - ref: Console
+
       - name: verbose
         level: info
         additivity: false
