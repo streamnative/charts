@@ -94,6 +94,8 @@ components:
   kop: false
   # pulsar detector
   pulsar_detector: false
+  # superset
+  superset: false
 
 ## Monitoring Components
 ##
@@ -118,36 +120,46 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
+  # NOTE: allow overriding the presto worker image
+  # presto_worker:
+  #   repository: streamnative/pulsar-all
+  #   tag: 2.7.0.4
+  #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
+  # NOTE: allow overriding the toolset image
+  # toolset:
+  #   repository: streamnative/pulsar-all
+  #   tag: 2.7.0.4
+  #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
     tag: v2.17.2
@@ -197,6 +209,7 @@ tls:
   proxy:
     enabled: false
     cert_name: tls-proxy
+    untrustedCa: true
   # settings for generating certs for proxy
   pulsar_detector:
     enabled: false
@@ -223,6 +236,9 @@ tls:
   pulsar_manager:
     enabled: true
     cert_name: tls-pulsar-manager
+  presto:
+    enabled: false
+    cert_name: tls-presto
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -339,6 +355,9 @@ external_dns:
   serviceAcct:
     annotations: {}
   securityContext: {}
+  extraMounts: []
+  extraEnv: []
+
 
 ## Domain requested from External DNS
 domain:
@@ -365,6 +384,19 @@ ingress:
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+  ## templates/presto-service-ingress.yaml
+  ##
+  ## Ingresses for exposing presto service publicly
+  presto:
+    enabled: false
+    tls:
+      enabled: true
+    type: LoadBalancer
+    annotations: {}
+    extraSpec: {}
+    ports:
+      http: 80
+      https: 443
   ## templates/control-center-ingress.yaml
   ##
   ## Ingresses for exposing monitoring/management services publicly
@@ -423,7 +455,7 @@ imagePuller:
 
 ## Common properties applied to pulsar components
 common:
-  extraInitContainers: {}
+  extraInitContainers: []
 
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
@@ -434,6 +466,7 @@ zookeeper:
   component: zookeeper
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
   replicaCount: 3
+  updateStrategy: RollingUpdate
   ports:
     metrics: 8000
     client: 2181
@@ -519,7 +552,7 @@ zookeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
-  extraInitContainers: {}
+  extraInitContainers: []
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
   ##
@@ -560,6 +593,36 @@ zookeeper:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  customTools:
+    backup:
+      component: "backup"
+      enable: false
+      repository: "streamnative/pulsar-metadata-tool"
+      tag: "2.7.0-1"
+      pullPolicy: IfNotPresent
+      webServerPort: "8088"
+    #  secrets:
+    #    aws:
+    #      secretName: "backup-aws-secret"
+    ## secret that stores AWS credentials. The secret should be created in the following
+    ## format.
+    ## ```
+    ## kubectl -n pulsar create secret generic \
+    ##   --from-literal=AWS_ACCESS_KEY_ID=[AWS ACCESS KEY] \
+    ##   --from-literal=AWS_SECRET_ACCESS_KEY=[AWS SECRET KEY] \
+    ##   [secret name]
+    ## ```
+    restore:
+      component: "restore"
+      enable: false
+      repository: "streamnative/pulsar-metadata-tool"
+      tag: "2.7.0-1"
+      pullPolicy: IfNotPresent
+      restorePoint: ""
+      restoreVersion: "1"
+#      secrets:
+#        aws:
+#          secretName: "restore-aws-secret"
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -622,6 +685,8 @@ bookkeeper:
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ""
+    # whether to create a cluster role
+    clusterRole: true
     # Extra annotations for the serviceAccount definition. This can either be
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
@@ -667,7 +732,7 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
-  extraInitContainers: {}
+  extraInitContainers: []
   ## Bookkeeper configmap
   ## templates/bookkeeper-configmap.yaml
   ##
@@ -746,7 +811,7 @@ autorecovery:
     requests:
       memory: 64Mi
       cpu: 0.05
-  extraInitContainers: {}
+  extraInitContainers: []
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
@@ -769,7 +834,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/pulsar-all
-    tag: 2.6.0-sn-21
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -837,7 +902,9 @@ broker:
     requests:
       memory: 512Mi
       cpu: 0.2
-  extraInitContainers: {}
+  extraInitContainers: []
+  extraVolumes: []
+  extraVolumeMounts: []
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -851,6 +918,8 @@ broker:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
+    # whether to create a cluster role
+    clusterRole: true
   ## Broker configmap
   ## templates/broker-configmap.yaml
   ##
@@ -875,8 +944,11 @@ broker:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-    AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
-    AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
+    # @deprecated:
+    # 1. You can use a service account to assume an IAM role to access S3 bucket
+    # 2. You can use a k8s secret to reference AWS credentials. See `offload.s3.secret`
+    # AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
+    # AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
@@ -898,6 +970,7 @@ broker:
     annotations: {}
   offload:
     enabled: false
+    use: true
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
@@ -911,6 +984,16 @@ broker:
       s3ManagedLedgerOffloadBucket: "[YOUR BUCKET OF S3]"
       s3ManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
       s3ManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      s3ManagedLedgerOffloadServiceEndpoint: "http://s3.amazonaws.com"
+      # secret that stores AWS credentials. The secret should be created in the following
+      # format.
+      # ```
+      # kubectl -n pulsar create secret generic \
+      #   --from-literal=AWS_ACCESS_KEY_ID=[AWS ACCESS KEY] \
+      #   --from-literal=AWS_SECRET_ACCESS_KEY=[AWS SECRET KEY] \
+      #   [secret name]
+      # ```
+      # secret: [k8s secret that stores AWS credentials]
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -975,8 +1058,8 @@ pulsar_detector:
   ## templates/pulsar-detector-service.yaml
   ##
   service:
-    spec:
-      clusterIP: None
+    # spec:
+    # clusterIP: None
     annotations: {}
 
   ## Pulsar detector PodDisruptionBudget
@@ -1025,7 +1108,9 @@ proxy:
     requests:
       memory: 128Mi
       cpu: 0.2
-  extraInitContainers: {}
+  extraInitContainers: []
+  extraVolumes: []
+  extraVolumeMounts: []
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1243,6 +1328,8 @@ prometheus:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
+    # specify to use a clusterRole, set to false to only allow in a single namespace
+    clusterRole: true
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -1278,6 +1365,7 @@ prometheus:
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
+  customRelabelConfigs: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
@@ -1313,7 +1401,7 @@ datadog:
       ]
 
 ## Monitoring Stack: Grafana
-## templates/grafana-deployment.yaml
+## templates/grafana-statefulset.yaml
 ##
 grafana:
   component: grafana
@@ -1328,12 +1416,47 @@ grafana:
     requests:
       memory: 250Mi
       cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    ## templates/grafana-statefulset.yaml
+    ## environment variables since grafana.ini settings do not override in Docker container
+    ## https://grafana.com/docs/grafana/latest/administration/configure-docker/#default-paths
+    env:
+      - name: GF_PATHS_DATA
+        value: /var/lib/grafana/pulsar/data
+      - name: GF_PATHS_PLUGINS
+        value: /var/lib/grafana/pulsar/plugin
+      # - name: GF_PATHS_LOGS
+      #   value: /var/lib/grafana/pulsar/logs
+      - name: GF_PATHS_PROVISIONING
+        value: /var/lib/grafana/pulsar_provisioning
+    securityContext:
+      # Grafana docker image user and groups: https://grafana.com/docs/grafana/latest/installation/docker/#migration-from-a-previous-version-of-the-docker-container-to-5-1-or-later
+      runAsUser: 472
+      runAsNonRoot: true
+      runAsGroup: 472
+      fsGroup: 472
+    mountPath: /var/lib/grafana/pulsar
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+      # storageClassName: ""
+      ## If the storage class is left undefined when using persistence
+      ## the default storage class for the cluster will be used.
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
+
   ## Grafana service
   ## templates/grafana-service.yaml
   ##
   service:
-    spec:
-      clusterIP: None
+    # spec:
+    # type: clusterIP
     annotations: {}
   datasources:
     loki: loki
@@ -1366,8 +1489,8 @@ alert_manager:
       memory: 250Mi
       cpu: 0.1
   service:
-    spec:
-      clusterIP: None
+    # spec:
+    # clusterIP: None
     annotations: {}
   securityContext:
     runAsUser: 65534
@@ -1402,6 +1525,9 @@ alert_manager:
 ##
 pulsar_manager:
   component: pulsar-manager
+  # this can be used to indiciate to use vault auth for pulsar-manager
+  # even if authentication isn't enabled for other components
+  force_vault: false
   ports:
     frontend: 9527
     backend: 7750
@@ -1492,6 +1618,35 @@ rbac:
 
 # Deploy pulsar sql
 presto:
+  security:
+    authentication:
+      password:
+        enabled: false
+        # a K8S secret that stores the password file
+        #
+        # a) generate the password file `password.db`:
+        #    $ touch password.db
+        #    $ htpasswd -B -C 10 password.db <username>
+        #
+        # b) generate the secret: `kubectl -n pulsar create secret generic [PASSWORD FILE SECRET NAME] --from-file=password=password.db`
+        #    example: kubectl -n pulsar create secret generic prod-pulsar-presto-password --from-file=password=password.db
+        passwordFileName: "password.db"
+        passwordFileSecret: '[PASSWORD FILE SECRET NAME]'
+        passwordFileSecretKey: 'password'
+      jwt:
+        enabled: false
+        publicKeyFileName: "public.key"
+        publicKeyConfigMapName: '[PUBLIC KEY CM NAME]'
+        # the public key stored in the configmap should be persisted in PEM format.
+        # presto prefers the PEM format. If you generate the public key using `pulsar tokens` CLI,
+        # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
+        # to convert the public key file to a public key file in PEM format.
+        publicKeyConfigMapKey: 'public.key'
+    rules: >
+      {
+        "rules": [
+        ]
+      }
   coordinator:
     component: coordinator
     replicaCount: 1
@@ -1506,6 +1661,7 @@ presto:
     gracePeriod: 10
     ports:
       http: 8081
+      https: 8443
     resources:
       requests:
         memory: 4Gi
@@ -1534,12 +1690,16 @@ presto:
       query:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
+        maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
     log:
       presto:
         level: DEBUG
   worker:
+    service:
+      spec:
+        type: ClusterIP
     component: worker
     replicaCount: 2
     tolerations: []
@@ -1579,6 +1739,7 @@ presto:
       query:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
+        maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
     log:
@@ -1586,6 +1747,8 @@ presto:
         level: DEBUG
   node:
     environment: production
+  read_offload:
+    enabled: false
   catalog:
     pulsar:
       maxEntryReadBatchSize: "100"
@@ -1596,6 +1759,10 @@ presto:
       rewriteNamespaceDelimiter: "/"
       bookkeeperThrottleValue: "0"
       managedLedgerCacheSizeMB: "0"
+      bookkeeperNumIOThreads: "8"
+      bookkeeperNumWorkerThreads: "8"
+      mlNumWorkerThreads: "8"
+      mlNumSchedulerThreads: "8"
   service:
     spec:
       type: ClusterIP

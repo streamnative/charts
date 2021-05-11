@@ -27,8 +27,12 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.pulsar_detector.component }}
 spec:
+{{- if .Values.pulsar_detector.service.spec }}
 {{- with .Values.pulsar_detector.service.spec }}
 {{ toYaml . | indent 2 }}
+{{- end }}
+{{- else }}
+  clusterIP: None
 {{- end }}
   ports:
     - name: server

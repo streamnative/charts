@@ -16,33 +16,52 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if .Values.components.sql_worker }}
+
+{{- if and .Values.components.sql_worker .Values.ingress.presto.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "presto.service" . }}
+  name: "{{ template "presto.service" . }}-ingress"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.presto.coordinator.component }}
+  annotations:
+  {{- if .Values.external_dns.enabled }}
+    {{- if .Values.domain.enabled }}
+    external-dns.alpha.kubernetes.io/hostname: {{ template "presto.service_domain" . }}
+    {{- end }}
+  {{- end }}
+  {{- with .Values.ingress.presto.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
-{{- with .Values.presto.service.spec }}
-{{ toYaml . | indent 2 }}
-{{- end }}
+  type: {{ .Values.ingress.presto.type }}
   ports:
+    {{- if .Values.ingress.presto.tls.enabled }}
+    - name: https
+      port: {{ .Values.ingress.presto.ports.https }}
+      protocol: TCP
 {{- if .Values.tls.presto.enabled }}
-    - port: {{ .Values.presto.coordinator.ports.https }}
       targetPort: {{ .Values.presto.coordinator.ports.https }}
-      protocol: TCP
-      name: https
 {{- else }}
-    - port: {{ .Values.presto.coordinator.ports.http }}
       targetPort: {{ .Values.presto.coordinator.ports.http }}
-      protocol: TCP
-      name: http
 {{- end }}
+    {{- else }}
+    - name: http
+      port: {{ .Values.ingress.presto.ports.http }}
+      protocol: TCP
+{{- if .Values.tls.presto.enabled }}
+      targetPort: {{ .Values.presto.coordinator.ports.https }}
+{{- else }}
+      targetPort: {{ .Values.presto.coordinator.ports.http }}
+{{- end }}
+    {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}
     component: {{ .Values.presto.coordinator.component }}
+  {{- with .Values.ingress.presto.extraSpec }}
+    {{- toYaml . | nindent 2 }}
+  {{- end }}
 {{- end }}

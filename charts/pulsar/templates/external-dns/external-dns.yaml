@@ -34,10 +34,16 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ template "pulsar.fullname" . }}-{{ .Values.external_dns.component }}
+      serviceAccountName: {{ template "external_dns.serviceAccount" . }}
+      volumes:
+        {{- range .Values.external_dns.extraMounts }}
+        - name: {{ .mountName }}
+          {{ .type }}:
+            {{ toYaml .mountOpts }}
+        {{- end }}
+
       containers:
       - name: external-dns
-        # latest tag might end up breaking the charts - we have new addition to the ClusterRole apiGroups
         image: k8s.gcr.io/external-dns/external-dns:v0.7.3
         args:
         - --source=service
@@ -71,6 +77,16 @@ spec:
         secret:
           secretName: azure-config-file
       {{- end }}
+        volumeMounts:
+          {{- range .Values.external_dns.extraMounts }}
+          - name: {{ .mountName }}
+            mountPath: {{ .mountPath }}
+          {{- end }}
+        env:
+          {{- range .Values.external_dns.extraEnv }}
+          - name: {{ .name }}
+            value: {{ .value }}
+          {{- end }}
       securityContext:
       {{- with .Values.external_dns.securityContext }}
       {{ toYaml . | indent 6 }}

@@ -27,7 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.presto.worker.component }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}"
+  serviceName: {{ template "presto.worker.service" . }}
   replicas: {{ .Values.presto.worker.replicaCount }}
   selector:
     matchLabels:
@@ -97,10 +97,13 @@ spec:
           {{ end }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.presto.worker.gracePeriod }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}-worker
-          image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
-          imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
+          {{- include "presto.worker.image" . | nindent 10 }}
           {{- if .Values.presto.worker.probe.liveness.enabled }}
           livenessProbe:
             exec:
@@ -128,11 +131,32 @@ spec:
           command: ["sh", "-c"]
           args:
             - >-
+              cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
+              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.internal-address=${HOSTNAME}.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
+          env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_SECRET_ACCESS_KEY
+          {{- end }}
           volumeMounts:
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
               name: config-volume
               subPath: node.properties
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/log.properties
@@ -162,6 +186,10 @@ spec:
               name: ca
               readOnly: true
             {{- end}}
+          ports:
+            - name: http
+              containerPort: {{ .Values.presto.worker.ports.http }}
+              protocol: TCP
       volumes:
         {{- if .Values.auth.authentication.enabled }}
         {{- if eq .Values.auth.authentication.provider "jwt" }}

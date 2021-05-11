@@ -21,13 +21,13 @@
 
 NAMESPACE=cert-manager
 NAME=cert-manager
-VERSION=v1.0.1
+VERSION=v1.0.4
 
 # Install cert-manager CustomResourceDefinition resources
-#echo "Installing cert-manager CRD resources ..."
-#kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${VERSION}/cert-manager.crds.yaml
+echo "Installing cert-manager CRD resources ..."
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${VERSION}/cert-manager.crds.yaml
 
-# Create the namespace 
+# Create the namespace
 kubectl get ns ${NAMESPACE}
 if [ $? == 0 ]; then
     echo "Namespace '${NAMESPACE}' already exists."

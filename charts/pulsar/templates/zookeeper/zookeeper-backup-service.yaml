@@ -17,36 +17,28 @@
 # under the License.
 #
 
-{{- if .Values.monitoring.grafana }}
+# deploy zookeeper only when `zookeeper.customTools.backup.enable` is true
+{{- if .Values.zookeeper.customTools.backup.enable }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.grafana.component }}
+    component: {{ .Values.zookeeper.component }}
   annotations:
-{{- with .Values.grafana.service.annotations }}
-{{ toYaml . | indent 4 }}
-{{- end }}
+{{ toYaml .Values.zookeeper.service.annotations | indent 4 }}
 spec:
-{{- if .Values.grafana.service.spec }}
-{{- with .Values.grafana.service.spec }}
-{{ toYaml . | indent 2 }}
-{{- end }}
-{{- else }}
-  clusterIP: None
-{{- end }}
   ports:
-    - name: server
-      port: {{ .Values.grafana.port }}
-      protocol: TCP
+    - name: client
+      port: {{ .Values.zookeeper.ports.client }}
+    {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
+    - name: client-tls
+      port: {{ .Values.zookeeper.ports.clientTls }}
+    {{- end }}
+  clusterIP: None
   selector:
     {{- include "pulsar.matchLabels" . | nindent 4 }}
-    component: {{ .Values.grafana.component }}
-{{- if .Values.grafana.service.loadBalancerSourceRanges }}
-  loadBalancerSourceRanges:
-{{ toYaml .Values.grafana.service.loadBalancerSourceRanges | indent 4 }}
-{{- end }}
+    component: {{ .Values.zookeeper.customTools.backup.component }}
 {{- end }}

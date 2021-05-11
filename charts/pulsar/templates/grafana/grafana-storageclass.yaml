@@ -18,35 +18,20 @@
 #
 
 {{- if .Values.monitoring.grafana }}
-apiVersion: v1
-kind: Service
+{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+{{- if .Values.grafana.volumes.data.storageClass }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.grafana.component }}
-  annotations:
-{{- with .Values.grafana.service.annotations }}
-{{ toYaml . | indent 4 }}
+provisioner: {{ .Values.grafana.volumes.data.storageClass.provisioner }}
+parameters:
+  type: {{ .Values.grafana.volumes.data.storageClass.type }}
+  fsType: {{ .Values.grafana.volumes.data.storageClass.fsType }}
 {{- end }}
-spec:
-{{- if .Values.grafana.service.spec }}
-{{- with .Values.grafana.service.spec }}
-{{ toYaml . | indent 2 }}
-{{- end }}
-{{- else }}
-  clusterIP: None
-{{- end }}
-  ports:
-    - name: server
-      port: {{ .Values.grafana.port }}
-      protocol: TCP
-  selector:
-    {{- include "pulsar.matchLabels" . | nindent 4 }}
-    component: {{ .Values.grafana.component }}
-{{- if .Values.grafana.service.loadBalancerSourceRanges }}
-  loadBalancerSourceRanges:
-{{ toYaml .Values.grafana.service.loadBalancerSourceRanges | indent 4 }}
 {{- end }}
 {{- end }}

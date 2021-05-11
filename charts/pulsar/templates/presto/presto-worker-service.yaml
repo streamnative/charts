@@ -16,37 +16,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-{{- if .Values.monitoring.grafana }}
+{{- if .Values.components.sql_worker }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+  name: {{ template "presto.worker.service" . }}
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.grafana.component }}
-  annotations:
-{{- with .Values.grafana.service.annotations }}
-{{ toYaml . | indent 4 }}
-{{- end }}
+    component: {{ .Values.presto.worker.component }}
 spec:
-{{- if .Values.grafana.service.spec }}
-{{- with .Values.grafana.service.spec }}
+{{- with .Values.presto.worker.service.spec }}
 {{ toYaml . | indent 2 }}
 {{- end }}
-{{- else }}
-  clusterIP: None
-{{- end }}
   ports:
-    - name: server
-      port: {{ .Values.grafana.port }}
+    - port: {{ .Values.presto.worker.ports.http }}
+      targetPort: {{ .Values.presto.worker.ports.http }}
       protocol: TCP
+      name: http
   selector:
-    {{- include "pulsar.matchLabels" . | nindent 4 }}
-    component: {{ .Values.grafana.component }}
-{{- if .Values.grafana.service.loadBalancerSourceRanges }}
-  loadBalancerSourceRanges:
-{{ toYaml .Values.grafana.service.loadBalancerSourceRanges | indent 4 }}
-{{- end }}
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.presto.worker.component }}
 {{- end }}

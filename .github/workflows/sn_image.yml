@@ -17,19 +17,33 @@
 # under the License.
 #
 
-{{- if .Values.monitoring.alert_manager }}
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.alert_manager.component }}
-data:
-  # For more configuration about the alert manager, please refer to https://prometheus.io/docs/alerting/configuration/
-  alertmanager.yml: |
-{{- with .Values.alert_manager.config }}
-{{ toYaml . | indent 4 }}
-{{- end }}
-{{- end }}
+name: Precommit - Pulsar Helm Chart (Use SN Image)
+on:
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'charts/local-storage-provisioner/**'
+      - 'charts/pulsar/**'
+      - '.github/workflows/**'
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Fetch history
+        run: git fetch --prune --unshallow
+
+      - name: Lint chart
+        id: lint
+        uses: helm/chart-testing-action@v1.0.0
+        with:
+          command: lint
+
+      - name: Install chart
+        run: |
+          .ci/chart_test.sh .ci/clusters/values-sn-image.yaml
+        # Only build a kind cluster if there are chart changes to test.
+        if: steps.lint.outputs.changed == 'true'

@@ -31,6 +31,7 @@ data:
     node.environment={{ .Values.presto.node.environment }}
     node.data-dir={{ template "pulsar.home" . }}/data
   jvm.config: |
+    -Dpresto-temporarily-allow-java8=true
     -server
     -Xmx{{ .Values.presto.coordinator.jvm.memory }}
     -XX:+UseG1GC
@@ -65,16 +66,40 @@ data:
     #
 
     coordinator=true
+{{- if .Values.tls.presto.enabled }}
+    http-server.http.enabled=false
+    http-server.https.enabled=true
+    http-server.https.port={{ .Values.presto.coordinator.ports.https }}
+    http-server.https.keystore.path=<keystore path>
+    http-server.https.keystore.key=<keystore password>
+    discovery.uri=https://localhost:{{ .Values.presto.coordinator.ports.https }}
+    internal-communication.https.required=true
+    internal-communication.https.keystore.path=<keystore path>
+    internal-communication.https.keystore.key=<keystore password>
+{{- else }}
+    http-server.https.enabled=false
+    internal-communication.https.required=false
+    {{- if and .Values.ingress.presto.enabled .Values.ingress.presto.tls.enabled }}
+    http-server.authentication.allow-forwarded-https=true
+    dispatcher.forwarded-header=ACCEPT
+    {{- end }}
+    http-server.http.enabled=true
     http-server.http.port={{ .Values.presto.coordinator.ports.http }}
+    discovery.uri=http://localhost:{{ .Values.presto.coordinator.ports.http }}
+{{- end }}
     discovery-server.enabled=true
-    discovery.uri=http://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}
     query.max-memory={{ .Values.presto.coordinator.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.presto.coordinator.config.query.maxMemoryPerNode }}
-    distributed-joins-enabled=true
+    query.max-total-memory-per-node={{ .Values.presto.coordinator.config.query.maxTotalMemoryPerNode }}
 {{- if gt (int .Values.presto.worker.replicaCount) 0 }}
     node-scheduler.include-coordinator=false
 {{- else }}
     node-scheduler.include-coordinator=true
+{{- end }}
+{{- if .Values.presto.security.authentication.jwt.enabled }}
+    # JWT Authentication
+    http-server.authentication.type=JWT
+    http-server.authentication.jwt.key-file={{ template "pulsar.home" . }}/conf/presto/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
 {{- end }}
 
   log.properties: |
@@ -148,20 +173,26 @@ data:
     
     ####### TIERED STORAGE OFFLOADER CONFIGS #######
     
+    {{- if and .Values.broker.offload.enabled .Values.presto.read_offload.enabled }}
     ## Driver to use to offload old data to long term storage
-    #pulsar.managed-ledger-offload-driver = aws-s3
+    pulsar.managed-ledger-offload-driver = {{ .Values.broker.offload.managedLedgerOffloadDriver }}
     
     ## The directory to locate offloaders
-    #pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
+    pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
     
     ## Maximum number of thread pool threads for ledger offloading
-    #pulsar.managed-ledger-offload-max-threads = 2
+    pulsar.managed-ledger-offload-max-threads = 2
     
+    {{- if .Values.broker.offload.s3.enabled }}
     ## Properties and configurations related to specific offloader implementation
-    #pulsar.offloader-properties = \
-    #  {"s3ManagedLedgerOffloadBucket": "offload-bucket", \
-    #  "s3ManagedLedgerOffloadRegion": "us-west-2", \
-    #  "s3ManagedLedgerOffloadServiceEndpoint": "http://s3.amazonaws.com"}
+    pulsar.offloader-properties = \
+      {"s3ManagedLedgerOffloadBucket": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}", \
+      "s3ManagedLedgerOffloadRegion": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}", \
+      "s3ManagedLedgerOffloadReadBufferSizeInBytes": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}", \
+      "s3ManagedLedgerOffloadServiceEndpoint": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}"}
+    {{- end }}
+
+    {{- end }}
     
     ####### AUTHENTICATION CONFIGS #######
     {{- if .Values.auth.authentication.enabled }}
@@ -192,11 +223,11 @@ data:
     
     # The number of threads used by Netty to handle TCP connections,
     # default is 2 * Runtime.getRuntime().availableProcessors().
-    # pulsar.bookkeeper-num-io-threads =
+    pulsar.bookkeeper-num-io-threads = {{ .Values.presto.catalog.pulsar.bookkeeperNumIOThreads }}
     
     # The number of worker threads used by bookkeeper client to submit operations,
     # default is Runtime.getRuntime().availableProcessors().
-    # pulsar.bookkeeper-num-worker-threads =
+    pulsar.bookkeeper-num-worker-threads = {{ .Values.presto.catalog.pulsar.bookkeeperNumWorkerThreads }}
     
     ####### MANAGED LEDGER CONFIGS #######
     
@@ -207,9 +238,27 @@ data:
     
     # Number of threads to be used for managed ledger tasks dispatching,
     # default is Runtime.getRuntime().availableProcessors().
-    # pulsar.managed-ledger-num-worker-threads =
+    pulsar.managed-ledger-num-worker-threads = {{ .Values.presto.catalog.pulsar.mlNumWorkerThreads }}
     
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().
-    # pulsar.managed-ledger-num-scheduler-threads =
+    pulsar.managed-ledger-num-scheduler-threads = {{ .Values.presto.catalog.pulsar.mlNumSchedulerThreads }}
+
+{{- if or .Values.presto.security.authentication.jwt.enabled .Values.presto.security.authentication.password.enabled }}
+  rules.json:
+{{ toYaml .Values.presto.security.rules | indent 2 }}
+{{- end}}
+{{- if .Values.presto.security.authentication.jwt.enabled }}
+  access-control.properties: |
+    # access-control.properties
+    access-control.name=file
+    security.config-file={{ template "pulsar.home" . }}/conf/presto/rules.json
+    security.refresh-period=60s
+{{- end}}
+{{- if .Values.presto.security.authentication.password.enabled }}
+  password-authenticator.properties: |
+    password-authenticator.name=file
+    file.password-file={{ template "pulsar.home" . }}/presto/{{ .Values.presto.security.authentication.password.passwordFileName }}
+    file.refresh-period=60s
+{{- end}}
 {{- end }}

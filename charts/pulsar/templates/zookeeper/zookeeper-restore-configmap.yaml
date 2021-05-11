@@ -16,33 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if .Values.components.sql_worker }}
+
+# deploy zookeeper only when `zookeeper.customTools.restore.enable` is true
+{{- if .Values.zookeeper.customTools.restore.enable }}
 apiVersion: v1
-kind: Service
+kind: ConfigMap
 metadata:
-  name: {{ template "presto.service" . }}
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
   namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.presto.coordinator.component }}
-spec:
-{{- with .Values.presto.service.spec }}
-{{ toYaml . | indent 2 }}
-{{- end }}
-  ports:
-{{- if .Values.tls.presto.enabled }}
-    - port: {{ .Values.presto.coordinator.ports.https }}
-      targetPort: {{ .Values.presto.coordinator.ports.https }}
-      protocol: TCP
-      name: https
-{{- else }}
-    - port: {{ .Values.presto.coordinator.ports.http }}
-      targetPort: {{ .Values.presto.coordinator.ports.http }}
-      protocol: TCP
-      name: http
-{{- end }}
-  selector:
-    app: {{ template "pulsar.name" . }}
-    release: {{ .Release.Name }}
-    component: {{ .Values.presto.coordinator.component }}
+data:
+  pulsar-metadata-tool.properties: |
+    zkServer={{ template "pulsar.zookeeper.connect" . }}
+    zkDataDir=/pulsar/data/zookeeper
+    zkSnapshotDir=/pulsar/data/zookeeper
+    backupInterval=30
+    bucket=s3a://pulsar-metadata-backup-yong-dev
+    backupPrefix=test-cluster
+    downloadTimeout=60
+    managedLedgerPath=/managed-ledgers
+    webServerPort=8088
+    restoreVersion={{ .Values.zookeeper.customTools.restore.restoreVersion }}
 {{- end }}

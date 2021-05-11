@@ -42,6 +42,10 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.pulsar_detector.component }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.pulsar_detector.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
     {{- end }}

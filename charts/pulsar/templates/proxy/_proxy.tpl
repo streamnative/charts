@@ -2,10 +2,16 @@
 pulsar service domain
 */}}
 {{- define "pulsar.service_domain" -}}
-{{- if .Values.domain.enabled -}}
+{{- if .Values.ingress.proxy.enabled -}}
+  {{- if .Values.ingress.proxy.external_domain }}
+{{- print .Values.ingress.proxy.external_domain -}}
+    {{- else -}}
+      {{- if .Values.domain.enabled -}}
 {{- printf "data.%s.%s" .Release.Name .Values.domain.suffix -}}
-{{- else -}}
+      {{- else -}}
 {{- print "" -}}
+      {{- end -}}
+  {{- end -}}
 {{- end -}}
 {{- end -}}
 
@@ -70,9 +76,11 @@ Define proxy certs mounts
 - mountPath: "/pulsar/certs/proxy"
   name: proxy-certs
   readOnly: true
+{{- if .Values.tls.proxy.untrustedCa }}
 - mountPath: "/pulsar/certs/ca"
   name: proxy-ca
   readOnly: true
+{{- end }}
 {{- end }}
 {{- if .Values.tls.broker.enabled }}
 - mountPath: "/pulsar/certs/broker"
@@ -87,6 +95,7 @@ Define proxy certs volumes
 */}}
 {{- define "pulsar.proxy.certs.volumes" -}}
 {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+{{- if .Values.tls.proxy.untrustedCa }}
 - name: proxy-ca
   secret:
   {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
@@ -99,6 +108,7 @@ Define proxy certs volumes
     items:
       - key: ca.crt
         path: ca.crt
+  {{- end }}
   {{- end }}
 - name: proxy-certs
   secret:

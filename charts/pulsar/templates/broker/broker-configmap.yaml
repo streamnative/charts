@@ -46,10 +46,13 @@ data:
   ## Offloading settings
   {{- if .Values.broker.offload.enabled }}
   offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
-  managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
 
-  # gcs
+  {{- if .Values.broker.offload.use }}
+  managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+  {{- end }}
+
   {{- if .Values.broker.offload.gcs.enabled }}
+  # gcs
   gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadRegion }}
   gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadBucket }}
   gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
@@ -57,10 +60,11 @@ data:
   ## Authentication with GCS
   gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
   {{- end }}
-  # aws-s3
   {{- if .Values.broker.offload.s3.enabled }}
+  # aws-s3
   s3ManagedLedgerOffloadRegion: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}
   s3ManagedLedgerOffloadBucket: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}
+  s3ManagedLedgerOffloadServiceEndpoint: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}
   s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
   s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
   {{- end }}
