@@ -170,4 +170,3 @@ subjects:
   name: {{ template "pulsar.prometheus.serviceAccount" . }}
   namespace: {{ template "pulsar.namespace" . }}
 {{- end }}
-{{- end }}
