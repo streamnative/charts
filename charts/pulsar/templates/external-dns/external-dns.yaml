@@ -78,15 +78,6 @@ spec:
         secret:
           secretName: azure-config-file
       {{- end }}
-        volumeMounts:
-        - name: azure-config-file
-          mountPath: /etc/kubernetes
-          readOnly: true
-      volumes:
-      - name: azure-config-file
-        secret:
-          secretName: azure-config-file
-      {{- end }}
       securityContext:
       {{- with .Values.external_dns.securityContext }}
       {{ toYaml . | indent 6 }}
