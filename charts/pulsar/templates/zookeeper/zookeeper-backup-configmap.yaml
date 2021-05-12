@@ -32,10 +32,10 @@ data:
     zkServer=localhost:2181
     zkDataDir=/pulsar/data/zookeeper
     zkSnapshotDir=/pulsar/data/zookeeper
-    backupInterval=600
-    bucket=s3a://pulsar-metadata-backup-yong-dev
-    backupPrefix=yong-backup-test
-    managedLedgerPath=/managed-ledgers
+    backupInterval={{ .Values.zookeeper.customTools.backup.backupInterval }}
+    bucket={{ .Values.zookeeper.customTools.backup.bucket }}
+    backupPrefix={{ .Values.zookeeper.customTools.backup.backupPrefix }}
+    managedLedgerPath={{ .Values.zookeeper.customTools.backup.managedLedgerPath }}
     webServerPort={{ .Values.zookeeper.customTools.backup.webServerPort }}
   dataDir: /pulsar/data/zookeeper
   {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
