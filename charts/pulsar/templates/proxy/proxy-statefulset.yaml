@@ -106,7 +106,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.proxy.component }}
@@ -123,7 +123,9 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
-            {{- if $zk:=.Values.pulsar_metadata.userProvidedZookeepers }}
+            {{ if .Values.proxy.skipZookeeperReady }}
+            echo "Skipping zookeeper ready check"
+            {{ else if $zk:=.Values.pulsar_metadata.userProvidedZookeepers }}
             until bin/pulsar zookeeper-shell -server {{ $zk }} ls {{ or .Values.metadataPrefix "/" }}; do
               echo "user provided zookeepers {{ $zk }} are unreachable... check in 3 seconds ..." && sleep 3;
             done;
@@ -131,7 +133,7 @@ spec:
             until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
               sleep 3;
             done;
-            {{- end}}
+            {{ end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the proxy
       - name: wait-broker-ready
@@ -191,6 +193,9 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
+          {{- if .Values.proxy.extraStartupCommands }}
+            {{ .Values.proxy.extraStartupCommands | nindent 10 }}
+          {{- end }}
           bin/apply-config-from-env.py conf/proxy.conf;
           echo "OK" > status;
           bin/pulsar proxy;
@@ -211,6 +216,10 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+        env:
+{{- with .Values.proxy.extraEnv }}
+{{ toYaml . | indent 8 }}
+{{- end }}
         volumeMounts:
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}

@@ -172,6 +172,10 @@ images:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
     tag: 0.0.11
     pullPolicy: IfNotPresent
+  grafana_render:
+    repository: grafana/grafana-image-renderer
+    tag: 2.1.0
+    pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
     tag: 0.3.0
@@ -531,6 +535,8 @@ zookeeper:
       #   extraParameters:
       #     iopsPerGB: "50"
   extraInitContainers: []
+  extraEnv: []
+  extraStartupCommands: ""
   ## Zookeeper configmap
   ## templates/zookeeper-configmap.yaml
   ##
@@ -711,6 +717,8 @@ bookkeeper:
         # extraParameters:
         #   iopsPerGB: "50"
   extraInitContainers: []
+  extraEnv: []
+  extraStartupCommands: ""
   ## Bookkeeper configmap
   ## templates/bookkeeper-configmap.yaml
   ##
@@ -790,6 +798,8 @@ autorecovery:
       memory: 64Mi
       cpu: 0.05
   extraInitContainers: []
+  extraEnv: []
+  extraStartupCommands: ""
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
   ##
@@ -883,6 +893,8 @@ broker:
   extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
+  extraEnv: []
+  extraStartupCommands: ""
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -927,8 +939,8 @@ broker:
     # 2. You can use a k8s secret to reference AWS credentials. See `offload.s3.secret`
     # AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
     # AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
-    managedLedgerDefaultEnsembleSize: "3"
-    managedLedgerDefaultWriteQuorum: "3"
+    managedLedgerDefaultEnsembleSize: "2"
+    managedLedgerDefaultWriteQuorum: "2"
     managedLedgerDefaultAckQuorum: "2"
   ## Broker service
   ## templates/broker-service.yaml
@@ -946,6 +958,7 @@ broker:
   # deprecated: use `serviceAccount` section to configure service account.
   service_account:
     annotations: {}
+  skipZookeeperReady: false
   offload:
     enabled: false
     use: true
@@ -1089,6 +1102,8 @@ proxy:
   extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
+  extraEnv: []
+  extraStartupCommands: ""
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1102,6 +1117,7 @@ proxy:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
+  skipZookeeperReady: false
   websocket:
     component: websocket
     enabled: false
@@ -1383,6 +1399,9 @@ datadog:
 ##
 grafana:
   component: grafana
+  renderComponent: render
+  enableRendering: true
+
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -1390,10 +1409,12 @@ grafana:
   tolerations: []
   gracePeriod: 0
   port: 3000
+  renderPort: 8001
   resources:
     requests:
       memory: 250Mi
       cpu: 0.1
+  renderResources:
   volumes:
     # use a persistent volume or emptyDir
     persistence: true

@@ -88,3 +88,20 @@ Pulsar Cluster Name.
 {{- template "pulsar.fullname" . }}
 {{- end }}
 {{- end }}
+
+{{/*
+Pulsar URIs
+*/}}
+{{- define "pulsar.cluster_uris" -}}
+{{- if .Values.pulsar_metadata.external_hostname }}
+--web-service-url http://{{ .Values.pulsar_metadata.external_hostname }}:8080/ \
+--web-service-url-tls https://{{ .Values.pulsar_metadata.external_hostname }}:8443/ \
+--broker-service-url pulsar://{{ .Values.pulsar_metadata.external_hostname }}:6650/ \
+--broker-service-url-tls pulsar+ssl://{{ .Values.pulsar_metadata.external_hostname }}:6651/
+{{- else }}
+--web-service-url http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:8080/ \
+--web-service-url-tls https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:8443/ \
+--broker-service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:6650/ \
+--broker-service-url-tls pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:6651/
+{{- end }}
+{{- end }}

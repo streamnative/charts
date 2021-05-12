@@ -102,16 +102,41 @@ spec:
           value: "true"
 {{- else }}
         - name: GRAFANA_DOMAIN
-          value: localhost 
+          value: localhost
         - name: GRAFANA_ROOT_URL
           value: http://localhost:3000
         - name: GRAFANA_SERVE_FROM_SUB_PATH
           value: "false"
 {{- end }}
+{{- if .Values.grafana.enableRendering }}
+        - name: GF_RENDERING_SERVER_URL
+          value: http://localhost:{{ .Values.grafana.renderPort }}
+        - name: GF_RENDERING_CALLBACK_URL
+          value: http://localhost:{{ .Values.grafana.port }}
+        - name: GF_LOG_FILTERS
+          value: "rendering:debug"
+{{- end }}
         volumeMounts:
         - name: "cfg"
           mountPath: "{{ template "pulsar.home" . }}/conf/grafana.ini"
           subPath: grafana.ini
+{{- if .Values.grafana.enableRendering }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.renderComponent }}"
+        image: "{{ .Values.images.grafana_render.repository }}:{{ .Values.images.grafana_render.tag }}"
+        imagePullPolicy: {{ .Values.images.grafana_render.pullPolicy }}
+      {{- if .Values.grafana.renderResources }}
+        resources:
+{{ toYaml .Values.grafana.renderResources | indent 10 }}
+      {{- end }}
+        ports:
+        - name: render
+          containerPort: {{ .Values.grafana.renderPort }}
+        env:
+          - name: HTTP_PORT
+            value: "{{ .Values.grafana.renderPort }}"
+          - name: ENABLE_METRICS
+            value: 'true'
+{{- end }}
       volumes:
       - name: "cfg"
         configMap:

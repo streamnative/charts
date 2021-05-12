@@ -38,7 +38,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
-            until nslookup {{ .Values.pulsar_metadata.configurationStore}}; do
+            until nslookup {{ regexReplaceAll ":[0-9]*" .Values.pulsar_metadata.configurationStore "" }}; do
               sleep 3;
             done;
 
@@ -117,10 +117,7 @@ spec:
               {{- if not .Values.pulsar_metadata.configurationStore }}
               --configuration-store {{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }} \
               {{- end }}
-              --web-service-url http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:8080/ \
-              --web-service-url-tls https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:8443/ \
-              --broker-service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:6650/ \
-              --broker-service-url-tls pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:6651/ || true;
+              {{- include "pulsar.cluster_uris" . | nindent 14 }} || true;
         volumeMounts:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
       volumes:

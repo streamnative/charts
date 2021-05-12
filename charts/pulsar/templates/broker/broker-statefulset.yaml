@@ -106,7 +106,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.broker.component }}
@@ -123,7 +123,9 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
-
+            {{ if .Values.broker.skipZookeeperReady }}
+            echo "Skipping zookeeper ready check"
+            {{ else }}
             {{- if .Values.broker.advertisedPodIP }}
             export BROKER_ADDRESS="${advertisedAddress}"
             {{- else }}
@@ -131,13 +133,14 @@ spec:
             {{- end }}
             {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 12 }}
             {{- if .Values.pulsar_metadata.configurationStore }}
-            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore}} get {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/"{{ template "pulsar.cluster" . }}"; do
+            until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ .Values.pulsar_metadata.configurationStore }} get {{ .Values.configurationStoreMetadataPrefix }}/admin/clusters/"{{ template "pulsar.cluster" . }}"; do
             {{- end }}
             {{- if not .Values.pulsar_metadata.configurationStore }}
             until bin/bookkeeper org.apache.zookeeper.ZooKeeperMain -server {{ template "pulsar.zookeeper.connect" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
             {{- end }}
               echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
+            {{ end }}
         volumeMounts:
         {{- include "pulsar.broker.certs.volumeMounts" . | nindent 8 }}
       # This init container will wait for bookkeeper to be ready before
@@ -225,6 +228,9 @@ spec:
         {{- else }}
           export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
         {{- end }}
+        {{- if .Values.broker.extraStartupCommands }}
+          {{ .Values.broker.extraStartupCommands | nindent 10 }}
+        {{- end }}
           {{- include "pulsar.broker.kop.settings" . | nindent 10 }}
           bin/apply-config-from-env.py conf/broker.conf;
           echo "OK" > status;
@@ -279,6 +285,9 @@ spec:
               name: {{ .Values.broker.offload.s3.secret }}
               key: AWS_SECRET_ACCESS_KEY
         {{- end }}
+{{- with .Values.broker.extraEnv }}
+{{ toYaml . | indent 8 }}
+{{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"

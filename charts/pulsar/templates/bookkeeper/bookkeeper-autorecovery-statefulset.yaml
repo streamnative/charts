@@ -103,7 +103,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.autorecovery.component }}
@@ -143,6 +143,9 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
+          {{- if .Values.autorecovery.extraStartupCommands }}
+            {{ .Values.autorecovery.extraStartupCommands | nindent 10 }}
+          {{- end }}
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           {{- include "pulsar.autorecovery.zookeeper.tls.settings" . | nindent 10 }}
           bin/bookkeeper autorecovery
@@ -152,6 +155,10 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+        env:
+{{- with .Values.autorecovery.extraEnv }}
+{{ toYaml . | indent 8 }}
+{{- end }}
         volumeMounts:
         {{- include "pulsar.autorecovery.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.autorecovery.log.volumeMounts" . | nindent 8 }}

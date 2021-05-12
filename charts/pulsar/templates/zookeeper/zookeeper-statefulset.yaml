@@ -158,6 +158,9 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
+          {{- if .Values.zookeeper.extraStartupCommands }}
+            {{ .Values.zookeeper.extraStartupCommands | nindent 10 }}
+          {{- end }}
           bin/apply-config-from-env.py conf/zookeeper.conf;
           {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
           {{- range $server := .Values.zookeeper.reconfig.zkServers }}
@@ -188,6 +191,9 @@ spec:
         - name: OBSERVER_SERVER
           value:
         {{- end }}
+{{- with .Values.zookeeper.extraEnv }}
+{{ toYaml . | indent 8 }}
+{{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
