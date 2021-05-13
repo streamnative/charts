@@ -52,8 +52,6 @@ function ci::install_operator_chart() {
       WC=$(${HELM} plugin list | grep helm-git | wc -l)
     done
 
-    git config --global url."https://${ACCESS_TOKEN}:@github.com/".insteadOf "https://github.com/"
-
     ${HELM} repo add sn-operator git+https://github.com/streamnative/pulsar-operators@charts?ref=v0.6.3
     WC=$(${HELM} repo list | grep sn-operator | wc -l)
     while [[ ${WC} -lt 1 ]]; do

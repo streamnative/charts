@@ -19,16 +19,14 @@
 
 name: Precommit - Pulsar Helm Chart (Operator)
 on:
-  pull_request:
-    branches:
-      - '*'
-    paths:
-      - 'charts/local-storage-provisioner/**'
-      - 'charts/pulsar/**'
-      - '.github/workflows/**'
+  workflow_dispatch:
+
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+    env:
+      GOPRIVATE: github.com/streamnative
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -36,14 +34,25 @@ jobs:
       - name: Fetch history
         run: git fetch --prune --unshallow
 
+      - name: Set up Git token
+        run: |
+          git config --global url."https://${ACCESS_TOKEN}:@github.com/".insteadOf "https://github.com/"
+
       - name: Lint chart
         id: lint
         uses: helm/chart-testing-action@v1.0.0
         with:
           command: lint
 
+      - name: Setup Google Cloud SDK
+          uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+          with:
+            version: '276.0.0'
+            service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+            service_account_key: ${{ secrets.GCP_SA_KEY }}
+
       - name: Install chart
         run: |
-          .ci/operator_test.sh .ci/clusters/values-local-pv.yaml
+          .ci/operator_test.sh .ci/clusters/values_operator_zk.yaml
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'
