@@ -45,11 +45,11 @@ jobs:
           command: lint
 
       - name: Setup Google Cloud SDK
-          uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-          with:
-            version: '276.0.0'
-            service_account_email: ${{ secrets.GCP_SA_EMAIL }}
-            service_account_key: ${{ secrets.GCP_SA_KEY }}
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '276.0.0'
+          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
 
       - name: Install chart
         run: |
