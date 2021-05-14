@@ -33,7 +33,8 @@ data:
     bucket=s3a://pulsar-metadata-backup-yong-dev
     backupPrefix=test-cluster
     downloadTimeout=60
-    managedLedgerPath=/managed-ledgers
+    managedLedgerPath={{ .Values.zookeeper.customTools.restore.managedLedgerPath }}
     webServerPort=8088
     restoreVersion={{ .Values.zookeeper.customTools.restore.restoreVersion }}
+{{ toYaml .Values.zookeeper.customTools.restore.configData | indent 2 }}
 {{- end }}

@@ -32,10 +32,10 @@ data:
     zkServer=localhost:2181
     zkDataDir=/pulsar/data/zookeeper
     zkSnapshotDir=/pulsar/data/zookeeper
-    backupInterval=600
-    bucket=s3a://pulsar-metadata-backup-yong-dev
-    backupPrefix=yong-backup-test
-    managedLedgerPath=/managed-ledgers
+    backupInterval={{ .Values.zookeeper.customTools.backup.backupInterval }}
+    bucket={{ .Values.zookeeper.customTools.backup.bucket }}
+    backupPrefix={{ .Values.zookeeper.customTools.backup.backupPrefix }}
+    managedLedgerPath={{ .Values.zookeeper.customTools.backup.managedLedgerPath }}
     webServerPort={{ .Values.zookeeper.customTools.backup.webServerPort }}
   dataDir: /pulsar/data/zookeeper
   {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
@@ -54,7 +54,7 @@ data:
   PULSAR_PREFIX_quorumListenOnAllIPs: "true"
   {{- end }}
   PULSAR_PREFIX_peerType: "observer"
-{{ toYaml .Values.zookeeper.configData | indent 2 }}
+{{ toYaml .Values.zookeeper.customTools.backup.configData | indent 2 }}
   # Include log configuration file, If you want to configure the log level and other configuration
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
 {{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 2 }}
