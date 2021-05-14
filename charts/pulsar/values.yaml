@@ -579,10 +579,13 @@ zookeeper:
       tag: "2.7.0-1"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
-      backupInterval: "600" # seconds
+      backupInterval: "600"
       bucket: "pulsar-backup-bucket"
       backupPrefix: "pulsar-backup"
       managedLedgerPath: "/managed-ledgers"
+      configData:
+        # extra opts for the java command
+        OPTS: ""
     #  secrets:
     #    aws:
     #      secretName: "backup-aws-secret"
@@ -603,6 +606,8 @@ zookeeper:
       restorePoint: ""
       restoreVersion: "1"
       managedLedgerPath: "/managed-ledgers"
+      configData:
+        OPTS: ""
 #      secrets:
 #        aws:
 #          secretName: "restore-aws-secret"

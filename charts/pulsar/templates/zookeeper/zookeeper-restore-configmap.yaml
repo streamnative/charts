@@ -36,4 +36,5 @@ data:
     managedLedgerPath={{ .Values.zookeeper.customTools.restore.managedLedgerPath }}
     webServerPort=8088
     restoreVersion={{ .Values.zookeeper.customTools.restore.restoreVersion }}
+{{ toYaml .Values.zookeeper.customTools.restore.configData | indent 2 }}
 {{- end }}
