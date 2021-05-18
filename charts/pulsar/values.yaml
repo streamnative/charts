@@ -572,6 +572,12 @@ zookeeper:
     usePolicy: true
     maxUnavailable: 1
   customTools:
+    serviceAccount:
+      use: true
+      create: true
+      name: ""
+      annotations: {}
+      clusterRole: true
     backup:
       component: "backup"
       enable: false
@@ -580,13 +586,14 @@ zookeeper:
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
-      bucket: "pulsar-backup-bucket"
+      bucket: "s3a://bucket"
       backupPrefix: "pulsar-backup"
       managedLedgerPath: "/managed-ledgers"
       configData:
         # extra opts for the java command
         OPTS: ""
-    #  secrets:
+      secrets:
+        use: false
     #    aws:
     #      secretName: "backup-aws-secret"
     ## secret that stores AWS credentials. The secret should be created in the following
@@ -608,7 +615,8 @@ zookeeper:
       managedLedgerPath: "/managed-ledgers"
       configData:
         OPTS: ""
-#      secrets:
+      secrets:
+        use: false
 #        aws:
 #          secretName: "restore-aws-secret"
 
