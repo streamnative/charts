@@ -31,7 +31,7 @@ roleRef:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}-clusterrole"
 subjects:
   - kind: ServiceAccount
-    name: {{ template "pulsar.zookeeper.backup.serviceAccount" . }}
+    name: {{ template "pulsar.zookeeper.restore.serviceAccount" . }}
     namespace: {{ template "pulsar.namespace" . }}
 ---
 

@@ -62,7 +62,7 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
       {{- if .Values.zookeeper.customTools.serviceAccount.use }}
-      serviceAccountName: {{ template "pulsar.zookeeper.restore.serviceAccount" }}
+      serviceAccountName: {{ template "pulsar.zookeeper.restore.serviceAccount" . }}
       {{- end }}
     {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:

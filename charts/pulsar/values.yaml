@@ -582,7 +582,7 @@ zookeeper:
       component: "backup"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-1"
+      tag: "2.7.0-2"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
@@ -608,11 +608,12 @@ zookeeper:
       component: "restore"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-1"
+      tag: "2.7.0-2"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
       managedLedgerPath: "/managed-ledgers"
+      bucket: "s3a://bucket"
       configData:
         OPTS: ""
       secrets:
