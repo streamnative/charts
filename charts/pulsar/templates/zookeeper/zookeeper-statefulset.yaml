@@ -61,6 +61,9 @@ spec:
 {{- with .Values.zookeeper.securityContext }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+      {{- if .Values.zookeeper.customTools.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.zookeeper.restore.serviceAccount" . }}
+      {{- end }}
     {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
@@ -121,7 +124,7 @@ spec:
           cat conf/pulsar-metadata-tool/pulsar-metadata-tool.properties;
           bin/pulsar-metadata-tool restore {{ .Values.zookeeper.customTools.restore.restorePoint }};
         env:
-          {{- if .Values.zookeeper.customTools.restore.secrets.aws.secretName }}
+          {{- if .Values.zookeeper.customTools.restore.secrets.use }}
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
