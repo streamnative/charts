@@ -122,9 +122,14 @@ spec:
 {{- end }}
 {{- if .Values.grafana.enableRendering }}
         - name: GF_RENDERING_SERVER_URL
-          value: http://localhost:{{ .Values.grafana.renderPort }}
+          value: http://localhost:{{ .Values.grafana.renderPort }}/render
+{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana }}
+        - name: GF_RENDERING_CALLBACK_URL
+          value: {{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.grafana" . }}/
+{{- else }}
         - name: GF_RENDERING_CALLBACK_URL
           value: http://localhost:{{ .Values.grafana.port }}
+{{- end }}
         - name: GF_LOG_FILTERS
           value: "rendering:debug"
 {{- end }}
