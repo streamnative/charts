@@ -1671,11 +1671,13 @@ presto:
         failureThreshold: 10
         initialDelaySeconds: 10
         periodSeconds: 30
+        path: "/v1/status"
       readiness:
         enabled: true
         failureThreshold: 10
         initialDelaySeconds: 10
         periodSeconds: 30
+        path: "/v1/status"
       startup:
         enabled: false
         failureThreshold: 30

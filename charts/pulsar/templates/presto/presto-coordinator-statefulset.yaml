@@ -108,7 +108,7 @@ spec:
           {{- if .Values.presto.coordinator.probe.liveness.enabled }}
           livenessProbe:
             httpGet:
-              path: /v1/status
+              path: {{ .Values.presto.coordinator.probe.liveness.path }}
               port: {{ .Values.presto.coordinator.ports.http }}
             initialDelaySeconds: {{ .Values.presto.coordinator.probe.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.presto.coordinator.probe.liveness.periodSeconds }}
@@ -117,7 +117,7 @@ spec:
           {{- if .Values.presto.coordinator.probe.readiness.enabled }}
           readinessProbe:
             httpGet:
-              path: /v1/status
+              path: {{ .Values.presto.coordinator.probe.readiness.path }}
               port: {{ .Values.presto.coordinator.ports.http }}
             initialDelaySeconds: {{ .Values.presto.coordinator.probe.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.presto.coordinator.probe.readiness.periodSeconds }}
