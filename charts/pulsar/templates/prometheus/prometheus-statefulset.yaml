@@ -152,13 +152,26 @@ spec:
           name: {{ .configMap }}
     {{- end }}
     {{- if not (and .Values.volumes.persistence .Values.prometheus.volumes.persistence) }}
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+      - name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
         emptyDir: {}
     {{- end }}
     {{- if and .Values.volumes.persistence .Values.prometheus.volumes.persistence }}
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+    {{- if not (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName) }}
+      - name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
         persistentVolumeClaim:
-          claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+          claimName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+    {{- end }}
     {{- end }}
     {{- include "pulsar.prometheus.token.volumes" . | nindent 6 }}
+  {{- if or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName }}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.prometheus.volumes.data.size }}
+      {{- include "pulsar.prometheus.data.storage.class" . | nindent 6 }}
+  {{- end }}
 {{- end }}
