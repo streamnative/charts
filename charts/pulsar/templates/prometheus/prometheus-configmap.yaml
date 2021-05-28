@@ -31,7 +31,7 @@ data:
   # Kubernetes pods with the "scrape=true" annotation.
   prometheus.yml: |
     global:
-      scrape_interval: 15s
+      scrape_interval: {{ .Values.prometheus.scrapeInterval }}
 {{- if .Values.monitoring.alert_manager }}
     rule_files:
       - 'rules.yml'
@@ -55,6 +55,9 @@ data:
 {{- if eq .Values.auth.authentication.provider "jwt" }}
       bearer_token_file: /pulsar/tokens/client/token
 {{- end }}
+{{- end }}
+{{- if .Values.prometheus.sampleLimit }}
+      sample_limit: {{ .Values.prometheus.sampleLimit }}
 {{- end }}
       kubernetes_sd_configs:
       - role: pod
