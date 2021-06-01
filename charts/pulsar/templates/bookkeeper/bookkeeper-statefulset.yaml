@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.bookkeeper }}
+{{- if and .Values.components.bookkeeper (not .Values.bookkeeper.operator.enabled) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -26,6 +26,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
+  annotations:
+    {{- if .Values.bookkeeper.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   replicas: {{ .Values.bookkeeper.replicaCount }}
