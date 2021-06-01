@@ -1,0 +1,14 @@
+# Copyright (c) 2020 StreamNative, Inc.. All Rights Reserved.
+
+apiVersion: v1
+appVersion: "1.0"
+description: Apache Pulsar Operators Helm chart for Kubernetes
+name: pulsar
+version: 0.6.3
+home: https://streamnative.io
+sources:
+- https://github.com/streamnative/pulsar-operators
+icon: http://pulsar.apache.org/img/pulsar.svg
+maintainers:
+- name: boltslei
+  email: glcao@streamnative.io

@@ -1,21 +1,4 @@
-#
-# Licensed to the Apache Software Foundation (ASF) under one
-# or more contributor license agreements.  See the NOTICE file
-# distributed with this work for additional information
-# regarding copyright ownership.  The ASF licenses this file
-# to you under the Apache License, Version 2.0 (the
-# "License"); you may not use this file except in compliance
-# with the License.  You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing,
-# software distributed under the License is distributed on an
-# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-# KIND, either express or implied.  See the License for the
-# specific language governing permissions and limitations
-# under the License.
-#
+
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -23,20 +6,24 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.3.0
   creationTimestamp: null
-  name: zookeeperclusters.zookeeper.streamnative.io
+  name: pulsarbrokers.pulsar.streamnative.io
 spec:
-  group: zookeeper.streamnative.io
+  group: pulsar.streamnative.io
   names:
-    kind: ZooKeeperCluster
-    listKind: ZooKeeperClusterList
-    plural: zookeeperclusters
-    singular: zookeepercluster
+    categories:
+    - pulsar
+    kind: PulsarBroker
+    listKind: PulsarBrokerList
+    plural: pulsarbrokers
+    shortNames:
+    - pb
+    - broker
+    singular: pulsarbroker
   scope: Namespaced
   subresources:
     status: {}
   validation:
     openAPIV3Schema:
-      description: ZooKeeperCluster is the Schema for the zookeeperclusters API
       properties:
         apiVersion:
           description: 'APIVersion defines the versioned schema of this representation
@@ -51,446 +38,125 @@ spec:
         metadata:
           type: object
         spec:
-          description: ZooKeeperClusterSpec defines the desired state of ZooKeeperCluster
+          description: PulsarBrokerSpec defines the desired state of PulsarBroker
           properties:
-            apiObjects:
-              description: APIObjects allows precise control over how components (services,
-                statefulset and so on) should be managed
-              properties:
-                clientService:
-                  description: ClientService defines the client service resource template
-                    used for adopting existing client service.
-                  properties:
-                    metadata:
-                      description: 'Standard object''s metadata used to customize
-                        name, labels, annotations of the object. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
-                      type: object
-                    updatePolicy:
-                      description: UpdatePolicy defines which field to update.
-                      items:
-                        description: UpdateMode defines how to update resource.
-                        type: string
-                      type: array
-                  type: object
-                configMap:
-                  description: ConfigMap defines the configmap resource template.
-                  properties:
-                    metadata:
-                      description: 'Standard object''s metadata used to customize
-                        name, labels, annotations of the object. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
-                      type: object
-                    updatePolicy:
-                      description: UpdatePolicy defines which field to update.
-                      items:
-                        description: UpdateMode defines how to update resource.
-                        type: string
-                      type: array
-                  type: object
-                headlessService:
-                  description: HeadlessService defines the headless service resource
-                    template used for adopting existing headless service.
-                  properties:
-                    metadata:
-                      description: 'Standard object''s metadata used to customize
-                        name, labels, annotations of the object. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
-                      type: object
-                    updatePolicy:
-                      description: UpdatePolicy defines which field to update.
-                      items:
-                        description: UpdateMode defines how to update resource.
-                        type: string
-                      type: array
-                  type: object
-                pdb:
-                  description: PDB defines the podDisruptionBudget resource template.
-                  properties:
-                    metadata:
-                      description: 'Standard object''s metadata used to customize
-                        name, labels, annotations of the object. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
-                      type: object
-                    updatePolicy:
-                      description: UpdatePolicy defines which field to update.
-                      items:
-                        description: UpdateMode defines how to update resource.
-                        type: string
-                      type: array
-                  type: object
-                statefulSet:
-                  description: StatefulSet defines the statefulset resource template
-                    for adopting existing headless service.
-                  properties:
-                    metadata:
-                      description: 'Standard object''s metadata used to customize
-                        the name, labels, annotations of the object. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata'
-                      type: object
-                    updatePolicy:
-                      description: UpdatePolicy defines which field to update.
-                      items:
-                        description: UpdateMode defines how to update resource.
-                        type: string
-                      type: array
-                  type: object
-              type: object
-            conf:
-              description: 'Conf defines the zookeeper configuration. It will be used
-                for generating the configuration file used by zookeeper process. Deprecated:
-                use `config`'
-              properties:
-                custom:
-                  additionalProperties:
-                    type: string
-                  description: Custom accepts other configurations
-                  type: object
-                globalOutstandingLimit:
-                  description: "GlobalOutstandingLimit limits the number of queued
-                    outstanding requests \n The default value is 100000"
-                  type: integer
-                initLimit:
-                  description: "InitLimit is the number of ticks that the initial
-                    synchronization phase can take. \n The default value is 10."
-                  type: integer
-                maxClientCnxns:
-                  description: "MaxClientCnxns limits the maximum number of client
-                    connections. \n The default value is 1000"
-                  type: integer
-                serverCnxnFactory:
-                  description: "ServerCnxnFactory is the ServerCnxnFactory implementation.
-                    \n The default value is org.apache.zookeeper.server.NettyServerCnxnFactory"
-                  type: string
-                snapCount:
-                  description: "SnapCount is the number of transactions recorded in
-                    the transaction log before a snapshot can be taken. \n The default
-                    value is 1000000"
-                  type: integer
-                syncLimit:
-                  description: "SyncLimit is the number of ticks that can pass between
-                    sending a request and getting an acknowledgement \n The default
-                    value is 5."
-                  type: integer
-                tickTime:
-                  description: "TickTime is the number of milliseconds of each tick.
-                    A tick is the basic time unit used by ZooKeeper, as measured in
-                    milliseconds \n The default value is 2000."
-                  type: integer
-              type: object
+            bkMetadataServiceUri:
+              description: BkMetadataServiceURI defines the metadata service uri that
+                bookkeeper is used for loading corresponding metadata driver and resolving
+                its metadata service location.
+              type: string
+            cleanUpPolicy:
+              description: CleanUpPolicy defines the behavior when the object is being
+                deleted
+              type: string
             config:
-              description: Config defines the zookeeper configuration
+              description: Config defines configurations for brokers
               properties:
                 custom:
                   additionalProperties:
                     type: string
-                  description: Custom accepts other configurations
+                  description: Custom allows to customize broker configurations directly.
                   type: object
-                globalOutstandingLimit:
-                  description: "GlobalOutstandingLimit limits the number of queued
-                    outstanding requests \n The default value is 100000"
-                  type: integer
-                initLimit:
-                  description: "InitLimit is the number of ticks that the initial
-                    synchronization phase can take. \n The default value is 10."
-                  type: integer
-                maxClientCnxns:
-                  description: "MaxClientCnxns limits the maximum number of client
-                    connections. \n The default value is 1000"
-                  type: integer
-                serverCnxnFactory:
-                  description: "ServerCnxnFactory is the ServerCnxnFactory implementation.
-                    \n The default value is org.apache.zookeeper.server.NettyServerCnxnFactory"
-                  type: string
-                snapCount:
-                  description: "SnapCount is the number of transactions recorded in
-                    the transaction log before a snapshot can be taken. \n The default
-                    value is 1000000"
-                  type: integer
-                syncLimit:
-                  description: "SyncLimit is the number of ticks that can pass between
-                    sending a request and getting an acknowledgement \n The default
-                    value is 5."
-                  type: integer
-                tickTime:
-                  description: "TickTime is the number of milliseconds of each tick.
-                    A tick is the basic time unit used by ZooKeeper, as measured in
-                    milliseconds \n The default value is 2000."
-                  type: integer
+                function:
+                  description: FunctionConfig defines function worker configurations
+                  properties:
+                    custom:
+                      additionalProperties:
+                        type: string
+                      description: Custom allows to custom functions worker's configuration
+                        and will be written to the ConfigMap for `changeConfig`
+                      type: object
+                    enabled:
+                      description: Enabled defines whether to enable function in the
+                        cluster
+                      type: boolean
+                    labels:
+                      additionalProperties:
+                        type: string
+                      description: Labels defines custom labels for function pods
+                      type: object
+                    mesh:
+                      description: Mesh defines configurations used in function mesh
+                      properties:
+                        BuiltinConnectorsRef:
+                          description: BuiltinConnectorsRef defines the reference
+                            to the ConfigMap that contains a list of builtin-connector
+                            definitions
+                          properties:
+                            name:
+                              description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                TODO: Add other useful fields. apiVersion, kind, uid?'
+                              type: string
+                          type: object
+                      type: object
+                    type:
+                      description: Type defines the type of function worker service
+                        to run functions/sources/sinks Function-mesh worker service
+                        is used if the value of type is FunctionMesh, otherwise the
+                        builtin worker service is used
+                      type: string
+                  type: object
+              type: object
+            configs:
+              additionalProperties:
+                type: string
+              description: 'Configs defines custom configurations for brokers Deprecated:
+                use Config instead'
               type: object
             image:
-              description: Image is the container image used to run zookeeper pods.
-                default is apachepulsar/pulsar:latest
+              description: Image is the container image used to run pulsar broker
+                pods. default is apachepulsar/pulsar:latest
               type: string
             imagePullPolicy:
               description: Image pull policy, one of Always, Never, IfNotPresent,
                 default to Always.
               type: string
+            interceptors:
+              description: Interceptors defines a list of interceptors to enable
+              items:
+                properties:
+                  configs:
+                    additionalProperties:
+                      type: string
+                    description: Configs defines configs for the interceptor
+                    type: object
+                  mountedConfigs:
+                    description: MountedConfigs defines configs whose value should
+                      be put in a dedicated file
+                    items:
+                      description: The operator generates config files based on the
+                        spec automatically
+                      properties:
+                        configName:
+                          description: ConfigName defines the name of the config
+                          type: string
+                        fileName:
+                          description: FileName defines the name of the file used
+                            to store the value. Defaults to the ConfigName.
+                          type: string
+                        value:
+                          description: Value defines the value of the config
+                          type: string
+                      required:
+                      - configName
+                      - value
+                      type: object
+                    type: array
+                  name:
+                    description: Name defines the name of the interceptor
+                    type: string
+                required:
+                - name
+                type: object
+              type: array
             labels:
               additionalProperties:
                 type: string
               description: Labels specifies the labels to attach to the stateful set
-                the operator creates for the zookeeper cluster.
-              type: object
-            persistence:
-              description: Persistence defines the persistent volume used for the
-                zookeeper pod
-              properties:
-                data:
-                  description: Data is the spec to define the data PVC for the container
-                  properties:
-                    accessModes:
-                      description: 'AccessModes contains the desired access modes
-                        the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1'
-                      items:
-                        type: string
-                      type: array
-                    dataSource:
-                      description: 'This field can be used to specify either: * An
-                        existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot
-                        - Beta) * An existing PVC (PersistentVolumeClaim) * An existing
-                        custom resource/object that implements data population (Alpha)
-                        In order to use VolumeSnapshot object types, the appropriate
-                        feature gate must be enabled (VolumeSnapshotDataSource or
-                        AnyVolumeDataSource) If the provisioner or an external controller
-                        can support the specified data source, it will create a new
-                        volume based on the contents of the specified data source.
-                        If the specified data source is not supported, the volume
-                        will not be created and the failure will be reported as an
-                        event. In the future, we plan to support more data source
-                        types and the behavior of the provisioner may change.'
-                      properties:
-                        apiGroup:
-                          description: APIGroup is the group for the resource being
-                            referenced. If APIGroup is not specified, the specified
-                            Kind must be in the core API group. For any other third-party
-                            types, APIGroup is required.
-                          type: string
-                        kind:
-                          description: Kind is the type of resource being referenced
-                          type: string
-                        name:
-                          description: Name is the name of resource being referenced
-                          type: string
-                      required:
-                      - kind
-                      - name
-                      type: object
-                    resources:
-                      description: 'Resources represents the minimum resources the
-                        volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
-                      properties:
-                        limits:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: 'Limits describes the maximum amount of compute
-                            resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                          type: object
-                        requests:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: 'Requests describes the minimum amount of compute
-                            resources required. If Requests is omitted for a container,
-                            it defaults to Limits if that is explicitly specified,
-                            otherwise to an implementation-defined value. More info:
-                            https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                          type: object
-                      type: object
-                    selector:
-                      description: A label query over volumes to consider for binding.
-                      properties:
-                        matchExpressions:
-                          description: matchExpressions is a list of label selector
-                            requirements. The requirements are ANDed.
-                          items:
-                            description: A label selector requirement is a selector
-                              that contains values, a key, and an operator that relates
-                              the key and values.
-                            properties:
-                              key:
-                                description: key is the label key that the selector
-                                  applies to.
-                                type: string
-                              operator:
-                                description: operator represents a key's relationship
-                                  to a set of values. Valid operators are In, NotIn,
-                                  Exists and DoesNotExist.
-                                type: string
-                              values:
-                                description: values is an array of string values.
-                                  If the operator is In or NotIn, the values array
-                                  must be non-empty. If the operator is Exists or
-                                  DoesNotExist, the values array must be empty. This
-                                  array is replaced during a strategic merge patch.
-                                items:
-                                  type: string
-                                type: array
-                            required:
-                            - key
-                            - operator
-                            type: object
-                          type: array
-                        matchLabels:
-                          additionalProperties:
-                            type: string
-                          description: matchLabels is a map of {key,value} pairs.
-                            A single {key,value} in the matchLabels map is equivalent
-                            to an element of matchExpressions, whose key field is
-                            "key", the operator is "In", and the values array contains
-                            only "value". The requirements are ANDed.
-                          type: object
-                      type: object
-                    storageClassName:
-                      description: 'Name of the StorageClass required by the claim.
-                        More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1'
-                      type: string
-                    volumeMode:
-                      description: volumeMode defines what type of volume is required
-                        by the claim. Value of Filesystem is implied when not included
-                        in claim spec.
-                      type: string
-                    volumeName:
-                      description: VolumeName is the binding reference to the PersistentVolume
-                        backing this claim.
-                      type: string
-                  type: object
-                dataLog:
-                  description: DataLog is the spec to define the data-log PVC for
-                    the container
-                  properties:
-                    accessModes:
-                      description: 'AccessModes contains the desired access modes
-                        the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1'
-                      items:
-                        type: string
-                      type: array
-                    dataSource:
-                      description: 'This field can be used to specify either: * An
-                        existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot
-                        - Beta) * An existing PVC (PersistentVolumeClaim) * An existing
-                        custom resource/object that implements data population (Alpha)
-                        In order to use VolumeSnapshot object types, the appropriate
-                        feature gate must be enabled (VolumeSnapshotDataSource or
-                        AnyVolumeDataSource) If the provisioner or an external controller
-                        can support the specified data source, it will create a new
-                        volume based on the contents of the specified data source.
-                        If the specified data source is not supported, the volume
-                        will not be created and the failure will be reported as an
-                        event. In the future, we plan to support more data source
-                        types and the behavior of the provisioner may change.'
-                      properties:
-                        apiGroup:
-                          description: APIGroup is the group for the resource being
-                            referenced. If APIGroup is not specified, the specified
-                            Kind must be in the core API group. For any other third-party
-                            types, APIGroup is required.
-                          type: string
-                        kind:
-                          description: Kind is the type of resource being referenced
-                          type: string
-                        name:
-                          description: Name is the name of resource being referenced
-                          type: string
-                      required:
-                      - kind
-                      - name
-                      type: object
-                    resources:
-                      description: 'Resources represents the minimum resources the
-                        volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
-                      properties:
-                        limits:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: 'Limits describes the maximum amount of compute
-                            resources allowed. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                          type: object
-                        requests:
-                          additionalProperties:
-                            anyOf:
-                            - type: integer
-                            - type: string
-                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
-                            x-kubernetes-int-or-string: true
-                          description: 'Requests describes the minimum amount of compute
-                            resources required. If Requests is omitted for a container,
-                            it defaults to Limits if that is explicitly specified,
-                            otherwise to an implementation-defined value. More info:
-                            https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
-                          type: object
-                      type: object
-                    selector:
-                      description: A label query over volumes to consider for binding.
-                      properties:
-                        matchExpressions:
-                          description: matchExpressions is a list of label selector
-                            requirements. The requirements are ANDed.
-                          items:
-                            description: A label selector requirement is a selector
-                              that contains values, a key, and an operator that relates
-                              the key and values.
-                            properties:
-                              key:
-                                description: key is the label key that the selector
-                                  applies to.
-                                type: string
-                              operator:
-                                description: operator represents a key's relationship
-                                  to a set of values. Valid operators are In, NotIn,
-                                  Exists and DoesNotExist.
-                                type: string
-                              values:
-                                description: values is an array of string values.
-                                  If the operator is In or NotIn, the values array
-                                  must be non-empty. If the operator is Exists or
-                                  DoesNotExist, the values array must be empty. This
-                                  array is replaced during a strategic merge patch.
-                                items:
-                                  type: string
-                                type: array
-                            required:
-                            - key
-                            - operator
-                            type: object
-                          type: array
-                        matchLabels:
-                          additionalProperties:
-                            type: string
-                          description: matchLabels is a map of {key,value} pairs.
-                            A single {key,value} in the matchLabels map is equivalent
-                            to an element of matchExpressions, whose key field is
-                            "key", the operator is "In", and the values array contains
-                            only "value". The requirements are ANDed.
-                          type: object
-                      type: object
-                    storageClassName:
-                      description: 'Name of the StorageClass required by the claim.
-                        More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1'
-                      type: string
-                    volumeMode:
-                      description: volumeMode defines what type of volume is required
-                        by the claim. Value of Filesystem is implied when not included
-                        in claim spec.
-                      type: string
-                    volumeName:
-                      description: VolumeName is the binding reference to the PersistentVolume
-                        backing this claim.
-                      type: string
-                  type: object
-                reclaimPolicy:
-                  description: VolumeReclaimPolicy defines how to reclaim PV.
-                  type: string
+                created by operator for pulsar broker
               type: object
             pod:
-              description: Pod defines the policy for creating a zookeeper pod for
-                the cluster
+              description: Pod defines the policy for creating a broker pod
               properties:
                 affinity:
                   description: Affinity specifies the scheduling constraints of a
@@ -1098,8 +764,11 @@ spec:
                   description: Annotations specifies the annotations to attach to
                     pods the operator creates
                   type: object
+                debug:
+                  description: Debug defines a switch enable debug
+                  type: boolean
                 jvmOptions:
-                  description: JVMOptions defines JVM parameters
+                  description: JvmOptions defines the Jvm options passed to the proxy
                   properties:
                     extraOptions:
                       items:
@@ -1117,12 +786,17 @@ spec:
                       items:
                         type: string
                       type: array
+                  required:
+                  - extraOptions
+                  - gcLoggingOptions
+                  - gcOptions
+                  - memoryOptions
                   type: object
                 labels:
                   additionalProperties:
                     type: string
                   description: Labels specifies the labels to attach to pod the operator
-                    creates for the zookeeper cluster.
+                    creates for the cluster.
                   type: object
                 nodeSelector:
                   additionalProperties:
@@ -1158,6 +832,20 @@ spec:
                         to an implementation-defined value. More info: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/'
                       type: object
                   type: object
+                secretRefs:
+                  description: SecretRefs defines how to mount required secrets into
+                    containers
+                  items:
+                    properties:
+                      mountPath:
+                        type: string
+                      secretName:
+                        type: string
+                    required:
+                    - mountPath
+                    - secretName
+                    type: object
+                  type: array
                 securityContext:
                   description: 'SecurityContext specifies the security context for
                     the entire pod More info: https://kubernetes.io/docs/tasks/configure-pod-container/security-context'
@@ -1303,6 +991,10 @@ spec:
                           type: string
                       type: object
                   type: object
+                serviceAccountName:
+                  description: ServiceAccountName is the name of the ServiceAccount
+                    to use to run this pod.
+                  type: string
                 terminationGracePeriodSeconds:
                   description: TerminationGracePeriodSeconds is the amount of time
                     that kubernetes will give for a pod before terminating it.
@@ -1456,96 +1148,42 @@ spec:
                   type: array
               type: object
             replicas:
-              description: Replicas is the expected size of the zookeeper cluster.
-                The zookeeper operator will eventually make the size of the running
-                cluster equal to the expected size.
+              description: Replicas is the expected size of the pulsar broker
               format: int32
               type: integer
+            zkServers:
+              description: Zookeeper server list
+              type: string
+          required:
+          - zkServers
           type: object
         status:
-          description: ZooKeeperClusterStatus defines the observed state of ZooKeeperCluster
+          description: PulsarBrokerStatus defines the observed state of PulsarBroker
           properties:
             conditions:
-              description: Conditions represent observations of the ZookeeperCluster's
-                state
-              items:
-                description: "Condition represents an observation of an object's state.
-                  Conditions are an extension mechanism intended to be used when the
-                  details of an observation are not a priori known or would not apply
-                  to all instances of a given Kind. \n Conditions should be added
-                  to explicitly convey properties that users and components care about
-                  rather than requiring those properties to be inferred from other
-                  observations. Once defined, the meaning of a Condition can not be
-                  changed arbitrarily - it becomes part of the API, and has the same
-                  backwards- and forwards-compatibility concerns of any other part
-                  of the API."
+              additionalProperties:
+                description: The `Status` of a given `Condition` and the `Action`
+                  needed to reach the `Status`
                 properties:
-                  lastTransitionTime:
-                    format: date-time
+                  action:
+                    description: The action needed to advance components to ready
+                      status
                     type: string
-                  message:
-                    type: string
-                  reason:
-                    description: ConditionReason is intended to be a one-word, CamelCase
-                      representation of the category of cause of the current status.
-                      It is intended to be used in concise output, such as one-line
-                      kubectl get output, and in summarizing occurrences of causes.
+                  condition:
                     type: string
                   status:
                     type: string
-                  type:
-                    description: "ConditionType is the type of the condition and is
-                      typically a CamelCased word or short phrase. \n Condition types
-                      should indicate state in the \"abnormal-true\" polarity. For
-                      example, if the condition indicates when a policy is invalid,
-                      the \"is valid\" case is probably the norm, so the condition
-                      should be called \"Invalid\"."
-                    type: string
                 required:
+                - action
+                - condition
                 - status
-                - type
                 type: object
-              type: array
-            externalServiceEndpoint:
-              description: ExternalServiceEndpoint is the external service endpoint
-                (ip:port)
-              type: string
-            internalServiceEndpoint:
-              description: InternalServiceEndpoint is the internal service endpoint
-                (ip:port)
-              type: string
-            numReadyServers:
-              description: NumReadyServers is the number of zookeeper servers in the
-                cluster that are in ready status
-              format: int32
-              type: integer
-            replicas:
-              description: Replicas is the number of desired zookeeper servers in
-                the cluster
-              format: int32
-              type: integer
-            servers:
-              description: Servers is the list of servers in the zookeeper cluster
-              properties:
-                notReady:
-                  items:
-                    type: string
-                  type: array
-                ready:
-                  items:
-                    type: string
-                  type: array
-              required:
-              - notReady
-              - ready
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of Broker Important: Run "make" to regenerate code after modifying
+                this file'
               type: object
           required:
           - conditions
-          - externalServiceEndpoint
-          - internalServiceEndpoint
-          - numReadyServers
-          - replicas
-          - servers
           type: object
       type: object
   version: v1alpha1

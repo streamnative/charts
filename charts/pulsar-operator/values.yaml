@@ -1,0 +1,127 @@
+# Copyright (c) 2020 StreamNative, Inc.. All Rights Reserved.
+
+## Namespace to deploy operator
+# NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
+#       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
+#       a higher control structure that is not part of the application.
+namespace: ""
+namespaceCreate: false
+
+## Components
+##
+## Control what components of Apache Pulsar Operators
+components:
+  # zookeeper
+  zookeeper: true
+  # bookkeeper
+  bookkeeper: true
+  # pulsar(broker, proxy)
+  pulsar: true
+
+## Images
+##
+## Control what images to use for each component
+images:
+  zookeeper:
+    repository: gcr.io/affable-ray-226821/streamnative/pulsar-operators/operator/zookeeper-operator
+    tag: v0.6.5
+    pullPolicy: IfNotPresent
+  bookkeeper:
+    repository: gcr.io/affable-ray-226821/streamnative/pulsar-operators/operator/bookkeeper-operator
+    tag: v0.6.5
+    pullPolicy: IfNotPresent
+  pulsar:
+    repository: gcr.io/affable-ray-226821/streamnative/pulsar-operators/operator/pulsar-operator
+    tag: v0.6.5
+    pullPolicy: IfNotPresent
+
+global:
+  # Lists the secrets you need to use to pull operators image from a private registry.
+  imagePullSecrets: []
+
+zookeeper:
+  component: zookeeper-controller-manager
+  ## The worker numbers of the operator MaxConcurrentReconciles
+  workers: 1
+  ## Install RBAC roles and bindings.
+  rbac:
+    create: true
+    name: zookeeper-controller-manager
+  ## Service account name and whether to create it.
+  serviceAccount:
+    create: true
+    name: zookeeper-controller-manager
+  ## Whether to create the CRD.
+  crd:
+    create: false
+  ## Operator pod resources
+  resources:
+    limits:
+      cpu: 100m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # Scheduling constraints
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  terminationGracePeriodSeconds: 10
+
+bookkeeper:
+  component: bookkeeper-controller-manager
+  ## The worker numbers of the operator MaxConcurrentReconciles
+  workers: 2
+  ## Install RBAC roles and bindings.
+  rbac:
+    create: true
+    name: bookkeeper-controller-manager
+  ## Service account name and whether to create it.
+  serviceAccount:
+    create: true
+    name: bookkeeper-controller-manager
+  ## Whether to create the CRD.
+  crd:
+    create: false
+  ## Operator pod resources
+  resources:
+    limits:
+      cpu: 200m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  # Scheduling constraints
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  terminationGracePeriodSeconds: 10
+
+pulsar:
+  component: pulsar-controller-manager
+  ## The worker numbers of the operator MaxConcurrentReconciles
+  workers: 1
+  ## Install RBAC roles and bindings.
+  rbac:
+    create: true
+    name: pulsar-controller-manager
+  ## Service account name and whether to create it.
+  serviceAccount:
+    create: true
+    name: pulsar-controller-manager
+  ## Whether to create the CRD.
+  crd:
+    create: false
+  ## Operator pod resources
+  resources:
+    limits:
+      cpu: 200m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  # Scheduling constraints
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  terminationGracePeriodSeconds: 10
