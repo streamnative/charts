@@ -7,7 +7,6 @@ VALUES_FILE=$1
 TLS=${TLS:-"false"}
 SYMMETRIC=${SYMMETRIC:-"false"}
 FUNCTION=${FUNCTION:-"false"}
-OPERATOR_NAMESPACE=sn-system
 
 source ${CHARTS_HOME}/.ci/helm.sh
 
@@ -21,6 +20,9 @@ extra_opts=""
 if [[ "x${SYMMETRIC}" == "xtrue" ]]; then
     extra_opts="-s"
 fi
+
+# install pulsar-operators
+ci::install_pulsar_chart
 
 # install pulsar chart
 ci::install_pulsar_chart ${CHARTS_HOME}/${VALUES_FILE} ${extra_opts}

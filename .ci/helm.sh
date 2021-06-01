@@ -25,6 +25,7 @@ KIND_BIN=$OUTPUT_BIN/kind
 HELM=${OUTPUT_BIN}/helm
 KUBECTL=${OUTPUT_BIN}/kubectl
 NAMESPACE=pulsar
+OPERATOR_NAMESPACE=sn-system
 CLUSTER=pulsar-ci
 CLUSTER_ID=$(uuidgen)
 
@@ -39,6 +40,44 @@ function ci::delete_cluster() {
     kind delete cluster --name=pulsar-ci-${CLUSTER_ID}
     echo "Successfully delete a kind cluster."
 }
+
+function ci::install_operator_chart() {
+    echo "Installing the pulsar-operators chart ... "
+    ${HELM} plugin install https://github.com/aslafy-z/helm-git --version 0.10.0
+    WC=$(${HELM} plugin list | grep helm-git | wc -l)
+    while [[ ${WC} -lt 1 ]]; do
+      echo ${WC};
+      sleep 15
+      ${HELM} plugin list
+      WC=$(${HELM} plugin list | grep helm-git | wc -l)
+    done
+
+    ${HELM} repo add sn-operator git+https://github.com/streamnative/pulsar-operators@charts?ref=v0.6.3
+    WC=$(${HELM} repo list | grep sn-operator | wc -l)
+    while [[ ${WC} -lt 1 ]]; do
+      echo ${WC};
+      sleep 15
+      ${HELM} repo list
+      WC=$(${HELM} repo list | grep sn-operator | wc -l)
+    done
+
+    ${KUBECTL} create namespace ${OPERATOR_NAMESPACE}
+    ${KUBECTL} apply -f ${CHARTS_HOME}/charts/pulsar/crds
+
+    ${HELM} install pulsar-operators sn-operator/pulsar --version 0.5.20 -n ${OPERATOR_NAMESPACE}
+
+    WC=$(${KUBECTL} get pods -n ${OPERATOR_NAMESPACE} --field-selector=status.phase=Running | wc -l)
+    while [[ ${WC} -lt 3 ]]; do
+      echo ${WC};
+      sleep 15
+      ${KUBECTL} get pods -n ${OPERATOR_NAMESPACE}
+      WC=$(${KUBECTL} get pods -n ${OPERATOR_NAMESPACE} --field-selector=status.phase=Running | wc -l)
+    done
+
+    echo "Successfully installed the pulsar-operators chart."
+}
+
+
 
 function ci::install_storage_provisioner() {
     echo "Installing the local storage provisioner ..."

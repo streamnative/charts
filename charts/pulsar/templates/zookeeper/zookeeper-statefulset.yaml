@@ -18,7 +18,7 @@
 #
 
 # deploy zookeeper only when `components.zookeeper` is true
-{{- if .Values.components.zookeeper }}
+{{- if and .Values.components.zookeeper (not .Values.zookeeper.operator.enabled) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -27,6 +27,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
+  annotations:
+    {{- if .Values.zookeeper.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   replicas: {{ .Values.zookeeper.replicaCount }}
