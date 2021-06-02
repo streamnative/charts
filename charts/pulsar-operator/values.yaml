@@ -24,15 +24,15 @@ components:
 images:
   zookeeper:
     repository: gcr.io/affable-ray-226821/streamnative/pulsar-operators/operator/zookeeper-operator
-    tag: v0.6.5
+    tag: v0.6.7
     pullPolicy: IfNotPresent
   bookkeeper:
     repository: gcr.io/affable-ray-226821/streamnative/pulsar-operators/operator/bookkeeper-operator
-    tag: v0.6.5
+    tag: v0.6.7
     pullPolicy: IfNotPresent
   pulsar:
     repository: gcr.io/affable-ray-226821/streamnative/pulsar-operators/operator/pulsar-operator
-    tag: v0.6.5
+    tag: v0.6.7
     pullPolicy: IfNotPresent
 
 global:
