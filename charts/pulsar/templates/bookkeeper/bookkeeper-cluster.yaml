@@ -36,7 +36,7 @@ spec:
   pod:
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
-      component: {{ .Values.zookeeper.component }}
+      component: {{ .Values.bookkeeper.component }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 6 }}
