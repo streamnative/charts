@@ -1,0 +1,66 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.initialize }}
+{{- if .Values.components.pulsar_manager }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-init"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.pulsar_manager.component }}
+spec:
+  template:
+    spec:
+      initContainers:
+      # This init container will wait for bookkeeper to be ready before
+      # deploying the broker
+      - name: wait-pulsar-manager-ready
+        image: "{{ .Values.pulsar_metadata.image.repository }}:{{ .Values.pulsar_metadata.image.tag }}"
+        imagePullPolicy: {{ .Values.pulsar_metadata.image.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            pmServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend | grep Name | wc -l)";
+            until [ ${pmServiceNumber} -ge 1 ]; do
+              echo "Pulsar Manager cluster {{ template "pulsar.fullname" . }} isn't ready yet ... check in 10 seconds ...";
+              sleep 10;
+              pmServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend | grep Name | wc -l)";
+            done;
+            echo "Pulsar Manager cluster is ready";
+      containers:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_metadata.component }}"
+        image: "{{ .Values.images.pulsar_manager.repository }}:{{ .Values.images.pulsar_manager.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar_manager.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            apk add curl;
+            export CSRF_TOKEN=$(curl http://{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend:{{ .Values.pulsar_manager.ports.backend }}/pulsar-manager/csrf-token);
+            curl -H "Content-Type: application/json" \
+                 -H "X-XSRF-TOKEN: $CSRF_TOKEN" \
+                 -H "Cookie: XSRF-TOKEN=$CSRF_TOKEN;" \
+                 -X PUT \
+                 http://{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend:{{ .Values.pulsar_manager.ports.backend }}/pulsar-manager/users/superuser \
+                 -d '{"name": "{{ .Values.pulsar_manager.superuser.user }}", "password": "{{ .Values.pulsar_manager.superuser.password }}", "description": "{{ .Values.pulsar_manager.superuser.description }}", "email": "{{ .Values.pulsar_manager.superuser.email }}"}' 
+      restartPolicy: Never
+{{- end }}
+{{- end }}

@@ -88,6 +88,8 @@ components:
   toolset: true
   # pulsar manager
   pulsar_manager: true
+  # streamnative console
+  streamnative_console: false
   # pulsar sql
   sql_worker: false
   # kop
@@ -177,6 +179,11 @@ images:
     tag: 0.3.0
     pullPolicy: IfNotPresent
     hasCommand: false
+  streamnative_console:
+    repository: streamnative/sn-pulsar-manager
+    tag: 0.7.0-8
+    pullPolicy: IfNotPresent
+    hasCommand: false
   node_exporter:
     repository: prom/node-exporter
     tag: v0.16.0
@@ -261,6 +268,8 @@ auth:
     client: "admin"
     # pulsar-manager to broker/proxy communication
     pulsar_manager: "pulsar-manager-admin"
+    # streamnative-console
+    streamnative-console: "streamnative-console-admin"
   # Enable vault based authentication
   vault:
     enabled: false
@@ -315,7 +324,7 @@ certs:
 ## templates/external-dns.yaml
 ## templates/external-dns-rbac.yaml
 ##
-## External DNS is used for synchronizing exposed Ingresses with DNS providers
+## External DNS is used for synchronizing exposed/st Ingresses with DNS providers
 external_dns:
   enabled: false
   component: external-dns
@@ -1631,6 +1640,91 @@ pulsar_manager:
     datasource:
       username: pulsar
       password: pulsar
+
+
+## Components Stack: streamnative_console
+## templates/streamnative-console.yaml
+##
+streamnative_console:
+  component: streamnative-console
+  ports:
+    frontend: 9527
+    backend: 7750
+
+  replicaCount: 1
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  annotations: {}
+  tolerations: []
+  gracePeriod: 0
+  resources:
+    requests:
+      memory: 250Mi
+      cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      #local_storage: true
+      # storageClassName: ""
+      ## If the storage class is left undefined when using persistence
+      ## the default storage class for the cluster will be used.
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
+
+  ## Cloud Console service
+  ## templates/streamnative-console-service.yaml
+  ##
+  service:
+    # expose the load balancer
+    # type: LoadBalancer
+    spec: {}
+    annotations: {}
+    ports:
+      frontend: 9527
+      backend: 7750
+
+  ## cloud console configmap
+  ## templates/streamnative-console-configmap.yaml
+  ##
+  configData:
+    VAULT_HOST: ""
+    VAULT_USERPASS_MOUNT_ACCESSOR: ""
+    VAULT_SUPER_USER_NAME: ""
+    VAULT_SUPER_USER_PASSWORD: ""
+    VAULT_SUPER_USER_TOKEN: ""
+    VAULT_APPROLE_MOUNT_ACCESSOR: ""
+    VAULT_APPROLE_ROLE_ID: ""
+    VAULT_APPROLE_SECRET_ID: ""
+    VAULT_APPROLE_SUPER_NAME: ""
+    VAULT_APPROLE_SUPER_TOKEN: ""
+    DEFAULT_ORGANIZATION: ""
+    DEFAULT_NAME: ""
+    INSTANCE_NAME: ""
+    WEB_SERVICE_URL: ""
+
+
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
