@@ -1743,6 +1743,7 @@ streamnative_console:
     DEFAULT_NAME: ""
     INSTANCE_NAME: ""
     WEB_SERVICE_URL: ""
+    KOP_SERVICE_URL: ""
 
 
 
