@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.broker }}
+{{- if and .Values.components.broker (not .Values.broker.operator.enabled) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -26,6 +26,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
+  annotations:
+    {{- if .Values.broker.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 data:
   # Metadata settings
   zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"

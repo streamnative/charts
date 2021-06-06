@@ -1028,6 +1028,16 @@ broker:
       #   [secret name]
       # ```
       # secret: [k8s secret that stores AWS credentials]
+   ## Operator Controller
+  ## templates/broker-cluster.yaml
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - finalizers
+  ## Retention Policy
+  resourcePolicy:
+    keep: false
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
