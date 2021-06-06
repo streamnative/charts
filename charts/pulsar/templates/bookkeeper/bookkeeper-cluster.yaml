@@ -39,7 +39,7 @@ spec:
       component: {{ .Values.bookkeeper.component }}
     annotations:
       {{- if .Values.monitoring.datadog }}
-      {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 6 }}
+      {{- include "pulsar.bookkeeper.datadog.annotation" . | nindent 6 }}
       {{- end }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
