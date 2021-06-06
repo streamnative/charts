@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.components.proxy .Values.proxy.websocket.enabled }}
+{{- if and .Values.components.proxy .Values.proxy.websocket.enabled (not .Values.proxy.operator.enabled) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -26,6 +26,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.websocket.component }}
+  annotations:
+    {{- if .Values.proxy.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 data:
   clusterName: {{ template "pulsar.cluster" . }}
   zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"

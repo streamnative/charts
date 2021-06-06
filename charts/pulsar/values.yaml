@@ -1239,6 +1239,16 @@ proxy:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  ## Operator Controller
+  ## templates/broker-cluster.yaml
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - finalizers
+  ## Retention Policy
+  resourcePolicy:
+    keep: false
 
 ## Pulsar ToolSet
 ## templates/toolset-deployment.yaml
