@@ -73,6 +73,10 @@ spec:
       tolerations:
 {{ toYaml .Values.proxy.tolerations | indent 8 }}
     {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.proxy.custom_affinity}}
+      affinity:
+{{ toYaml .Values.proxy.custom_affinity | indent 8 }}
+      {{ else }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity}}
         podAntiAffinity:
@@ -113,6 +117,7 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
       initContainers:
       # This init container will wait for zookeeper to be ready before
