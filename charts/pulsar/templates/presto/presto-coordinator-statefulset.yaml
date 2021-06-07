@@ -56,6 +56,10 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
       {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.presto.coordinator.custom_affinity}}
+      affinity:
+{{ toYaml .Values.presto.coordinator.custom_affinity | indent 8 }}
+      {{ else }}
       affinity:
       {{- if and .Values.affinity.anti_affinity .Values.presto.coordinator.affinity.anti_affinity}}
         podAntiAffinity:
@@ -95,6 +99,7 @@ spec:
                       - {{ .Values.presto.coordinator.component }}
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
+      {{- end }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.presto.coordinator.gracePeriod }}
       {{- if .Values.imagePullSecrets }}

@@ -56,6 +56,10 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
       {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.presto.worker.custom_affinity}}
+      affinity:
+{{ toYaml .Values.presto.worker.custom_affinity | indent 8 }}
+      {{ else }}
       affinity:
       {{- if and .Values.affinity.anti_affinity .Values.presto.worker.affinity.anti_affinity}}
         podAntiAffinity:
@@ -89,13 +93,15 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.presto.worker.component }}
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
       {{- end }}
+    {{- end }}
+
       terminationGracePeriodSeconds: {{ .Values.presto.worker.gracePeriod }}
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:

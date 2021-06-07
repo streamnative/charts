@@ -73,6 +73,10 @@ spec:
       tolerations:
 {{ toYaml .Values.bookkeeper.tolerations | indent 8 }}
     {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.custom_affinity}}
+      affinity:
+{{ toYaml .Values.bookkeeper.custom_affinity | indent 8 }}
+      {{ else }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity}}
         podAntiAffinity:
@@ -113,6 +117,7 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.bookkeeper.gracePeriod }}
       initContainers:
       # This initContainer will wait for bookkeeper initnewcluster to complete
