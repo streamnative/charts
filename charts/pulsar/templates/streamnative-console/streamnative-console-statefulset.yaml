@@ -113,26 +113,6 @@ spec:
           env:
           - name: SPRING_CONFIGURATION_FILE
             value: /pulsar-manager/pulsar-manager/application.properties
-          - name: VAULT_HOST
-            value: {{ .Values.streamnative_console.configData.VAULT_HOST }}
-          - name: VAULT_USERPASS_MOUNT_ACCESSOR
-            value: {{ .Values.streamnative_console.configData.VAULT_USERPASS_MOUNT_ACCESSOR }}
-          - name: VAULT_SUPER_USER_NAME
-            value: {{ .Values.streamnative_console.configData.VAULT_SUPER_USER_NAME }}
-          - name: VAULT_SUPER_USER_PASSWORD
-            value: {{ .Values.streamnative_console.configData.VAULT_SUPER_USER_PASSWORD }}
-          - name: VAULT_SUPER_USER_TOKEN
-            value: {{ .Values.streamnative_console.configData.VAULT_SUPER_USER_TOKEN }}
-          - name: VAULT_APPROLE_MOUNT_ACCESSOR
-            value: {{ .Values.streamnative_console.configData.VAULT_APPROLE_MOUNT_ACCESSOR }}
-          - name: VAULT_APPROLE_ROLE_ID
-            value: {{ .Values.streamnative_console.configData.VAULT_APPROLE_ROLE_ID }}
-          - name: VAULT_APPROLE_SECRET_ID
-            value: {{ .Values.streamnative_console.configData.VAULT_APPROLE_SECRET_ID }}
-          - name: VAULT_APPROLE_SUPER_NAME
-            value: {{ .Values.streamnative_console.configData.VAULT_APPROLE_SUPER_NAME }}
-          - name: VAULT_APPROLE_SUPER_TOKEN
-            value: {{ .Values.streamnative_console.configData.VAULT_APPROLE_SUPER_TOKEN }}
           - name: DEFAULT_ORGANIZATION
             value: {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }}
           - name: DEFAULT_NAME
@@ -140,15 +120,19 @@ spec:
           - name: INSTANCE_NAME
             value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
           - name: WEB_SERVICE_URL
-            value: {{ .Values.streamnative_console.configData.WEB_SERVICE_URL }}
+            value: {{ template "pulsar.proxy.web.service.url" . }}
           - name: KOP_SERVICE_URL
-            value: {{ .Values.streamnative_console.configData.KOP_SERVICE_URL }}
+            value: PLAINTEXT://{{ template "pulsar.proxy.broker.service.address" . }}:9092
+          envFrom:
+          - secretRef:
+              name: {{ template "pulsar.vault-secret-key-name" . }}
           
           ports:
           - name: frontend
             containerPort: {{ .Values.streamnative_console.ports.frontend }}
           - name: backend
             containerPort: {{ .Values.streamnative_console.ports.backend }}
+
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data

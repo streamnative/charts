@@ -18,49 +18,57 @@
 #
 
 {{- if .Values.initialize }}
-{{- if .Values.components.pulsar_manager }}
+{{- if .Values.components.streamnative_console }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-init"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.pulsar_manager.component }}
+    component: {{ .Values.streamnative_console.component }}
 spec:
   template:
     spec:
-      initContainers:
-      # This init container will wait for bookkeeper to be ready before
-      # deploying the broker
-      - name: wait-pulsar-manager-ready
-        image: "{{ .Values.pulsar_metadata.image.repository }}:{{ .Values.pulsar_metadata.image.tag }}"
-        imagePullPolicy: {{ .Values.pulsar_metadata.image.pullPolicy }}
-        command: ["sh", "-c"]
-        args:
-          - >
-            pmServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend | grep Name | wc -l)";
-            until [ ${pmServiceNumber} -ge 1 ]; do
-              echo "Pulsar Manager cluster {{ template "pulsar.fullname" . }} isn't ready yet ... check in 10 seconds ...";
-              sleep 10;
-              pmServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend | grep Name | wc -l)";
-            done;
-            echo "Pulsar Manager cluster is ready";
       containers:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_metadata.component }}"
-        image: "{{ .Values.images.pulsar_manager.repository }}:{{ .Values.images.pulsar_manager.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar_manager.pullPolicy }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
+        image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
+        imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
+        env:
+        - name: SPRING_CONFIGURATION_FILE
+          value: /pulsar-manager/pulsar-manager/application.properties
+        - name: DEFAULT_ORGANIZATION
+          value: {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }}
+        - name: DEFAULT_NAME
+          value: {{ .Values.streamnative_console.configData.DEFAULT_NAME }}
+        - name: INSTANCE_NAME
+          value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
+        - name: WEB_SERVICE_URL
+          value: {{ template "pulsar.proxy.web.service.url" . }}
+        - name: KOP_SERVICE_URL
+          value: {{ .Values.streamnative_console.configData.KOP_SERVICE_URL }}
+        - name: STREAMNATIVE_CONSOLE_BACKEND_URL
+          value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
+        envFrom:
+        - secretRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
+        volumeMounts:
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+          mountPath: "/root/init_instance/"
         command: ["sh", "-c"]
         args:
           - >
-            apk add curl;
-            export CSRF_TOKEN=$(curl http://{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend:{{ .Values.pulsar_manager.ports.backend }}/pulsar-manager/csrf-token);
-            curl -H "Content-Type: application/json" \
-                 -H "X-XSRF-TOKEN: $CSRF_TOKEN" \
-                 -H "Cookie: XSRF-TOKEN=$CSRF_TOKEN;" \
-                 -X PUT \
-                 http://{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-backend:{{ .Values.pulsar_manager.ports.backend }}/pulsar-manager/users/superuser \
-                 -d '{"name": "{{ .Values.pulsar_manager.superuser.user }}", "password": "{{ .Values.pulsar_manager.superuser.password }}", "description": "{{ .Values.pulsar_manager.superuser.description }}", "email": "{{ .Values.pulsar_manager.superuser.email }}"}' 
+            python3 /root/init_instance/init_instance.py;
+            until [ $? -eq 0 ]; do
+              echo "streamnative console is not ready now! wait another 10s~";
+              sleep 10;
+              python3 /root/init_instance/init_instance.py;
+            done;
+            echo "StreamNative Console is ready to use~";
       restartPolicy: Never
+      volumes:
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
 {{- end }}
 {{- end }}

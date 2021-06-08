@@ -72,6 +72,8 @@ affinity:
 ##
 ## Control what components of Apache Pulsar to deploy for the cluster
 components:
+  # vault
+  vault: false
   # zookeeper
   zookeeper: true
   # bookkeeper
@@ -192,6 +194,13 @@ images:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: 0.26.2
     pullPolicy: "IfNotPresent"
+  vault:
+    repository: vault
+    tag: 1.7.0
+    pullPolicy: "IfNotPresent"
+  vault_init:
+    repository: registry.cn-hangzhou.aliyuncs.com/cloud-enterprise/pulsar_vault_init
+    tag: v1.0.0
 
 ## TLS
 ## templates/tls-certs.yaml
@@ -1667,6 +1676,8 @@ pulsar_manager:
 ##
 streamnative_console:
   component: streamnative-console
+  username: "apachepulsar"
+  password: "apachepulsar"
   ports:
     frontend: 9527
     backend: 7750
@@ -1908,3 +1919,28 @@ presto:
   service:
     spec:
       type: ClusterIP
+
+
+vault:
+  component: "vault"
+  serviceAccount:
+    created: true
+    name: ""
+  serviceType: "ClusterIP"
+  volumeClaimTemplates: []
+  volumeMounts: []
+  unsealConfig: {}
+  config: {}
+  resources:
+    limits:
+       memory: "512Mi"
+       cpu: "200m"
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+  volume:
+    persistence: true
+    name: ""
+    size: 10Gi
+    local_storage: true
+    # storageClassName: ""

@@ -215,6 +215,8 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+        - secretRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
         volumeMounts:
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}
@@ -274,6 +276,8 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.websocket.component }}"
+        - secretRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
         volumeMounts:
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.websocket.token.volumeMounts" . | nindent 10 }}

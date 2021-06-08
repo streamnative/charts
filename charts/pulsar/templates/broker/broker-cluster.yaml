@@ -87,6 +87,21 @@ spec:
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
     {{- end }}
+    vars:
+    - name: PULSAR_PREFIX_OIDCTokenAudienceID
+      valueFrom:
+          secretKeyRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
+            key: PULSAR_PREFIX_OIDCTokenAudienceID
+    - name: brokerClientAuthenticationParameters
+      valueFrom:
+          secretKeyRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
+            key: brokerClientAuthenticationParameters
+    # not support envFrom currently
+    #envFrom:
+    #- secretRef:
+    #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.broker.resources }}
     resources:
       requests:
@@ -115,5 +130,16 @@ spec:
   config:
     custom:
 {{ toYaml .Values.broker.configData | indent 6 }}
+      # It's not recommended to modify below settings
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
+      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
+      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      superUserRoles: "admin"
+      brokerClientAuthenticationPlugin: "io.streamnative.pulsar.client.auth.AuthenticationVault"
+      # inject to env
+      # add 4 client id: serviceAccount,superServiceAccount,user,superUser
+      #PULSAR_PREFIX_OIDCTokenAudienceID: "SJLn7xHKSqILNh3EjB4ouwVoG8,K3tAXjUAKkp43TzVbZD26xXhpl,ZZYDJeZtPSBoNQhjmatUvadCm6,LXpnmDkYm3yP43RLnBnapwlkPI"
+      #brokerClientAuthenticationParameters: '{"role":"super-service-account","roleId":"d4136e3e-5564-dcea-ef5d-14ece0329128","secretId":"28e59360-6d96-ef4c-f7fe-ad52e4bb5e5f","vaultHost": "http://test-vault-active.default:8200"}' 
 {{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 4 }}
 {{- end }}
