@@ -46,7 +46,7 @@ spec:
         - name: WEB_SERVICE_URL
           value: {{ template "pulsar.proxy.web.service.url" . }}
         - name: KOP_SERVICE_URL
-          value: {{ .Values.streamnative_console.configData.KOP_SERVICE_URL }}
+          value: PLAINTEXT://{{ template "pulsar.proxy.broker.service.address" . }}:9092
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
           value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
         envFrom:
@@ -58,11 +58,11 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-            python3 /root/init_instance/init_instance.py;
+            python3 /root/init_instance/init_instance.py 2>/dev/null;
             until [ $? -eq 0 ]; do
               echo "streamnative console is not ready now! wait another 10s~";
               sleep 10;
-              python3 /root/init_instance/init_instance.py;
+              python3 /root/init_instance/init_instance.py 2>/dev/null;
             done;
             echo "StreamNative Console is ready to use~";
       restartPolicy: Never

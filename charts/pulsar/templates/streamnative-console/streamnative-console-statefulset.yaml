@@ -71,12 +71,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-            brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
-            until [ ${brokerServiceNumber} -ge 1 ]; do
-              echo "broker cluster {{ template "pulsar.fullname" . }} isn't ready yet ... check in 10 seconds ...";
-              sleep 10;
-              brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
-            done;
+            set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
             echo "broker cluster is ready";
       containers:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
