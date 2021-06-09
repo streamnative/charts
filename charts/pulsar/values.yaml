@@ -1255,6 +1255,7 @@ proxy:
     adopt_existing: false
     updatePolicy: >
       - finalizers
+  tlsSecretName: ""
   ## Retention Policy
   resourcePolicy:
     keep: false

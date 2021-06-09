@@ -154,4 +154,7 @@ spec:
   dnsNames: []
   issuerRef:
     name: ""
+  {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+  certSecretName: {{ .Values.proxy.tlsSecretName }}
+  {{- end }}
 {{- end }}
