@@ -327,6 +327,31 @@ entries:
     - https://github.com/streamnative/charts/releases/download/pulsar-2.7.0-rc-1/pulsar-2.7.0-rc-1.tgz
     version: 2.7.0-rc-1
   - apiVersion: v1
+    appVersion: 2.7.0
+    created: "2021-06-10T02:25:29.570945056Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/loki/charts
+      version: 0.36.1
+    - condition: components.superset
+      name: superset
+      repository: https://apache.github.io/superset
+      version: 0.1.1
+    description: Apache Pulsar Helm chart for Kubernetes
+    digest: ce451fa94c87fa5ff8b0ca0e58aa551bb736d07d7d3ca2920bc9ed1ac0514d7b
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: pulsar
+    sources:
+    - https://github.com/streamnative/charts/pulsar
+    urls:
+    - https://github.com/streamnative/charts/releases/download/2.7.0-rc.3/pulsar-2.7.0-rc.3.tgz
+    version: 2.7.0-rc.3
+  - apiVersion: v1
     appVersion: 2.6.0
     created: "2021-01-05T23:38:14.987839794Z"
     dependencies:
@@ -547,4 +572,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/pulsar-0.1.0/pulsar-0.1.0.tgz
     version: 0.1.0
-generated: "2021-06-10T01:45:07.83555072Z"
+generated: "2021-06-10T02:25:29.571253868Z"
