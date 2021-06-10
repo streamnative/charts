@@ -287,7 +287,7 @@ spec:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
         - secretRef:
-          name: {{ template "pulsar.vault-secret-key-name" . }}
+            name: {{ template "pulsar.vault-secret-key-name" . }}
         volumeMounts:
           {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}

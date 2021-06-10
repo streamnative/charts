@@ -941,6 +941,10 @@ broker:
   gracePeriod: 30
   # flag to advertise pod ip address
   advertisedPodIP: false
+  # For exposing kop service for external access
+  externalDNSName: ""
+  functionmesh:
+    enabled: true
   resources:
     requests:
       memory: 512Mi

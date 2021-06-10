@@ -26,6 +26,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
+    "cloud.streamnative.io/enable-pod-labels-update": "enabled"
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
@@ -35,9 +36,11 @@ spec:
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
   pod:
+    serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.broker.component }}
+      #sidecar.istio.io/inject: "true"
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.broker.datadog.annotation" . | nindent 6 }}
@@ -98,6 +101,14 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
+    {{- if .Values.broker.externalDNSName }}
+    - name: POD_NAME
+      valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+    - name: PULSAR_PREFIX_kafkaAdvertisedListeners
+      value: PLAINTEXT://$(POD_NAME).{{ .Values.broker.externalDNSName }}:9092,SSL://$(POD_NAME).{{ .Values.broker.externalDNSName }}:9093
+    {{- end }}
     # not support envFrom currently
     #envFrom:
     #- secretRef:
@@ -128,6 +139,14 @@ spec:
         - {{ .Values.broker.configData.PULSAR_GC }}
       gcLoggingOptions: []
   config:
+    {{- if .Values.broker.functionmesh.enabled }}
+    function:
+      enabled: true
+      mesh:
+        builtinConnectorsRef:
+          name: builtin-connectors
+      type: FunctionMesh
+      {{- end }}
     custom:
 {{ toYaml .Values.broker.configData | indent 6 }}
       # It's not recommended to modify below settings
