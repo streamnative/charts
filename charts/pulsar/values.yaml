@@ -88,10 +88,8 @@ components:
   proxy: true
   # toolset
   toolset: true
-  # pulsar manager
-  pulsar_manager: true
   # streamnative console
-  streamnative_console: false
+  streamnative_console: true
   # pulsar sql
   sql_worker: false
   # kop
@@ -174,16 +172,11 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.11
+    tag: 0.0.14
     pullPolicy: IfNotPresent
-  pulsar_manager:
-    repository: streamnative/pulsar-manager
-    tag: 0.3.0
-    pullPolicy: IfNotPresent
-    hasCommand: false
   streamnative_console:
     repository: streamnative/sn-pulsar-manager
-    tag: 0.7.0-8
+    tag: 0.7.0-15
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -199,8 +192,8 @@ images:
     tag: 1.7.0
     pullPolicy: "IfNotPresent"
   vault_init:
-    repository: registry.cn-hangzhou.aliyuncs.com/cloud-enterprise/pulsar_vault_init
-    tag: v1.0.0
+    repository: streamnative/pulsar_vault_init
+    tag: v1.0.2
 
 ## TLS
 ## templates/tls-certs.yaml
@@ -247,12 +240,12 @@ tls:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
-  pulsar_manager:
-    enabled: false
-    cert_name: tls-pulsar-manager
   presto:
     enabled: false
     cert_name: tls-presto
+  streamnative_console:
+    enabled: false
+    cert_name: tls-streamnative_console
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -275,8 +268,6 @@ auth:
     websocket: "ws-admin"
     # pulsar-admin client to broker/proxy communication
     client: "admin"
-    # pulsar-manager to broker/proxy communication
-    pulsar_manager: "pulsar-manager-admin"
     # streamnative-console
     streamnative-console: "streamnative-console-admin"
   # Enable vault based authentication
@@ -942,9 +933,23 @@ broker:
   # flag to advertise pod ip address
   advertisedPodIP: false
   # For exposing kop service for external access
-  externalDNSName: ""
+  advertisedDomain: ""
+  kop:
+    enabled: false
+    tls:
+      # create a secret with keystore.jks and truststore.jks
+      certSecretName: "kop-secret"
+      # same word for keystore and truststore
+      passwordSecretRef:
+        key: password
+        name: kop-keystore-password
+  # choose istio selector
+  istio:
+    gateway:
+      selector:
+        istio: "ingressgateway"
   functionmesh:
-    enabled: true
+    enabled: false
   resources:
     requests:
       memory: 512Mi
@@ -1587,93 +1592,6 @@ alert_manager:
   # add alert rules below
   rules:
     groups:
-
-## Components Stack: pulsar_manager
-## templates/pulsar-manager.yaml
-##
-pulsar_manager:
-  component: pulsar-manager
-  # this can be used to indiciate to use vault auth for pulsar-manager
-  # even if authentication isn't enabled for other components
-  force_vault: false
-  ports:
-    frontend: 9527
-    backend: 7750
-  replicaCount: 1
-  probe:
-    liveness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 10
-      periodSeconds: 30
-    readiness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 10
-      periodSeconds: 30
-    startup:
-      enabled: false
-      failureThreshold: 30
-      initialDelaySeconds: 10
-      periodSeconds: 30
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
-  annotations: {}
-  tolerations: []
-  gracePeriod: 0
-  resources:
-    requests:
-      memory: 250Mi
-      cpu: 0.1
-  volumes:
-    # use a persistent volume or emptyDir
-    persistence: true
-    data:
-      name: data
-      size: 10Gi
-      local_storage: true
-      # storageClassName: ""
-      ## If the storage class is left undefined when using persistence
-      ## the default storage class for the cluster will be used.
-      ##
-      # storageClass:
-        # type: pd-standard
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
-  ## Pulsar manager service
-  ## templates/pulsar-manager-service.yaml
-  ##
-  service:
-    # expose the load balancer
-    # type: LoadBalancer
-    spec: {}
-    annotations: {}
-    ports:
-      frontend: 9527
-  backend_service:
-    spec:
-      clusterIP: None
-    annotations: {}
-  ## pulsar manager configmap
-  ## templates/pulsar-manager-configmap.yaml
-  ##
-  configData: {}
-  superuser:
-    user: "pulsarmanager"
-    password: "welovepulsar"
-    description: "Pulsar Manager Admin"
-    email: support@pulsar.io
-  redirect:
-    host: localhost
-  scripts:
-    backend_entrypoint:
-      command: /pulsar-manager/pulsar-manager/bin/pulsar-manager
-      # extra arguments
-      # extraArgs:
-  spring:
-    datasource:
-      username: pulsar
-      password: pulsar
 
 
 ## Components Stack: streamnative_console

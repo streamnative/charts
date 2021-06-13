@@ -19,7 +19,7 @@
 
 # script to process key/cert to keystore and truststore
 {{- if .Values.tls.enabled }}
-{{- if or .Values.tls.zookeeper.enabled (or .Values.tls.pulsar_manager.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if or .Values.tls.zookeeper.enabled (or .Values.tls.streamnative_console.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

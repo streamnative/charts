@@ -33,13 +33,13 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-pulsar-manager"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-streamnative-console"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.vault.component }}
 data:
-{{ (.Files.Glob "conf/vault/init_vault_pulsar_manager/*").AsConfig | indent 2 }}
+{{ (.Files.Glob "conf/vault/init_vault_streamnative_console/*").AsConfig | indent 2 }}
 
 {{- end }}
 {{- end }}

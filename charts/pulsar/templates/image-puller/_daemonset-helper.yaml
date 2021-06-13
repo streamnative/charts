@@ -126,9 +126,9 @@ spec:
             - /bin/sh
             - -c
             - echo "Pulling complete"
-        - name: image-pull-pulsar-manager
-          image: {{ .pulsar_manager.repository }}:{{ .pulsar_manager.tag }}
-          imagePullPolicy: {{ .pulsar_manager.pullPolicy }}
+        - name: image-pull-streamnative-console
+          image: {{ .streamnative_console.repository }}:{{ .streamnative_console.tag }}
+          imagePullPolicy: {{ .streamnative_console.pullPolicy }}
           command:
             - /bin/sh
             - -c

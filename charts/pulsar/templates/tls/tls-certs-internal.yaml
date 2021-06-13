@@ -212,22 +212,22 @@ spec:
 ---
 {{- end }}
 
-{{- if or .Values.tls.pulsar_manager.enabled .Values.tls.broker.enabled }}
+{{- if or .Values.tls.streamnative_console.enabled .Values.tls.broker.enabled }}
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.pulsar_manager.cert_name }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.streamnative_console.cert_name }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   # Secret names are always required.
-  secretName: "{{ .Release.Name }}-{{ .Values.tls.pulsar_manager.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.streamnative_console.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   organization:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+  commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -237,8 +237,8 @@ spec:
     - client auth
   # At least one of a DNS Name, USI SAN, or IP address is required.
   dnsNames:
-    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
-    -  "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"

@@ -81,16 +81,16 @@ Define pulsar create pulsar tokens volumes
 {{/*
 Define pulsar init pulsar manager volume mounts
 */}}
-{{- define "pulsar.vault.initPulsarManager.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-pulsar-manager"
-  mountPath: "/root/{{ template "pulsar.home" .}}/init_vault_pulsar_manager/"
+{{- define "pulsar.vault.initStreamNativeConsole.volumeMounts" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-streamnative-console"
+  mountPath: "/root/{{ template "pulsar.home" .}}/init_vault_streamnative_console/"
 {{- end }}
 
 {{/*
 Define pulsar init pulsar manager volumes
 */}}
-{{- define "pulsar.vault.initPulsarManager.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-pulsar-manager"
+{{- define "pulsar.vault.initStreamNativeConsole.volumes" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-streamnative-console"
   configMap:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-pulsar-manager"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-streamnative-console"
 {{- end }}

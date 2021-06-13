@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-export VAULT_APPROLE_SUPER_NAME=admin
+export VAULT_APPROLE_SUPER_NAME=apachepulsar
 #export VAULT_SUPER_USER_NAME=apachepulsar
 #export VAULT_SUPER_USER_PASSWORD=apachepulsar
 #export VAULT_ADDR="http://127.0.0.1:8200"
@@ -100,6 +100,7 @@ echo "oidc info ====="
 echo "oidc client ids: serviceAccount,superServiceAccount,user,superUser "
 echo $serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId
 
+
 echo "" > /tmp/pm_env
 echo "PULSAR_PREFIX_OIDCTokenAudienceID="$serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId >> /tmp/pm_env
 echo "VAULT_HOST="$VAULT_ADDR >> /tmp/pm_env
@@ -111,10 +112,13 @@ echo "VAULT_APPROLE_MOUNT_ACCESSOR="$VAULT_APPROLE_MOUNT_ACCESSOR >> /tmp/pm_env
 echo "VAULT_APPROLE_ROLE_ID="$VAULT_APPROLE_ROLE_ID >> /tmp/pm_env
 echo "VAULT_APPROLE_SECRET_ID="$VAULT_APPROLE_SECRET_ID >> /tmp/pm_env
 echo "VAULT_APPROLE_SUPER_NAME="$VAULT_APPROLE_SUPER_NAME >> /tmp/pm_env
-echo "VAULT_APPROLE_SUPER_TOKEN="$VAULT_APPROLE_SUPER_TOKEN >> /tmp/pm_env
+echo "VAULT_APPROLE_SUPER_TOKEN="$VAULT_SUPER_USER_TOKEN >> /tmp/pm_env
 
-echo "brokerClientAuthenticationParameters={\"role\":\"super-service-account\",\"roleId\":\""$VAULT_APPROLE_ROLE_ID"\",\"secretId\":\""$VAULT_APPROLE_SECRET_ID"\",\"vaultHost\": \""$VAULT_ADDR"\"}"\" >> /tmp/pm_env
+#echo "brokerClientAuthenticationParameters={\"role\":\"super-service-account\",\"roleId\":\""$VAULT_APPROLE_ROLE_ID"\",\"secretId\":\""$VAULT_APPROLE_SECRET_ID"\",\"vaultHost\": \""$VAULT_ADDR"\"}"\" >> /tmp/pm_env
 
+# for busybox base64 image, we need to remove \n in the result
+export VAULT_PULSAR_TOKEN=$(echo "$VAULT_APPROLE_ROLE_ID:$VAULT_APPROLE_SECRET_ID"|base64|tr -d \\n)
+echo "brokerClientAuthenticationParameters=$VAULT_PULSAR_TOKEN" >> /tmp/pm_env
 
 
 echo "create secret for above secrets!"

@@ -57,7 +57,7 @@ spec:
            done;
            echo "vault is ready~";
 
-           cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_pulsar_manager && sh startup.sh
+           cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && sh startup.sh
         env:
         - name: NAMESPACE
           value: {{ template "pulsar.namespace" . }}
@@ -71,10 +71,10 @@ spec:
           value: {{ .Values.streamnative_console.password }}
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
-        {{- include "pulsar.vault.initPulsarManager.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
       volumes:
       {{- include "pulsar.vault.createPulsarTokens.volumes" . | nindent 6 }}
-      {{- include "pulsar.vault.initPulsarManager.volumes" . | nindent 6 }}
+      {{- include "pulsar.vault.initStreamNativeConsole.volumes" . | nindent 6 }}
       restartPolicy: Never
 {{- end }}
 {{- end }}
