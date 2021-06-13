@@ -131,7 +131,6 @@ spec:
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data
-          {{- include "pulsar.streamnative_console.token.volumeMounts" . | nindent 10 }}
 
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
@@ -145,7 +144,6 @@ spec:
           claimName: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
       {{- end }}
       {{- end }}
-      {{- include "pulsar.streamnative_console.token.volumes" . | nindent 6 }}
 
   {{- if or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName }}
   volumeClaimTemplates:
