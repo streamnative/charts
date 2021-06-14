@@ -1,0 +1,88 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if and .Values.components.proxy .Values.proxy.websocket.enabled (not .Values.proxy.operator.enabled) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.websocket.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.proxy.websocket.component }}
+  annotations:
+    {{- if .Values.proxy.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
+data:
+  clusterName: {{ template "pulsar.cluster" . }}
+  zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  {{- if .Values.pulsar_metadata.configurationStore }}
+  configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
+  {{- end }}
+  {{- if not .Values.pulsar_metadata.configurationStore }}
+  configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  {{- end }}
+  statusFilePath: "{{ template "pulsar.home" . }}/status"
+  # prometheus needs to access /metrics endpoint
+  webServicePort: "{{ .Values.proxy.ports.websocket }}"
+  {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+  webServicePortTls: "{{ .Values.proxy.ports.websockettls }}"
+  tlsCertificateFilePath: "/pulsar/certs/proxy/tls.crt"
+  tlsKeyFilePath: "/pulsar/certs/proxy/tls.key"
+  {{- if .Values.tls.proxy.untrustedCa }}
+  tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  {{- end }}
+  {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  # if broker enables TLS, configure proxy to talk to broker using TLS
+  brokerServiceUrlTls: {{ template "pulsar.proxy.broker.service.url.tls" . }}
+  serviceUrlTls: {{ template "pulsar.proxy.web.service.url.tls" . }}
+  tlsCertRefreshCheckDurationSec: "300"
+  brokerClientTlsEnabled: "true"
+  brokerClientTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
+  {{- else }}
+  brokerServiceUrl: {{ template "pulsar.proxy.broker.service.url" . }}
+  serviceUrl: {{ template "pulsar.proxy.web.service.url" . }}
+  {{- end }}
+
+  # Authentication Settings
+  {{- if .Values.auth.authentication.enabled }}
+  authenticationEnabled: "true"
+  {{- if .Values.auth.authorization.enabled }}
+  authorizationEnabled: "true"
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.streamnative_console }}
+  {{- end }}
+  {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
+  # token authentication configuration
+  authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
+  brokerClientAuthenticationParameters: "file:///pulsar/tokens/websocket/token"
+  brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+  {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+  PULSAR_PREFIX_tokenSecretKey: "file:///pulsar/keys/token/secret.key"
+  {{- else }}
+  PULSAR_PREFIX_tokenPublicKey: "file:///pulsar/keys/token/public.key"
+  {{- end }}
+  {{- end }}
+  {{- end }}
+{{ toYaml .Values.proxy.websocket.configData | indent 2 }}
+  # Include log configuration file, If you want to configure the log level and other configuration
+  # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
+{{ (.Files.Glob "conf/proxy/log4j2.yaml").AsConfig | indent 2 }}
+{{- end }}

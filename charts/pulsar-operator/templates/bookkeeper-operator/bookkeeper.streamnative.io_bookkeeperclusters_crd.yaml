@@ -1,0 +1,5 @@
+# Copyright (c) 2020 StreamNative, Inc.. All Rights Reserved.
+#
+{{- if and .Values.components.bookkeeper .Values.bookkeeper.crd.create }}
+{{ include "bookkeeper.crd" . }}
+{{- end }}

@@ -17,14 +17,28 @@
 # under the License.
 #
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- if .Values.monitoring.prometheus }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.prometheus.component }}
+  annotations:
+{{ toYaml .Values.prometheus.service.annotations | indent 4 }}
+spec:
+{{- if .Values.prometheus.service.type }}
+  type: {{ .Values.prometheus.service.type }}
+{{- else }}
+  clusterIP: None
+{{- end }}
+  ports:
+    - name: server
+      port: {{ .Values.prometheus.port }}
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.prometheus.component }}
+{{- end }}

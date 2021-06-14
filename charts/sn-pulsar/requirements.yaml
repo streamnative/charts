@@ -17,14 +17,12 @@
 # under the License.
 #
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+dependencies:
+- name: loki-stack
+  version: 0.36.1
+  repository: https://grafana.github.io/loki/charts
+  condition: monitoring.loki
+- name: superset
+  version: 0.1.1
+  repository:  https://apache.github.io/superset
+  condition: components.superset

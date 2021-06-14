@@ -1,0 +1,140 @@
+# Copyright (c) 2020 StreamNative, Inc.. All Rights Reserved.
+#
+{{- if and .Values.components.zookeeper .Values.zookeeper.serviceAccount.create }}
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+  {{- include "pulsar.standardLabels" . | nindent 4 }}
+    components: {{ .Values.zookeeper.component }}
+{{- end }}
+{{- if and .Values.components.zookeeper .Values.zookeeper.rbac.create }}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    components: {{ .Values.zookeeper.component }}
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - policy
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - zookeeper.streamnative.io
+    resources:
+      - zookeeperclusters
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - zookeeper.streamnative.io
+    resources:
+      - zookeeperclusters/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
+subjects:
+- kind: ServiceAccount
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
+  namespace: {{ template "pulsar.namespace" . }}
+roleRef:
+  kind: ClusterRole
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,0 +1,60 @@
+# Copyright (c) 2020 StreamNative, Inc.. All Rights Reserved.
+#
+{{- if and .Values.components.pulsar }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.component }}'
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    components: {{ .Values.pulsar.component }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.pulsar.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.pulsar.component }}
+    spec:
+      serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
+      containers:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.component }}"
+        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        args:
+        - --metrics-addr=127.0.0.1:8080
+        - --enable-leader-election
+        command:
+        - /manager
+        ports:
+        - containerPort: 8000
+          name: metrics
+        env:
+        - name: MAX_CONCURRENT_RECONCILES
+          value: "{{ .Values.pulsar.workers }}"
+        {{- if .Values.pulsar.resources }}
+        resources:
+{{ toYaml .Values.pulsar.resources | indent 10 }}
+        {{- end }}
+      {{- if .Values.pulsar.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.pulsar.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.pulsar.affinity }}
+      affinity:
+{{ toYaml .Values.pulsar.affinity | indent 8 }}
+      {{- end }}
+      {{- if .Values.pulsar.tolerations }}
+      tolerations:
+{{ toYaml .Values.pulsar.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.pulsar.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds:
+{{ toYaml .Values.pulsar.terminationGracePeriodSeconds | indent 8 }}
+      {{- end }}
+{{- end }}

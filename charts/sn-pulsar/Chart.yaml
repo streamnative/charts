@@ -17,14 +17,15 @@
 # under the License.
 #
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+apiVersion: v1
+appVersion: "1.0.0"
+description: Apache Pulsar Helm chart from StreamNative
+name: sn-pulsar
+version: 1.0.0-rc1
+home: https://streamnative.io
+sources:
+- https://github.com/streamnative/charts/pulsar
+icon: http://pulsar.apache.org/img/pulsar.svg
+maintainers:
+- name: StreamNative Support
+  email: support@streamnative.io

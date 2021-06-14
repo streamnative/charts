@@ -16,15 +16,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- if .Values.components.sql_worker }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "presto.worker.service" . }}
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.presto.worker.component }}
+spec:
+{{- with .Values.presto.worker.service.spec }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+  ports:
+    - port: {{ .Values.presto.worker.ports.http }}
+      targetPort: {{ .Values.presto.worker.ports.http }}
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.presto.worker.component }}
+{{- end }}

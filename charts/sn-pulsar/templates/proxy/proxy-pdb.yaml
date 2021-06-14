@@ -17,14 +17,25 @@
 # under the License.
 #
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- if and .Values.components.proxy (not .Values.proxy.operator.enabled) }}
+{{- if .Values.proxy.pdb.usePolicy }}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.proxy.component }}
+  annotations:
+    {{- if .Values.proxy.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.proxy.component }}
+  maxUnavailable: {{ .Values.proxy.pdb.maxUnavailable }}
+{{- end }}
+{{- end }}

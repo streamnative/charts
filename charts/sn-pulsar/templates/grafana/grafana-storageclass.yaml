@@ -17,14 +17,21 @@
 # under the License.
 #
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- if .Values.monitoring.grafana }}
+{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+{{- if .Values.grafana.volumes.data.storageClass }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.grafana.component }}
+provisioner: {{ .Values.grafana.volumes.data.storageClass.provisioner }}
+parameters:
+  type: {{ .Values.grafana.volumes.data.storageClass.type }}
+  fsType: {{ .Values.grafana.volumes.data.storageClass.fsType }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -17,14 +17,21 @@
 # under the License.
 #
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- if .Values.components.pulsar_detector }}
+{{- if .Values.pulsar_detector.pdb.usePolicy }}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.pulsar_detector.component }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.pulsar_detector.component }}
+  maxUnavailable: {{ .Values.pulsar_detector.pdb.maxUnavailable }}
+{{- end }}
+{{- end }}

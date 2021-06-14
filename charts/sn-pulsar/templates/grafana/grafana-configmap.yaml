@@ -16,15 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- if .Values.monitoring.grafana }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.grafana.component }}
+data:
+{{ (.Files.Glob "conf/grafana/grafana.ini").AsConfig | indent 2 }}
+{{- end }}

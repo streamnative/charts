@@ -17,14 +17,26 @@
 # under the License.
 #
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- if and .Values.components.autorecovery (not .Values.autorecovery.operator.enabled) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.autorecovery.component }}
+  annotations:
+    {{- if .Values.bookkeeper.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
+spec:
+  ports:
+  - name: http
+    port: {{ .Values.autorecovery.ports.http }}
+  clusterIP: None
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.autorecovery.component }}
+{{- end }}

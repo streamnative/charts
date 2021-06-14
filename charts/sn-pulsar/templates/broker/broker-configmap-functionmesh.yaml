@@ -16,15 +16,17 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+{{- if and .Values.components.broker .Values.broker.operator.enabled .Values.broker.functionmesh.enabled}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "builtin-connectors"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.vault.component }}
+data:
+{{ (.Files.Glob "conf/broker/connectors.yaml").AsConfig | indent 2 }}
 
-chart-dirs:
-  - charts
-charts:
-  - charts/local-storage-provisioner
-  - charts/pulsar
-  - charts/sn-pulsar
-  - charts/pulsar-operator
-  - charts/function-mesh-operator
-debug: true
-helm-extra-args: --timeout 1200
-validate-maintainers: false
+{{- end }}
