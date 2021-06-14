@@ -62,11 +62,11 @@ function release::package_chart() {
 }
 
 function release::upload_packages() {
-    ${CR} upload --owner ${OWNER} --git-repo ${REPO} -t ${GITHUB_TOKEN} --package-path /cr/.chart-packages --release-name-template "{{ .Version }}"
+    ${CR} upload --owner ${OWNER} --git-repo ${REPO} -t ${GITHUB_TOKEN} --package-path /cr/.chart-packages --release-name-template "{{ .Name }}-{{ .Version }}"
 }
 
 function release::update_chart_index() {
-    ${CR} index -o ${OWNER} -r ${REPO} -t "${GITHUB_TOKEN}" -c ${CHARTS_REPO} --index-path /cr/.chart-index --package-path /cr/.chart-packages --release-name-template "{{ .Version }}"
+    ${CR} index -o ${OWNER} -r ${REPO} -t "${GITHUB_TOKEN}" -c ${CHARTS_REPO} --index-path /cr/.chart-index --package-path /cr/.chart-packages --release-name-template "{{ .Name }}-{{ .Version }}"
 }
 
 function release::publish_charts() {
