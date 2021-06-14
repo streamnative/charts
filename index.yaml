@@ -17,6 +17,22 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/0.1.6-rc1/function-mesh-operator-0.1.6-rc1.tgz
     version: 0.1.6-rc1
+  - apiVersion: v2
+    appVersion: 0.1.6
+    created: "2021-06-14T08:04:47.97767393Z"
+    description: function mesh operator Helm chart for Kubernetes
+    digest: 46f24d428aa9d6c99cbcf5e1e81576df33fc363330f41eb5fc29fd143d57bc42
+    home: https://github.com/streamnative/function-mesh
+    maintainers:
+    - email: function-mesh@streamnative.io
+      name: Function Mesh Support
+    name: function-mesh-operator
+    sources:
+    - https://github.com/streamnative/function-mesh
+    type: application
+    urls:
+    - https://github.com/streamnative/charts/releases/download/0.1.6-rc1/function-mesh-operator-0.1.6-rc1.tgz
+    version: 0.1.6-rc1
   local-storage-provisioner:
   - apiVersion: v1
     appVersion: "1.0"
@@ -648,4 +664,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/1.0.0-rc1/sn-pulsar-1.0.0-rc1.tgz
     version: 1.0.0-rc1
-generated: "2021-06-14T07:50:30.518368509Z"
+generated: "2021-06-14T08:04:47.977897334Z"
