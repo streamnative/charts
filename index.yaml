@@ -3,6 +3,22 @@ entries:
   function-mesh-operator:
   - apiVersion: v2
     appVersion: 0.1.6
+    created: "2021-06-16T16:46:43.971221406Z"
+    description: function mesh operator Helm chart for Kubernetes
+    digest: 1735e1d38facc5d69b498850fc0152b90c8191052d0b2a815731daacc5dd80d5
+    home: https://github.com/streamnative/function-mesh
+    maintainers:
+    - email: function-mesh@streamnative.io
+      name: Function Mesh Support
+    name: function-mesh-operator
+    sources:
+    - https://github.com/streamnative/function-mesh
+    type: application
+    urls:
+    - https://github.com/streamnative/charts/releases/download/function-mesh-operator-0.1.7/function-mesh-operator-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
+    appVersion: 0.1.6
     created: "2021-06-14T08:48:58.550230174Z"
     description: function mesh operator Helm chart for Kubernetes
     digest: 1b10e1c85db3d973c808cf0da6d3892ed7bcaedf90f21af92e733d474e0b6044
@@ -640,6 +656,22 @@ entries:
   pulsar-operator:
   - apiVersion: v1
     appVersion: 0.7.0
+    created: "2021-06-16T16:46:44.159280541Z"
+    description: Apache Pulsar Operators Helm chart for Kubernetes
+    digest: eb733bb3d8b9771a177940fa745d0aad971e8492b88ff44f08b1712bc8cd053f
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: glcao@streamnative.io
+      name: boltslei
+    name: pulsar-operator
+    sources:
+    - https://github.com/streamnative/pulsar-operators
+    urls:
+    - https://github.com/streamnative/charts/releases/download/pulsar-operator-0.7.1/pulsar-operator-0.7.1.tgz
+    version: 0.7.1
+  - apiVersion: v1
+    appVersion: 0.7.0
     created: "2021-06-14T07:50:30.518068794Z"
     description: Apache Pulsar Operators Helm chart for Kubernetes
     digest: 6b01b34ece39c4739ce29459cbcf385853784710a839ce1d4bbc9ded93e03f88
@@ -655,6 +687,27 @@ entries:
     - https://github.com/streamnative/charts/releases/download/0.7.0/pulsar-operator-0.7.0.tgz
     version: 0.7.0
   sn-pulsar:
+  - apiVersion: v1
+    appVersion: 1.0.0
+    created: "2021-06-16T16:46:44.407345854Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/loki/charts
+      version: 0.36.1
+    description: Apache Pulsar Helm chart from StreamNative
+    digest: c109fc05e0e7c1753c773f0fde3645d139581030f2e365e8e1be47355ab9277a
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-pulsar
+    sources:
+    - https://github.com/streamnative/charts/pulsar
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-pulsar-1.0.1/sn-pulsar-1.0.1.tgz
+    version: 1.0.1
   - apiVersion: v1
     appVersion: 1.0.0
     created: "2021-06-14T08:36:25.997747385Z"
@@ -701,4 +754,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/1.0.0-rc1/sn-pulsar-1.0.0-rc1.tgz
     version: 1.0.0-rc1
-generated: "2021-06-14T08:48:58.550547376Z"
+generated: "2021-06-16T16:46:44.410909054Z"
