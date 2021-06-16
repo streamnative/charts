@@ -84,7 +84,7 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/pulsar-detector -service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }} {{- if .Values.auth.authentication.enabled }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }} ;
+          bin/pulsar-detector -service-url {{ template "pulsar.broker.service.url" . }} -webservice-url {{ template "pulsar.web.service.url" . }} {{- if .Values.auth.authentication.enabled }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }} ;
         ports:
         # prometheus needs to access /metrics endpoint
         - name: server

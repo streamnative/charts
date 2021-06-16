@@ -17,6 +17,22 @@ pulsar://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace"
 {{- end -}}
 
 {{/*
+Define the kop service url
+*/}}
+{{- define "pulsar.broker.kop.service.url" -}}
+{{- if .Values.broker.kop.tls.enabled -}}
+{{- if .Values.broker.advertisedDomain -}}
+{{ .Values.broker.advertisedDomain }}:9093
+{{- else -}}
+{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:9093
+{{- end -}}
+{{- else -}}
+{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:9092
+{{- end -}}
+{{- end -}}
+
+
+{{/*
 Define the web service url
 */}}
 {{- define "pulsar.web.service.url" -}}

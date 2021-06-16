@@ -151,6 +151,10 @@ spec:
       authorizationEnabled: "true"
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
+      {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
+      tlsAllowInsecureConnection: "true"
+      tlsTrustCertsFilePath: "/etc/tls/pulsar-proxy-tls/ca.crt"
+      {{- end }}
 {{ (.Files.Glob "conf/proxy/log4j2.yaml").AsConfig | indent 4 }}
   dnsNames: []
   issuerRef:
