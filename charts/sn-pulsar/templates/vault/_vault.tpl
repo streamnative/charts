@@ -18,6 +18,11 @@ Inject vault token values to pod through env variables
 {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-secret-env-injection
 {{- end }}
 
+{{- define "pulsar.console-secret-key-name" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-console-admin-passwd
+{{- end }}
+
+
 
 {{- define "pulsar.vault-unseal-secret-key-name" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-unseal-keys

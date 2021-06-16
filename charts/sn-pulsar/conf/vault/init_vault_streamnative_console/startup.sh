@@ -14,13 +14,15 @@
 #
 
 export VAULT_APPROLE_SUPER_NAME=apachepulsar
-#export VAULT_SUPER_USER_NAME=apachepulsar
-#export VAULT_SUPER_USER_PASSWORD=apachepulsar
+export VAULT_SUPER_USER_NAME=admin
+# generate console password
+export VAULT_SUPER_USER_PASSWORD=$(cat /dev/urandom | base64 | tr -dc '0-9a-zA-Z' | head -c12)
 #export VAULT_ADDR="http://127.0.0.1:8200"
 
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo $BASEDIR
 TMP_DIR="/tmp"
+
 
 vault login $ROOT_TOKEN
 vault auth enable userpass
@@ -126,3 +128,11 @@ cat /tmp/pm_env
 
 kubectl delete secret $VAULT_SECRET_KEY_NAME -n $NAMESPACE
 kubectl create secret generic $VAULT_SECRET_KEY_NAME --from-env-file=/tmp/pm_env -n $NAMESPACE
+
+echo "create secret for console password! -> $CONSOLE_SECRET_KEY_NAME"
+kubectl delete secret $CONSOLE_SECRET_KEY_NAME -n $NAMESPACE
+kubectl create secret generic $CONSOLE_SECRET_KEY_NAME -n $NAMESPACE --from-literal=password=$VAULT_SUPER_USER_PASSWORD
+
+echo "create secret for toolset token -> $TOOLSET_TOKEN_SECRET_NAME"
+kubectl delete secret $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE
+kubectl create secret generic $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --from-literal=TOKEN=$VAULT_PULSAR_TOKEN

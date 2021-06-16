@@ -54,8 +54,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-    - host: {{ template "pulsar.control_center_domain" . }}
-      http:
+    - http:
         paths:
           {{- if and .Values.monitoring.grafana .Values.ingress.control_center.endpoints.grafana }}
           - path: /grafana
@@ -86,4 +85,7 @@ spec:
               serviceName: default
               servicePort: 80
           {{- end }}
+      {{- if .Values.ingress.control_center.external_domain }}
+      host: {{ template "pulsar.control_center_domain" . }}
+      {{- end }}
 {{- end }}

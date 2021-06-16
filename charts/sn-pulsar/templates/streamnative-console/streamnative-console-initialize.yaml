@@ -44,9 +44,11 @@ spec:
         - name: INSTANCE_NAME
           value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
         - name: WEB_SERVICE_URL
-          value: {{ template "pulsar.proxy.web.service.url" . }}
+          value: {{ template "pulsar.web.service.url" . }}
+        {{- if .Values.broker.kop.enabled }}
         - name: KOP_SERVICE_URL
-          value: PLAINTEXT://{{ template "pulsar.proxy.broker.service.address" . }}:9092
+          value: {{ template "pulsar.broker.kop.service.url" .}}
+        {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
           value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
         envFrom:

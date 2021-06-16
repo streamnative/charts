@@ -43,6 +43,42 @@ spec:
 {{- with .Values.zookeeper.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+    {{- if .Values.zookeeper.customTools.restore.enable }}
+    initContainers:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.customTools.restore.component }}"
+        image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+        imagePullPolicy: {{ .Values.zookeeper.customTools.restore.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            cat conf/pulsar-metadata-tool/pulsar-metadata-tool.properties;
+            bin/pulsar-metadata-tool restore {{ .Values.zookeeper.customTools.restore.restorePoint }};
+            ls -R /pulsar/data/zookeeper;
+        env:
+          {{- if .Values.zookeeper.customTools.restore.secrets.use }}
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.restore.secrets.aws.secretName }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.restore.secrets.aws.secretName }}
+                key: AWS_SECRET_ACCESS_KEY
+          {{- end }}
+          - name: METADATA_TOOL_CONF
+            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        volumeMounts:
+          - name: "data"
+            mountPath: "/pulsar/data"
+          - name: restore-config
+            mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+    volumes:
+      - name: restore-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+    {{- end }}
     affinity:
       {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity }}
       podAntiAffinity:
@@ -119,13 +155,16 @@ spec:
       storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
       {{- end -}}
     {{- end }}
-    {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
     dataLog:
       accessModes:
         - ReadWriteOnce
       resources:
         requests:
+          {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
           storage: {{ .Values.zookeeper.volumes.dataLog.size }}
+          {{- else }}
+          storage: 0
+          {{- end }}
     {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
       storageClassName: "local-storage"
     {{- else }}
@@ -134,7 +173,6 @@ spec:
       {{- else if .Values.zookeeper.volumes.data.storageClassName }}
       storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
       {{- end -}}
-    {{- end }}
     {{- end }}
     reclaimPolicy: Delete
   {{- end }}

@@ -40,7 +40,7 @@ spec:
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.broker.component }}
-      {{- if .Values.broker.kop.enabled }}
+      {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
       sidecar.istio.io/inject: "true"
       {{- end }}
     annotations:
@@ -103,13 +103,13 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
-    {{- if .Values.broker.externalDNSName }}
+    {{- if not ( and .Values.broker.kop.enabled .Values.broker.advertisedDomain ) }}
     - name: POD_NAME
       valueFrom:
           fieldRef:
             fieldPath: metadata.name
     - name: PULSAR_PREFIX_kafkaAdvertisedListeners
-      value: PLAINTEXT://$(POD_NAME).{{ .Values.broker.externalDNSName }}:9092,SSL://$(POD_NAME).{{ .Values.broker.externalDNSName }}:9093
+      value: PLAINTEXT://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ .Values.namespace }}.svc.cluster.local:9092,SSL://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ .Values.namespace }}.svc.cluster.local:9093
     {{- end }}
     # not support envFrom currently
     #envFrom:
@@ -140,7 +140,7 @@ spec:
       gcOptions:
         - {{ .Values.broker.configData.PULSAR_GC }}
       gcLoggingOptions: []
-  {{- if .Values.broker.kop.enabled }}
+  {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
   istio:
     enabled: true
     gateway:
@@ -163,8 +163,8 @@ spec:
       kop:
         enabled: true
         tls:
+          enabled: {{ .Values.broker.kop.tls.enabled }}
           certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
-          enabled: true
           passwordSecretRef:
             key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
             name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
@@ -189,5 +189,26 @@ spec:
       {{- if .Values.broker.kop.enabled }}
       PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
       {{- end }}
-{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 4 }}
+  {{- if .Values.zookeeper.customTools.restore.enable }}
+  initJobPod:
+    initContainers:
+      - name: cleanup
+        image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+        command:
+          - bash
+          - '-c'
+        args:
+          - "bin/pulsar-metadata-tool cleanup"
+        env:
+          - name: METADATA_TOOL_CONF
+            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        volumeMounts:
+          - name: cleanup-config
+            mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+    volumes:
+      - name: cleanup-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+  {{- end }}
+{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 2 }}
 {{- end }}
