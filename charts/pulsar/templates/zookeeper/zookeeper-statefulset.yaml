@@ -138,6 +138,9 @@ spec:
           {{- end }}
           - name: METADATA_TOOL_CONF
             value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        envFrom:
+          - configMapRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
         volumeMounts:
         {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
