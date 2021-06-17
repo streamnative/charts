@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -64,10 +65,20 @@ var otherCheck = regexp.MustCompile(`#
 #
 `)
 
-var skip = map[string]bool{}
+var skip = map[string]bool{
+	"charts/function-mesh-operator/crds": true,
+	"charts/pulsar-operator/crds": true,
+}
 
 func TestLicense(t *testing.T) {
 	err := filepath.Walk(".", func(path string, fi os.FileInfo, err error) error {
+
+		for k, _ := range skip {
+			if strings.Contains(path, k) {
+				return nil
+			}
+		}
+
 		if skip[path] {
 			return nil
 		}
