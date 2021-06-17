@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -71,6 +72,13 @@ var skip = map[string]bool{
 
 func TestLicense(t *testing.T) {
 	err := filepath.Walk(".", func(path string, fi os.FileInfo, err error) error {
+
+		for k, _ := range skip {
+			if strings.Contains(path, k) {
+				return nil
+			}
+		}
+
 		if skip[path] {
 			return nil
 		}
