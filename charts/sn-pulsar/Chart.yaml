@@ -18,10 +18,10 @@
 #
 
 apiVersion: v1
-appVersion: "1.0.2"
+appVersion: "1.0.3"
 description: Apache Pulsar Helm chart from StreamNative
 name: sn-pulsar
-version: 1.0.2
+version: 1.0.3
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/pulsar
