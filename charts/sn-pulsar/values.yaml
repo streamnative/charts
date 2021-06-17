@@ -1638,7 +1638,7 @@ streamnative_console:
     data:
       name: data
       size: 10Gi
-      #local_storage: true
+      # local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1680,12 +1680,9 @@ streamnative_console:
     WEB_SERVICE_URL: ""
     KOP_SERVICE_URL: ""
 
-
-
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
 ##
-
 rbac:
   enable: true
   roleName: pulsar-operator
@@ -1857,8 +1854,8 @@ vault:
   config: {}
   resources:
     limits:
-       memory: "512Mi"
-       cpu: "200m"
+      memory: "512Mi"
+      cpu: "200m"
     requests:
       memory: "256Mi"
       cpu: "100m"
