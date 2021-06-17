@@ -122,15 +122,15 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -139,23 +139,23 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
@@ -868,7 +868,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/sn-pulsar
-    tag: 2.8.0-rc-202106151929
+    tag: 2.8.0.1
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
