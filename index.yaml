@@ -754,6 +754,27 @@ entries:
     version: 0.7.0
   sn-pulsar:
   - apiVersion: v1
+    appVersion: 1.0.3
+    created: "2021-06-17T13:57:31.524087545Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/loki/charts
+      version: 0.36.1
+    description: Apache Pulsar Helm chart from StreamNative
+    digest: 186d63a62eea2b3beac501a718eecc880375758f41013d5c98ddf6b9a66f4087
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-pulsar
+    sources:
+    - https://github.com/streamnative/charts/pulsar
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-pulsar-1.0.3/sn-pulsar-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v1
     appVersion: 1.0.2
     created: "2021-06-17T12:25:14.83767353Z"
     dependencies:
@@ -841,4 +862,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/1.0.0-rc1/sn-pulsar-1.0.0-rc1.tgz
     version: 1.0.0-rc1
-generated: "2021-06-17T12:25:14.83805873Z"
+generated: "2021-06-17T13:57:31.524329169Z"
