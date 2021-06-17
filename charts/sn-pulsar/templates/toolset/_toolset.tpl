@@ -82,7 +82,7 @@ Define toolset tls certs mounts
   subPath: keytool.sh
 {{- end }}
 {{- end }}
-{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
+{{- if and .Values.toolset.useProxy .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
 {{- if .Values.tls.proxy.untrustedCa }}
 - mountPath: "/pulsar/certs/proxy-ca"
   name: proxy-ca
