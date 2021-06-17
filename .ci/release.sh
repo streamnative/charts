@@ -62,7 +62,7 @@ function release::package_chart() {
 }
 
 function release::upload_packages() {
-    ${CR} upload --owner ${OWNER} --git-repo ${REPO} -t ${GITHUB_TOKEN} --package-path /cr/.chart-packages --release-name-template "{{ .Name }}-{{ .Version }}"
+    ${CR} upload --owner ${OWNER} --git-repo ${REPO} -t ${GITHUB_TOKEN} --package-path /cr/.chart-packages --release-name-template "{{ .Name }}-{{ .Version }}" --skip-existing
 }
 
 function release::update_chart_index() {
