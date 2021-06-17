@@ -26,7 +26,6 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
-    "cloud.streamnative.io/enable-pod-labels-update": "enabled"
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
