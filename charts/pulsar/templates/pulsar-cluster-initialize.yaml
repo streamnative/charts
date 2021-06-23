@@ -66,9 +66,11 @@ spec:
         args:
           - >
             {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 12 }}
+            {{ if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
             export "$(cat conf/pulsar_env.sh | xargs)";
             export "OPTS=${PULSAR_EXTRA_OPTS}";
             env;
+            {{- end }}
             bin/pulsar-metadata-tool cleanup
         env:
           - name: METADATA_TOOL_CONF
