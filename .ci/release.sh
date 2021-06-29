@@ -18,8 +18,6 @@
 # under the License.
 #
 
-set -e
-
 BINDIR=`dirname "$0"`
 CHARTS_HOME=`cd ${BINDIR}/..;pwd`
 CHARTS_PKGS=${CHARTS_HOME}/.chart-packages
