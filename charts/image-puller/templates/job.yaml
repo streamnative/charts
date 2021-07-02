@@ -24,16 +24,16 @@ its' pods running. If all those pods are running they must have pulled all the
 required images on all nodes as they are used as init containers with a dummy
 command.
 */}}
-{{- if .Values.imagePuller.hook.enabled -}}
+{{- if .Values.hook.enabled -}}
 # wait for images to be pulled
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ template "pulsar.namespace" . }}
+  name: {{ template "chart.fullname" . }}-hook-image-awaiter
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.imagePuller.component }}
+    {{- include "chart.standardLabels" . | nindent 4 }}
+    component: {{ .Values.component }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
@@ -43,15 +43,15 @@ spec:
     metadata:
       labels:
         {{- /* Changes here will cause the Job to restart the pods. */}}
-        {{- include "pulsar.matchLabels" . | nindent 8 }}
-        component: {{ .Values.imagePuller.component }}
+        {{- include "chart.matchLabels" . | nindent 8 }}
+        component: {{ .Values.component }}
     spec:
       restartPolicy: Never
-      {{- if .Values.imagePuller.rbac.enabled }}
-      serviceAccountName: {{ template "pulsar.fullname" . }}-hook-image-awaiter
+      {{- if .Values.rbac.enabled }}
+      serviceAccountName: {{ template "chart.fullname" . }}-hook-image-awaiter
       {{- end }}
       containers:
-        - image: {{ .Values.imagePuller.hook.image.name }}:{{ .Values.imagePuller.hook.image.tag }}
+        - image: {{ .Values.hook.image.name }}:{{ .Values.hook.image.tag }}
           name: hook-image-awaiter
           imagePullPolicy: IfNotPresent
           command:
@@ -59,6 +59,6 @@ spec:
             - -ca-path=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
             - -auth-token-path=/var/run/secrets/kubernetes.io/serviceaccount/token
             - -api-server-address=https://$(KUBERNETES_SERVICE_HOST):$(KUBERNETES_SERVICE_PORT)
-            - -namespace={{ template "pulsar.namespace" . }}
-            - -daemonset={{ template "pulsar.fullname" . }}-hook-image-puller
+            - -namespace={{ .Release.Namespace }}
+            - -daemonset={{ template "chart.fullname" . }}-hook-image-puller
 {{- end }}
