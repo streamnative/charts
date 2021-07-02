@@ -128,7 +128,7 @@ spec:
         - {{ .Values.proxy.configData.PULSAR_GC }}
       gcLoggingOptions: []
   config:
-    tls:
+    tlsConfig:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
       zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"

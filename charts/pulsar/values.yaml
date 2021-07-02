@@ -614,6 +614,8 @@ zookeeper:
       restoreVersion: "1"
       managedLedgerPath: "/managed-ledgers"
       bucket: "s3a://bucket"
+      cleanupBookieMeta: false
+      cleanupClusterMeta: false
       configData:
         OPTS: ""
       secrets:
