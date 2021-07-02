@@ -20,8 +20,8 @@
 {{- /*
 Permissions to be used by the hook-image-awaiter job
 */}}
-{{- if .Values.imagePuller.hook.enabled }}
-{{- if .Values.imagePuller.rbac.enabled }}
+{{- if .Values.hook.enabled }}
+{{- if .Values.rbac.enabled }}
 {{- /*
 This service account...
 */ -}}
@@ -29,10 +29,10 @@ This service account...
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ template "pulsar.namespace" . }}
+  name: {{ template "chart.fullname" . }}-hook-image-awaiter
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    {{- include "chart.standardLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
@@ -45,10 +45,10 @@ metadata:
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ template "pulsar.namespace" . }}
+  name: {{ template "chart.fullname" . }}-hook-image-awaiter
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    {{- include "chart.standardLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
@@ -65,21 +65,21 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-  namespace: {{ template "pulsar.namespace" . }}
+  name: {{ template "chart.fullname" . }}-hook-image-awaiter
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    {{- include "chart.standardLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
     "helm.sh/hook-weight": "0"
 subjects:
   - kind: ServiceAccount
-    name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
-    namespace: {{ template "pulsar.namespace" . }}
+    name: {{ template "chart.fullname" . }}-hook-image-awaiter
+    namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
-  name: {{ template "pulsar.fullname" . }}-hook-image-awaiter
+  name: {{ template "chart.fullname" . }}-hook-image-awaiter
   apiGroup: rbac.authorization.k8s.io
 {{- end }}
 {{- end }}

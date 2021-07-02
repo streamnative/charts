@@ -23,9 +23,9 @@ helm upgrades. It's task is to pull the required images on all nodes. When the
 image-awaiter job confirms the required images to be pulled, the daemonset is
 deleted. Only then will the actual helm upgrade start.
 */}}
-{{- if .Values.imagePuller.hook.enabled }}
+{{- if .Values.hook.enabled }}
 {{- $_ := merge (dict "hook" true "componentPrefix" "hook-") . }}
-{{- include "pulsar.imagePuller.daemonset" $_ }}
+{{- include "image_puller.daemonset" $_ }}
 {{- end }}
 ---
 {{- /*
@@ -33,7 +33,7 @@ The continuous-image-puller daemonset task is to pull required images to nodes
 that are added in between helm upgrades, for example by manually adding a node
 or by the cluster autoscaler.
 */}}
-{{- if .Values.imagePuller.continuous.enabled }}
+{{- if .Values.continuous.enabled }}
 {{- $_ := merge (dict "hook" false "componentPrefix" "continuous-") . }}
-{{ include "pulsar.imagePuller.daemonset" $_ }}
+{{ include "image_puller.daemonset" $_ }}
 {{- end }}
