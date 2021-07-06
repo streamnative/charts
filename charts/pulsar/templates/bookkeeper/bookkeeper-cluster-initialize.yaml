@@ -97,9 +97,9 @@ spec:
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       {{- if .Values.zookeeper.customTools.restore.enable }}
-        - name: cleanup-config
-          configMap:
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+      - name: cleanup-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
       {{- end }}
       restartPolicy: Never
 {{- end }}
