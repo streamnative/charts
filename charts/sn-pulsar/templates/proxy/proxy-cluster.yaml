@@ -128,7 +128,7 @@ spec:
         - {{ .Values.proxy.configData.PULSAR_GC }}
       gcLoggingOptions: []
   config:
-    tlsConfig:
+    tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
       zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
@@ -152,14 +152,20 @@ spec:
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
+      {{- if .Values.certs.internal_issuer.enabled }}
       tlsAllowInsecureConnection: "true"
       tlsTrustCertsFilePath: "/etc/tls/pulsar-proxy-tls/ca.crt"
+      {{- end }}
       {{- end }}
 {{ (.Files.Glob "conf/proxy/log4j2.yaml").AsConfig | indent 4 }}
   dnsNames: []
   issuerRef:
     name: ""
   {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
+  {{ if .Values.proxy.tlsSecretName }}
   certSecretName: {{ .Values.proxy.tlsSecretName }}
+  {{ else }}
+  certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+  {{- end }}
   {{- end }}
 {{- end }}

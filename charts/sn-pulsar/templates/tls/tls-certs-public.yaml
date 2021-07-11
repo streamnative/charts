@@ -17,7 +17,6 @@
 # under the License.
 #
 
-{{- if .Values.external_dns.enabled }}
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if .Values.tls.enabled }}
 {{- if .Values.tls.proxy.enabled }}
@@ -29,9 +28,12 @@ metadata:
 spec:
   # Secret names are always required.
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  commonName: {{ template "pulsar.service_domain" . }}
+  #commonName: {{ template "pulsar.service_domain" . }}
   dnsNames:
-    - {{ template "pulsar.service_domain" . }}
+    #- {{ template "pulsar.service_domain" . }}
+    # Apply certs for wildcard domain 
+    - "*.{{ .Values.domain.suffix }}"
+    - "*.messaging.{{ .Values.domain.suffix }}"
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
@@ -41,8 +43,13 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+        name: cert-jks-passwd
+        key: password
 ---
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
