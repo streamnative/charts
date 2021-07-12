@@ -17,24 +17,31 @@
 # under the License.
 #
 
-{{- if .Values.external_dns.enabled }}
-{{- if .Values.certs.public_issuer.enabled }}
-{{- if .Values.tls.enabled }}
-{{- if .Values.tls.proxy.enabled }}
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
+{{- if .Values.certs.internal_issuer.enabled }}
+{{- if eq .Values.certs.internal_issuer.type "selfsigning" }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-  # Secret names are always required.
-  secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  commonName: {{ template "pulsar.service_domain" . }}
-  dnsNames:
-    - {{ template "pulsar.service_domain" . }}
-  # Issuer references are always required.
+  selfSigned: {}
+---
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-ca"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  secretName: "{{ .Release.Name }}-ca-tls"
+  commonName: "{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  usages:
+    - server auth
+    - client auth
+  isCA: true
   issuerRef:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}"
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
     kind: Issuer
@@ -42,7 +49,14 @@ spec:
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
 ---
-{{- end }}
-{{- end }}
+
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  ca:
+    secretName: "{{ .Release.Name }}-ca-tls"
 {{- end }}
 {{- end }}

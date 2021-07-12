@@ -121,79 +121,79 @@ monitoring:
 ## Control what images to use for each component
 images:
   zookeeper:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   bookie:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   presto:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
-  #   repository: streamnative/sn-pulsar
+  #   repository: streamnative/sn-platform
   #   tag: 2.7.0.4
   #   pullPolicy: IfNotPresent
   autorecovery:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   broker:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   proxy:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   pulsar_detector:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   functions:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
-  #   repository: streamnative/sn-pulsar
-  #   tag: 2.7.0.4
+  #   repository: streamnative/sn-platform
+  #   tag: "2.8.0.5"
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
-    tag: v2.17.2
+    tag: "v2.17.2"
     pullPolicy: IfNotPresent
   alert_manager:
     repository: prom/alertmanager
-    tag: v0.20.0
+    tag: "v0.20.0"
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.14
+    tag: "0.0.16"
     pullPolicy: IfNotPresent
   streamnative_console:
-    repository: streamnative/sn-pulsar-manager
-    tag: 0.7.0-15
+    repository: streamnative/sn-platform-console
+    tag: "1.0"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
     repository: prom/node-exporter
-    tag: v0.16.0
+    tag: "v0.16.0"
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
-    tag: 0.26.2
+    tag: "0.26.2"
     pullPolicy: "IfNotPresent"
   vault:
     repository: vault
-    tag: 1.7.0
+    tag: "1.7.0"
     pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
-    tag: v1.0.2
+    tag: "v1.0.2"
 
 ## TLS
 ## templates/tls-certs.yaml
@@ -867,8 +867,8 @@ pulsar_metadata:
     # the image used for running `pulsar-cluster-initialize` job
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.1
+    repository: streamnative/sn-platform
+    tag: "2.8.0.5"
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -939,11 +939,11 @@ broker:
     tls:
       enabled: false
       # create a secret with keystore.jks and truststore.jks
-      certSecretName: "kop-secret"
+      #certSecretName: "kop-secret"
       # same word for keystore and truststore
-      passwordSecretRef:
-        key: password
-        name: kop-keystore-password
+      #passwordSecretRef:
+      #  key: password
+      #  name: kop-keystore-password
   # choose istio selector
   istio:
     gateway:

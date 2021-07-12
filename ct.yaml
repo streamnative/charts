@@ -22,7 +22,7 @@ chart-dirs:
 charts:
   - charts/local-storage-provisioner
   - charts/pulsar
-  - charts/sn-pulsar
+  - charts/sn-platform
   - charts/pulsar-operator
   - charts/function-mesh-operator
 debug: true

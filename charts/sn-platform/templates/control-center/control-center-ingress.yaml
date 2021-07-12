@@ -34,8 +34,8 @@ metadata:
     # don't do ssl-redirect if ssl is already terminated at the load balancer level
     ingress.kubernetes.io/ssl-redirect: "true"
 {{- if and .Values.certs.public_issuer.enabled }}
-    kubernetes.io/tls-acme: "true"
-    cert-manager.io/issuer: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
+#    kubernetes.io/tls-acme: "true"
+#    cert-manager.io/issuer: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
 {{- end }}
 {{- else }}
     ingress.kubernetes.io/ssl-redirect: "false"
@@ -50,7 +50,11 @@ spec:
   tls:
     - hosts:
         - {{ template "pulsar.control_center_domain" . }}
-      secretName: {{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress
+{{- if and .Values.tls.enabled .Values.ingress.control_center.tls.enabled }}
+# Use the same cert for proxy which is wildcard type
+      secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+{{- end }}
+
   {{- end }}
 {{- end }}
   rules:

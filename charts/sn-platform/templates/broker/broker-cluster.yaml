@@ -163,10 +163,23 @@ spec:
         enabled: true
         tls:
           enabled: {{ .Values.broker.kop.tls.enabled }}
+    {{- if .Values.certs.public_issuer.enabled }}
+          trustStoreEnabled: false
+    {{- end }}
+    {{- if .Values.broker.kop.tls.certSecretName }}
           certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
+    {{ else }}
+          certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+    {{- end }}
+    {{- if .Values.broker.kop.tls.passwordSecretRef }}
           passwordSecretRef:
             key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
             name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+    {{ else }}
+          passwordSecretRef:
+            name: cert-jks-passwd
+            key: password
+    {{- end }}
     {{- end }}
     tls:
       certSecretName: tls

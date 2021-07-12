@@ -17,46 +17,39 @@
 # under the License.
 #
 
-{{- if .Values.certs.internal_issuer.enabled }}
-{{- if eq .Values.certs.internal_issuer.type "selfsigning" }}
-apiVersion: cert-manager.io/v1alpha2
-kind: Issuer
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}"
-  namespace: {{ template "pulsar.namespace" . }}
-spec:
-  selfSigned: {}
----
-
+{{- if .Values.certs.public_issuer.enabled }}
+{{- if .Values.tls.enabled }}
+{{- if .Values.tls.proxy.enabled }}
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-ca"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-  secretName: "{{ .Release.Name }}-ca-tls"
-  commonName: "{{ template "pulsar.namespace" . }}.svc.cluster.local"
-  usages:
-    - server auth
-    - client auth
-  isCA: true
+  # Secret names are always required.
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+  #commonName: {{ template "pulsar.service_domain" . }}
+  dnsNames:
+    #- {{ template "pulsar.service_domain" . }}
+    # Apply certs for wildcard domain 
+    - "*.{{ .Values.domain.suffix }}"
+    - "*.messaging.{{ .Values.domain.suffix }}"
+  # Issuer references are always required.
   issuerRef:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
     # We can reference ClusterIssuers by changing the kind here.
     # The default value is Issuer (i.e. a locally namespaced Issuer)
     kind: Issuer
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+        name: cert-jks-passwd
+        key: password
 ---
-
-apiVersion: cert-manager.io/v1alpha2
-kind: Issuer
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
-  namespace: {{ template "pulsar.namespace" . }}
-spec:
-  ca:
-    secretName: "{{ .Release.Name }}-ca-tls"
+{{- end }}
 {{- end }}
 {{- end }}
