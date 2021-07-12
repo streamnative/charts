@@ -802,6 +802,28 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/0.7.0/pulsar-operator-0.7.0.tgz
     version: 0.7.0
+  sn-platform:
+  - apiVersion: v1
+    appVersion: "1.1"
+    created: "2021-07-12T12:12:13.381078232Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/loki/charts
+      version: 0.36.1
+    description: StreamNative Platform Chart
+    digest: 78860788f15bc3a06239d897b3ab4f08c5d4451a5000d702933a546fa0731a98
+    home: https://streamnative.io
+    icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-platform
+    sources:
+    - https://github.com/streamnative/charts/tree/master/charts/sn-platform
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-platform-1.1.0/sn-platform-1.1.0.tgz
+    version: 1.1.0
   sn-pulsar:
   - apiVersion: v1
     appVersion: "1.0"
@@ -954,4 +976,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/1.0.0-rc1/sn-pulsar-1.0.0-rc1.tgz
     version: 1.0.0-rc1
-generated: "2021-07-06T08:43:11.357512147Z"
+generated: "2021-07-12T12:12:13.381288833Z"
