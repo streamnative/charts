@@ -59,7 +59,12 @@ vault write identity/oidc/key/super-service-account name=super-service-account r
 vault write identity/oidc/role/super-service-account key=super-service-account ttl=12h template=@$TMP_DIR/super-service-account-template.json
 superServiceAccountClientId=$(vault read identity/oidc/role/super-service-account | grep client_id |  awk '{print $2}')
 vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=24h verification_ttl=24h allowed_client_ids=$superServiceAccountClientId
+
+
 vault write auth/approle/role/$superApproleName policies=super-service-account
+
+# set a short ttl for approle to avoid vault oom caused by frequent lease generation
+vault auth tune -default-lease-ttl=5m approle/
 
 superUser=$VAULT_SUPER_USER_NAME
 superPassword=$VAULT_SUPER_USER_PASSWORD
