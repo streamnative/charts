@@ -18,7 +18,7 @@
 #
 
 # deploy zookeeper only when `components.zookeeper` is true
-{{- if and .Values.components.zookeeper (not .Values.zookeeper.operator.enabled) }}
+{{- if and .Values.components.zookeeper (and (not .Values.zookeeper.operator.enabled) .Values.zookeeper.operator.adopt_existing) }}
 {{- if .Values.zookeeper.pdb.usePolicy }}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget

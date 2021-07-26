@@ -626,12 +626,12 @@ zookeeper:
   ## Operator Controller
   ## templates/zookeeper-cluster.yaml
   operator:
-    enabled: false
+    enabled: true
     adopt_existing: false
     updatePolicy: []
   ## Retention Policy
   resourcePolicy:
-    keep: false
+    keep: true
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
