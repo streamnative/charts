@@ -623,6 +623,16 @@ zookeeper:
 #        aws:
 #          secretName: "restore-aws-secret"
 
+  ## Operator Controller
+  ## templates/zookeeper-cluster.yaml
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: []
+  ## Retention Policy
+  resourcePolicy:
+    keep: false
+
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
 ##
