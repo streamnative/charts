@@ -30,16 +30,16 @@ spec:
   gateways:
   - "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
   hosts:
-  - {{ quote .Values.broker.advertisedDomain }}
+  - {{ quote .Values.ingress.kop.external_domain }}
   {{- range $i, $e := until (.Values.broker.replicaCount | int) }}
-  - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.broker.advertisedDomain }}"
+  - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.ingress.kop.external_domain }}"
   - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
   {{- end }}
   tls:
   - match:
     - port: 9093
       sniHosts:
-      - {{ quote .Values.broker.advertisedDomain }}
+      - {{ quote .Values.ingress.kop.external_domain }}
     route:
     - destination:
         host: "{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
@@ -49,7 +49,7 @@ spec:
   - match:
     - port: 9093
       sniHosts:
-      - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.broker.advertisedDomain }}"
+      - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.ingress.kop.external_domain }}"
       - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
     route:
     - destination:

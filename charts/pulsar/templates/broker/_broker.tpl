@@ -57,9 +57,9 @@ Define broker kop settings
 {{- define "pulsar.broker.kop.settings" -}}
 {{- if .Values.components.kop }}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
-export PULSAR_PREFIX_listeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.ssl }}";
+export PULSAR_PREFIX_kafkaListeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.ssl }}";
 {{- else }}
-export PULSAR_PREFIX_listeners="PLAINTEXT://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.plaintext }}";
+export PULSAR_PREFIX_kafkaListeners="PLAINTEXT://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.plaintext }}";
 {{- end }}
 {{- end }}
 {{- end }}

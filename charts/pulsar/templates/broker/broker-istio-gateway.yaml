@@ -31,9 +31,9 @@ spec:
     istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
   servers:
   - hosts:
-    - {{ quote .Values.broker.advertisedDomain }}
+    - {{ quote .Values.ingress.kop.external_domain }}
     {{- range $i, $e := until (.Values.broker.replicaCount | int) }}
-    - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.broker.advertisedDomain }}"
+    - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.ingress.kop.external_domain }}"
     {{- end }}
     port:
       name: tls-pulsar-kop
