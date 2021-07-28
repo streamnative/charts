@@ -279,13 +279,20 @@ spec:
               name: {{ .Values.broker.offload.s3.secret }}
               key: AWS_SECRET_ACCESS_KEY
         {{- end }}
-        {{- if and .Values.broker.kop.enabled .Values.ingress.kop.external_domain }}
+        {{- if and .Values.broker.kop.enabled }}
+        {{- if .Values.ingress.kop.external_domain }}
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        {{- if .Values.tls.kop.enabled }}
         - name: PULSAR_PREFIX_kafkaAdvertisedListeners
-          value: PLAINTEXT://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:9092,SSL://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:9093
+          value: SSL://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:9093
+        {{- else }}
+        - name: PULSAR_PREFIX_kafkaAdvertisedListeners
+          value: PLAINTEXT://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:9092
+        {{- end }}
+        {{- end }}
         {{- end }}
         envFrom:
         - configMapRef:
