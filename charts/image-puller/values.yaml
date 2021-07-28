@@ -71,4 +71,3 @@ images:
 #  - name: vault_init
 #    repository: streamnative/pulsar_vault_init
 #    tag: v1.0.2
-  
