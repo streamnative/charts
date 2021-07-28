@@ -210,7 +210,7 @@ spec:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
       updatePolicy:
       {{- if .Values.zookeeper.operator.adopt_existing }}
-      {{ .Values.zookeeper.operator.updatePolicy }}
+      {{ .Values.zookeeper.operator.updatePolicy | indent 2 }}
       {{- else }}
         - all
       {{- end }}

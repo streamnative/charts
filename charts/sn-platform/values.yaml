@@ -951,6 +951,8 @@ broker:
         istio: "ingressgateway"
   functionmesh:
     enabled: true
+  function:
+    enabled: true
   resources:
     requests:
       memory: 512Mi
