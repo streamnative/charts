@@ -130,6 +130,7 @@ You can also checkout out the example values file for different deployments.
 - [Deploy a Pulsar cluster with TLS encryption](examples/pulsar/values-tls.yaml)
 - [Deploy a Pulsar cluster with JWT authentication using symmetric key](examples/pulsar/values-jwt-symmetric.yaml)
 - [Deploy a Pulsar cluster with JWT authentication using asymmetric key](examples/pulsar/values-jwt-asymmetric.yaml)
+- [Deploy a Pulsar cluster with KoP, istio, and TLS encryption](../../examples/pulsar/values-kop-tls-istio.yaml)
 
 ## Upgrading
 

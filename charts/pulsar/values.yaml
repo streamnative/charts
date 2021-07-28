@@ -362,6 +362,10 @@ ingress:
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+  kop:
+    enabled: false
+    # NOTE: replace this with the actual domain when enabling ingress for KOP
+    external_domain: "<external_domain>"
   ## templates/presto-service-ingress.yaml
   ##
   ## Ingresses for exposing presto service publicly
@@ -853,6 +857,10 @@ kop:
   ports:
     plaintext: 9092
     ssl: 9093
+
+# Istio is required for exposing Kafka service
+istio:
+  enable: false
 
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml
