@@ -280,17 +280,17 @@ spec:
               key: AWS_SECRET_ACCESS_KEY
         {{- end }}
         {{- if and .Values.components.kop }}
-        {{- if .Values.ingress.kop.external_domain }}
+        {{- if .Values.ingress.kop.enabled }}
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
         {{- if .Values.tls.broker.enabled }}
         - name: PULSAR_PREFIX_kafkaAdvertisedListeners
-          value: SSL://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:9093
+          value: SSL://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:{{ .Values.kop.ports.ssl }}
         {{- else }}
         - name: PULSAR_PREFIX_kafkaAdvertisedListeners
-          value: PLAINTEXT://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:9092
+          value: PLAINTEXT://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:{{ .Values.kop.ports.plaintext }}
         {{- end }}
         {{- end }}
         {{- end }}

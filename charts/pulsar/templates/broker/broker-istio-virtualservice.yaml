@@ -37,17 +37,17 @@ spec:
   {{- end }}
   tls:
   - match:
-    - port: 9093
+    - port: {{ .Values.kop.ports.ssl }}
       sniHosts:
       - {{ quote .Values.ingress.kop.external_domain }}
     route:
     - destination:
         host: "{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
         port:
-          number: 9093
+          number: {{ .Values.kop.ports.ssl }}
   {{- range $i, $e := until (.Values.broker.replicaCount | int) }}
   - match:
-    - port: 9093
+    - port: {{ .Values.kop.ports.ssl }}
       sniHosts:
       - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.ingress.kop.external_domain }}"
       - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
@@ -55,6 +55,6 @@ spec:
     - destination:
         host: "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
         port:
-          number: 9093
+          number: {{ .Values.kop.ports.ssl }}
   {{- end }}
 {{- end }}

@@ -51,4 +51,5 @@ istio:
 
 ingress:
   kop: 
+    enabled: true
     external_domain: <external_domain>
