@@ -939,9 +939,9 @@ broker:
     tls:
       enabled: false
       # create a secret with keystore.jks and truststore.jks
-      #certSecretName: "kop-secret"
+      # certSecretName: "kop-secret"
       # same word for keystore and truststore
-      #passwordSecretRef:
+      # passwordSecretRef:
       #  key: password
       #  name: kop-keystore-password
   # choose istio selector
