@@ -285,7 +285,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
-        {{- if .Values.tls.kop.enabled }}
+        {{- if .Values.tls.broker.enabled }}
         - name: PULSAR_PREFIX_kafkaAdvertisedListeners
           value: SSL://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:9093
         {{- else }}

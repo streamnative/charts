@@ -144,7 +144,7 @@ data:
   PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
   {{- end }}
   {{- end }}
-  {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
   PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/broker.keystore.jks
   PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/broker.truststore.jks
   {{- end }}

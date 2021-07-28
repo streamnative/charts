@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.components.broker .Values.istio.enabled .Values.broker.kop.enabled .Values.tls.kop.enabled }}
+{{- if and .Values.components.broker .Values.istio.enabled .Values.broker.kop.enabled .Values.tls.broker.enabled .Values.ingress.kop.external_domain }}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:

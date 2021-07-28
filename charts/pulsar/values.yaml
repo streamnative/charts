@@ -1767,3 +1767,6 @@ presto:
   service:
     spec:
       type: ClusterIP
+
+istio:
+  enable: false
