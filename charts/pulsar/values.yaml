@@ -217,6 +217,9 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+  # settings for generating certs for kop
+  kop:
+    cert_name: tls-kop
   # settings for generating certs for bookies
   bookie:
     enabled: false
@@ -861,6 +864,9 @@ kop:
 # Istio is required for exposing Kafka service
 istio:
   enable: false
+  gateway:
+    selector:
+      istio: "ingressgateway"
 
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml

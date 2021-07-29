@@ -34,7 +34,7 @@ spec:
   location: MESH_INTERNAL
   ports:
   - name: tls-pulsar-kop
-    number: {{ .Values.kop.ports.ssl }}
+    number: {{ $.Values.kop.ports.ssl }}
     protocol: TLS
   resolution: DNS
 {{- end }}
