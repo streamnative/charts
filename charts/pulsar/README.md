@@ -68,7 +68,7 @@ helm repo add streamnative https://charts.streamnative.io
 
 To use this chart, you need a Kubernetes cluster whose version is 1.14 or higher, due to the usage of certain Kubernetes features.
 
-We provide some instructions to guide you through the preparation for the [Google Kubernetes Engine (GKE)](docs/pulsar/install/gke.md).
+We provide some instructions to guide you through the preparation for the [Google Kubernetes Engine (GKE)](../../docs/pulsar/install/gke.md).
 
 ## Deploy Pulsar to Kubernetes
 
@@ -118,19 +118,19 @@ We provide some instructions to guide you through the preparation for the [Googl
 
 ## Customize the deployment 
 
-We provide a [detailed guideline](docs/pulsar/install/deployment.md) for you to customize the Helm Chart for a production-ready deployment.
+We provide a [detailed guideline](../../docs/pulsar/install/deployment.md) for you to customize the Helm Chart for a production-ready deployment.
 
 You can also checkout out the example values file for different deployments.
 
 - [Deploy ZooKeeper only](examples/pulsar/values-cs.yaml)
-- [Deploy a Pulsar cluster with an external configuration store](examples/pulsar/values-cs.yaml)
-- [Deploy a Pulsar cluster with local persistent volume](examples/pulsar/values-local-pv.yaml)
-- [Deploy a Pulsar cluster to Minikube](examples/pulsar/values-minikube.yaml)
-- [Deploy a Pulsar cluster with no persistence](examples/pulsar/values-no-persistence.yaml)
-- [Deploy a Pulsar cluster with TLS encryption](examples/pulsar/values-tls.yaml)
-- [Deploy a Pulsar cluster with JWT authentication using symmetric key](examples/pulsar/values-jwt-symmetric.yaml)
-- [Deploy a Pulsar cluster with JWT authentication using asymmetric key](examples/pulsar/values-jwt-asymmetric.yaml)
-- [Deploy a Pulsar cluster with KoP, istio, and TLS encryption](../../examples/pulsar/values-kop-tls-istio.yaml)
+- [Deploy a Pulsar cluster with an external configuration store](../../examples/pulsar/values-cs.yaml)
+- [Deploy a Pulsar cluster with local persistent volume](../../examples/pulsar/values-local-pv.yaml)
+- [Deploy a Pulsar cluster to Minikube](../../examples/pulsar/values-minikube.yaml)
+- [Deploy a Pulsar cluster with no persistence](../../examples/pulsar/values-no-persistence.yaml)
+- [Deploy a Pulsar cluster with TLS encryption](../../examples/pulsar/values-tls.yaml)
+- [Deploy a Pulsar cluster with JWT authentication using symmetric key](../../examples/pulsar/values-jwt-symmetric.yaml)
+- [Deploy a Pulsar cluster with JWT authentication using asymmetric key](../../examples/pulsar/values-jwt-asymmetric.yaml)
+- [Deploy a Pulsar cluster with KoP, Istio, and TLS encryption](../../examples/pulsar/values-kop-tls-istio.yaml)
 
 ## Upgrading
 
@@ -168,7 +168,7 @@ These items we require you to *conciously* remove them, as they affect re-deploy
 ## Migration
 
 If you want to migrate from [apache/pulsar-helm-chart](https://github.com/apache/pulsar-helm-chart) to the streamantive/charts,
-you can use the [values-migrate.yaml](./examples/pulsar/values-migrate.yaml) to upgrade your cluster for migrating to the streamnative/charts.
+you can use the [values-migrate.yaml](../../examples/pulsar/values-migrate.yaml) to upgrade your cluster for migrating to the streamnative/charts.
 
 ```bash
 helm upgrade --set namespace=<cluster-namespace> --set initialize=false --values example/pulsar/values-migrate.yaml <pulsar-release-name> streamnative/pulsar --version <streamnative/pulsar-chart-version>
