@@ -31,6 +31,9 @@ spec:
   serviceAccount: {{ template "pulsar.vault.serviceAccount" . }}
   serviceType: {{ .Values.vault.serviceType }}
 
+  statsdDisabled: true
+
+
 {{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
   volumeClaimTemplates:
   - metadata:
