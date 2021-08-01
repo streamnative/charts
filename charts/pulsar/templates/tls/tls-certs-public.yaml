@@ -29,9 +29,11 @@ metadata:
 spec:
   # Secret names are always required.
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  commonName: {{ template "pulsar.service_domain" . }}
   dnsNames:
-    - {{ template "pulsar.service_domain" . }}
+    - "*.{{ template "pulsar.service_domain" . }}"
+    {{- if .Values.ingress.kop.enabled }}
+    - "*.{{ .Values.ingress.kop.external_domain }}"
+    {{- end }}
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
@@ -41,30 +43,26 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+{{- if .Values.tls.kop.enabled }}
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}-jks-passwd"
+        key: password
+{{- end }}
 ---
-{{- end }}
-{{- end }}
-{{- if .Values.ingress.kop.enabled }}
-apiVersion: cert-manager.io/v1alpha2
-kind: Certificate
+{{- if .Values.tls.kop.enabled }}
+apiVersion: v1
+kind: Secret
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.kop.cert_name }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}-jks-passwd"
   namespace: {{ template "pulsar.namespace" . }}
-spec:
-  # Secret names are always required.
-  secretName: "{{ .Release.Name }}-{{ .Values.tls.kop.cert_name }}"
-  dnsNames:
-    - "*.{{ template "pulsar.ingress.kop.external_domain" . }}"
-  # Issuer references are always required.
-  issuerRef:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
-    # We can reference ClusterIssuers by changing the kind here.
-    # The default value is Issuer (i.e. a locally namespaced Issuer)
-    kind: Issuer
-    # This is optional since cert-manager will default to this value however
-    # if you are using an external issuer, change this to that issuer group.
-    group: cert-manager.io
----
+type: Opaque
+stringData:
+  password: "{{ .Values.tls.kop.jks.password }}"
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
