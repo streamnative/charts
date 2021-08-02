@@ -134,7 +134,7 @@ spec:
         emptyDir: {}
       {{- end }}
       {{- if and .Values.volumes.persistence .Values.pulsar_manager.volumes.persistence }}
-      {{- if not (or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName) }}
+      {{- if or (not (or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName)) .Values.pulsar_manager.volumes.data.useVolumeClaimTemplates }}
       - name: pulsar-manager-data
         persistentVolumeClaim:
           claimName: "{{ template "pulsar.pulsar_manager.data.pvc.name" . }}"
@@ -150,7 +150,7 @@ spec:
           defaultMode: 0755
       {{- include "pulsar.pulsar_manager.token.volumes" . | nindent 6 }}
       {{- include "pulsar.pulsar_manager.certs.volumes" . | nindent 6 }}
-  {{- if or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName }}
+  {{- if and (or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName) (not .Values.pulsar_manager.volumes.data.useVolumeClaimTemplates) }}
   volumeClaimTemplates:
   - metadata:
       name: pulsar-manager-data

@@ -357,6 +357,8 @@ ingress:
     enabled: false
     tls:
       enabled: true
+    plaintext:
+      enabled: false
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
@@ -1347,6 +1349,7 @@ prometheus:
       name: data
       size: 10Gi
       local_storage: true
+      useVolumeClaimTemplates: false
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1574,6 +1577,7 @@ pulsar_manager:
       name: data
       size: 10Gi
       local_storage: true
+      useVolumeClaimTemplates: false
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
