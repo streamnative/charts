@@ -128,7 +128,7 @@ spec:
         - {{ .Values.proxy.configData.PULSAR_GC }}
       gcLoggingOptions: []
   apiObjects:
-    externalService: { }
+    externalService: {}
     headlessService:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
@@ -136,11 +136,11 @@ spec:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
       updatePolicy:
-      { { - if .Values.proxy.operator.adopt_existing } }
-      { { .Values.bookkeeper.proxy.updatePolicy | indent 2 } }
-      { { - else } }
+      {{- if .Values.proxy.operator.adopt_existing }}
+      {{ .Values.proxy.operator.updatePolicy | indent 2 }}
+      {{- else }}
         - all
-      { { - end } }
+      {{- end }}
     proxyConfigMap:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
