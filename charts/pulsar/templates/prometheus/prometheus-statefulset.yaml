@@ -159,14 +159,14 @@ spec:
         emptyDir: {}
     {{- end }}
     {{- if and .Values.volumes.persistence .Values.prometheus.volumes.persistence }}
-    {{- if not (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName) }}
+    {{- if or (not (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName)) .Values.prometheus.volumes.data.useVolumeClaimTemplates }}
       - name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
         persistentVolumeClaim:
           claimName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
     {{- end }}
     {{- end }}
     {{- include "pulsar.prometheus.token.volumes" . | nindent 6 }}
-  {{- if or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName }}
+  {{- if and (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName) (not .Values.prometheus.volumes.data.useVolumeClaimTemplates) }}
   volumeClaimTemplates:
   - metadata:
       name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"

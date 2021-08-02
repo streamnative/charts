@@ -47,7 +47,7 @@ spec:
   {{- end }}
   {{- end }}
   ports:
-    {{- if or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled) }}
+    {{- if or (or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled)) .Values.ingress.proxy.plaintext.enabled }}
     - name: http
       port: {{ .Values.proxy.ports.http }}
       protocol: TCP

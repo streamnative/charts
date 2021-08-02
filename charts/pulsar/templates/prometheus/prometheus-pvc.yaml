@@ -19,7 +19,7 @@
 
 {{- if .Values.monitoring.prometheus }}
 {{- if and .Values.volumes.persistence .Values.prometheus.volumes.persistence }}
-{{- if not (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName) }}
+{{- if or (not (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName)) .Values.prometheus.volumes.data.useVolumeClaimTemplates }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

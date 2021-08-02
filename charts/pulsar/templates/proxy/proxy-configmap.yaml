@@ -32,7 +32,7 @@ data:
   statusFilePath: "{{ template "pulsar.home" . }}/status"
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.proxy.ports.http }}"
-  {{- if or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled) }}
+  {{- if or (or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled)) .Values.ingress.proxy.plaintext.enabled }}
   servicePort: "{{ .Values.proxy.ports.pulsar }}"
   brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }}
   brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}

@@ -19,7 +19,7 @@
 
 {{- if .Values.components.pulsar_manager }}
 {{- if and .Values.volumes.persistence .Values.pulsar_manager.volumes.persistence }}
-{{- if not (or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName) }}
+{{- if or (not (or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName)) .Values.pulsar_manager.volumes.data.useVolumeClaimTemplates }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
