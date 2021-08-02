@@ -242,7 +242,7 @@ spec:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
       updatePolicy:
       {{- if .Values.bookkeeper.operator.adopt_existing }}
-      {{ .Values.bookkeeper.operator.updatePolicy }}
+      {{ .Values.bookkeeper.operator.updatePolicy | indent 2 }}
       {{- else }}
         - all
       {{- end }}
@@ -251,7 +251,7 @@ spec:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
       updatePolicy:
       {{- if .Values.autorecovery.operator.adopt_existing }}
-      {{ .Values.autorecovery.operator.updatePolicy }}
+      {{ .Values.autorecovery.operator.updatePolicy | indent 2 }}
       {{- else }}
         - all
       {{- end }}
