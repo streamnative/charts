@@ -774,13 +774,7 @@ bookkeeper:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      -XX:+PrintGCDetails
-      -XX:+PrintGCTimeStamps
-      -XX:+PrintGCApplicationStoppedTime
-      -XX:+PrintHeapAtGC
       -verbosegc
-      -Xloggc:/var/log/bookie-gc.log
-      -XX:G1LogLevel=finest
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
