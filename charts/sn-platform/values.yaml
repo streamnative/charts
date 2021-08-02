@@ -1264,7 +1264,7 @@ proxy:
   ## templates/broker-cluster.yaml
   operator:
     enabled: true
-    adopt_existing: true
+    adopt_existing: false
     updatePolicy: >
       - finalizers
   tlsSecretName: ""
