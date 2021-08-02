@@ -119,15 +119,15 @@ monitoring:
 ## Control what images to use for each component
 images:
   zookeeper:
-    repository: streamnative/sn-pulsar
+    repository: streamnative/pulsar-all
     tag: 2.7.2.8
     pullPolicy: IfNotPresent
   bookie:
-    repository: streamnative/sn-pulsar
+    repository: streamnative/pulsar-all
     tag: 2.7.2.8
     pullPolicy: IfNotPresent
   presto:
-    repository: streamnative/sn-pulsar
+    repository: streamnative/pulsar-all
     tag: 2.7.2.8
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
@@ -136,7 +136,7 @@ images:
   #   tag: 2.7.2.8
   #   pullPolicy: IfNotPresent
   autorecovery:
-    repository: streamnative/sn-pulsar
+    repository: streamnative/pulsar-all
     tag: 2.7.2.8
     pullPolicy: IfNotPresent
   broker:
