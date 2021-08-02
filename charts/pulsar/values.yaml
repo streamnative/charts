@@ -120,40 +120,40 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.7.0.4
+  #   tag: 2.7.2.8
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   broker:
-    repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   proxy:
-    repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   pulsar_detector:
-    repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   functions:
-    repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
@@ -170,11 +170,11 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.11
+    tag: 0.0.16
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
-    tag: 0.3.0
+    tag: 0.6.0
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -217,6 +217,12 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+  # settings for generating certs for kop
+  kop:
+    enabled: false
+    jks:
+      password: "[pulsar tls jks store password]"
+    cert_name: tls-kop
   # settings for generating certs for bookies
   bookie:
     enabled: false
@@ -768,13 +774,7 @@ bookkeeper:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      -XX:+PrintGCDetails
-      -XX:+PrintGCTimeStamps
-      -XX:+PrintGCApplicationStoppedTime
-      -XX:+PrintHeapAtGC
       -verbosegc
-      -Xloggc:/var/log/bookie-gc.log
-      -XX:G1LogLevel=finest
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -861,6 +861,9 @@ kop:
 # Istio is required for exposing Kafka service
 istio:
   enable: false
+  gateway:
+    selector:
+      istio: "ingressgateway"
 
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml

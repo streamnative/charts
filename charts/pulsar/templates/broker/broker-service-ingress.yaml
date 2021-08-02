@@ -41,17 +41,9 @@ spec:
     port: {{ .Values.broker.ports.https }}
   - name: pulsarssl
     port: {{ .Values.broker.ports.pulsarssl }}
-  {{- if .Values.components.kop }}
-  - name: kafkassl
-    port: {{ .Values.kop.ports.ssl }}
-  {{- end }}
   {{- else }}
   - name: pulsar
     port: {{ .Values.broker.ports.pulsar }}
-  {{- if .Values.components.kop }}
-  - name: kafkaplaintext
-    port: {{ .Values.kop.ports.plaintext }}
-  {{- end }}
   {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}

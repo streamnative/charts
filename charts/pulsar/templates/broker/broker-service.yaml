@@ -38,14 +38,15 @@ spec:
     port: {{ .Values.broker.ports.https }}
   - name: pulsarssl
     port: {{ .Values.broker.ports.pulsarssl }}
-  {{- if .Values.components.kop }}
-  - name: kafkassl
-    port: {{ .Values.kop.ports.ssl }}
-  {{- end }}
   {{- else }}
   - name: pulsar
     port: {{ .Values.broker.ports.pulsar }}
+  {{- end }}
   {{- if .Values.components.kop }}
+  {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+  - name: kafkassl
+    port: {{ .Values.kop.ports.ssl }}
+  {{- else }}
   - name: kafkaplaintext
     port: {{ .Values.kop.ports.plaintext }}
   {{- end }}

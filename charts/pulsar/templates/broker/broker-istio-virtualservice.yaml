@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.components.broker .Values.istio.enabled .Values.components.kop .Values.tls.broker.enabled .Values.ingress.kop.external_domain }}
+{{- if and .Values.components.broker .Values.istio.enabled .Values.components.kop .Values.tls.kop.enabled .Values.ingress.kop.external_domain }}
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -47,7 +47,7 @@ spec:
           number: {{ .Values.kop.ports.ssl }}
   {{- range $i, $e := until (.Values.broker.replicaCount | int) }}
   - match:
-    - port: {{ .Values.kop.ports.ssl }}
+    - port: {{ $.Values.kop.ports.ssl }}
       sniHosts:
       - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ $.Values.ingress.kop.external_domain }}"
       - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
@@ -55,6 +55,6 @@ spec:
     - destination:
         host: "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
         port:
-          number: {{ .Values.kop.ports.ssl }}
+          number: {{ $.Values.kop.ports.ssl }}
   {{- end }}
 {{- end }}

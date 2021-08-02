@@ -29,9 +29,11 @@ metadata:
 spec:
   # Secret names are always required.
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  commonName: {{ template "pulsar.service_domain" . }}
   dnsNames:
-    - {{ template "pulsar.service_domain" . }}
+    - "*.{{ template "pulsar.service_domain" . }}"
+    {{- if .Values.ingress.kop.enabled }}
+    - "*.{{ .Values.ingress.kop.external_domain }}"
+    {{- end }}
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
@@ -41,7 +43,25 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+{{- if .Values.tls.kop.enabled }}
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}-jks-passwd"
+        key: password
+{{- end }}
 ---
+{{- if .Values.tls.kop.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}-jks-passwd"
+  namespace: {{ template "pulsar.namespace" . }}
+type: Opaque
+stringData:
+  password: "{{ .Values.tls.kop.jks.password }}"
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
