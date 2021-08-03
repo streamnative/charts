@@ -137,7 +137,7 @@ spec:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
       updatePolicy:
       {{- if .Values.proxy.operator.adopt_existing }}
-      {{ .Values.proxy.operator.updatePolicy | indent 2 }}
+        {{ .Values.proxy.operator.updatePolicy }}
       {{- else }}
         - all
       {{- end }}
