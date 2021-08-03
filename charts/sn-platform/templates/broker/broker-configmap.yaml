@@ -47,6 +47,10 @@ data:
   zooKeeperSessionTimeoutMillis: "30000"
   statusFilePath: "{{ template "pulsar.home" . }}/status"
 
+  {{- if .Values.broker.disableInactiveTopicCleanUp }}
+  brokerDeleteInactiveTopicsEnabled: false
+  {{- end }}
+
   ## Offloading settings
   {{- if .Values.broker.offload.enabled }}
   offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
