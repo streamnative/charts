@@ -359,6 +359,16 @@ ingress:
       enabled: true
     plaintext:
       enabled: false
+    # `tls.enabled` will turn on all the TLS ports
+    # `plaintext.enabled` will control whether to turn on all the plaintext ports
+    # this section is used to control individal ports
+    ports:
+      http: true
+      https: true
+      pulsar: true
+      pulsarssl: true
+      websocket: true
+      websockettls: true
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
