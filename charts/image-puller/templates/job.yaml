@@ -46,6 +46,10 @@ spec:
         {{- include "chart.matchLabels" . | nindent 8 }}
         component: {{ .Values.component }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       restartPolicy: Never
       {{- if .Values.rbac.enabled }}
       serviceAccountName: {{ template "chart.fullname" . }}-hook-image-awaiter

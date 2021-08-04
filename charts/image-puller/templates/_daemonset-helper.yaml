@@ -54,10 +54,18 @@ spec:
         {{- /* Changes here will cause the DaemonSet to restart the pods. */}}
         {{- include "chart.template.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       initContainers:
         {{- range $image := .Values.images }}
         - name: image-pull-{{ $image.name }}
+          {{- if $image.image }}
+          image: {{ $image.image }}
+          {{- else }}
           image: {{ $image.repository }}:{{ $image.tag }}
+          {{- end }}
           imagePullPolicy: {{ $image.pullPolicy }}
           command:
             - /bin/sh
