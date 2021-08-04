@@ -30,6 +30,7 @@ spec:
   # Secret names are always required.
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
   dnsNames:
+    - "{{ template "pulsar.service_domain" . }}"
     - "*.{{ template "pulsar.service_domain" . }}"
     {{- if .Values.ingress.kop.enabled }}
     - "*.{{ .Values.ingress.kop.external_domain }}"
