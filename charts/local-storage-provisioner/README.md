@@ -2,7 +2,7 @@
 
 This is the officially supported Helm Chart for installing the local storage provisioner.
 
-To use local persistent volumes as the persistent storage, you need to install a storage provisioner for [local persistent volumes](https://kubernetes.io/blog/2019/04/04/kubernetes-1.14-local-persistent-volumes-ga/)
+To use local persistent volumes as the persistent storage, you need to install a storage provisioner for [local persistent volumes](https://kubernetes.io/blog/2019/04/04/kubernetes-1.14-local-persistent-volumes-ga/).
 
 ## Requirements
 
