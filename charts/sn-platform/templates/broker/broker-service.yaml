@@ -30,7 +30,9 @@ metadata:
     {{- if .Values.broker.resourcePolicy.keep }}
     "helm.sh/resource-policy": keep
     {{- end }}
+    {{- if .Values.broker.service.annotations}}
 {{ toYaml .Values.broker.service.annotations | indent 4 }}
+    {{- end}}
 spec:
   ports:
   # prometheus needs to access /metrics endpoint
