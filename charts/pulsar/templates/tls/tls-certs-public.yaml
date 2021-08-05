@@ -33,6 +33,7 @@ spec:
     - "{{ template "pulsar.service_domain" . }}"
     - "*.{{ template "pulsar.service_domain" . }}"
     {{- if .Values.ingress.kop.enabled }}
+    - "{{ .Values.ingress.kop.external_domain }}"
     - "*.{{ .Values.ingress.kop.external_domain }}"
     {{- end }}
   # Issuer references are always required.
