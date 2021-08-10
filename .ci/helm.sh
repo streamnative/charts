@@ -18,6 +18,8 @@
 # under the License.
 #
 
+set -x
+
 BINDIR=`dirname "$0"`
 CHARTS_HOME=`cd ${BINDIR}/..;pwd`
 OUTPUT_BIN=${CHARTS_HOME}/output/bin
@@ -68,8 +70,15 @@ function ci::install_cert_manager() {
 }
 
 function ci::install_pulsar_chart() {
-    local value_file=$1
-    local extra_opts=$2
+    local chart_home=${CHARTS_HOME}
+    if [[ -z "${UPGRADE}" ]]; then
+        local value_file=$1
+        local extra_opts=$2
+    else
+        local value_file=$1
+        local chart_home=$2
+        local extra_opts=$3
+    fi
 
     echo "Installing the pulsar chart"
     ${KUBECTL} create namespace ${NAMESPACE}
@@ -78,9 +87,9 @@ function ci::install_pulsar_chart() {
     ${CHARTS_HOME}/scripts/pulsar/upload_tls.sh -k ${CLUSTER} -d ${CHARTS_HOME}/.ci/tls
     sleep 10
 
-    echo ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
-    ${HELM} template -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
-    ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
+    echo ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
+    ${HELM} template -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
+    ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
 
     echo "wait until broker is alive"
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
@@ -159,4 +168,12 @@ function ci::test_pulsar_function() {
     # ci::wait_function_running
     # ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bin/pulsar-client produce -m "hello pulsar function!" public/test/test_input
     # ci::wait_message_processed
+}
+
+function ci::upgrade_pulsar_chart() {
+    local value_file=$1
+    echo "Upgrading the pulsar chart"
+    ${HELM} repo add loki https://grafana.github.io/loki/charts
+    ${HELM} dependency update ${CHARTS_HOME}/charts/pulsar
+    ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --wait --timeout 1h --debug
 }
