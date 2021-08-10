@@ -327,22 +327,17 @@ spec:
       # https://github.com/apache/bookkeeper/pull/2300
       bookkeeperUseV2WireProtocol: "false"
       {{- end }}
-      {{- if .Values.components.kop }}
-      {{- if .Values.auth.authentication.enabled }}
       {{- if eq .Values.auth.authentication.provider "jwt" }}
       PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
       {{- end }}
       {{- end }}
-      {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
-      PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/certs/kop/keystore.jks
-      {{- if not .Values.certs.public_issuer.enabled }}
-      PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/certs/kop/truststore.jks
-      {{- end }}
-      {{- end }}
+      {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+      PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/broker.keystore.jks
+      PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/broker.truststore.jks
       {{- end }}
       # Include log configuration file, If you want to configure the log level and other configuration
       # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
-{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 6 }}
+    {{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 2 }}
   {{- if .Values.zookeeper.customTools.restore.enable }}
   initJobPod:
     initContainers:
@@ -364,4 +359,4 @@ spec:
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
   {{- end }}
-{{- end }}
+{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 2 }}
