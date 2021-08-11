@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.proxy }}
+{{- if and .Values.components.proxy (not .Values.proxy.operator.adopt_existing) }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -35,6 +35,9 @@ metadata:
   {{- with .Values.proxy.service.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
+    {{- if .Values.proxy.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 spec:
   {{- if .Values.ingress.proxy.enabled }}
   # if an ingress service is already set, set this service to ClusterIP

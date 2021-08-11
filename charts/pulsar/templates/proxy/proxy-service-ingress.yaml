@@ -35,6 +35,9 @@ metadata:
   {{- with .Values.ingress.proxy.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
+    {{- if .Values.proxy.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 spec:
   type: {{ .Values.ingress.proxy.type }}
   ports:

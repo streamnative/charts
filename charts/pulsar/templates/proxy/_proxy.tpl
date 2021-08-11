@@ -213,6 +213,17 @@ pulsar ingress target port for websocket endpoint
 {{- end -}}
 
 {{/*
+Pulsar Broker Service Address
+*/}}
+{{- define "pulsar.proxy.broker.service.address" -}}
+{{- if .Values.proxy.brokerServiceAddress -}}
+{{- .Values.proxy.brokerServiceAddress -}}
+{{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Pulsar Broker Service URL
 */}}
 {{- define "pulsar.proxy.broker.service.url" -}}

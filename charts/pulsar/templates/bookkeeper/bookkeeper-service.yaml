@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.bookkeeper }}
+{{- if and .Values.components.bookkeeper (not .Values.bookkeeper.operator.adopt_existing) }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -28,6 +28,9 @@ metadata:
     component: {{ .Values.bookkeeper.component }}
   annotations:
 {{ toYaml .Values.bookkeeper.service.annotations | indent 4 }}
+    {{- if .Values.bookkeeper.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 spec:
   ports:
   - name: bookie

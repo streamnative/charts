@@ -1,0 +1,385 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# deploy PulsarBroker only when `components.broker and operator.enabled` is true
+{{- if and .Values.components.broker .Values.broker.operator.enabled }}
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarBroker
+metadata:
+  # no need to add component to name here as operator will add 
+  name: "{{ template "pulsar.fullname" . }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  annotations:
+    "cloud.streamnative.io/enable-config-prefix": "false"
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.broker.component }}
+spec:
+  zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  replicas: {{ .Values.broker.replicaCount }}
+  image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+  imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+  pod:
+    serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
+    labels:
+      {{- include "pulsar.template.labels" . | nindent 6 }}
+      component: {{ .Values.broker.component }}
+      {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
+      sidecar.istio.io/inject: "true"
+      {{- end }}
+    annotations:
+      {{- if .Values.monitoring.datadog }}
+      {{- include "pulsar.broker.datadog.annotation" . | nindent 6 }}
+      {{- end }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.broker.ports.http }}"
+{{- with .Values.broker.annotations }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
+    affinity:
+      podAntiAffinity:
+        {{ .Values.broker.affinity.type }}:
+          {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          - labelSelector:
+              matchExpressions:
+                - key: "app"
+                  operator: In
+                  values:
+                    - "{{ template "pulsar.name" . }}"
+                - key: "release"
+                  operator: In
+                  values:
+                    - {{ .Release.Name }}
+                - key: "component"
+                  operator: In
+                  values:
+                    - {{ .Values.broker.component }}
+            topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - "{{ template "pulsar.name" . }}"
+                  - key: "release"
+                    operator: In
+                    values:
+                      - {{ .Release.Name }}
+                  - key: "component"
+                    operator: In
+                    values:
+                      - {{ .Values.broker.component }}
+              topologyKey: "kubernetes.io/hostname"
+          {{ end }}
+    {{- end }}
+    vars:
+    {{- if not ( and .Values.broker.kop.enabled .Values.broker.advertisedDomain ) }}
+    - name: POD_NAME
+      valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+    - name: PULSAR_PREFIX_kafkaAdvertisedListeners
+      value: PLAINTEXT://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ .Values.namespace }}.svc.cluster.local:9092,SSL://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ .Values.namespace }}.svc.cluster.local:9093
+    {{- end }}
+    {{- if .Values.broker.resources }}
+    resources:
+      requests:
+        memory: "{{ .Values.broker.resources.requests.memory }}"
+        cpu: "{{ .Values.broker.resources.requests.cpu }}"
+    {{- end }}
+    {{- if .Values.broker.securityContext }}
+    securityContext: {{ .Values.broker.securityContext }}
+    {{- end }}
+    {{- if .Values.broker.nodeSelector }}
+    nodeSelector:
+{{ toYaml .Values.broker.nodeSelector | indent 6 }}
+    {{- end }}
+    {{- if .Values.broker.tolerations }}
+    tolerations:
+{{ toYaml .Values.broker.tolerations | indent 6 }}
+    {{- end }}
+    terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
+    jvmOptions:
+      extraOptions: []
+      memoryOptions:
+        - {{ .Values.broker.configData.PULSAR_MEM }}
+      gcOptions:
+        - {{ .Values.broker.configData.PULSAR_GC }}
+      gcLoggingOptions: []
+  {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
+  istio:
+    enabled: true
+    gateway:
+      create: true
+      selector:
+        istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
+  {{- end }}
+  config:
+    {{- if or .Values.broker.functionmesh.enabled .Values.broker.function.enabled }}
+    function:
+      enabled: true
+      {{- if .Values.broker.functionmesh.enabled }}
+      mesh:
+        builtinConnectorsRef:
+          name: builtin-connectors
+      type: FunctionMesh
+      {{- end }}
+      custom:
+      {{- if .Values.broker.function.enabled }}
+        functions_worker.yml: |
+          # Function package management
+          numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
+          pulsarServiceUrl: pulsar://localhost:6650
+          pulsarWebServiceUrl: http://localhost:8080
+          pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
+          functionRuntimeFactoryConfigs:
+            jobNamespace: {{ template "pulsar.functions.namespace" . }}
+            pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
+            pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
+            pulsarAdminUrl: {{ template "pulsar.web.service.url" . }}
+            pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }}
+            changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
+            changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
+            submittingInsidePod: true
+            installUserCodeDependencies: true
+{{- with .Values.functions.functionRuntimeFactoryConfigs }}
+{{ toYaml . | indent 10 }}
+{{- end }}
+          # runtime customizer
+          {{- if .Values.functions.enableCustomizerRuntime }}
+          runtimeCustomizerClassName: {{ .Values.functions.runtimeCustomizerClassName }}
+          {{- end }}
+{{ toYaml .Values.functions.configData | indent 10 }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.broker.advertisedDomain }}
+    advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
+    {{- end}}
+    {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+    protocolHandlers:
+      kop:
+        enabled: true
+        tls:
+          enabled: {{ .Values.broker.kop.tls.enabled }}
+    {{- if .Values.certs.public_issuer.enabled }}
+          trustStoreEnabled: false
+    {{- end }}
+    {{- if .Values.broker.kop.tls.certSecretName }}
+          certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
+    {{ else }}
+          certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+    {{- end }}
+    {{- if .Values.broker.kop.tls.passwordSecretRef }}
+          passwordSecretRef:
+            key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
+            name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+    {{ else }}
+          passwordSecretRef:
+            name: cert-jks-passwd
+            key: password
+    {{- end }}
+    {{- end }}
+    tls:
+      certSecretName: tls
+      enabled: false
+    custom:
+{{ toYaml .Values.broker.configData | indent 6 }}
+      {{- if .Values.auth.authentication.enabled }}
+      authenticationEnabled: "true"
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
+      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.streamnative_console }}
+      {{- end }}
+      {{- if .Values.auth.authorization.enabled }}
+      authorizationEnabled: "true"
+      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
+      {{- end }}
+      {{- if .Values.broker.kop.enabled }}
+      PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}
+# Include log configuration file, If you want to configure the log level and other configuration
+# items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
+{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 6 }}
+      # Metadata settings
+      {{- if .Values.pulsar_metadata.configurationStore }}
+      configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
+      {{- end }}
+      {{- if not .Values.pulsar_metadata.configurationStore }}
+      configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+      {{- end }}
+
+      # Broker settings
+      exposeTopicLevelMetricsInPrometheus: "true"
+      numHttpServerThreads: "8"
+      zooKeeperSessionTimeoutMillis: "30000"
+      statusFilePath: "{{ template "pulsar.home" . }}/status"
+
+      ## Offloading settings
+      {{- if .Values.broker.offload.enabled }}
+      offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
+
+      {{- if .Values.broker.offload.use }}
+      managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+      {{- end }}
+
+      {{- if .Values.broker.offload.gcs.enabled }}
+      # gcs
+      gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadRegion }}
+      gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadBucket }}
+      gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
+      gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
+      ## Authentication with GCS
+      gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
+      {{- end }}
+      {{- if .Values.broker.offload.s3.enabled }}
+      # aws-s3
+      s3ManagedLedgerOffloadRegion: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}
+      s3ManagedLedgerOffloadBucket: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}
+      s3ManagedLedgerOffloadServiceEndpoint: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}
+      s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
+      s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
+      {{- end }}
+      {{- end }}
+
+      # Function Worker Settings
+      # function worker configuration
+      {{- if .Values.components.functions }}
+      functionsWorkerEnabled: "true"
+      {{- if .Values.functions.enableCustomizerRuntime }}
+      PULSAR_EXTRA_CLASSPATH: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"
+      {{- end }}
+      {{- else }}
+      functionsWorkerEnabled: "false"
+      {{- end }}
+
+      # prometheus needs to access /metrics endpoint
+      webServicePort: "{{ .Values.broker.ports.http }}"
+      {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
+      brokerServicePort: "{{ .Values.broker.ports.pulsar }}"
+      {{- end }}
+      {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+      brokerServicePortTls: "{{ .Values.broker.ports.pulsarssl }}"
+      webServicePortTls: "{{ .Values.broker.ports.https }}"
+      # TLS Settings
+      tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+      tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
+      tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+      {{- end }}
+
+      # Authentication Settings
+      {{- if .Values.auth.authentication.enabled }}
+      authenticateOriginalAuthData: "true"
+      {{- if .Values.auth.authorization.enabled }}
+      proxyRoles: {{ .Values.auth.superUsers.proxy }}
+      {{- end }}
+      {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
+      # token authentication configuration
+      brokerClientAuthenticationParameters: "file:///pulsar/tokens/broker/token"
+      {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+      tokenSecretKey: "file:///pulsar/keys/token/secret.key"
+      {{- else }}
+      tokenPublicKey: "file:///pulsar/keys/token/public.key"
+      {{- end }}
+      {{- end }}
+      {{- end }}
+
+      {{- if and .Values.tls.enabled .Values.tls.bookie.enabled }}
+      # bookkeeper tls settings
+      bookkeeperTLSClientAuthentication: "true"
+      bookkeeperTLSKeyFileType: "PEM"
+      bookkeeperTLSKeyFilePath: "/pulsar/certs/broker/tls.key"
+      bookkeeperTLSCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+      bookkeeperTLSTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+      bookkeeperTLSTrustCertTypes: "PEM"
+      PULSAR_PREFIX_bookkeeperTLSClientAuthentication: "true"
+      PULSAR_PREFIX_bookkeeperTLSKeyFileType: "PEM"
+      PULSAR_PREFIX_bookkeeperTLSKeyFilePath: "/pulsar/certs/broker/tls.key"
+      PULSAR_PREFIX_bookkeeperTLSCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+      PULSAR_PREFIX_bookkeeperTLSTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+      PULSAR_PREFIX_bookkeeperTLSTrustCertTypes: "PEM"
+      # https://github.com/apache/bookkeeper/pull/2300
+      bookkeeperUseV2WireProtocol: "false"
+      {{- end }}
+      {{- if .Values.components.kop }}
+      {{- if .Values.auth.authentication.enabled }}
+      {{- if eq .Values.auth.authentication.provider "jwt" }}
+      PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}
+      {{- end }}
+      {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+      PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/certs/kop/keystore.jks
+      {{- if not .Values.certs.public_issuer.enabled }}
+      PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/certs/kop/truststore.jks
+      {{- end }}
+      {{- end }}
+      {{- end }}
+  apiObjects:
+    internalService:
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-internal"
+    headlessService:
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+    statefulSet:
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+      updatePolicy:
+      {{- if .Values.broker.operator.adopt_existing }}
+        {{ .Values.broker.operator.updatePolicy }}
+      {{- else }}
+        - all
+      {{- end }}
+    brokerConfigMap:
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+    interceptorConfigMap: {}
+    functionWorkerConfigMap:
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-configfile"
+    functionMeshConfigMap: {}
+    pdb:
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+  {{- if .Values.zookeeper.customTools.restore.enable }}
+  initJobPod:
+    initContainers:
+      - name: cleanup
+        image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+        command:
+          - bash
+          - '-c'
+        args:
+          - "bin/pulsar-metadata-tool cleanup"
+        env:
+          - name: METADATA_TOOL_CONF
+            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        volumeMounts:
+          - name: cleanup-config
+            mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+    volumes:
+      - name: cleanup-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+  {{- end }}
+{{- end }}

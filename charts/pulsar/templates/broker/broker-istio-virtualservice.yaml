@@ -26,6 +26,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
+  annotations:
+    { { - if .Values.broker.resourcePolicy.keep } }
+    "helm.sh/resource-policy": keep
+    { { - end } }
 spec:
   gateways:
   - "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
