@@ -32,8 +32,7 @@ broker:
 proxy:
   replicaCount: 1
   service:
-    spec:
-      type: LoadBalancer
+    type: LoadBalancer
 
 grafana:
   service:
