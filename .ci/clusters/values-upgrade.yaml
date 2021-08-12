@@ -1,5 +1,8 @@
 initialize: false
 
+monitoring:
+  loki: false
+
 images:
   pulsar_manager:
     repository: streamnative/pulsar-manager
