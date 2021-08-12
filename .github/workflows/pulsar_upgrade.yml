@@ -45,4 +45,4 @@ jobs:
       - name: Run chart-testing (upgrade)
         env:
           UPGRADE: true
-        run: .ci/chart_test.sh .ci/clusters/values-apache-default.yaml .ci/clusters/values-apache-upgrade.yaml ${PWD}/apache-charts
+        run: .ci/chart_test.sh .ci/clusters/values-upgrade.yaml ${PWD}/apache-charts

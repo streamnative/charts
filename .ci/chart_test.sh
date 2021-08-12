@@ -10,9 +10,7 @@ FUNCTION=${FUNCTION:-"false"}
 UPGRADE=${UPGRADE:-"false"}
 
 if [[ "x${UPGRADE}" == "xtrue" ]]; then
-    APACHE_VALUES_FILE=$VALUES_FILE
-    UPGRADE_VALUES_FILE=$2
-    APACHE_CHARTS=$3
+    APACHE_CHARTS=$2
 fi
 
 source ${CHARTS_HOME}/.ci/helm.sh
@@ -35,7 +33,7 @@ fi
 if [[ "x${UPGRADE}" == "xfalse" ]]; then
     ci::install_pulsar_chart ${CHARTS_HOME}/${VALUES_FILE} ${extra_opts}
 else
-    ci::install_pulsar_chart ${CHARTS_HOME}/${APACHE_VALUES_FILE} ${APACHE_CHARTS} ${extra_opts}
+    ci::install_pulsar_chart ${CHARTS_HOME}/${VALUES_FILE} ${APACHE_CHARTS} ${extra_opts}
 fi
 
 # test producer
@@ -47,5 +45,5 @@ if [[ "x${FUNCTION}" == "xtrue" ]]; then
 fi
 
 if [[ "x${UPGRADE}" == "xtrue" ]]; then
-    ci::upgrade_pulsar_chart  ${CHARTS_HOME}/${UPGRADE_VALUES_FILE}
+    ci::upgrade_pulsar_chart  ${CHARTS_HOME}/${VALUES_FILE}
 fi
