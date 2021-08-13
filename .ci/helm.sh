@@ -178,9 +178,9 @@ function ci::upgrade_pulsar_chart() {
     ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --timeout 1h --debug
     
     while true; do
-        ${KUBECTL} get pods -n ${NAMESPACE}
-        grafana_pod_name=$(${KUBECTL} get pods -n ${NAMESPACE} | grep grafana | awk '{print $1}')
-        ${KUBECTL} describe pod ${grafana_pod_name} -n ${NAMESPACE}
+        ${KUBECTL} get service -n ${NAMESPACE}
+        grafana_pod_name=$(${KUBECTL} get service -n ${NAMESPACE} | grep grafana | awk '{print $1}')
+        ${KUBECTL} describe service ${grafana_pod_name} -n ${NAMESPACE}
         sleep 15
     done
 }
