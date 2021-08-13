@@ -7,7 +7,7 @@ VALUES_FILE=$1
 TLS=${TLS:-"false"}
 SYMMETRIC=${SYMMETRIC:-"false"}
 FUNCTION=${FUNCTION:-"false"}
-UPGRADE=${UPGRADE:-"false"}
+UPGRADE=${UPGRADE:-""}
 
 if [[ "x${UPGRADE}" == "xtrue" ]]; then
     APACHE_CHARTS=$2
@@ -30,10 +30,10 @@ if [[ "x${SYMMETRIC}" == "xtrue" ]]; then
 fi
 
 # install pulsar chart
-if [[ "x${UPGRADE}" == "xfalse" ]]; then
-    ci::install_pulsar_chart ${CHARTS_HOME}/${VALUES_FILE} ${extra_opts}
-else
+if [[ "x${UPGRADE}" == "xtrue" ]]; then
     ci::install_pulsar_chart ${CHARTS_HOME}/${VALUES_FILE} ${APACHE_CHARTS} ${extra_opts}
+else
+    ci::install_pulsar_chart ${CHARTS_HOME}/${VALUES_FILE} ${extra_opts}
 fi
 
 # test producer
