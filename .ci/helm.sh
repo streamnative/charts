@@ -187,7 +187,7 @@ function ci::upgrade_pulsar_chart() {
     ci::wait_pulsar_ready
 
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-bookie | wc -l)
-    while [[ ${WC} -lt 2 ]]; do
+    while [[ ${WC} -lt 1 ]]; do
       echo ${WC};
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE}
