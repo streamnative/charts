@@ -70,14 +70,14 @@ function ci::install_cert_manager() {
 }
 
 function ci::install_pulsar_chart() {
-    local chart_home=${CHARTS_HOME}
+    chart_home=${CHARTS_HOME}
     if [[ -z "${UPGRADE}" ]]; then
-        local value_file=$1
-        local extra_opts=$2
+        value_file=$1
+        extra_opts=$2
     else
-        local value_file=$1
-        local chart_home=$2
-        local extra_opts=$3
+        value_file=$1
+        chart_home=$2
+        extra_opts=$3
     fi
 
     echo "Installing the pulsar chart"
