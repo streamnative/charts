@@ -1,4 +1,4 @@
-set -ex
+set -e
 
 
 BINDIR=`dirname "$0"`

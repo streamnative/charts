@@ -18,8 +18,6 @@
 # under the License.
 #
 
-set -x
-
 BINDIR=`dirname "$0"`
 CHARTS_HOME=`cd ${BINDIR}/..;pwd`
 OUTPUT_BIN=${CHARTS_HOME}/output/bin
