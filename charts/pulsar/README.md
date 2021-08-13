@@ -1,7 +1,9 @@
 
-# Official Apache Pulsar Helm Chart
+# Apache Pulsar Helm Chart
 
-This is the officially supported Helm Chart for installing Apache Pulsar on Kubernetes.
+> Note: Most of the changes of this chart have been contributed back to https://github.com/apache/pulsar-helm-chart
+
+This is the officially supported Helm Chart for installing Apache Pulsar on Kubernetes. 
 
 ## Features
 
