@@ -120,6 +120,8 @@ function ci::wait_pulsar_ready() {
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     done
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'
+
+    ${KUBECTL} get service -n ${NAMESPACE}
 }
 
 function ci::test_pulsar_producer() {
