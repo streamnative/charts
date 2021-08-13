@@ -179,7 +179,7 @@ function ci::upgrade_pulsar_chart() {
     
     while true; do
         ${KUBECTL} get pods -n ${NAMESPACE}
-        grafana_pod_name=$(${KUBECTL} get pods | grep grafana | awk '{print $1}')
+        grafana_pod_name=$(${KUBECTL} get pods -n ${NAMESPACE} | grep grafana | awk '{print $1}')
         ${KUBECTL} describe pod ${grafana_pod_name} -n ${NAMESPACE}
         sleep 15
     done
