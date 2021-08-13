@@ -46,4 +46,6 @@ fi
 
 if [[ "x${UPGRADE}" == "xtrue" ]]; then
     ci::upgrade_pulsar_chart  ${CHARTS_HOME}/${VALUES_FILE}
+    # test producer
+    ci::test_pulsar_produce
 fi

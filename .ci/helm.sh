@@ -91,6 +91,11 @@ function ci::install_pulsar_chart() {
     ${HELM} template -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
     ${HELM} install -n ${NAMESPACE} --set initialize=true --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
 
+    ci::wait_pulsar_ready
+    # ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ "$(curl -L http://pulsar-ci-proxy:8080/status.html)" == "OK" ]; do sleep 3; done'
+}
+
+function ci::wait_pulsar_ready() {
     echo "wait until broker is alive"
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
     while [[ ${WC} -lt 1 ]]; do
@@ -115,7 +120,6 @@ function ci::install_pulsar_chart() {
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     done
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'
-    # ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ "$(curl -L http://pulsar-ci-proxy:8080/status.html)" == "OK" ]; do sleep 3; done'
 }
 
 function ci::test_pulsar_producer() {
@@ -175,12 +179,6 @@ function ci::upgrade_pulsar_chart() {
     echo "Upgrading the pulsar chart"
     ${HELM} repo add loki https://grafana.github.io/loki/charts
     ${HELM} dependency update ${CHARTS_HOME}/charts/pulsar
-    ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --timeout 1h --debug
-    
-    while true; do
-        ${KUBECTL} get service -n ${NAMESPACE}
-        grafana_pod_name=$(${KUBECTL} get service -n ${NAMESPACE} | grep grafana | awk '{print $1}')
-        ${KUBECTL} describe service ${grafana_pod_name} -n ${NAMESPACE}
-        sleep 15
-    done
+    ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
+    ci::wait_pulsar_ready
 }
