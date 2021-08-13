@@ -35,13 +35,13 @@ broker:
 proxy:
   replicaCount: 1
   service:
-    type: ClusterIP
+    type: LoadBalancer
 
 grafana:
   service:
     spec:
-      type: ClusterIP
+      type: LoadBalancer
 
 pulsar_manager:
   service:
-    type: ClusterIP
+    type: LoadBalancer
