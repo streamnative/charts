@@ -17,7 +17,7 @@ zookeeper:
       size: 20Gi
 
 bookkeeper:
-  replicaCount: 3
+  replicaCount: 2
   configData:
     diskUsageThreshold: "0.999"
     diskUsageWarnThreshold: "0.999"
