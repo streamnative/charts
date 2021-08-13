@@ -175,5 +175,12 @@ function ci::upgrade_pulsar_chart() {
     echo "Upgrading the pulsar chart"
     ${HELM} repo add loki https://grafana.github.io/loki/charts
     ${HELM} dependency update ${CHARTS_HOME}/charts/pulsar
-    ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --wait --timeout 1h --debug
+    ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --timeout 1h --debug
+    
+    while true; do
+        ${KUBECTL} get pods -n ${NAMESPACE}
+        grafana_pod_name=$(k get pods | grep grafana | awk '{print $1}')
+        ${KUBECTL} describe pod ${grafana_pod_name} -n ${NAMESPACE}
+        sleep 15
+    done
 }
