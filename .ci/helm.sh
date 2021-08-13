@@ -182,6 +182,8 @@ function ci::upgrade_pulsar_chart() {
     ${HELM} repo add loki https://grafana.github.io/loki/charts
     ${HELM} dependency update ${CHARTS_HOME}/charts/pulsar
     ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --timeout 1h --debug
+    # wait the upgrade process start then to check the status
+    sleep 60
     ci::wait_pulsar_ready
 
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-bookie | wc -l)
