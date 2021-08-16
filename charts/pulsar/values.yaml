@@ -464,6 +464,15 @@ zookeeper:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
+  # whether to use operator to manage zookeeper
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - ""
+  # whether to keep certain resource when deleting the chart, need to be true when using controller to take over existing cluster
+  resourcePolicy:
+    keep: false
   # the number of zookeeper servers to run. it should be an odd number larger than or equal to 3.
   replicaCount: 3
   updateStrategy: RollingUpdate
@@ -652,6 +661,14 @@ bookkeeper:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - finalizers
+  # whether to keep certain resource when deleting the chart, need to be true when using controller to take over existing cluster
+  resourcePolicy:
+    keep: false
   ## BookKeeper Cluster Initialize
   ## templates/bookkeeper-cluster-initialize.yaml
   metadata:
@@ -807,6 +824,14 @@ autorecovery:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: recovery
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - ""
+  # whether to keep certain resource when deleting the chart, need to be true when using controller to take over existing cluster
+  resourcePolicy:
+    keep: false
   replicaCount: 1
   ports:
     http: 8000
@@ -884,6 +909,14 @@ broker:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - finalizers
+  # whether to keep certain resource when deleting the chart, need to be true when using controller to take over existing cluster
+  resourcePolicy:
+    keep: false
   replicaCount: 3
   ports:
     http: 8080
@@ -1097,6 +1130,14 @@ proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
+  operator:
+    enabled: false
+    adopt_existing: false
+    updatePolicy: >
+      - finalizers
+  # whether to keep certain resource when deleting the chart, need to be true when using controller to take over existing cluster
+  resourcePolicy:
+    keep: false
   replicaCount: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
