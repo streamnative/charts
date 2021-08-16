@@ -29,9 +29,9 @@ metadata:
     {{- include "pulsar.standardLabels" $ | nindent 4 }}
     component: {{ $.Values.broker.component }}
   annotations:
-    { { - if .Values.broker.resourcePolicy.keep } }
+    {{- if .Values.broker.resourcePolicy.keep }}
     "helm.sh/resource-policy": keep
-    { { - end } }
+    {{- end }}
 spec:
   hosts:
   - "{{ template "pulsar.fullname" $ }}-{{ $.Values.broker.component }}-{{ $i }}.{{ template "pulsar.broker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
