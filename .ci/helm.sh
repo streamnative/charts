@@ -68,8 +68,15 @@ function ci::install_cert_manager() {
 }
 
 function ci::install_pulsar_chart() {
-    local value_file=$1
-    local extra_opts=$2
+    chart_home=${CHARTS_HOME}
+    if [[ -z "${UPGRADE}" ]]; then
+        value_file=$1
+        extra_opts=$2
+    else
+        value_file=$1
+        chart_home=$2
+        extra_opts=$3
+    fi
 
     echo "Installing the pulsar chart"
     ${KUBECTL} create namespace ${NAMESPACE}
@@ -78,10 +85,15 @@ function ci::install_pulsar_chart() {
     ${CHARTS_HOME}/scripts/pulsar/upload_tls.sh -k ${CLUSTER} -d ${CHARTS_HOME}/.ci/tls
     sleep 10
 
-    echo ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
-    ${HELM} template -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
-    ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar
+    echo ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
+    ${HELM} template -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
+    ${HELM} install -n ${NAMESPACE} --set initialize=true --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
 
+    ci::wait_pulsar_ready
+    # ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ "$(curl -L http://pulsar-ci-proxy:8080/status.html)" == "OK" ]; do sleep 3; done'
+}
+
+function ci::wait_pulsar_ready() {
     echo "wait until broker is alive"
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
     while [[ ${WC} -lt 1 ]]; do
@@ -106,7 +118,8 @@ function ci::install_pulsar_chart() {
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     done
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'
-    # ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ "$(curl -L http://pulsar-ci-proxy:8080/status.html)" == "OK" ]; do sleep 3; done'
+
+    ${KUBECTL} get service -n ${NAMESPACE}
 }
 
 function ci::test_pulsar_producer() {
@@ -159,4 +172,23 @@ function ci::test_pulsar_function() {
     # ci::wait_function_running
     # ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bin/pulsar-client produce -m "hello pulsar function!" public/test/test_input
     # ci::wait_message_processed
+}
+
+function ci::upgrade_pulsar_chart() {
+    local value_file=$1
+    echo "Upgrading the pulsar chart"
+    ${HELM} repo add loki https://grafana.github.io/loki/charts
+    ${HELM} dependency update ${CHARTS_HOME}/charts/pulsar
+    ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --timeout 1h --debug
+    # wait the upgrade process start then to check the status
+    sleep 60
+    ci::wait_pulsar_ready
+
+    WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-bookie | wc -l)
+    while [[ ${WC} -lt 1 ]]; do
+      echo ${WC};
+      sleep 15
+      ${KUBECTL} get pods -n ${NAMESPACE}
+      WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-bookie | wc -l)
+    done
 }
