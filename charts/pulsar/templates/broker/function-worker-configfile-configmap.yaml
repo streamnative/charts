@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.components.functions (not .Values.broker.operator.adopt_existing) }}
+{{- if and .Values.components.functions (not .Values.broker.operator.enabled) }}
 ## function config map
 apiVersion: v1
 kind: ConfigMap

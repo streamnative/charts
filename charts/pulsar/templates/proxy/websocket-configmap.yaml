@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and (and .Values.components.proxy (not .Values.proxy.operator.adopt_existing)) .Values.proxy.websocket.enabled }}
+{{- if and (and .Values.components.proxy (not .Values.proxy.operator.enabled)) .Values.proxy.websocket.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

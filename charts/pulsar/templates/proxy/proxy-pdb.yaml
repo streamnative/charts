@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.components.proxy (not .Values.proxy.operator.adopt_existing) }}
+{{- if and .Values.components.proxy (not .Values.proxy.operator.enabled) }}
 {{- if .Values.proxy.pdb.usePolicy }}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
