@@ -28,7 +28,7 @@ metadata:
     component: {{ .Values.bookkeeper.component }}
   annotations:
 {{ toYaml .Values.bookkeeper.service.annotations | indent 4 }}
-    {{- if .Values.bookkeeper.resourcePolicy.keep }}
+    {{- if and .Values.bookkeeper.resourcePolicy.keep (not .Values.bookkeeper.operator.enabled) }}
     "helm.sh/resource-policy": keep
     {{- end }}
 spec:

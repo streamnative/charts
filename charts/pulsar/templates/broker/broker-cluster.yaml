@@ -293,7 +293,7 @@ spec:
       {{- if .Values.auth.authorization.enabled }}
       proxyRoles: {{ .Values.auth.superUsers.proxy }}
       {{- end }}
-      {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
+      {{- if and (and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled)) .Values.broker.operator.adopt_existing }}
       # token authentication configuration
       brokerClientAuthenticationParameters: "file:///pulsar/tokens/broker/token"
       {{- if .Values.auth.authentication.jwt.usingSecretKey }}

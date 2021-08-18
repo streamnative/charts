@@ -27,7 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.autorecovery.component }}
   annotations:
-    {{- if .Values.bookkeeper.resourcePolicy.keep }}
+    {{- if and .Values.bookkeeper.resourcePolicy.keep (not .Values.bookkeeper.operator.enabled) }}
     "helm.sh/resource-policy": keep
     {{- end }}
 spec:

@@ -30,7 +30,7 @@ metadata:
     {{- if .Values.broker.service.annotations }}
 {{ toYaml .Values.broker.service.annotations | indent 4 }}
     {{- end}}
-    {{- if .Values.broker.resourcePolicy.keep }}
+    {{- if and .Values.broker.resourcePolicy.keep (not .Values.broker.operator.enabled) }}
     "helm.sh/resource-policy": keep
     {{- end }}
 spec:
