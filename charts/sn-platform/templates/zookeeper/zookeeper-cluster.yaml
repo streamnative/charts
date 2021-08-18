@@ -163,7 +163,7 @@ spec:
           {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
           storage: {{ .Values.zookeeper.volumes.dataLog.size }}
           {{- else }}
-          storage: 0
+          storage: "0"
           {{- end }}
     {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
       storageClassName: "local-storage"
@@ -180,10 +180,12 @@ spec:
     serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
     # copy from configmap
     custom:
+      {{- if .Values.zookeeper.operator.adopt_existing }}
       dataDir: /pulsar/data/zookeeper
       {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
       # use a seperate disk for tx log
       PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
+      {{- end }}
       {{- end }}
       PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
       # enable zookeeper tls

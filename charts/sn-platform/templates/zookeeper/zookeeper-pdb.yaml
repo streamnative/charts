@@ -29,7 +29,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
   annotations:
-    {{- if .Values.zookeeper.resourcePolicy.keep }}
+    {{- if and .Values.zookeeper.resourcePolicy.keep (not .Values.zookeeper.operator.enabled) }}
     "helm.sh/resource-policy": keep
     {{- end }}
 spec:
