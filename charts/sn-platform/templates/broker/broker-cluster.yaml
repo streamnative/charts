@@ -148,7 +148,9 @@ spec:
         istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
   {{- end }}
   apiObjects:
-    internalService: {}
+    internalService:
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-internal"
     headlessService:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
@@ -184,8 +186,37 @@ spec:
           name: builtin-connectors
       type: FunctionMesh
       {{- end }}
+      custom:
+      {{- if .Values.broker.function.enabled }}
+        functions_worker.yml: |
+          # Function package management
+          numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
+          pulsarServiceUrl: pulsar://localhost:6650
+          pulsarWebServiceUrl: http://localhost:8080
+          pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
+          functionRuntimeFactoryConfigs:
+            jobNamespace: {{ template "pulsar.functions.namespace" . }}
+            pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
+            pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
+            pulsarAdminUrl: {{ template "pulsar.web.service.url" . }}
+            pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }}
+            changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
+            changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
+            submittingInsidePod: true
+            installUserCodeDependencies: true
+{{- with .Values.functions.functionRuntimeFactoryConfigs }}
+{{ toYaml . | indent 10 }}
+{{- end }}
+          # runtime customizer
+          {{- if .Values.functions.enableCustomizerRuntime }}
+          runtimeCustomizerClassName: {{ .Values.functions.runtimeCustomizerClassName }}
+          {{- end }}
+{{ toYaml .Values.functions.configData | indent 10 }}
+      {{- end }}
     {{- end }}
+    {{- if .Values.broker.advertisedDomain }}
     advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
+    {{- end}}
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
     protocolHandlers:
       kop:
@@ -227,6 +258,12 @@ spec:
       authorizationEnabled: "true"
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
+      {{- if .Values.broker.kop.enabled }}
+      PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}
+# Include log configuration file, If you want to configure the log level and other configuration
+# items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
+{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 6 }}
       # Metadata settings
       {{- if .Values.pulsar_metadata.configurationStore }}
       configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
@@ -299,7 +336,7 @@ spec:
       {{- if .Values.auth.authorization.enabled }}
       proxyRoles: {{ .Values.auth.superUsers.proxy }}
       {{- end }}
-      {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
+      {{- if and (and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled)) .Values.broker.operator.adopt_existing }}
       # token authentication configuration
       brokerClientAuthenticationParameters: "file:///pulsar/tokens/broker/token"
       {{- if .Values.auth.authentication.jwt.usingSecretKey }}
@@ -340,9 +377,6 @@ spec:
       {{- end }}
       {{- end }}
       {{- end }}
-      # Include log configuration file, If you want to configure the log level and other configuration
-      # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
-{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 6 }}
   {{- if .Values.zookeeper.customTools.restore.enable }}
   initJobPod:
     initContainers:

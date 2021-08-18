@@ -27,6 +27,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.functions.component }}
+  annotations:
+    {{- if .Values.broker.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
 data:
   pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
 {{- end }}

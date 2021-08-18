@@ -27,7 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
   annotations:
-    {{- if .Values.proxy.resourcePolicy.keep }}
+    {{- if and .Values.proxy.resourcePolicy.keep (not .Values.proxy.operator.enabled) }}
     "helm.sh/resource-policy": keep
     {{- end }}
 spec:
