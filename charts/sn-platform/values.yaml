@@ -1861,3 +1861,5 @@ vault:
     size: 10Gi
     local_storage: true
     # storageClassName: ""
+
+extraResources: []
