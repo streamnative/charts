@@ -6,8 +6,22 @@ Expand the name of the chart.
 {{ template "pulsar.fullname" . }}-presto-coordinator
 {{- end -}}
 
+{{/*
+Define the coordinator hostname
+*/}}
+{{- define "presto.coordinator.hostname" -}}
+${HOSTNAME}.{{ template "presto.coordinator" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
+{{- end -}}
+
 {{- define "presto.worker" -}}
 {{ template "pulsar.fullname" . }}-presto-worker
+{{- end -}}
+
+{{/*
+Define the worker hostname
+*/}}
+{{- define "presto.worker.hostname" -}}
+${HOSTNAME}.{{ template "presto.worker" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
 {{- end -}}
 
 {{- define "presto.service" -}}

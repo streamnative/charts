@@ -128,13 +128,24 @@ spec:
           resources:
 {{ toYaml .Values.presto.worker.resources | indent 12 }}
           {{- end }}
-          command: ["sh", "-c"]
+          command: ["bash", "-c"]
           args:
             - >-
+              cp {{ template "pulsar.home" . }}/conf/presto/jvm.config.template {{ template "pulsar.home" . }}/conf/presto/jvm.config;
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               echo "node.internal-address=${HOSTNAME}.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
+              {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled) }}
+              echo "Updating the tls certficates ...";
+              /pulsar/keytool/keytool.sh presto {{ template "presto.worker.hostname" . }} false;
+              cat {{ template "pulsar.home" . }}/conf/pulsar_env.sh;
+              source {{ template "pulsar.home" . }}/conf/pulsar_env.sh;
+              echo "${PULSAR_EXTRA_OPTS}" >> {{ template "pulsar.home" . }}/conf/presto/jvm.config;
+              cat {{ template "pulsar.home" . }}/conf/presto/jvm.config;
+              echo "Completed updating the tls certficates.";
+              {{- end }}
+              echo "Start the Presto Worker.";
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
@@ -162,7 +173,7 @@ spec:
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/log.properties
               name: config-volume
               subPath: log.properties
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/jvm.config
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/jvm.config.template
               name: config-volume
               subPath: jvm.config
             - mountPath: {{ template "pulsar.home" . }}/conf/presto/config.properties
@@ -181,10 +192,18 @@ spec:
               readOnly: true
             {{- end }}
             {{- end }}
-            {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+            {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
             - mountPath: "/pulsar/certs/ca"
               name: ca
               readOnly: true
+            - name: presto-certs
+              mountPath: "/pulsar/certs/presto"
+              readOnly: true
+            {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled) }}
+            - name: keytool
+              mountPath: "/pulsar/keytool/keytool.sh"
+              subPath: keytool.sh
+            {{- end}}
             {{- end}}
           ports:
             - name: http
@@ -201,13 +220,27 @@ spec:
                 path: client/token
         {{- end}}
         {{- end}}
-        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
+        - name: presto-certs
+          secret:
+            secretName: "{{ .Release.Name }}-{{ .Values.tls.presto.cert_name }}"
+            items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
         - name: ca
           secret:
             secretName: "{{ .Release.Name }}-ca-tls"
             items:
               - key: ca.crt
                 path: ca.crt
+        {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled) }}
+        - name: keytool
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
+            defaultMode: 0755
+        {{- end}}
         {{- end}}
         - name: config-volume
           configMap:

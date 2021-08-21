@@ -45,6 +45,7 @@ data:
     -XX:-ResizePLAB
     -XX:+ExitOnOutOfMemoryError
     -XX:+PerfDisableSharedMem
+
   config.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
@@ -156,7 +157,7 @@ data:
     pulsar.broker-service-url=http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
     {{- end }}
     # URI of Zookeeper cluster
-    pulsar.zookeeper-uri={{ template "pulsar.zookeeper.connect" . }}
+    pulsar.zookeeper-uri={{ template "pulsar.zookeeper.connect.plaintext" . }}
     # minimum number of entries to read at a single time
     pulsar.max-entry-read-batch-size={{ .Values.presto.catalog.pulsar.maxEntryReadBatchSize }}
     # default number of splits to use per query
