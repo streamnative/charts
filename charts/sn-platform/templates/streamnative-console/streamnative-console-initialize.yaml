@@ -39,8 +39,6 @@ spec:
           value: /pulsar-manager/pulsar-manager/application.properties
         - name: DEFAULT_ORGANIZATION
           value: {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }}
-        - name: DEFAULT_NAME
-          value: {{ .Values.streamnative_console.configData.DEFAULT_NAME }}
         - name: INSTANCE_NAME
           value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
         - name: WEB_SERVICE_URL
