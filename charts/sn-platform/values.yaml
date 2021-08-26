@@ -176,7 +176,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "1.0"
+    tag: "1.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -1679,6 +1679,16 @@ streamnative_console:
     INSTANCE_NAME: ""
     WEB_SERVICE_URL: ""
     KOP_SERVICE_URL: ""
+    GOOGLE_OAUTH2_ENABLED: false
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRETE: ""
+    GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME: ""
+    GOOGLE_REDIRECT_URI: ""
+    REDIRECT_SCHEME: ""
+    REDIRECT_HOST: ""
+    REDIRECT_PORT: ""
+
+
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
