@@ -106,7 +106,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.bookkeeper.component }}
@@ -186,6 +186,10 @@ spec:
           containerPort: {{ .Values.bookkeeper.ports.bookie }}
         - name: http
           containerPort: {{ .Values.bookkeeper.ports.http }}
+{{- if and .Values.components.functions  .Values.functions.functionState }}
+        - name: state
+          containerPort: {{ .Values.bookkeeper.ports.streamStorage }}
+{{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
