@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.streamnative_console }}
+{{- if and .Values.components.streamnative_console not .Values.add_instance }}
 {{- if .Values.initialize }}
 apiVersion: v1
 kind: ConfigMap

@@ -68,6 +68,7 @@ volumes:
 affinity:
   anti_affinity: true
 
+add_instance: false
 ## Components
 ##
 ## Control what components of Apache Pulsar to deploy for the cluster

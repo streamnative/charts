@@ -57,7 +57,7 @@ spec:
            done;
            echo "vault is ready~";
 
-           cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh
+           cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh {{ .Value.configData.DEFAULT_ORGANIZATION }} {{ .Value.configData.INSTANCE_NAME }}
         env:
         - name: NAMESPACE
           value: {{ template "pulsar.namespace" . }}

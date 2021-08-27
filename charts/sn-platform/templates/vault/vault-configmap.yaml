@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.vault }}
+{{- if and .Values.components.vault not .Values.add_instance }}
 {{- if .Values.initialize }}
 apiVersion: v1
 kind: ConfigMap
