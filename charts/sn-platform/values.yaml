@@ -176,7 +176,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "1.0"
+    tag: "1.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -1664,21 +1664,16 @@ streamnative_console:
   ## templates/streamnative-console-configmap.yaml
   ##
   configData:
-    VAULT_HOST: ""
-    VAULT_USERPASS_MOUNT_ACCESSOR: ""
-    VAULT_SUPER_USER_NAME: ""
-    VAULT_SUPER_USER_PASSWORD: ""
-    VAULT_SUPER_USER_TOKEN: ""
-    VAULT_APPROLE_MOUNT_ACCESSOR: ""
-    VAULT_APPROLE_ROLE_ID: ""
-    VAULT_APPROLE_SECRET_ID: ""
-    VAULT_APPROLE_SUPER_NAME: ""
-    VAULT_APPROLE_SUPER_TOKEN: ""
     DEFAULT_ORGANIZATION: ""
-    DEFAULT_NAME: ""
     INSTANCE_NAME: ""
-    WEB_SERVICE_URL: ""
-    KOP_SERVICE_URL: ""
+    GOOGLE_OAUTH2_ENABLED: false
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRETE: ""
+    GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME: ""
+    GOOGLE_REDIRECT_URI: ""
+    REDIRECT_SCHEME: ""
+    REDIRECT_HOST: ""
+    REDIRECT_PORT: ""
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
@@ -1840,7 +1835,6 @@ presto:
   service:
     spec:
       type: ClusterIP
-
 
 vault:
   component: "vault"
