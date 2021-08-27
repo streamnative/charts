@@ -145,24 +145,6 @@ Configuration:
         AppenderRef:
           - ref: Console
 
-      - name: io.netty.channel.DefaultChannelPipeline
-        level: error
-        additivity: false
-        AppenderRef:
-          - ref: Console
-
-      - name: org.apache.pulsar.broker.authentication.AuthenticationProviderList
-        level: error
-        additivity: false
-        AppenderRef:
-          - ref: RollingFile
-
-      - name: org.apache.pulsar.proxy.server.ProxyConnection
-        level: error
-        additivity: false
-        AppenderRef:
-          - ref: Console
-
       - name: verbose
         level: info
         additivity: false
