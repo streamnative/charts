@@ -115,6 +115,9 @@ spec:
           - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.prometheus" . }}/
   {{- end }}
           - --web.enable-lifecycle
+  {{ if .Values.prometheus.maxQuerySamples }}
+          - --query.max-samples={{.Values.prometheus.maxQuerySamples }}
+  {{- end }}
         ports:
         - name: server
           containerPort: {{ .Values.prometheus.port }}
@@ -152,13 +155,26 @@ spec:
           name: {{ .configMap }}
     {{- end }}
     {{- if not (and .Values.volumes.persistence .Values.prometheus.volumes.persistence) }}
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+      - name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
         emptyDir: {}
     {{- end }}
     {{- if and .Values.volumes.persistence .Values.prometheus.volumes.persistence }}
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+    {{- if or (not (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName)) .Values.prometheus.volumes.data.useVolumeClaimTemplates }}
+      - name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
         persistentVolumeClaim:
-          claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+          claimName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+    {{- end }}
     {{- end }}
     {{- include "pulsar.prometheus.token.volumes" . | nindent 6 }}
+  {{- if and (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName) (not .Values.prometheus.volumes.data.useVolumeClaimTemplates) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.prometheus.volumes.data.size }}
+      {{- include "pulsar.prometheus.data.storage.class" . | nindent 6 }}
+  {{- end }}
 {{- end }}

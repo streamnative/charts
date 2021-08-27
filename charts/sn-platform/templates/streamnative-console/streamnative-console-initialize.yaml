@@ -1,0 +1,90 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.initialize }}
+{{- if .Values.components.streamnative_console }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.streamnative_console.component }}
+spec:
+  template:
+    spec:
+      containers:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
+        image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
+        imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
+        env:
+        - name: SPRING_CONFIGURATION_FILE
+          value: /pulsar-manager/pulsar-manager/application.properties
+        - name: DEFAULT_ORGANIZATION
+          value: {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }}
+        - name: INSTANCE_NAME
+          value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
+        - name: WEB_SERVICE_URL
+          value: {{ template "pulsar.web.service.url" . }}
+        {{- if .Values.broker.kop.enabled }}
+        - name: KOP_SERVICE_URL
+          value: {{ template "pulsar.broker.kop.service.url" .}}
+        {{- end }}
+        - name: STREAMNATIVE_CONSOLE_BACKEND_URL
+          value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
+        - name: GOOGLE_CLIENT_ID
+          value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_ID }}
+        - name: GOOGLE_CLIENT_SECRETE
+          value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_SECRETE }}
+        - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME
+          value: {{ .Values.streamnative_console.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME }}
+        - name: GOOGLE_OAUTH2_ENABLED
+          value: {{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}
+        - name: GOOGLE_REDIRECT_URI
+          value: {{ .Values.streamnative_console.configData.GOOGLE_REDIRECT_URI }}
+        - name: REDIRECT_SCHEME
+          value: {{ .Values.streamnative_console.configData.REDIRECT_SCHEME }}
+        - name: REDIRECT_HOST
+          value: {{ .Values.streamnative_console.configData.REDIRECT_HOST }}
+        - name: REDIRECT_PORT
+          value: {{ .Values.streamnative_console.configData.REDIRECT_PORT }}
+        envFrom:
+        - secretRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
+        volumeMounts:
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+          mountPath: "/root/init_instance/"
+        command: ["sh", "-c"]
+        args:
+          - >
+            python3 /root/init_instance/init_instance.py 2>/dev/null;
+            until [ $? -eq 0 ]; do
+              echo "streamnative console is not ready now! wait another 10s~";
+              sleep 10;
+              python3 /root/init_instance/init_instance.py 2>/dev/null;
+            done;
+            echo "StreamNative Console is ready to use~";
+      restartPolicy: Never
+      volumes:
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+{{- end }}
+{{- end }}

@@ -134,3 +134,18 @@ Define pulsar-manager token volumes
 {{- end }}
 {{- end }}
 
+{{- define "pulsar.pulsar_manager.data.pvc.name" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-{{ .Values.pulsar_manager.volumes.data.name }}
+{{- end }}
+
+{{- define "pulsar.pulsar_manager.data.storage.class" -}}
+{{- if and .Values.volumes.local_storage .Values.pulsar_manager.volumes.data.local_storage }}
+storageClassName: "local-storage"
+{{- else }}
+  {{- if  .Values.pulsar_manager.volumes.data.storageClass }}
+storageClassName: "{{ template "pulsar.pulsar_manager.data.pvc.name" . }}"
+  {{- else if .Values.pulsar_manager.volumes.data.storageClassName }}
+storageClassName: "{{ .Values.pulsar_manager.volumes.data.storageClassName }}"
+  {{- end -}}
+{{- end }}
+{{- end }}

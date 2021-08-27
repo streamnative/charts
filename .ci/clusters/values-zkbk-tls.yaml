@@ -29,6 +29,10 @@ monitoring:
   alert_manager: false
   loki: false
 
+images:
+  broker:
+    tag: 2.7.2.8
+
 volumes:
   local_storage: true
 

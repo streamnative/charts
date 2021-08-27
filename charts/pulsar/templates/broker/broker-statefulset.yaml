@@ -221,11 +221,10 @@ spec:
         - >
 
         {{- if .Values.broker.advertisedPodIP }}
-          export BROKER_ADDRESS="${advertisedAddress}"
+          export BROKER_ADDRESS="${advertisedAddress}";
         {{- else }}
-          export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+          export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local";
         {{- end }}
-          {{- include "pulsar.broker.kop.settings" . | nindent 10 }}
           bin/apply-config-from-env.py conf/broker.conf;
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
@@ -252,7 +251,7 @@ spec:
           containerPort: {{ .Values.broker.ports.pulsarssl }}
         {{- end }}
         {{- if .Values.components.kop }}
-        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
         - name: kafkassl
           containerPort: {{ .Values.kop.ports.ssl }}
         {{- else }}
@@ -279,6 +278,40 @@ spec:
               name: {{ .Values.broker.offload.s3.secret }}
               key: AWS_SECRET_ACCESS_KEY
         {{- end }}
+        {{- if and .Values.components.kop }}
+        {{- if .Values.ingress.kop.enabled }}
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+        - name: PULSAR_PREFIX_kafkaAdvertisedListeners
+          value: SSL://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:{{ .Values.kop.ports.ssl }}
+        - name: PULSAR_PREFIX_kafkaListeners
+          value: SSL://$(POD_NAME).{{ template "pulsar.broker.service.fqn" . }}:{{ .Values.kop.ports.ssl }}
+        - name: PULSAR_PREFIX_kopSslKeystorePassword
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}-jks-passwd"
+              key: password
+        - name: PULSAR_PREFIX_kopSslKeyPassword
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}-jks-passwd"
+              key: password
+        - name: PULSAR_PREFIX_kopSslTruststorePassword
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}-jks-passwd"
+              key: password
+        {{- else }}
+        - name: PULSAR_PREFIX_kafkaAdvertisedListeners
+          value: PLAINTEXT://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:{{ .Values.kop.ports.plaintext }}
+        - name: PULSAR_PREFIX_kafkaListeners
+          value: PLAINTEXT://$(POD_NAME).{{ template "pulsar.broker.service.fqn" . }}:{{ .Values.kop.ports.plaintext }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
@@ -286,6 +319,7 @@ spec:
           {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.kop.certs.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.runtime.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.offload.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.function.worker.config.volumeMounts" . | nindent 10 }}
@@ -295,6 +329,7 @@ spec:
       volumes:
       {{- include "pulsar.broker.token.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
+      {{- include "pulsar.kop.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.log.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.runtime.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.offload.volumes" . | nindent 6 }}

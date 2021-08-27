@@ -1,0 +1,144 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+## Namespace to deploy operator
+# NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
+#       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
+#       a higher control structure that is not part of the application.
+namespace: ""
+namespaceCreate: false
+
+## Components
+##
+## Control what components of Apache Pulsar Operators
+components:
+  # zookeeper
+  zookeeper: true
+  # bookkeeper
+  bookkeeper: true
+  # pulsar(broker, proxy)
+  pulsar: true
+
+## Images
+##
+## Control what images to use for each component
+images:
+  zookeeper:
+    repository: streamnative/zookeeper-operator
+    tag: v0.7.4
+    pullPolicy: IfNotPresent
+  bookkeeper:
+    repository: streamnative/bookkeeper-operator
+    tag: v0.7.4
+    pullPolicy: IfNotPresent
+  pulsar:
+    repository: streamnative/pulsar-operator
+    tag: v0.7.4
+    pullPolicy: IfNotPresent
+
+global:
+  # Lists the secrets you need to use to pull operators image from a private registry.
+  imagePullSecrets: []
+
+zookeeper:
+  component: zookeeper-controller-manager
+  ## The worker numbers of the operator MaxConcurrentReconciles
+  workers: 1
+  ## Install RBAC roles and bindings.
+  rbac:
+    create: true
+    name: zookeeper-controller-manager
+  ## Service account name and whether to create it.
+  serviceAccount:
+    create: true
+    name: zookeeper-controller-manager
+  ## Whether to create the CRD.
+  crd:
+    create: false
+  ## Operator pod resources
+  resources:
+    limits:
+      cpu: 100m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  # Scheduling constraints
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  terminationGracePeriodSeconds: 10
+
+bookkeeper:
+  component: bookkeeper-controller-manager
+  ## The worker numbers of the operator MaxConcurrentReconciles
+  workers: 2
+  ## Install RBAC roles and bindings.
+  rbac:
+    create: true
+    name: bookkeeper-controller-manager
+  ## Service account name and whether to create it.
+  serviceAccount:
+    create: true
+    name: bookkeeper-controller-manager
+  ## Whether to create the CRD.
+  crd:
+    create: false
+  ## Operator pod resources
+  resources:
+    limits:
+      cpu: 200m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  # Scheduling constraints
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  terminationGracePeriodSeconds: 10
+
+pulsar:
+  component: pulsar-controller-manager
+  ## The worker numbers of the operator MaxConcurrentReconciles
+  workers: 1
+  ## Install RBAC roles and bindings.
+  rbac:
+    create: true
+    name: pulsar-controller-manager
+  ## Service account name and whether to create it.
+  serviceAccount:
+    create: true
+    name: pulsar-controller-manager
+  ## Whether to create the CRD.
+  crd:
+    create: false
+  ## Operator pod resources
+  resources:
+    limits:
+      cpu: 200m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  # Scheduling constraints
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  terminationGracePeriodSeconds: 10

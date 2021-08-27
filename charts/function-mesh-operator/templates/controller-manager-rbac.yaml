@@ -1,0 +1,225 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if and .Values.rbac.create (hasKey .Values.controllerManager "create" | ternary .Values.controllerManager.create true) }}
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: {{ .Values.controllerManager.serviceAccount }}
+  labels:
+    app.kubernetes.io/name: {{ template "function-mesh-operator.name" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: controller-manager
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+"  "_" }}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-function-mesh-controller-manager
+  labels:
+    app.kubernetes.io/name: {{ template "function-mesh-operator.name" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: controller-manager
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+"  "_" }}
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - services
+    - events
+  verbs:
+    - "*"
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+    - endpoints
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - ""
+  resources:
+    - configmaps/status
+  verbs:
+    - get
+    - update
+    - patch
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - functionmeshes
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - functionmeshes/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - functions
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - functions/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - sinks
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - sinks/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - sources
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
+    - sources/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - authentication.k8s.io
+  resources:
+    - tokenreviews
+  verbs:
+    - create
+- apiGroups:
+    - authorization.k8s.io
+  resources:
+    - subjectaccessreviews
+  verbs:
+    - create
+- nonResourceURLs:
+    - /metrics
+  verbs:
+    - get
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["create", "update", "get", "list", "watch","delete", "patch"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["create", "update", "get", "list", "watch","delete", "patch"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch","update", "delete"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets","deployments", "controllerrevisions"]
+  verbs: ["*"]
+- apiGroups: ["extensions"]
+  resources: ["ingresses"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["serviceaccounts"]
+  verbs: ["create","get","update","delete"]
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["persistentvolumes"]
+  verbs: ["get", "list", "watch", "patch","update"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["storageclasses"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: [clusterroles,roles]
+  verbs: ["escalate","create","get","update", "delete"]
+- apiGroups: ["rbac.authorization.k8s.io"]
+  resources: ["rolebindings","clusterrolebindings"]
+  verbs: ["create","get","update", "delete"]
+- apiGroups: ["autoscaling"]
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["create", "delete", "patch", "update", "get", "watch", "list"]
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-function-mesh-controller-manager
+  labels:
+    app.kubernetes.io/name: {{ template "function-mesh-operator.name" . }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: controller-manager
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+"  "_" }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllerManager.serviceAccount }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .Release.Name }}-function-mesh-controller-manager
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

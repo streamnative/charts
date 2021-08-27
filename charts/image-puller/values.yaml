@@ -1,0 +1,74 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+component: image-puller
+pullSecret:
+  enabled: false
+hook:
+  enabled: false
+  image:
+    name: streamnative/k8s-image-awaiter
+    tag: '0.1.0'
+rbac:
+  enabled: true
+continuous:
+  enabled: false
+pause:
+  image:
+    name: gcr.io/google_containers/pause
+    tag: '3.1'
+
+# imagePullSecrets: [secret name]
+images:
+  - name: pulsar
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.1
+    pullPolicy: IfNotPresent
+#  - name: prometheus
+#    repository: prom/prometheus
+#    tag: v2.17.2
+#    pullPolicy: IfNotPresent
+#  - nmae: alert_manager
+#    repository: prom/alertmanager
+#    tag: v0.20.0
+#    pullPolicy: IfNotPresent
+#  - name: grafana
+#    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
+#    tag: 0.0.14
+#    pullPolicy: IfNotPresent
+#  - name: streamnative_console
+#    repository: streamnative/sn-pulsar-manager
+#    tag: 0.7.0-15
+#    pullPolicy: IfNotPresent
+#    hasCommand: false
+#  - name: node_exporter
+#    repository: prom/node-exporter
+#    tag: v0.16.0
+#    pullPolicy: "IfNotPresent"
+#  - name: nginx_ingress_controller
+#    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
+#    tag: 0.26.2
+#    pullPolicy: "IfNotPresent"
+#  - name: vault
+#    repository: vault
+#    tag: 1.7.0
+#    pullPolicy: "IfNotPresent"
+#  - name: vault_init
+#    repository: streamnative/pulsar_vault_init
+#    tag: v1.0.2

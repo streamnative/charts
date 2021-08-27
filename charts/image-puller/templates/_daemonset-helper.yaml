@@ -1,0 +1,78 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- /*
+Returns an image-puller daemonset. Two daemonsets will be created like this.
+- hook-image-puller: for pre helm upgrade image pulling (lives temporarily)
+- continuous-image-puller: for newly added nodes image pulling
+*/}}
+{{- define "image_puller.daemonset" -}}
+# image puller daemonset
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ template "chart.fullname" . }}-{{ print .componentPrefix "image-puller" }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart.standardLabels" . | nindent 4 }}
+  {{- if .hook }}
+  annotations:
+    {{- /*
+    Allows the daemonset to be deleted when the image-awaiter job is completed.
+    */}}
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "-10"
+  {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "chart.matchLabels" . | nindent 6 }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 100%
+  template:
+    metadata:
+      labels:
+        {{- /* Changes here will cause the DaemonSet to restart the pods. */}}
+        {{- include "chart.template.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      initContainers:
+        {{- range $image := .Values.images }}
+        - name: image-pull-{{ $image.name }}
+          {{- if $image.image }}
+          image: {{ $image.image }}
+          {{- else }}
+          image: {{ $image.repository }}:{{ $image.tag }}
+          {{- end }}
+          imagePullPolicy: {{ $image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - echo "Pulling {{ $image.name }} complete"
+        {{- end }}
+      containers:
+        - name: pause
+          image: {{ .Values.pause.image.name }}:{{ .Values.pause.image.tag }}
+{{- end }}

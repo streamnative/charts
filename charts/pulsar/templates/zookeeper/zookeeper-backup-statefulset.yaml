@@ -61,6 +61,9 @@ spec:
       {{- with .Values.zookeeper.securityContext }}
       {{ toYaml . | indent 8 }}
       {{- end }}
+      {{- if .Values.zookeeper.customTools.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.zookeeper.backup.serviceAccount" . }}
+      {{- end }}
       {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:
       {{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
@@ -132,7 +135,7 @@ spec:
         - name: backup-config
           mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
         env:
-        {{- if .Values.zookeeper.customTools.backup.secrets.aws.secretName }}
+        {{- if .Values.zookeeper.customTools.backup.secrets.use }}
           - name: AWS_ACCESS_KEY_ID
             valueFrom:
               secretKeyRef:
@@ -146,6 +149,9 @@ spec:
         {{- end }}
           - name: METADATA_TOOL_CONF
             value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        envFrom:
+          - configMapRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
         ports:
           - name: metrics
             containerPort: {{ .Values.zookeeper.customTools.backup.webServerPort }}

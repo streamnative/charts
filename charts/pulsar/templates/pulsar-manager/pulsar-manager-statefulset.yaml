@@ -129,12 +129,16 @@ spec:
           {{- include "pulsar.pulsar_manager.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.pulsar_manager.certs.volumeMounts" . | nindent 10 }}
       volumes:
-      - name: pulsar-manager-data
       {{- if not (and .Values.volumes.persistence .Values.pulsar_manager.volumes.persistence) }}
+      - name: pulsar-manager-data
         emptyDir: {}
-      {{- else }}
+      {{- end }}
+      {{- if and .Values.volumes.persistence .Values.pulsar_manager.volumes.persistence }}
+      {{- if or (not (or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName)) .Values.pulsar_manager.volumes.data.useVolumeClaimTemplates }}
+      - name: pulsar-manager-data
         persistentVolumeClaim:
-          claimName: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}-{{ .Values.pulsar_manager.volumes.data.name }}"
+          claimName: "{{ template "pulsar.pulsar_manager.data.pvc.name" . }}"
+      {{- end }}
       {{- end }}
       - name: pulsar-manager-script
         configMap:
@@ -146,4 +150,15 @@ spec:
           defaultMode: 0755
       {{- include "pulsar.pulsar_manager.token.volumes" . | nindent 6 }}
       {{- include "pulsar.pulsar_manager.certs.volumes" . | nindent 6 }}
+  {{- if and (or .Values.pulsar_manager.volumes.data.storageClass .Values.pulsar_manager.volumes.data.storageClassName) (not .Values.pulsar_manager.volumes.data.useVolumeClaimTemplates) }}
+  volumeClaimTemplates:
+  - metadata:
+      name: pulsar-manager-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.pulsar_manager.volumes.data.size }}
+      {{- include "pulsar.pulsar_manager.data.storage.class" . | nindent 6 }}
+  {{- end }}
 {{- end }}

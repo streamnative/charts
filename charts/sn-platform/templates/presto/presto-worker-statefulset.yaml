@@ -1,0 +1,216 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+{{- if .Values.components.sql_worker }}
+{{- if gt (int .Values.presto.worker.replicaCount) 0 }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "presto.worker" . }}
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.presto.worker.component }}
+spec:
+  serviceName: {{ template "presto.worker.service" . }}
+  replicas: {{ .Values.presto.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.presto.worker.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.presto.worker.component }}
+      annotations:
+        prometheus.io/scrape: "false"
+        prometheus.io/port: "{{ .Values.presto.worker.ports.http }}"
+{{- with .Values.presto.worker.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- with .Values.presto.worker.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.presto.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      affinity:
+      {{- if and .Values.affinity.anti_affinity .Values.presto.worker.affinity.anti_affinity}}
+        podAntiAffinity:
+          {{ .Values.presto.worker.affinity.type }}:
+          {{ if eq .Values.presto.worker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
+          - labelSelector:
+              matchExpressions:
+              - key: "app"
+                operator: In
+                values:
+                - "{{ template "pulsar.name" . }}"
+              - key: "release"
+                operator: In
+                values:
+                - {{ .Release.Name }}
+              - key: "component"
+                operator: In
+                values:
+                - {{ .Values.presto.worker.component }}
+            topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                      - "{{ template "pulsar.name" . }}"
+                    - key: "release"
+                      operator: In
+                      values:
+                      - {{ .Release.Name }}
+                    - key: "component" 
+                      operator: In
+                      values:
+                      - {{ .Values.presto.worker.component }}
+                topologyKey: "kubernetes.io/hostname"
+          {{ end }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.presto.worker.gracePeriod }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-worker
+          {{- include "presto.worker.image" . | nindent 10 }}
+          {{- if .Values.presto.worker.probe.liveness.enabled }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - /presto/health_check.sh
+            initialDelaySeconds: {{ .Values.presto.worker.probe.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.presto.worker.probe.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.presto.worker.probe.liveness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.presto.worker.probe.readiness.enabled }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - /presto/health_check.sh
+            initialDelaySeconds: {{ .Values.presto.worker.probe.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.presto.worker.probe.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.presto.worker.probe.readiness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.presto.worker.resources }}
+          resources:
+{{ toYaml .Values.presto.worker.resources | indent 12 }}
+          {{- end }}
+          command: ["sh", "-c"]
+          args:
+            - >-
+              cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
+              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.internal-address=${HOSTNAME}.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
+              bin/pulsar sql-worker run \
+                --etc-dir={{ template "pulsar.home" . }}/conf/presto \
+                --data-dir={{ template "pulsar.home" . }}/data;
+          env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_SECRET_ACCESS_KEY
+          {{- end }}
+          volumeMounts:
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
+              name: config-volume
+              subPath: node.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/log.properties
+              name: config-volume
+              subPath: log.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/jvm.config
+              name: config-volume
+              subPath: jvm.config
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/config.properties
+              name: config-volume
+              subPath: config.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/catalog/pulsar.properties
+              name: config-volume
+              subPath: pulsar.properties
+            - mountPath: /presto/health_check.sh
+              name: config-volume
+              subPath: health_check.sh
+            {{- if .Values.auth.authentication.enabled }}
+            {{- if eq .Values.auth.authentication.provider "jwt" }}
+            - mountPath: "/pulsar/tokens"
+              name: client-token
+              readOnly: true
+            {{- end }}
+            {{- end }}
+            {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+            - mountPath: "/pulsar/certs/ca"
+              name: ca
+              readOnly: true
+            {{- end}}
+          ports:
+            - name: http
+              containerPort: {{ .Values.presto.worker.ports.http }}
+              protocol: TCP
+      volumes:
+        {{- if .Values.auth.authentication.enabled }}
+        {{- if eq .Values.auth.authentication.provider "jwt" }}
+        - name: client-token
+          secret:
+            secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
+            items:
+              - key: TOKEN
+                path: client/token
+        {{- end}}
+        {{- end}}
+        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        - name: ca
+          secret:
+            secretName: "{{ .Release.Name }}-ca-tls"
+            items:
+              - key: ca.crt
+                path: ca.crt
+        {{- end}}
+        - name: config-volume
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}"
+{{- end }}
+{{- end }}

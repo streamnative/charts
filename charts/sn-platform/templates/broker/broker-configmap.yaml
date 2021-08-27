@@ -1,0 +1,157 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if and .Values.components.broker (not .Values.broker.operator.enabled) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.broker.component }}
+  annotations:
+    {{- if .Values.broker.resourcePolicy.keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
+data:
+  # Metadata settings
+  zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  {{- if .Values.pulsar_metadata.configurationStore }}
+  configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
+  {{- end }}
+  {{- if not .Values.pulsar_metadata.configurationStore }}
+  configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  {{- end }}
+
+  # Broker settings
+  clusterName: "{{ template "pulsar.cluster" . }}"
+  exposeTopicLevelMetricsInPrometheus: "true"
+  numHttpServerThreads: "8"
+  zooKeeperSessionTimeoutMillis: "30000"
+  statusFilePath: "{{ template "pulsar.home" . }}/status"
+
+  ## Offloading settings
+  {{- if .Values.broker.offload.enabled }}
+  offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
+
+  {{- if .Values.broker.offload.use }}
+  managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+  {{- end }}
+
+  {{- if .Values.broker.offload.gcs.enabled }}
+  # gcs
+  gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadRegion }}
+  gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadBucket }}
+  gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
+  gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
+  ## Authentication with GCS
+  gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
+  {{- end }}
+  {{- if .Values.broker.offload.s3.enabled }}
+  # aws-s3
+  s3ManagedLedgerOffloadRegion: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}
+  s3ManagedLedgerOffloadBucket: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}
+  s3ManagedLedgerOffloadServiceEndpoint: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}
+  s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
+  s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
+  {{- end }}
+  {{- end }}
+
+  # Function Worker Settings
+  # function worker configuration
+  {{- if .Values.components.functions }}
+  functionsWorkerEnabled: "true"
+  {{- if .Values.functions.enableCustomizerRuntime }}
+  PULSAR_EXTRA_CLASSPATH: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"
+  {{- end }}
+  {{- else }}
+  functionsWorkerEnabled: "false"
+  {{- end }}
+
+  # prometheus needs to access /metrics endpoint
+  webServicePort: "{{ .Values.broker.ports.http }}"
+  {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
+  brokerServicePort: "{{ .Values.broker.ports.pulsar }}"
+  {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  brokerServicePortTls: "{{ .Values.broker.ports.pulsarssl }}"
+  webServicePortTls: "{{ .Values.broker.ports.https }}"
+  # TLS Settings
+  tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+  tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
+  tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  {{- end }}
+
+  # Authentication Settings
+  {{- if .Values.auth.authentication.enabled }}
+  authenticationEnabled: "true"
+  authenticateOriginalAuthData: "true"
+  {{- if .Values.auth.authorization.enabled }}
+  authorizationEnabled: "true"
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.streamnative_console }}
+  proxyRoles: {{ .Values.auth.superUsers.proxy }}
+  {{- end }}
+  {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
+  # token authentication configuration
+  authenticationProviders: "org.apache.pulsar.broker.authentication.AuthenticationProviderToken"
+  brokerClientAuthenticationParameters: "file:///pulsar/tokens/broker/token"
+  brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+  {{- if .Values.auth.authentication.jwt.usingSecretKey }}
+  tokenSecretKey: "file:///pulsar/keys/token/secret.key"
+  {{- else }}
+  tokenPublicKey: "file:///pulsar/keys/token/public.key"
+  {{- end }}
+  {{- end }}
+  {{- end }}
+
+  {{- if and .Values.tls.enabled .Values.tls.bookie.enabled }}
+  # bookkeeper tls settings
+  bookkeeperTLSClientAuthentication: "true"
+  bookkeeperTLSKeyFileType: "PEM"
+  bookkeeperTLSKeyFilePath: "/pulsar/certs/broker/tls.key"
+  bookkeeperTLSCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+  bookkeeperTLSTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  bookkeeperTLSTrustCertTypes: "PEM"
+  PULSAR_PREFIX_bookkeeperTLSClientAuthentication: "true"
+  PULSAR_PREFIX_bookkeeperTLSKeyFileType: "PEM"
+  PULSAR_PREFIX_bookkeeperTLSKeyFilePath: "/pulsar/certs/broker/tls.key"
+  PULSAR_PREFIX_bookkeeperTLSCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+  PULSAR_PREFIX_bookkeeperTLSTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  PULSAR_PREFIX_bookkeeperTLSTrustCertTypes: "PEM"
+  # https://github.com/apache/bookkeeper/pull/2300
+  bookkeeperUseV2WireProtocol: "false"
+  {{- end }}
+  {{- if .Values.components.kop }}
+  messagingProtocols: "kafka"
+  {{- if .Values.auth.authentication.enabled }}
+  {{- if eq .Values.auth.authentication.provider "jwt" }}
+  PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+  {{- end }}
+  {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/broker.keystore.jks
+  PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/broker.truststore.jks
+  {{- end }}
+  {{- end }}
+{{ toYaml .Values.broker.configData | indent 2 }}
+  # Include log configuration file, If you want to configure the log level and other configuration
+  # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
+{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 2 }}
+{{- end }}

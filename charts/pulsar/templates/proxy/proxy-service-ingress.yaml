@@ -39,31 +39,60 @@ spec:
   type: {{ .Values.ingress.proxy.type }}
   ports:
     {{- if .Values.ingress.proxy.tls.enabled }}
+    {{- if .Values.ingress.proxy.ports.https }}
     - name: https
       port: {{ .Values.proxy.ports.https }}
       protocol: TCP
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.admin" . }}
+    {{- end }}
+    {{- if .Values.ingress.proxy.ports.pulsarssl }}
     - name: pulsarssl
       port: {{ .Values.proxy.ports.pulsarssl }}
       protocol: TCP
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.data" . }}
+    {{- end }}
+    {{- if .Values.proxy.websocket.enabled }}
+    {{- if .Values.ingress.proxy.ports.websockettls }}
     - name: websockettls
       port: {{ .Values.proxy.ports.websockettls }}
       protocol: TCP
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.websocket" . }}
-    {{- else }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if or (not .Values.ingress.proxy.tls.enabled) .Values.ingress.proxy.plaintext.enabled }}
+    {{- if .Values.ingress.proxy.ports.http }}
     - name: http
       port: {{ .Values.proxy.ports.http }}
       protocol: TCP
+      {{- if .Values.ingress.proxy.plaintext.enabled }}
+      targetPort: http
+      {{- else }}
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.admin" . }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.ingress.proxy.ports.pulsar }}
     - name: pulsar
       port: {{ .Values.proxy.ports.pulsar }}
       protocol: TCP
+      {{- if .Values.ingress.proxy.plaintext.enabled }}
+      targetPort: pulsar
+      {{- else }}
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.data" . }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.proxy.websocket.enabled }}
+    {{- if .Values.ingress.proxy.ports.websocket }}
     - name: websocket
       port: {{ .Values.proxy.ports.websocket }}
       protocol: TCP
+      {{- if .Values.ingress.proxy.plaintext.enabled }}
+      targetPort: websocket
+      {{- else }}
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.websocket" . }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
     {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}

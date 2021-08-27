@@ -1,8 +1,15 @@
 {{/*
-Define the pulsar brroker service
+Define the pulsar broker service
 */}}
 {{- define "pulsar.broker.service" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}
+{{- end }}
+
+{{/*
+Define the pulsar broker full service name
+*/}}
+{{- define "pulsar.broker.service.fqn" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
 {{- end }}
 
 {{/*
@@ -46,7 +53,7 @@ Define broker zookeeper client tls settings
 NOTE: `BROKER_ADDRESS` should be set before using this template
 */}}
 {{- define "pulsar.broker.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 /pulsar/keytool/keytool.sh broker ${BROKER_ADDRESS} true;
 {{- end }}
 {{- end }}
@@ -56,10 +63,10 @@ Define broker kop settings
 */}}
 {{- define "pulsar.broker.kop.settings" -}}
 {{- if .Values.components.kop }}
-{{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
-export PULSAR_PREFIX_listeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.ssl }}";
+{{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+export PULSAR_PREFIX_kafkaListeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.ssl }}";
 {{- else }}
-export PULSAR_PREFIX_listeners="PLAINTEXT://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.plaintext }}";
+export PULSAR_PREFIX_kafkaListeners="PLAINTEXT://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.plaintext }}";
 {{- end }}
 {{- end }}
 {{- end }}
@@ -355,3 +362,32 @@ Define gcs offload options mounts
 {{ .Values.broker.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Define kop tls certs mounts
+*/}}
+{{- define "pulsar.kop.certs.volumeMounts" -}}
+{{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+- name: kop-certs
+  mountPath: "/pulsar/certs/kop"
+  readOnly: true
+{{- end }}
+{{- end }}
+
+{{/*
+Define kop tls certs volumes
+*/}}
+{{- define "pulsar.kop.certs.volumes" -}}
+{{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+- name: kop-certs
+  secret:
+    secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+    items:
+    - key: keystore.jks
+      path: keystore.jks
+    {{- if not .Values.certs.public_issuer.enabled }}
+    - key: truststore.jks
+      path: truststore.jks
+    {{- end }}
+{{- end }}
+{{- end }}

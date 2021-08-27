@@ -30,10 +30,13 @@ data:
     zkDataDir=/pulsar/data/zookeeper
     zkSnapshotDir=/pulsar/data/zookeeper
     backupInterval=30
-    bucket=s3a://pulsar-metadata-backup-yong-dev
+    bucket={{ .Values.zookeeper.customTools.restore.bucket }}
     backupPrefix=test-cluster
     downloadTimeout=60
-    managedLedgerPath=/managed-ledgers
+    managedLedgerPath={{ .Values.zookeeper.customTools.restore.managedLedgerPath }}
     webServerPort=8088
     restoreVersion={{ .Values.zookeeper.customTools.restore.restoreVersion }}
+    cleanupBookieMeta={{ .Values.zookeeper.customTools.restore.cleanupBookieMeta }}
+    cleanupClusterMeta={{ .Values.zookeeper.customTools.restore.cleanupClusterMeta }}
+{{ toYaml .Values.zookeeper.customTools.restore.configData | indent 2 }}
 {{- end }}

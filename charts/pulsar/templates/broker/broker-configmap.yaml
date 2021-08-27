@@ -135,15 +135,20 @@ data:
   bookkeeperUseV2WireProtocol: "false"
   {{- end }}
   {{- if .Values.components.kop }}
-  messagingProtocols: "kafka"
+  PULSAR_PREFIX_messagingProtocols: "kafka"
+  PULSAR_PREFIX_brokerEntryMetadataInterceptors: "org.apache.pulsar.common.intercept.AppendBrokerTimestampMetadataInterceptor,org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor"
+  PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
+  PULSAR_PREFIX_allowAutoTopicCreationType: "partitioned"
   {{- if .Values.auth.authentication.enabled }}
   {{- if eq .Values.auth.authentication.provider "jwt" }}
   PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
   {{- end }}
   {{- end }}
-  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
-  PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/broker.keystore.jks
-  PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/broker.truststore.jks
+  {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
+  PULSAR_PREFIX_kopSslKeystoreLocation: /pulsar/certs/kop/keystore.jks
+  {{- if not .Values.certs.public_issuer.enabled }}
+  PULSAR_PREFIX_kopSslTruststoreLocation: /pulsar/certs/kop/truststore.jks
+  {{- end }}
   {{- end }}
   {{- end }}
 {{ toYaml .Values.broker.configData | indent 2 }}

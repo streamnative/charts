@@ -94,6 +94,8 @@ components:
   kop: false
   # pulsar detector
   pulsar_detector: false
+  # superset
+  superset: false
 
 ## Monitoring Components
 ##
@@ -118,40 +120,40 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.7.0.4
+  #   tag: 2.7.2.8
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    tag: 2.7.2.8
     pullPolicy: IfNotPresent
   broker:
-    repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   proxy:
-    repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   pulsar_detector:
-    repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   functions:
-    repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
@@ -168,11 +170,11 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.11
+    tag: 0.0.16
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
-    tag: 0.3.0
+    tag: 0.6.0
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -215,6 +217,12 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+  # settings for generating certs for kop
+  kop:
+    enabled: false
+    jks:
+      password: "[pulsar tls jks store password]"
+    cert_name: tls-kop
   # settings for generating certs for bookies
   bookie:
     enabled: false
@@ -349,6 +357,18 @@ ingress:
     enabled: false
     tls:
       enabled: true
+    plaintext:
+      enabled: false
+    # `tls.enabled` will turn on all the TLS ports
+    # `plaintext.enabled` will control whether to turn on all the plaintext ports
+    # this section is used to control individal ports
+    ports:
+      http: true
+      https: true
+      pulsar: true
+      pulsarssl: true
+      websocket: true
+      websockettls: true
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
@@ -360,6 +380,10 @@ ingress:
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+  kop:
+    enabled: false
+    # NOTE: replace this with the actual domain when enabling ingress for KOP
+    external_domain: "<external_domain>"
   ## templates/presto-service-ingress.yaml
   ##
   ## Ingresses for exposing presto service publicly
@@ -570,14 +594,28 @@ zookeeper:
     usePolicy: true
     maxUnavailable: 1
   customTools:
+    serviceAccount:
+      use: true
+      create: true
+      name: ""
+      annotations: {}
+      clusterRole: true
     backup:
       component: "backup"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-1"
+      tag: "2.7.0-2"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
-    #  secrets:
+      backupInterval: "600"
+      bucket: "s3a://bucket"
+      backupPrefix: "pulsar-backup"
+      managedLedgerPath: "/managed-ledgers"
+      configData:
+        # extra opts for the java command
+        OPTS: ""
+      secrets:
+        use: false
     #    aws:
     #      secretName: "backup-aws-secret"
     ## secret that stores AWS credentials. The secret should be created in the following
@@ -592,11 +630,18 @@ zookeeper:
       component: "restore"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-1"
+      tag: "2.7.0-2"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
-#      secrets:
+      managedLedgerPath: "/managed-ledgers"
+      bucket: "s3a://bucket"
+      cleanupBookieMeta: false
+      cleanupClusterMeta: false
+      configData:
+        OPTS: ""
+      secrets:
+        use: false
 #        aws:
 #          secretName: "restore-aws-secret"
 
@@ -741,13 +786,7 @@ bookkeeper:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      -XX:+PrintGCDetails
-      -XX:+PrintGCTimeStamps
-      -XX:+PrintGCApplicationStoppedTime
-      -XX:+PrintHeapAtGC
       -verbosegc
-      -Xloggc:/var/log/bookie-gc.log
-      -XX:G1LogLevel=finest
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -810,7 +849,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/pulsar-all
-    tag: 2.7.0.6
+    tag: 2.7.1.3
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -830,6 +869,13 @@ kop:
   ports:
     plaintext: 9092
     ssl: 9093
+
+# Istio is required for exposing Kafka service
+istio:
+  enable: false
+  gateway:
+    selector:
+      istio: "ingressgateway"
 
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml
@@ -1036,8 +1082,8 @@ pulsar_detector:
   ## templates/pulsar-detector-service.yaml
   ##
   service:
-    spec:
-      clusterIP: None
+    # spec:
+    # clusterIP: None
     annotations: {}
 
   ## Pulsar detector PodDisruptionBudget
@@ -1315,6 +1361,7 @@ prometheus:
       name: data
       size: 10Gi
       local_storage: true
+      useVolumeClaimTemplates: false
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1433,8 +1480,8 @@ grafana:
   ## templates/grafana-service.yaml
   ##
   service:
-    spec:
-      clusterIP: None
+    # spec:
+    # type: clusterIP
     annotations: {}
   datasources:
     loki: loki
@@ -1467,8 +1514,8 @@ alert_manager:
       memory: 250Mi
       cpu: 0.1
   service:
-    spec:
-      clusterIP: None
+    # spec:
+    # clusterIP: None
     annotations: {}
   securityContext:
     runAsUser: 65534
@@ -1542,6 +1589,7 @@ pulsar_manager:
       name: data
       size: 10Gi
       local_storage: true
+      useVolumeClaimTemplates: false
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1652,11 +1700,13 @@ presto:
         failureThreshold: 10
         initialDelaySeconds: 10
         periodSeconds: 30
+        path: "/v1/status"
       readiness:
         enabled: true
         failureThreshold: 10
         initialDelaySeconds: 10
         periodSeconds: 30
+        path: "/v1/status"
       startup:
         enabled: false
         failureThreshold: 30
