@@ -71,6 +71,10 @@ spec:
           bin/apply-config-from-env.py conf/client.conf;
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 10 }}
+          echo "Configuring pulsarctl context ...";
+          mkdir -p /root/.config/pulsar;
+          cp {{ template "pulsar.home" . }}/conf/pulsarctl.config /root/.config/pulsar/config;
+          echo "Successfully configured pulsarctl context.";
           sleep 10000000000
         envFrom:
         - configMapRef:
@@ -79,6 +83,7 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.toolset.pulsarctl.conf.volumeMounts" . | nindent 8 }}
       {{- if .Values.components.kop }}
       - name: "kafka"
         image: "confluentinc/cp-kafka:6.2.0"
@@ -101,7 +106,6 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.kafka.conf.volumeMounts" . | nindent 8 }}
-        {{- include "pulsar.toolset.pulsarctl.conf.volumeMounts" . | nindent 8 }}
       {{- end }}
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}

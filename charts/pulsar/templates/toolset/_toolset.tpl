@@ -231,17 +231,17 @@ pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Va
 Define pulsarctl config volume mount
 */}}
 {{- define "pulsar.toolset.pulsarctl.conf.volumeMounts" -}}
-- name: "pulsarctl-config"
-  mountPath: "/root/.config/pulsar/config"
-  subPath: config
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
+  mountPath: "{{ template "pulsar.home" . }}/conf/pulsarctl.config"
+  subPath: pulsarctl.config
 {{- end }}
 
 {{/*
-Define pulsarctl config volume
+Define toolset pulsarctl config volumes
 */}}
 {{- define "pulsar.toolset.pulsarctl.conf.volumes" -}}
-- name: "pulsarctl-config"
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
   configMap:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
 {{- end }}
 
