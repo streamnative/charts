@@ -35,7 +35,11 @@ metadata:
     ingress.kubernetes.io/ssl-redirect: "true"
 {{- if and .Values.certs.public_issuer.enabled }}
     kubernetes.io/tls-acme: "true"
-    cert-manager.io/issuer: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
+{{- if eq .Values.certs.public_issuer.issuer_type  "ClusterIssuer" }}
+    cert-manager.io/cluster-issuer: "{{ template "pulsar.tls.public_issuer" . }}"
+{{- else }}
+    cert-manager.io/issuer: "{{ template "pulsar.tls.public_issuer" . }}"
+{{- end }}
 {{- end }}
 {{- else }}
     ingress.kubernetes.io/ssl-redirect: "false"

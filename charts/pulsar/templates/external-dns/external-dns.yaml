@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.external_dns.enabled }}
+{{- if not .Values.external_dns.use_existing }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -80,4 +81,5 @@ spec:
       {{- with .Values.external_dns.securityContext }}
       {{ toYaml . | indent 6 }}
       {{- end }}
+{{- end }}
 {{- end }}

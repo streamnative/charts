@@ -324,6 +324,7 @@ certs:
 ## External DNS is used for synchronizing exposed Ingresses with DNS providers
 external_dns:
   enabled: false
+  use_existing: false
   component: external-dns
   policy: upsert-only
   registry: txt
