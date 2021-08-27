@@ -1,0 +1,59 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.components.toolset }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.toolset.component }}
+data:
+  config: |
+    auth-info:
+      default:
+        locationoforigin: /root/.config/pulsar/config
+        {{- if not .Values.toolset.useProxy }}
+        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        tls_trust_certs_file_path: "/pulsar/certs/ca/ca.crt"
+        {{- end }}
+        {{- else }}
+        {{- if and .Values.tls.enabled (and .Values.tls.proxy.enabled .Values.tls.proxy.untrustedCa) }}
+        tls_trust_certs_file_path: "/pulsar/certs/proxy-ca/ca.crt"
+        {{- end }}
+        {{- end }}
+        tls_allow_insecure_connection: false
+        token: ""
+        {{- if .Values.auth.authentication.enabled }}
+        {{- if eq .Values.auth.authentication.provider "jwt" }}
+        tokenFile: "/pulsar/tokens/client/token"
+        {{- end }}
+        {{- end }}
+        issuer_endpoint: ""
+        client_id: ""
+        audience: ""
+        key_file: ""
+    contexts:
+      default:
+        admin-service-url: "{{ template "toolset.web.service.url" . }}"
+        bookie-service-url: http://{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}:{{ .Values.bookkeeper.ports.http }}
+    current-context: default
+{{- end }}

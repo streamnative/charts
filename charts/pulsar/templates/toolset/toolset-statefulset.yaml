@@ -101,10 +101,12 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.kafka.conf.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.toolset.pulsarctl.conf.volumeMounts" . | nindent 8 }}
       {{- end }}
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.token.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.log.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.kafka.conf.volumes" . | nindent 6 }}
+      {{- include "pulsar.toolset.pulsarctl.conf.volumes" . | nindent 6 }}
 {{- end }}
