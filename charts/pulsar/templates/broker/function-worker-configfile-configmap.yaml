@@ -29,6 +29,11 @@ metadata:
     component: {{ .Values.functions.component }}
 data:
   functions_worker.yml: |
+    {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+    # `tlsEnabled` and `workerPortTls` are required to set to true in order to make HTTPS work for functions REST api
+    workerPortTls: {{ .Values.broker.ports.https }}
+    tlsEnabled: true
+    {{- end }}
     # Function package management
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
     pulsarServiceUrl: pulsar://localhost:6650
