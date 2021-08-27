@@ -1675,8 +1675,6 @@ streamnative_console:
     REDIRECT_HOST: ""
     REDIRECT_PORT: ""
 
-
-
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
 ##
