@@ -1838,7 +1838,6 @@ presto:
     spec:
       type: ClusterIP
 
-
 vault:
   component: "vault"
   serviceAccount:
