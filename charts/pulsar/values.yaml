@@ -985,6 +985,8 @@ functions:
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
+  # pulsarAdminUrlOverride:
+  # pulsarServiceUrlOverride:
   configData:
     downloadDirectory: download/pulsar_functions
     pulsarFunctionsNamespace: public/functions

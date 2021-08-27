@@ -43,8 +43,16 @@ data:
       jobNamespace: {{ template "pulsar.functions.namespace" . }}
       pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
       pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
+      {{- if .Values.functions.pulsarAdminUrlOverride }}
+      pulsarAdminUrl: {{ .Values.functions.pulsarAdminUrlOverride }}
+      {{- else }}
       pulsarAdminUrl: {{ template "pulsar.web.service.url" . }}
+      {{- end }}
+      {{- if .Values.functions.pulsarServiceUrlOverride }}
+      pulsarServiceUrl: {{ .Values.functions.pulsarServiceUrlOverride }}
+      {{- else }}
       pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }} 
+      {{- end }}
       changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
       changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
       submittingInsidePod: true
