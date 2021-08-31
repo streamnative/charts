@@ -51,8 +51,8 @@ spec:
           value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
         - name: GOOGLE_CLIENT_ID
           value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_ID }}
-        - name: GOOGLE_CLIENT_SECRETE
-          value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_SECRETE }}
+        - name: GOOGLE_CLIENT_SECRET
+          value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_SECRET }}
         - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME
           value: {{ .Values.streamnative_console.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME }}
         - name: GOOGLE_OAUTH2_ENABLED
