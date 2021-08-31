@@ -30,9 +30,19 @@ metadata:
 data:
   functions_worker.yml: |
     {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
-    # `tlsEnabled` and `workerPortTls` are required to set to true in order to make HTTPS work for functions REST api
+    # `tlsEnabled`, `workerPortTls`, and `useTls` are required to set to true in order to make HTTPS work for functions REST api
     workerPortTls: {{ .Values.broker.ports.https }}
     tlsEnabled: true
+    useTls: true
+    # TLS Settings
+    tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+    tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
+    tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+    tlsAllowInsecureConnection: false
+    # Whether server hostname must match the common name of the certificate
+    tlsEnableHostnameVerification: false
+    # Tls cert refresh duration in seconds (set 0 to check on every new connection)
+    tlsCertRefreshCheckDurationSec: 300
     {{- end }}
     # Function package management
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
