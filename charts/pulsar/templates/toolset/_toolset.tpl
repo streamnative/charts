@@ -193,6 +193,9 @@ imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
 Define the toolset web service url
 */}}
 {{- define "toolset.web.service.url" -}}
+{{- if .Values.toolset.pulsarAdminUrlOverride -}}
+{{ .Values.toolset.pulsarAdminUrlOverride }}
+{{- else -}}
 {{- if not .Values.toolset.useProxy -}}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
 https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
@@ -207,11 +210,15 @@ http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Valu
 {{- end -}}
 {{- end -}}
 {{- end -}}
+{{- end -}}
 
 {{/*
 Define the toolset broker service url
 */}}
 {{- define "toolset.broker.service.url" -}}
+{{- if .Values.toolset.pulsarServiceUrlOverride -}}
+{{ .Values.toolset.pulsarServiceUrlOverride }}
+{{- else -}}
 {{- if not .Values.toolset.useProxy -}}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
 pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsarssl }}
@@ -223,6 +230,7 @@ pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .V
 pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsarssl }}
 {{- else -}}
 pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsar }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

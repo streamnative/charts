@@ -1195,6 +1195,8 @@ toolset:
   ##
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
+  # pulsarAdminUrlOverride:
+  # pulsarServiceUrlOverride:
   configData:
     PULSAR_MEM: >
       -Xms64M
