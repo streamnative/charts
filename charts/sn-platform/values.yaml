@@ -122,15 +122,15 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -139,28 +139,28 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/sn-platform
-  #   tag: "2.8.0.5"
+  #   tag: "2.8.0.14"
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -868,7 +868,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.0.14"
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
