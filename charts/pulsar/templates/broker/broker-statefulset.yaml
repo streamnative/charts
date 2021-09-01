@@ -259,6 +259,10 @@ spec:
           containerPort: {{ .Values.kop.ports.plaintext }}
         {{- end }}
         {{- end }}
+        {{- if .Values.components.mop }}
+        - name: mqtt
+          containerPort: {{ .Values.mop.ports.plaintext }}
+        {{- end }}
         env:
         {{- if .Values.broker.advertisedPodIP }}
         - name: advertisedAddress
@@ -278,12 +282,16 @@ spec:
               name: {{ .Values.broker.offload.s3.secret }}
               key: AWS_SECRET_ACCESS_KEY
         {{- end }}
-        {{- if and .Values.components.kop }}
-        {{- if .Values.ingress.kop.enabled }}
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        {{- if .Values.components.mop }}
+        - name: PULSAR_PREFIX_mqttListeners
+          value: mqtt://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.mop.ports.plaintext }}
+        {{- end }}
+        {{- if and .Values.components.kop }}
+        {{- if .Values.ingress.kop.enabled }}
         {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
         - name: PULSAR_PREFIX_kafkaAdvertisedListeners
           value: SSL://$(POD_NAME).{{ .Values.ingress.kop.external_domain }}:{{ .Values.kop.ports.ssl }}
