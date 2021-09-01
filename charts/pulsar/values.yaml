@@ -92,6 +92,8 @@ components:
   sql_worker: false
   # kop
   kop: false
+  # mop
+  mop: false
   # pulsar detector
   pulsar_detector: false
   # superset
@@ -869,6 +871,11 @@ kop:
   ports:
     plaintext: 9092
     ssl: 9093
+
+## Pulsar: MoP Protocol Handler
+mop:
+  ports:
+    plaintext: 1883
 
 # Istio is required for exposing Kafka service
 istio:

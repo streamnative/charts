@@ -45,6 +45,10 @@ spec:
   - name: pulsar
     port: {{ .Values.broker.ports.pulsar }}
   {{- end }}
+  {{- if .Values.components.mop }}
+  - name: mqtt
+    port: {{ .Values.mop.ports.plaintext }}
+  {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}

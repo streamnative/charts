@@ -51,6 +51,10 @@ spec:
     port: {{ .Values.kop.ports.plaintext }}
   {{- end }}
   {{- end }}
+  {{- if .Values.components.mop }}
+  - name: mqtt
+    port: {{ .Values.mop.ports.plaintext }}
+  {{- end }}
   clusterIP: None
   selector:
     app: {{ template "pulsar.name" . }}
