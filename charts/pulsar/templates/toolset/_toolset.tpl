@@ -188,3 +188,68 @@ image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
 imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define the toolset web service url
+*/}}
+{{- define "toolset.web.service.url" -}}
+{{- if .Values.toolset.pulsarAdminUrlOverride -}}
+{{ .Values.toolset.pulsarAdminUrlOverride }}
+{{- else -}}
+{{- if not .Values.toolset.useProxy -}}
+{{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
+{{- else -}}
+http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
+{{- end -}}
+{{- else -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
+{{- else -}}
+http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset broker service url
+*/}}
+{{- define "toolset.broker.service.url" -}}
+{{- if .Values.toolset.pulsarServiceUrlOverride -}}
+{{ .Values.toolset.pulsarServiceUrlOverride }}
+{{- else -}}
+{{- if not .Values.toolset.useProxy -}}
+{{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
+pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsarssl }}
+{{- else -}}
+pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }}
+{{- end -}}
+{{- else -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
+pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsarssl }}
+{{- else -}}
+pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsar }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define pulsarctl config volume mount
+*/}}
+{{- define "pulsar.toolset.pulsarctl.conf.volumeMounts" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
+  mountPath: "{{ template "pulsar.home" . }}/conf/pulsarctl.config"
+  subPath: pulsarctl.config
+{{- end }}
+
+{{/*
+Define toolset pulsarctl config volumes
+*/}}
+{{- define "pulsar.toolset.pulsarctl.conf.volumes" -}}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+{{- end }}
+
