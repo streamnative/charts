@@ -109,6 +109,17 @@ spec:
         - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
       gcOptions:
         - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+    {{- if .Values.bookkeeper.operator.adopt_existing }}
+    volumes:
+    {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+      emptyDir: {}
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+      emptyDir: {}
+    {{- end }}
+    {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
+    {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
+    {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
@@ -247,6 +258,34 @@ spec:
         {{ .Values.bookkeeper.operator.updatePolicy }}
       {{- else }}
         - all
+      {{- end }}
+      {{- if .Values.bookkeeper.operator.adopt_existing }}
+      {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
+      volumeClaimTemplates:
+      - metadata:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: {{ .Values.bookkeeper.volumes.journal.size }}
+          {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 10 }}
+      - metadata:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
+          {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 10 }}
+      {{- end }}
+      volumeMounts:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+        mountPath: /pulsar/data/bookkeeper/journal
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+        mountPath: /pulsar/data/bookkeeper/ledgers
+      {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
+      {{- include "pulsar.bookkeeper.log.volumeMounts" . | nindent 6 }}
       {{- end }}
     autoRecoveryStatefulSet:
       metadata:
