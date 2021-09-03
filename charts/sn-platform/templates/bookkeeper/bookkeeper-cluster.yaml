@@ -55,6 +55,9 @@ spec:
     {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
     affinity:
       podAntiAffinity:
+        {{ if .Values.bookkeeper.affinity.customRules }}
+{{ toYaml .Values.bookkeeper.affinity.customRules | indent 8 }}
+        {{ else }}
         {{ .Values.bookkeeper.affinity.type }}:
           {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -91,6 +94,7 @@ spec:
                       - {{ .Values.bookkeeper.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
+      {{ end }}
     {{- end }}
     {{- if .Values.bookkeeper.resources }}
     resources:
