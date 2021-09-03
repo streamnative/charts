@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.initialize }}
-{{- if and .Values.components.streamnative_console not .Values.add_instance }}
+{{- if and (.Values.components.streamnative_console) (not .Values.add_instance) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -47,6 +47,7 @@ spec:
         - name: KOP_SERVICE_URL
           value: {{ template "pulsar.broker.kop.service.url" .}}
         {{- end }}
+        {{- if .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
           value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
         - name: GOOGLE_CLIENT_ID
@@ -56,7 +57,7 @@ spec:
         - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME
           value: {{ .Values.streamnative_console.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME }}
         - name: GOOGLE_OAUTH2_ENABLED
-          value: {{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}
+          value: "{{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}"
         - name: GOOGLE_REDIRECT_URI
           value: {{ .Values.streamnative_console.configData.GOOGLE_REDIRECT_URI }}
         - name: REDIRECT_SCHEME
@@ -65,6 +66,7 @@ spec:
           value: {{ .Values.streamnative_console.configData.REDIRECT_HOST }}
         - name: REDIRECT_PORT
           value: {{ .Values.streamnative_console.configData.REDIRECT_PORT }}
+        {{- end }}
         envFrom:
         - secretRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}

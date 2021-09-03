@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if and .Values.components.vault not .Values.add_instance }}
+{{- if and (.Values.components.vault) (not .Values.add_instance) }}
 apiVersion: "vault.banzaicloud.com/v1alpha1"
 kind: "Vault"
 metadata:
