@@ -36,7 +36,7 @@ data:
     {{- end }}
     {{- if and .Values.components.functions .Values.functions.functionState }}
     # enable function state
-    stateStorageServiceUrl: bk://{{ template "pulsar.bookkeeper.hostname" . }}:{{ .Values.bookkeeper.ports.streamStorage }}
+    stateStorageServiceUrl: bk://{{ template "pulsar.bookkeeper.service" . }}:{{ .Values.bookkeeper.ports.streamStorage }}
     {{- end }}
     # Function package management
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
