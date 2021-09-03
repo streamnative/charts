@@ -80,6 +80,9 @@ spec:
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity}}
         podAntiAffinity:
+          {{ if .Values.proxy.affinity.customRules }}
+{{ toYaml .Values.proxy.affinity.customRules | indent 10 }}
+          {{ else }}
           {{ .Values.proxy.affinity.type }}:
           {{ if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
           - labelSelector:
@@ -110,11 +113,12 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.proxy.component }}
                 topologyKey: "kubernetes.io/hostname"
+          {{ end }}
           {{ end }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}

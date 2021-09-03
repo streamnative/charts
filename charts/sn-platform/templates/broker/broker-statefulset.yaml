@@ -80,6 +80,9 @@ spec:
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity}}
         podAntiAffinity:
+          {{ if .Values.broker.affinity.customRules }}
+{{ toYaml .Values.broker.affinity.customRules | indent 10 }}
+          {{ else }}
           {{ .Values.broker.affinity.type }}:
           {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
           - labelSelector:
@@ -115,6 +118,7 @@ spec:
                       values:
                       - {{ .Values.broker.component }}
                 topologyKey: "kubernetes.io/hostname"
+          {{ end }}
           {{ end }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
