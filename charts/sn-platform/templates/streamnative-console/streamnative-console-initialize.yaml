@@ -56,7 +56,7 @@ spec:
         - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME
           value: {{ .Values.streamnative_console.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME }}
         - name: GOOGLE_OAUTH2_ENABLED
-          value: {{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}
+          value: "{{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}"
         - name: GOOGLE_REDIRECT_URI
           value: {{ .Values.streamnative_console.configData.GOOGLE_REDIRECT_URI }}
         - name: REDIRECT_SCHEME
