@@ -1839,6 +1839,9 @@ presto:
 
 vault:
   component: "vault"
+  vaultAddr: ""
+  sharedNamespace: ""
+  sharedVaultCluster: ""
   serviceAccount:
     created: true
     name: ""
