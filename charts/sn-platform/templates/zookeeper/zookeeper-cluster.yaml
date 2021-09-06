@@ -142,6 +142,18 @@ spec:
         - {{ .Values.zookeeper.configData.PULSAR_MEM }}
       gcOptions:
         - {{ .Values.zookeeper.configData.PULSAR_GC }}
+    {{- if .Values.zookeeper.operator.adopt_existing }}
+    volumes:
+    {{- include "pulsar.zookeeper.data.volumes" . | nindent 4 }}
+    {{- include "pulsar.zookeeper.certs.volumes" . | nindent 4 }}
+    {{- include "pulsar.zookeeper.log.volumes" . | nindent 4 }}
+    {{- include "pulsar.zookeeper.genzkconf.volumes" . | nindent 4 }}
+    {{- if .Values.zookeeper.customTools.restore.enable }}
+    - name: restore-config
+      configMap:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+    {{- end }}
+    {{- end }}
   {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   persistence:
     data:
@@ -219,6 +231,15 @@ spec:
         {{ .Values.zookeeper.operator.updatePolicy }}
       {{- else }}
         - all
+      {{- end }}
+      {{- if .Values.zookeeper.operator.adopt_existing }}
+      volumeClaimTemplates:
+      {{- include "pulsar.zookeeper.data.volumeClaimTemplates" . | nindent 6 }}
+      volumeMounts:
+      {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.genzkconf.volumeMounts" . | nindent 6 }}
       {{- end }}
     configMap:
       metadata:
