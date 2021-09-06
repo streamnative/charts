@@ -92,6 +92,8 @@ components:
   sql_worker: false
   # kop
   kop: false
+  # mop
+  mop: false
   # pulsar detector
   pulsar_detector: false
   # superset
@@ -870,6 +872,11 @@ kop:
     plaintext: 9092
     ssl: 9093
 
+## Pulsar: MoP Protocol Handler
+mop:
+  ports:
+    plaintext: 1883
+
 # Istio is required for exposing Kafka service
 istio:
   enable: false
@@ -1029,6 +1036,8 @@ functions:
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
+  # pulsarAdminUrlOverride:
+  # pulsarServiceUrlOverride:
   configData:
     downloadDirectory: download/pulsar_functions
     pulsarFunctionsNamespace: public/functions
@@ -1239,6 +1248,8 @@ toolset:
   ##
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
+  # pulsarAdminUrlOverride:
+  # pulsarServiceUrlOverride:
   configData:
     PULSAR_MEM: >
       -Xms64M

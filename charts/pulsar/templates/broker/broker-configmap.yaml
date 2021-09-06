@@ -134,9 +134,18 @@ data:
   # https://github.com/apache/bookkeeper/pull/2300
   bookkeeperUseV2WireProtocol: "false"
   {{- end }}
+  {{- if and .Values.components.mop .Values.components.kop }}
+  PULSAR_PREFIX_messagingProtocols: "mqtt,kafka"
+  {{- else }}
+  {{- if .Values.components.mop }}
+  PULSAR_PREFIX_messagingProtocols: "mqtt"
+  {{- end }}
   {{- if .Values.components.kop }}
   PULSAR_PREFIX_messagingProtocols: "kafka"
-  PULSAR_PREFIX_brokerEntryMetadataInterceptors: "org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.components.kop }}
+  PULSAR_PREFIX_brokerEntryMetadataInterceptors: "org.apache.pulsar.common.intercept.AppendBrokerTimestampMetadataInterceptor,org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor"
   PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
   PULSAR_PREFIX_allowAutoTopicCreationType: "partitioned"
   {{- if .Values.auth.authentication.enabled }}
