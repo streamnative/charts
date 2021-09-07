@@ -36,16 +36,13 @@ data:
     -server
     -Xmx{{ .Values.presto.worker.jvm.memory }}
     -XX:+UseG1GC
-    -XX:+UnlockExperimentalVMOptions
-    -XX:+AggressiveOpts
-    -XX:+DoEscapeAnalysis
-    -XX:ParallelGCThreads=4
-    -XX:ConcGCThreads=4
-    -XX:G1NewSizePercent=50
-    -XX:+DisableExplicitGC
-    -XX:-ResizePLAB
+    -XX:G1HeapRegionSize=32M
+    -XX:+UseGCOverheadLimit
+    -XX:+ExplicitGCInvokesConcurrent
+    -XX:+HeapDumpOnOutOfMemoryError
     -XX:+ExitOnOutOfMemoryError
-    -XX:+PerfDisableSharedMem
+    -Dpresto-temporarily-allow-java8=true
+    -Djdk.attach.allowAttachSelf=true
   config.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
@@ -110,7 +107,7 @@ data:
     com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory=WARN
     com.ning.http.client=WARN
     com.facebook.presto.server.PluginManager={{ .Values.presto.worker.log.presto.level }}
-  
+
   pulsar.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
@@ -129,7 +126,7 @@ data:
     # KIND, either express or implied.  See the License for the
     # specific language governing permissions and limitations
     # under the License.
-    
+
     # name of the connector to be displayed in the catalog
     connector.name=pulsar
     {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
@@ -154,19 +151,19 @@ data:
     # to prevent erroneous rewriting
     pulsar.namespace-delimiter-rewrite-enable={{ .Values.presto.catalog.pulsar.namespaceDelimiterRewriteEnable }}
     pulsar.rewrite-namespace-delimiter={{ .Values.presto.catalog.pulsar.rewriteNamespaceDelimiter }}
-    
+
     ####### TIERED STORAGE OFFLOADER CONFIGS #######
-    
+
     {{- if and .Values.broker.offload.enabled .Values.presto.read_offload.enabled }}
     ## Driver to use to offload old data to long term storage
     pulsar.managed-ledger-offload-driver = {{ .Values.broker.offload.managedLedgerOffloadDriver }}
-    
+
     ## The directory to locate offloaders
     pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
-    
+
     ## Maximum number of thread pool threads for ledger offloading
     pulsar.managed-ledger-offload-max-threads = 2
-    
+
     {{- if .Values.broker.offload.s3.enabled }}
     ## Properties and configurations related to specific offloader implementation
     pulsar.offloader-properties = \
@@ -177,58 +174,58 @@ data:
     {{- end }}
 
     {{- end }}
-    
+
     ####### AUTHENTICATION CONFIGS #######
     {{- if .Values.auth.authentication.enabled }}
     {{- if eq .Values.auth.authentication.provider "jwt" }}
     ## the authentication plugin to be used to authenticate to Pulsar cluster
     pulsar.auth-plugin = org.apache.pulsar.client.impl.auth.AuthenticationToken
-    
+
     ## the authentication parameter to be used to authenticate to Pulsar cluster
     pulsar.auth-params = file:///pulsar/tokens/client/token
-    {{- end }} 
-    {{- end }} 
-    
+    {{- end }}
+    {{- end }}
+
     {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
     ## Accept untrusted TLS certificate
     pulsar.tls-allow-insecure-connection = false
-    
+
     ## Whether to enable hostname verification on TLS connections
     pulsar.tls-hostname-verification-enable = false
-    
+
     ## Path for the trusted TLS certificate file
     pulsar.tls-trust-cert-file-path = /pulsar/certs/ca/ca.crt
     {{- end }}
-    
+
     ####### BOOKKEEPER CONFIGS #######
-    
+
     # Entries read count throttling-limit per seconds, 0 is represents disable the throttle, default is 0.
     pulsar.bookkeeper-throttle-value = {{ .Values.presto.catalog.pulsar.bookkeeperThrottleValue }}
-    
+
     # The number of threads used by Netty to handle TCP connections,
     # default is 2 * Runtime.getRuntime().availableProcessors().
     pulsar.bookkeeper-num-io-threads = {{ .Values.presto.catalog.pulsar.bookkeeperNumIOThreads }}
-    
+
     # The number of worker threads used by bookkeeper client to submit operations,
     # default is Runtime.getRuntime().availableProcessors().
     pulsar.bookkeeper-num-worker-threads = {{ .Values.presto.catalog.pulsar.bookkeeperNumWorkerThreads }}
-    
+
     ####### MANAGED LEDGER CONFIGS #######
-    
+
     # Amount of memory to use for caching data payload in managed ledger. This memory
     # is allocated from JVM direct memory and it's shared across all the managed ledgers
     # running in same sql worker. 0 is represents disable the cache, default is 0.
     pulsar.managed-ledger-cache-size-MB = {{ .Values.presto.catalog.pulsar.managedLedgerCacheSizeMB }}
-    
+
     # Number of threads to be used for managed ledger tasks dispatching,
     # default is Runtime.getRuntime().availableProcessors().
     pulsar.managed-ledger-num-worker-threads = {{ .Values.presto.catalog.pulsar.mlNumWorkerThreads }}
-    
+
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().
     pulsar.managed-ledger-num-scheduler-threads = {{ .Values.presto.catalog.pulsar.mlNumSchedulerThreads }}
   health_check.sh: |
-    #!/bin/bash 
+    #!/bin/bash
     curl --silent {{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(hostname)
 {{- end }}
 {{- end }}
