@@ -1667,6 +1667,7 @@ streamnative_console:
   configData:
     DEFAULT_ORGANIZATION: ""
     INSTANCE_NAME: ""
+    STREAMNATIVE_CONSOLE_BACKEND_URL: ""
     GOOGLE_OAUTH2_ENABLED: false
     GOOGLE_CLIENT_ID: ""
     GOOGLE_CLIENT_SECRET: ""
