@@ -17,6 +17,6 @@
 # under the License.
 #
 {{- range .Values.extraResources }}
-  {{ toYaml . }}
+{{ toYaml . }}
 ---
 {{- end }}
