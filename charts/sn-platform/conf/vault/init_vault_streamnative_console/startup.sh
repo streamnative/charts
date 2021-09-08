@@ -16,7 +16,9 @@
 export VAULT_APPROLE_SUPER_NAME=apachepulsar
 export VAULT_SUPER_USER_NAME=admin
 # generate console password
-export VAULT_SUPER_USER_PASSWORD=$(cat /dev/urandom | base64 | tr -dc '0-9a-zA-Z' | head -c12)
+if [ "$addInstance" = false ];then
+    export VAULT_SUPER_USER_PASSWORD=$(cat /dev/urandom | base64 | tr -dc '0-9a-zA-Z' | head -c12)
+fi
 #export VAULT_ADDR="http://127.0.0.1:8200"
 
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -26,6 +28,10 @@ addInstance=$1
 organization=$2
 instance=$3
 echo $addInstance, $organization, $instance
+
+if [ "$addInstance" = true ];then
+    export VAULT_ADDR=$4
+fi
 
 vault login $ROOT_TOKEN
 vault auth enable userpass
@@ -54,6 +60,8 @@ if [ -n "$organization" ] && [ -n "$instance" ];then
 fi
 
 superApproleName=$VAULT_APPROLE_SUPER_NAME
+superUser=$VAULT_SUPER_USER_NAME
+superPassword=$VAULT_SUPER_USER_PASSWORD
 if [ "$addInstance" = false ];then
     vault policy write service-account $TMP_DIR/service-account.hcl
     vault write identity/entity name="service-account" policies="service-account"
@@ -78,8 +86,6 @@ if [ "$addInstance" = false ];then
     # set a short ttl for approle to avoid vault oom caused by frequent lease generation
     vault auth tune -default-lease-ttl=5m approle/
 
-    superUser=$VAULT_SUPER_USER_NAME
-    superPassword=$VAULT_SUPER_USER_PASSWORD
     vault policy write super-user $TMP_DIR/super-user.hcl
     vault write auth/userpass/users/$superUser password="$superPassword" policies="super-user"
     vault write identity/entity name="super-user" policies="super-user"

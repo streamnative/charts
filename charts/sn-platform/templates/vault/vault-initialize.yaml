@@ -47,9 +47,11 @@ spec:
            done;
            echo "vault root token is ready";
            rootToken=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-unseal-keys -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.vault-root}'|base64 -d);
+           superPassword=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-console-admin-passwd -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.password}'|base64 -d);
            echo $rootToken;
            echo $rootToken > /root/rootToken;
            export ROOT_TOKEN=$rootToken;
+           export VAULT_SUPER_USER_PASSWORD=$superPassword;
            vault login $ROOT_TOKEN;
            until [ $? -eq 0 ]; do
               echo "vault is not ready now, wait another 5s~";
@@ -58,7 +60,7 @@ spec:
            done;
            echo "vault is ready~";
 
-           cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh {{ .Values.add_instance }} {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }} {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
+           cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh {{ .Values.add_instance }} {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }} {{ .Values.streamnative_console.configData.INSTANCE_NAME }} {{ .Values.vault.vaultAddr }}
         {{- else }}
           args:
             - >
@@ -94,7 +96,7 @@ spec:
           value: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
         {{- if .Values.add_instance }} 
         - name: VAULT_ADDR
-          value: {{ .Values.valut.vaultAddr }}
+          value: "{{ .Values.vault.vaultAddr }}"
         {{- else }}
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}

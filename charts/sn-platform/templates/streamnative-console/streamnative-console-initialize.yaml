@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.initialize }}
-{{- if and (.Values.components.streamnative_console) (not .Values.add_instance) }}
+{{- if .Values.components.streamnative_console}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -35,21 +35,27 @@ spec:
         image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
         imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
         env:
-        - name: SPRING_CONFIGURATION_FILE
-          value: /pulsar-manager/pulsar-manager/application.properties
         - name: DEFAULT_ORGANIZATION
           value: {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }}
         - name: INSTANCE_NAME
           value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
         - name: WEB_SERVICE_URL
           value: {{ template "pulsar.web.service.url" . }}
+        {{- if .Values.add_instance }}
+        - name: STREAMNATIVE_CONSOLE_BACKEND_URL
+          value: {{ .Values.streamnative_console.configData.STREAMNATIVE_CONSOLE_BACKEND_URL }}
+        {{- else }}
+        - name: STREAMNATIVE_CONSOLE_BACKEND_URL
+          value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
+        {{- end }}
+        {{- if not .Values.add_instance }}
+        - name: SPRING_CONFIGURATION_FILE
+          value: /pulsar-manager/pulsar-manager/application.properties
         {{- if .Values.broker.kop.enabled }}
         - name: KOP_SERVICE_URL
           value: {{ template "pulsar.broker.kop.service.url" .}}
         {{- end }}
         {{- if .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}
-        - name: STREAMNATIVE_CONSOLE_BACKEND_URL
-          value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
         - name: GOOGLE_CLIENT_ID
           value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_ID }}
         - name: GOOGLE_CLIENT_SECRET
@@ -66,6 +72,7 @@ spec:
           value: {{ .Values.streamnative_console.configData.REDIRECT_HOST }}
         - name: REDIRECT_PORT
           value: {{ .Values.streamnative_console.configData.REDIRECT_PORT }}
+        {{- end }}
         {{- end }}
         envFrom:
         - secretRef:
