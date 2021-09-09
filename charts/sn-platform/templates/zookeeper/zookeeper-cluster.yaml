@@ -193,7 +193,7 @@ spec:
     reclaimPolicy: Delete
   {{- end }}
   config:
-    serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+    serverCnxnFactory: org.apache.zookeeper.server.NIOServerCnxnFactory
     # copy from configmap
     custom:
       {{- if .Values.zookeeper.operator.adopt_existing }}
@@ -203,7 +203,7 @@ spec:
       PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
       {{- end }}
       {{- end }}
-      PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+      PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NIOServerCnxnFactory
       # enable zookeeper tls
       {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
       secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
@@ -211,7 +211,6 @@ spec:
       {{- end }}
       {{- if .Values.zookeeper.reconfig.enabled }}
       PULSAR_PREFIX_reconfigEnabled: "true"
-      PULSAR_PREFIX_quorumListenOnAllIPs: "true"
       {{- end }}
       PULSAR_PREFIX_peerType: {{ .Values.zookeeper.peerType }}
 {{ toYaml .Values.zookeeper.configData | indent 6 }}
