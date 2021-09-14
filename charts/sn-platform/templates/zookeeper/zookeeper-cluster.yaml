@@ -253,6 +253,7 @@ spec:
 {{ toYaml .Values.zookeeper.advanced.staticServerList | indent 8 }}
     {{- end }}
     {{- if .Values.zookeeper.advanced.customStartupCommand }}
-    customStartupCommand: {{.Values.zookeeper.advanced.customStartupCommand}}
+    customStartupCommand:
+{{ toYaml .Values.zookeeper.advanced.customStartupCommand | indent 6 }}
     {{- end }}
 {{- end }}
