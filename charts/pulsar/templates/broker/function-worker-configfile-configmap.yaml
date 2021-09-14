@@ -29,6 +29,21 @@ metadata:
     component: {{ .Values.functions.component }}
 data:
   functions_worker.yml: |
+    {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+    # `tlsEnabled`, `workerPortTls`, and `useTls` are required to set to true in order to make HTTPS work for functions REST api
+    workerPortTls: {{ .Values.broker.ports.https }}
+    tlsEnabled: true
+    useTls: true
+    # TLS Settings
+    tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+    tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
+    tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+    tlsAllowInsecureConnection: false
+    # Whether server hostname must match the common name of the certificate
+    tlsEnableHostnameVerification: false
+    # Tls cert refresh duration in seconds (set 0 to check on every new connection)
+    tlsCertRefreshCheckDurationSec: 300
+    {{- end }}
     # Function package management
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
     pulsarServiceUrl: pulsar://localhost:6650
@@ -38,8 +53,16 @@ data:
       jobNamespace: {{ template "pulsar.functions.namespace" . }}
       pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
       pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
+      {{- if .Values.functions.pulsarAdminUrlOverride }}
+      pulsarAdminUrl: {{ .Values.functions.pulsarAdminUrlOverride }}
+      {{- else }}
       pulsarAdminUrl: {{ template "pulsar.web.service.url" . }}
+      {{- end }}
+      {{- if .Values.functions.pulsarServiceUrlOverride }}
+      pulsarServiceUrl: {{ .Values.functions.pulsarServiceUrlOverride }}
+      {{- else }}
       pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }} 
+      {{- end }}
       changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
       changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
       submittingInsidePod: true
