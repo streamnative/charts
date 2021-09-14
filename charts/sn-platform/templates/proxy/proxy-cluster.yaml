@@ -103,9 +103,12 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
-    #envFrom:
-    #- secretRef:
-    #    name: {{ template "pulsar.vault-secret-key-name" . }}
+
+    {{- if and (.Values.auth.authentication.enabled) (eq .Values.auth.authentication.provider "jwt") }}
+    secretRefs:
+      # TODO mount the proper volumes
+    {{- end }}
+
     {{- if .Values.proxy.resources }}
     resources:
       requests:
@@ -161,23 +164,20 @@ spec:
       {{- if not .Values.pulsar_metadata.configurationStore }}
       configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
       {{- end }}
-{{ toYaml .Values.proxy.configData | indent 6 }}
+
       {{- if .Values.auth.authentication.enabled }}
-      {{- if .Values.auth.vault.enabled}}
       authenticationEnabled: "true"
+      forwardAuthorizationCredentials: "true"
+      {{- if .Values.auth.vault.enabled}}
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
       PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
       superUserRoles: "admin"
       {{- else }}
-      authenticationEnabled: "true"
-      forwardAuthorizationCredentials: "true"
       {{- if .Values.auth.authorization.enabled }}
       # disable authorization on proxy and forward authorization credentials to broker
       authorizationEnabled: "false"
-      forwardAuthorizationCredentials: "true"
-      # superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.streamnative_console }}
       {{- end }}
       {{- if (eq .Values.auth.authentication.provider "jwt") }}
       # token authentication configuration
@@ -192,19 +192,12 @@ spec:
       {{- end }}
       {{- end }}
       {{- end }}
-      {{- if .Values.auth.authorization.enabled }}
-      authorizationEnabled: "true"
-      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
-      {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}
       tlsAllowInsecureConnection: "true"
       tlsTrustCertsFilePath: "/etc/tls/pulsar-proxy-tls/ca.crt"
       {{- end }}
       {{- end }}
-{{ (.Files.Glob "conf/proxy/log4j2.yaml").AsConfig | indent 6 }}
-      # Proxy settings
-      clusterName: {{ template "pulsar.cluster" . }}
       httpNumThreads: "8"
       statusFilePath: "{{ template "pulsar.home" . }}/status"
       # prometheus needs to access /metrics endpoint
@@ -216,11 +209,6 @@ spec:
       tlsEnabledInProxy: "true"
       servicePortTls: "{{ .Values.proxy.ports.pulsarssl }}"
       webServicePortTls: "{{ .Values.proxy.ports.https }}"
-      tlsCertificateFilePath: "/pulsar/certs/proxy/tls.crt"
-      tlsKeyFilePath: "/pulsar/certs/proxy/tls.key"
-      {{- if .Values.tls.proxy.untrustedCa }}
-      tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
-      {{- end }}
       {{- end }}
       {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
       # if broker enables TLS, configure proxy to talk to broker using TLS
@@ -228,12 +216,9 @@ spec:
       brokerWebServiceURLTLS: {{ template "pulsar.proxy.web.service.url.tls" . }}
       tlsEnabledWithBroker: "true"
       tlsCertRefreshCheckDurationSec: "300"
-      brokerClientTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
       {{- end }}
-      {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
-      brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }}
-      brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}
-      {{- end }}
+{{ (.Files.Glob "conf/proxy/log4j2.yaml").AsConfig | indent 6 }}
+{{ toYaml .Values.proxy.configData | indent 6 }}
   dnsNames: []
   issuerRef:
     name: ""
