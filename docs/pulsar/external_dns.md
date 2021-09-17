@@ -23,7 +23,7 @@ When `external_dns.enabled` is set to true, this helm chart will automatically r
 
 ### ExternalDNS settings
 
-> Pleaase remember to change `external_dns.owner_id` to a unique value that doesn't change for the lifetime of your cluster.
+> Please remember to change `external_dns.owner_id` to a unique value that doesn't change for the lifetime of your cluster.
 
 ExternalDNS can be turned on/off by setting `external_dns.enabled` to `true`/`false` in the values yaml file.
 
