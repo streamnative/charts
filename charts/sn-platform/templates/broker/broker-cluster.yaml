@@ -185,6 +185,8 @@ spec:
       certSecretName: tls
       enabled: false
     custom:
+      PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
+      PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
 {{ toYaml .Values.broker.configData | indent 6 }}
       {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
