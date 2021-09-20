@@ -68,7 +68,7 @@ affinity:
   anti_affinity: true
 ```
 
-To use the Pulsar Helm chart in a development environment (such as Minikue), you can disable `anti-affinity` by including this option in the  `helm install` command.
+To use the Pulsar Helm chart in a development environment (such as Minikube), you can disable `anti-affinity` by including this option in the  `helm install` command.
 
 ```bash
 --set affinity.anti_affinity=false
