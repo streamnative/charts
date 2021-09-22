@@ -89,6 +89,7 @@ spec:
           {{ end }}
     {{- end }}
     vars:
+    {{- if .Values.auth.authentication.enabled }}
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
       valueFrom:
           secretKeyRef:
@@ -99,6 +100,7 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
+    {{- end }}
     #envFrom:
     #- secretRef:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}
