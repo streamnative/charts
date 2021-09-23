@@ -60,8 +60,8 @@ spec:
           value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_ID }}
         - name: GOOGLE_CLIENT_SECRET
           value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_SECRET }}
-        - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME
-          value: {{ .Values.streamnative_console.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME }}
+        - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
+          value: {{ .Values.streamnative_console.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
         - name: GOOGLE_OAUTH2_ENABLED
           value: "{{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}"
         - name: GOOGLE_REDIRECT_URI

@@ -123,15 +123,15 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -140,28 +140,28 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/sn-platform
-  #   tag: "2.8.0.5"
+  #   tag: "2.8.1.0"
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -869,7 +869,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -1671,7 +1671,7 @@ streamnative_console:
     GOOGLE_OAUTH2_ENABLED: false
     GOOGLE_CLIENT_ID: ""
     GOOGLE_CLIENT_SECRET: ""
-    GOOGLE_RESTRICT_DOMAIN_SUFFIXS_NAME: ""
+    GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
     GOOGLE_REDIRECT_URI: ""
     REDIRECT_SCHEME: ""
     REDIRECT_HOST: ""
