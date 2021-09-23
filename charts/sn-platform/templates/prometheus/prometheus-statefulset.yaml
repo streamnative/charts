@@ -76,7 +76,7 @@ spec:
         imagePullPolicy: "{{ .Values.configmapReload.prometheus.image.pullPolicy }}"
         args:
           - --volume-dir=/etc/config
-          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}{{ template "pulsar.control_center_path.prometheus" . }}/-/reload
+          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}/-/reload
         {{- range $key, $value := .Values.configmapReload.prometheus.extraArgs }}
           - --{{ $key }}={{ $value }}
         {{- end }}
@@ -113,6 +113,7 @@ spec:
           - --web.console.templates=/etc/prometheus/consoles
   {{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.prometheus }}
           - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.prometheus" . }}/
+          - --web.route-prefix=/
   {{- end }}
           - --web.enable-lifecycle
   {{ if .Values.prometheus.maxQuerySamples }}
@@ -124,7 +125,7 @@ spec:
         {{- if .Values.prometheus.probe.readiness.enabled }}
         readinessProbe:
           httpGet:
-            path: {{ template "pulsar.control_center_path.prometheus" . }}/-/ready
+            path: /-/ready
             port: {{ .Values.prometheus.port }}
           initialDelaySeconds: {{ .Values.prometheus.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.prometheus.probe.readiness.periodSeconds }}
@@ -133,7 +134,7 @@ spec:
         {{- if .Values.prometheus.probe.liveness.enabled }}
         livenessProbe:
           httpGet:
-            path: {{ template "pulsar.control_center_path.prometheus" . }}/-/healthy
+            path: /-/healthy
             port: {{ .Values.prometheus.port }}
           initialDelaySeconds: {{ .Values.prometheus.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.prometheus.probe.liveness.periodSeconds }}

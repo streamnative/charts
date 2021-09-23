@@ -49,7 +49,7 @@ data:
         {{- if .Values.components.pulsar_detector }}
         - '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}:{{ .Values.pulsar_detector.port }}'
         {{- end }}
-      metrics_path: {{ template "pulsar.control_center_path.prometheus" . }}/metrics
+      metrics_path: /metrics
     - job_name: 'kubernetes-pods'
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
