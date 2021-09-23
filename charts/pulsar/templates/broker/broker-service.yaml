@@ -54,6 +54,10 @@ spec:
   {{- if .Values.components.mop }}
   - name: mqtt
     port: {{ .Values.mop.ports.plaintext }}
+  {{- if .Values.mop.tls_psk.enabled }}
+  - name: mqtt-tls-psk
+    port: {{ .Values.mop.ports.tls_psk }}
+  {{- end }}
   {{- end }}
   clusterIP: None
   selector:
