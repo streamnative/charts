@@ -23,7 +23,8 @@ if (os.getenv("KOP_SERVICE_URL")):
     instanceData["service"] = json.dumps({"kopServiceUrl": os.getenv("KOP_SERVICE_URL")})
 instancePath = "/cloud-manager/v1/instances"
 instanceResponse = requests.post(url = host + instancePath, data = json.dumps(instanceData), headers=headers)
-if (instanceResponse.ok):
+if (instanceResponse.ok and 'Add environment success' in instanceResponse.text):
     print("Add environment success")
 else:
-    print("Add environment failed" + instanceResponse.text)
+    print("Add environment failed " + instanceResponse.text)
+    exit(-1)

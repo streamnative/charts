@@ -51,12 +51,8 @@ sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/super-service-acc
 
 
 if [ -n "$organization" ] && [ -n "$instance" ];then
-    sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/organization-instance-service-account-template.json > $TMP_DIR/organization-instance-service-account-template.json
-    sed "s#ORGANZATION#$organization#g" $BASEDIR/organization-instance-service-account-template.json > $TMP_DIR/organization-instance-service-account-template.json
-    sed "s#INSTANCE#$instance#g" $BASEDIR/organization-instance-service-account-template.json > $TMP_DIR/organization-instance-service-account-template.json
-    sed "s#ORGANZATION#$organization#g" $BASEDIR/organization-instance-service-account-template.json > $TMP_DIR/organization-instance-service-account-template.json
-    sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/organization-instance-super-service-account-template.json > $TMP_DIR/organization-instance-super-service-account-template.json
-    sed "s#INSTANCE#$instance#g" $BASEDIR/organization-instance-super-service-account-template.json > $TMP_DIR/organization-instance-super-service-account-template.json
+    sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g;s#ORGANIZATION#$organization#g;s#INSTANCE#$instance#g" $BASEDIR/organization-instance-service-account-template.json > $TMP_DIR/organization-instance-service-account-template.json
+    sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g;s#ORGANIZATION#$organization#g;s#INSTANCE#$instance#g" $BASEDIR/organization-instance-super-service-account-template.json > $TMP_DIR/organization-instance-super-service-account-template.json
 fi
 
 superApproleName=$VAULT_APPROLE_SUPER_NAME
