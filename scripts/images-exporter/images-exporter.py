@@ -4,6 +4,8 @@ import docker
 import argparse
 import yaml
 import logging
+import os
+import shutil
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
@@ -20,6 +22,13 @@ class Image(object):
         self.repository = parts[0]
         self.tag = parts[1]
     
+    def get_repo_name(self) -> str:
+        pos = self.repository.rfind('/')
+        if pos < 0:
+            return self.repository
+        else:
+            return self.repository[pos + 1:]
+    
     def __str__(self) -> str:
         return f"{self.repository}:{self.tag}"
 
@@ -31,12 +40,7 @@ class RegistryImageSink(object):
         self.target_registry = target_registry
     
     def to_target_image(self, image):
-        pos = image.repository.rfind('/')
-        if pos < 0:
-            repo_name = image.repository
-        else:
-            repo_name = image.repository[pos + 1:]
-        return Image(repository=f"{self.target_registry}/{repo_name}", tag=image.tag)
+        return Image(repository=f"{self.target_registry}/{image.get_repo_name()}", tag=image.tag)
 
     def export_image(self, image, docker_img):
         target_image = self.to_target_image(image)
@@ -46,17 +50,35 @@ class RegistryImageSink(object):
         logging.info(f"Pushed image {target_image}")
 
 
+class FileImageSink(object):
+    def __init__(self, images_path: str) -> None:
+        super().__init__()
+        self.images_path = images_path
+        os.makedirs(self.images_path)
+        shutil.copy("load-images.sh", os.path.join(self.images_path, "load-images.sh"))
+    
+    def export_image(self, image: Image, docker_img):
+        target_path = os.path.join(self.images_path, f"{image.get_repo_name()}.tar")
+        with open(target_path, 'wb') as f:
+            for chunk in docker_img.save(named=image.__str__()):
+                f.write(chunk)
+        logging.info(f"Written image {image} to {target_path}")
+
+
 class ImagesExporter(object):
     def __init__(self, config_path) -> None:
         super().__init__()
         with open(config_path, 'r') as f:
             self.config = yaml.load(f, yaml.Loader)
             logging.info(f"Loaded config {self.config}")
-        self.docker_client = docker.from_env()
+        # the timeout has to be large enough otherwise docker save may fail
+        self.docker_client = docker.from_env(timeout=1800)
         self.sinks = []
         for sink_cfg in self.config["targets"]:
             if 'registry' in sink_cfg:
                 self.sinks.append(RegistryImageSink(self.docker_client, sink_cfg['registry']))
+            elif 'local_path' in sink_cfg:
+                self.sinks.append(FileImageSink(sink_cfg['local_path']))
             else:
                 raise ValueError(f"invalid sink config {sink_cfg}")
         
