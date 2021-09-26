@@ -36,34 +36,32 @@ spec:
         image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"
         imagePullPolicy: {{ .Values.images.vault.pullPolicy }}
         command: ["sh", "-c"]
-        {{- if .Values.add_instance }} 
         args:
           - >
-           tokenLen=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-unseal-keys -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.vault-root}'|wc -m);
-           until [ ${tokenLen} -gt 1 ]; do
-             echo "current token is empty ! wait another 10s~"
-             sleep 10;
-             tokenLen=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-unseal-keys -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.vault-root}'|wc -m);
-           done;
-           echo "vault root token is ready";
-           rootToken=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-unseal-keys -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.vault-root}'|base64 -d);
-           superPassword=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-console-admin-passwd -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.password}'|base64 -d);
-           echo $rootToken;
-           echo $rootToken > /root/rootToken;
-           export ROOT_TOKEN=$rootToken;
-           export VAULT_SUPER_USER_PASSWORD=$superPassword;
-           vault login $ROOT_TOKEN;
-           until [ $? -eq 0 ]; do
-              echo "vault is not ready now, wait another 5s~";
-              sleep 5;
-              vault login $ROOT_TOKEN;
-           done;
-           echo "vault is ready~";
 
-           cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh {{ .Values.add_instance }} {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }} {{ .Values.streamnative_console.configData.INSTANCE_NAME }} {{ .Values.vault.vaultAddr }}
-        {{- else }}
-          args:
-            - >
+            {{- if .Values.add_instance }}
+            tokenLen=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-unseal-keys -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.vault-root}'|wc -m);
+            until [ ${tokenLen} -gt 1 ]; do
+              echo "current token is empty ! wait another 10s~"
+              sleep 10;
+              tokenLen=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-unseal-keys -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.vault-root}'|wc -m);
+            done;
+            echo "vault root token is ready";
+            rootToken=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-unseal-keys -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.vault-root}'|base64 -d);
+            superPassword=$(kubectl get secret {{ .Values.vault.sharedVaultCluster }}-sn-platform-vault-console-admin-passwd -n {{ .Values.vault.sharedNamespace }} -o jsonpath='{.data.password}'|base64 -d);
+            echo $rootToken;
+            echo $rootToken > /root/rootToken;
+            export ROOT_TOKEN=$rootToken;
+            export VAULT_SUPER_USER_PASSWORD=$superPassword;
+            vault login $ROOT_TOKEN;
+            until [ $? -eq 0 ]; do
+                echo "vault is not ready now, wait another 5s~";
+                sleep 5;
+                vault login $ROOT_TOKEN;
+            done;
+            echo "vault is ready~";
+            cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh {{ .Values.add_instance }} {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }} {{ .Values.streamnative_console.configData.INSTANCE_NAME }} {{ .Values.vault.vaultAddr }}
+            {{- else }}
             tokenLen=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|wc -m);
             until [ ${tokenLen} -gt 1 ]; do
               echo "current token is empty ! wait another 10s~"
@@ -82,9 +80,8 @@ spec:
                 vault login $ROOT_TOKEN;
             done;
             echo "vault is ready~";
-
             cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh {{ .Values.add_instance }} {{ .Values.streamnative_console.configData.DEFAULT_ORGANIZATION }} {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
-        {{- end}}
+            {{- end }}
         env:
         - name: NAMESPACE
           value: {{ template "pulsar.namespace" . }}
