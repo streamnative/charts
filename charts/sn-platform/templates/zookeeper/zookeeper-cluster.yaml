@@ -247,7 +247,7 @@ spec:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   advancedOptions:
-    {{- if .Values.zookeeper.advanced.staticServerList }}
+    {{- if and .Values.zookeeper.advanced .Values.zookeeper.advanced.staticServerList }}
     staticServerList:
       servers:
 {{ toYaml .Values.zookeeper.advanced.staticServerList | indent 8 }}
