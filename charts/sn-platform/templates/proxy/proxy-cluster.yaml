@@ -88,8 +88,8 @@ spec:
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
     {{- end }}
-    vars:
     {{- if .Values.auth.authentication.enabled }}
+    vars:
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
       valueFrom:
           secretKeyRef:
