@@ -157,10 +157,10 @@ spec:
         builtinConnectorsRef:
           name: builtin-connectors
       type: FunctionMesh
-      {{- end }}
+    {{- end }}
     advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
-    {{- if .Values.broker.kop.enabled }}
     protocolHandlers:
+    {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
         enabled: true
         tls:
@@ -182,6 +182,16 @@ spec:
             name: cert-jks-passwd
             key: password
     {{- end }}
+    {{- end }}
+    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+      aop:
+        enabled: true
+        {{- if or .Values.broker.aop.serviceDomain }}
+        serviceDomain: {{ .Values.broker.aop.serviceDomain }}
+        {{- end }}
+        {{- if or .Values.broker.aop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
+        {{- end }}
     {{- end }}
     tls:
       certSecretName: tls

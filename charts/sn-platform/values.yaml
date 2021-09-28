@@ -94,6 +94,8 @@ components:
   sql_worker: false
   # kop
   kop: false
+  # aop
+  aop: false
   # pulsar detector
   pulsar_detector: true
   # superset
@@ -945,6 +947,10 @@ broker:
       #  key: password
       #  name: kop-keystore-password
   # choose istio selector
+  aop:
+    enabled: false
+    proxyEnabled: false
+    serviceDomain: my-pulsar-service-aop.example.com
   istio:
     gateway:
       selector:
