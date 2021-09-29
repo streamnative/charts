@@ -166,6 +166,7 @@ spec:
     PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
     {{- end}}
     BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
+{{ toYaml .Values.bookkeeper.configData | indent 4 }}
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
 {{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 4 }}
   autoRecovery:
