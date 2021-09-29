@@ -97,7 +97,7 @@ spec:
         - name: GRAFANA_DOMAIN
           value: {{ template "pulsar.control_center_domain" . }}
         - name: GRAFANA_ROOT_URL
-          value: https://{{ template "pulsar.control_center_domain" . }}:3000{{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.grafana" . }}/
+          value: https://{{ template "pulsar.control_center_domain" . }}{{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.grafana" . }}/
         - name: GRAFANA_SERVE_FROM_SUB_PATH
           value: "true"
 {{- else }}
