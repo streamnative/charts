@@ -149,6 +149,10 @@ spec:
       selector:
         istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
   {{- end }}
+  {{- if .Values.broker.dnsNames }}
+  dnsNames:
+    {{ .Values.broker.dnsNames }}
+  {{- end }}
   config:
     {{- if .Values.broker.functionmesh.enabled }}
     function:
@@ -186,9 +190,6 @@ spec:
     {{- if or .Values.broker.aop.enabled .Values.components.aop }}
       aop:
         enabled: true
-        {{- if or .Values.broker.aop.serviceDomain }}
-        serviceDomain: {{ .Values.broker.aop.serviceDomain }}
-        {{- end }}
         {{- if or .Values.broker.aop.proxyEnabled }}
         proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
         {{- end }}
