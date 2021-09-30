@@ -151,7 +151,7 @@ spec:
   {{- end }}
   {{- if .Values.broker.dnsNames }}
   dnsNames:
-    {{ .Values.broker.dnsNames }}
+{{ toYaml .Values.broker.dnsNames | indent 2}}
   {{- end }}
   config:
     {{- if .Values.broker.functionmesh.enabled }}
