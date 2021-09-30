@@ -149,6 +149,10 @@ spec:
       selector:
         istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
   {{- end }}
+  {{- if .Values.broker.dnsNames }}
+  dnsNames:
+{{ toYaml .Values.broker.dnsNames | indent 2}}
+  {{- end }}
   config:
     {{- if .Values.broker.functionmesh.enabled }}
     function:
@@ -157,10 +161,10 @@ spec:
         builtinConnectorsRef:
           name: builtin-connectors
       type: FunctionMesh
-      {{- end }}
+    {{- end }}
     advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
-    {{- if .Values.broker.kop.enabled }}
     protocolHandlers:
+    {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
         enabled: true
         tls:
@@ -182,6 +186,13 @@ spec:
             name: cert-jks-passwd
             key: password
     {{- end }}
+    {{- end }}
+    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+      aop:
+        enabled: true
+        {{- if .Values.broker.aop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
+        {{- end }}
     {{- end }}
     tls:
       certSecretName: tls

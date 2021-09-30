@@ -94,6 +94,8 @@ components:
   sql_worker: false
   # kop
   kop: false
+  # aop
+  aop: false
   # pulsar detector
   pulsar_detector: true
   # superset
@@ -934,6 +936,9 @@ broker:
   advertisedPodIP: false
   # For exposing kop service for external access
   advertisedDomain: ""
+  dnsNames:
+#    - my-pulsar-service-aop.example.com
+#    - my-pulsar-service-mop.example.com
   kop:
     enabled: true
     tls:
@@ -945,6 +950,9 @@ broker:
       #  key: password
       #  name: kop-keystore-password
   # choose istio selector
+  aop:
+    enabled: false
+    proxyEnabled: false
   istio:
     gateway:
       selector:
