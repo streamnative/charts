@@ -190,7 +190,7 @@ spec:
     {{- if or .Values.broker.aop.enabled .Values.components.aop }}
       aop:
         enabled: true
-        {{- if or .Values.broker.aop.proxyEnabled }}
+        {{- if .Values.broker.aop.proxyEnabled }}
         proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
         {{- end }}
     {{- end }}
