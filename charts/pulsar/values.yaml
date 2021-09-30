@@ -876,6 +876,14 @@ kop:
 mop:
   ports:
     plaintext: 1883
+    tls_psk: 5684
+  # TLS PSK is introduced since sn-pulsar:2.8.1.1
+  tls_psk:
+    enabled: false
+    identity: "[ADD IDENTITY]"
+    identityHint: "[ADD HINT]"
+    secret: "[ADD SECRET]"
+
 
 # Istio is required for exposing Kafka service
 istio:
