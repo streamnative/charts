@@ -124,15 +124,15 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -141,28 +141,28 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/sn-platform
-  #   tag: "2.8.1.0"
+  #   tag: "2.8.1.4"
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
