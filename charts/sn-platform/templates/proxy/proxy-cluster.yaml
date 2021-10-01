@@ -88,6 +88,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
     {{- end }}
+    {{- if .Values.auth.authentication.enabled }}
     vars:
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
       valueFrom:
@@ -99,6 +100,7 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
+    {{- end }}
     #envFrom:
     #- secretRef:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}

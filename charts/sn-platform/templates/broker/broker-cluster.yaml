@@ -92,6 +92,7 @@ spec:
           {{ end }}
     {{- end }}
     vars:
+    {{- if .Values.auth.authentication.enabled }}
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
       valueFrom:
           secretKeyRef:
@@ -102,6 +103,7 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
+    {{- end }}
     {{- if not ( and .Values.broker.kop.enabled .Values.broker.advertisedDomain ) }}
     - name: POD_NAME
       valueFrom:
@@ -147,6 +149,10 @@ spec:
       selector:
         istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
   {{- end }}
+  {{- if .Values.broker.dnsNames }}
+  dnsNames:
+{{ toYaml .Values.broker.dnsNames | indent 2}}
+  {{- end }}
   config:
     {{- if .Values.broker.functionmesh.enabled }}
     function:
@@ -155,10 +161,10 @@ spec:
         builtinConnectorsRef:
           name: builtin-connectors
       type: FunctionMesh
-      {{- end }}
+    {{- end }}
     advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
-    {{- if .Values.broker.kop.enabled }}
     protocolHandlers:
+    {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
         enabled: true
         tls:
@@ -181,10 +187,19 @@ spec:
             key: password
     {{- end }}
     {{- end }}
+    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+      aop:
+        enabled: true
+        {{- if .Values.broker.aop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
+        {{- end }}
+    {{- end }}
     tls:
       certSecretName: tls
       enabled: false
     custom:
+      PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
+      PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
 {{ toYaml .Values.broker.configData | indent 6 }}
       {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"

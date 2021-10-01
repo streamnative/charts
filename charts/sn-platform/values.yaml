@@ -94,6 +94,8 @@ components:
   sql_worker: false
   # kop
   kop: false
+  # aop
+  aop: false
   # pulsar detector
   pulsar_detector: true
   # superset
@@ -122,15 +124,15 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -139,28 +141,28 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/sn-platform
-  #   tag: "2.8.0.5"
+  #   tag: "2.8.1.4"
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -868,7 +870,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/sn-platform
-    tag: "2.8.0.5"
+    tag: "2.8.1.0"
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -934,6 +936,9 @@ broker:
   advertisedPodIP: false
   # For exposing kop service for external access
   advertisedDomain: ""
+  dnsNames:
+#    - my-pulsar-service-aop.example.com
+#    - my-pulsar-service-mop.example.com
   kop:
     enabled: true
     tls:
@@ -945,6 +950,9 @@ broker:
       #  key: password
       #  name: kop-keystore-password
   # choose istio selector
+  aop:
+    enabled: false
+    proxyEnabled: false
   istio:
     gateway:
       selector:

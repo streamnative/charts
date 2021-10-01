@@ -262,6 +262,10 @@ spec:
         {{- if .Values.components.mop }}
         - name: mqtt
           containerPort: {{ .Values.mop.ports.plaintext }}
+        {{- if .Values.mop.tls_psk.enabled }}
+        - name: mqtt-tls-psk
+          containerPort: {{ .Values.mop.ports.tls_psk }}
+        {{- end }}
         {{- end }}
         env:
         {{- if .Values.broker.advertisedPodIP }}
