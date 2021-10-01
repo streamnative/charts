@@ -27,7 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.presto.coordinator.component }}
 spec:
-  serviceName: {{ template "presto.coordinator" . }}
+  serviceName: {{ template "presto.service" . }}
   replicas: {{ .Values.presto.coordinator.replicaCount }}
   selector:
     matchLabels:
@@ -89,7 +89,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.presto.coordinator.component }}
