@@ -201,7 +201,19 @@ spec:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
 {{ toYaml .Values.broker.configData | indent 6 }}
-      {{- if .Values.auth.authentication.enabled }}
+      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+      authenticationEnabled: "true"
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
+      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      PULSAR_PREFIX_oauthIssuerUrl: ".Values.auth.oauth.oauthIssuerUrl"
+      PULSAR_PREFIX_oauthAudience: ".Values.auth.oauth.oauthAudience"
+      PULSAR_PREFIX_oauthSubjectClaim: ".Values.auth.oauth.oauthSubjectClaim"
+      PULSAR_PREFIX_oauthAdminScope: ".Values.auth.oauth.oauthAdminScope"
+      PULSAR_PREFIX_oauthScopeClaim: ".Values.auth.oauth.oauthScopeClaim"
+      superUserRoles: "admin"
+      {{- else if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"

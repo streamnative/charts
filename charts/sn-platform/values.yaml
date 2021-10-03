@@ -275,6 +275,13 @@ auth:
   # Enable vault based authentication
   vault:
     enabled: true
+  oauth:
+    enabled: true
+    oauthIssuerUrl: ""
+    oauthAudience: ""
+    oauthSubjectClaim: ""
+    oauthAdminScope: ""
+    oauthScopeClaim: ""
 ######################################################################
 # External dependencies
 ######################################################################
