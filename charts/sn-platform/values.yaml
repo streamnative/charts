@@ -276,12 +276,15 @@ auth:
   vault:
     enabled: true
   oauth:
-    enabled: true
+    enabled: false
     oauthIssuerUrl: ""
     oauthAudience: ""
     oauthSubjectClaim: ""
     oauthAdminScope: ""
     oauthScopeClaim: ""
+    oauthAuthzRoleClaim: ""
+    oauthAuthzAdminRole: ""
+    authorizationProvider: ""
 ######################################################################
 # External dependencies
 ######################################################################
