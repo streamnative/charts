@@ -19,12 +19,9 @@
 
 name: Post commit - Publish Pulsar Helm Chart
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
-      - fixed/support-oauth-for-snp 
+      - master 
 jobs:
   lint-test:
     runs-on: ubuntu-latest
