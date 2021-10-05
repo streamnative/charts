@@ -277,18 +277,16 @@ auth:
     enabled: true
   oauth:
     enabled: false
-    oauthIssuerUrl: ""
-    oauthAudience: ""
-    oauthSubjectClaim: ""
-    oauthAdminScope: ""
-    oauthScopeClaim: ""
-    oauthAuthzRoleClaim: ""
+    oauthIssuerUrl: "https://login.microsoftonline.com/your-tenant-id/v2.0"
+    oauthAudience: "your-application-id"
+    oauthSubjectClaim: "oid"
+    oauthScopeClaim: "scp"
+    oauthAuthzRoleClaim: "roles"
+    # The name of the role when creating the application
     oauthAuthzAdminRole: ""
-    authenticationProvider: ""
-    authorizationProvider: ""
-    brokerClientCredential: ""
-    brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
-    brokerClientAuthenticationParameters: ""
+    # brokerClientCredential: ""
+    # brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
+    # brokerClientAuthenticationParameters: ""
     authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
     authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
 ######################################################################
