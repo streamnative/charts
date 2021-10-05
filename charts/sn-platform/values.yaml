@@ -276,7 +276,6 @@ auth:
   vault:
     enabled: true
   oauth:
-  oauth:
     enabled: false
     oauthIssuerUrl: ""
     oauthAudience: ""
