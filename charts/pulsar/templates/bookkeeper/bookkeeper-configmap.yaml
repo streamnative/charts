@@ -33,6 +33,9 @@ data:
   # disable auto recovery on bookies since we will start AutoRecovery in separated pods
   autoRecoveryDaemonEnabled: "false"
   {{- end }}
+  {{- if and .Values.components.functions  .Values.functions.functionState }}
+  extraServerComponents: org.apache.bookkeeper.stream.server.StreamStorageLifecycleComponent
+  {{- end }}
   # Do not retain journal files as it increase the disk utilization
   journalMaxBackups: "0"
   journalDirectories: "/pulsar/data/bookkeeper/journal"

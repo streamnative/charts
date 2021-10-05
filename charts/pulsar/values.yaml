@@ -667,6 +667,7 @@ bookkeeper:
   ports:
     http: 8000
     bookie: 3181
+    streamStorage: 4181
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
@@ -1037,6 +1038,7 @@ broker:
 ##
 functions:
   component: functions-worker
+  functionState: false
   enableCustomizerRuntime: false
   runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
   pulsarExtraClasspath: "extraLibs"

@@ -34,6 +34,10 @@ data:
     workerPortTls: {{ .Values.broker.ports.https }}
     tlsEnabled: true
     {{- end }}
+    {{- if and .Values.components.functions .Values.functions.functionState }}
+    # enable function state
+    stateStorageServiceUrl: bk://{{ template "pulsar.bookkeeper.service" . }}:{{ .Values.bookkeeper.ports.streamStorage }}
+    {{- end }}
     # Function package management
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
     pulsarServiceUrl: pulsar://localhost:6650
@@ -51,7 +55,7 @@ data:
       {{- if .Values.functions.pulsarServiceUrlOverride }}
       pulsarServiceUrl: {{ .Values.functions.pulsarServiceUrlOverride }}
       {{- else }}
-      pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }} 
+      pulsarServiceUrl: {{ template "pulsar.broker.service.url" . }}
       {{- end }}
       changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
       changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
