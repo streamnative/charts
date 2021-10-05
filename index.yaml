@@ -861,6 +861,27 @@ entries:
     version: 0.7.0
   sn-platform:
   - apiVersion: v1
+    appVersion: 1.2.2
+    created: "2021-10-05T14:10:49.454747959Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/loki/charts
+      version: 0.36.1
+    description: StreamNative Platform Chart
+    digest: 6a5cf336bd64dcd099813e37df1689091e209cac3b9fda1424ea791a1f1a8dc2
+    home: https://streamnative.io
+    icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-platform
+    sources:
+    - https://github.com/streamnative/charts/tree/master/charts/sn-platform
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-platform-1.2.2/sn-platform-1.2.2.tgz
+    version: 1.2.2
+  - apiVersion: v1
     appVersion: 1.2.1
     created: "2021-10-03T01:46:26.147061541Z"
     dependencies:
@@ -1070,4 +1091,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/sn-platform-1.1.0/sn-platform-1.1.0.tgz
     version: 1.1.0
-generated: "2021-10-03T01:46:26.147886037Z"
+generated: "2021-10-05T14:10:49.456722174Z"
