@@ -28,7 +28,9 @@ metadata:
     component: {{ .Values.pulsar_manager.component }}
 data:
   entrypoint.sh: |
+    {{- if and .Values.tls.enabled .Values.tls.pulsar_manager.enabled }}
     apk add --update openssl && rm -rf /var/cache/apk/*;
+    {{- end }}
     mkdir conf;
   {{- include "pulsar.pulsar_manager.tls.settings" . | nindent 14 }}
     echo 'Starting PostGreSQL Server';
