@@ -145,11 +145,11 @@ images:
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.1.4"
+    tag: "2.8.1.3-oauth2"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.1.4"
+    tag: "2.8.1.3-oauth2"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
@@ -275,6 +275,20 @@ auth:
   # Enable vault based authentication
   vault:
     enabled: true
+  oauth:
+    enabled: false
+    oauthIssuerUrl: "https://login.microsoftonline.com/your-tenant-id/v2.0"
+    oauthAudience: "your-application-id"
+    oauthSubjectClaim: "oid"
+    oauthScopeClaim: "scp"
+    oauthAuthzRoleClaim: "roles"
+    # The name of the role when creating the application
+    oauthAuthzAdminRole: ""
+    # brokerClientCredential: ""
+    # brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
+    # brokerClientAuthenticationParameters: ""
+    authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
+    authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
 ######################################################################
 # External dependencies
 ######################################################################
