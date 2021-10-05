@@ -19,6 +19,9 @@
 
 name: Post commit - Publish Pulsar Helm Chart
 on:
+  pull_request:
+    branches:
+      - master
   push:
     branches:
       - master 
