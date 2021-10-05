@@ -24,7 +24,7 @@ on:
       - master
   push:
     branches:
-      - master 
+      - fixed/support-oauth-for-snp 
 jobs:
   lint-test:
     runs-on: ubuntu-latest
