@@ -145,11 +145,11 @@ images:
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.1.4"
+    tag: "2.8.1.3-oauth2"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.1.4"
+    tag: "2.8.1.3-oauth2"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
@@ -276,6 +276,7 @@ auth:
   vault:
     enabled: true
   oauth:
+  oauth:
     enabled: false
     oauthIssuerUrl: ""
     oauthAudience: ""
@@ -286,6 +287,11 @@ auth:
     oauthAuthzAdminRole: ""
     authenticationProvider: ""
     authorizationProvider: ""
+    brokerClientCredential: ""
+    brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
+    brokerClientAuthenticationParameters: ""
+    authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
+    authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
 ######################################################################
 # External dependencies
 ######################################################################
