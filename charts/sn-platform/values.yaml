@@ -145,11 +145,11 @@ images:
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.1.3-oauth2"
+    tag: "2.8.1.4-oauth2"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.1.3-oauth2"
+    tag: "2.8.1.4-oauth2"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
