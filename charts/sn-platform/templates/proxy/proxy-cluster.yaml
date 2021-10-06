@@ -165,10 +165,12 @@ spec:
       superUserRoles: "admin"
       {{- end }}
       {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
-      authorizationEnabled: "true"
+      authorizationEnabled: "false"
+      forwardAuthorizationCredentials: "true"
       authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
       {{- else if .Values.auth.authorization.enabled }}
-      authorizationEnabled: "true"
+      authorizationEnabled: "false"
+      forwardAuthorizationCredentials: "true"
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
