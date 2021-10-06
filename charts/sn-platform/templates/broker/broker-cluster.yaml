@@ -203,6 +203,7 @@ spec:
 {{ toYaml .Values.broker.configData | indent 6 }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_chainAuthenticationEnabled: "true"
@@ -218,6 +219,7 @@ spec:
       superUserRoles: "admin"
       {{- else if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
