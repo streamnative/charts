@@ -133,13 +133,6 @@ spec:
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
-      zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
-      {{- if .Values.pulsar_metadata.configurationStore }}
-      configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
-      {{- end }}
-      {{- if not .Values.pulsar_metadata.configurationStore }}
-      configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
-      {{- end }}
 {{ toYaml .Values.proxy.configData | indent 6 }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
