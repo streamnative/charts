@@ -32,7 +32,7 @@ spec:
     spec:
       initContainers:
         # This init container will wait for broker to be ready before
-        # deploying the pulsar manager
+        # deploying the pulsar manager init job
         - name: wait-broker-ready
           image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
           imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
