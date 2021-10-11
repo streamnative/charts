@@ -30,6 +30,17 @@ metadata:
 spec:
   template:
     spec:
+      initContainers:
+        # This init container will wait for broker to be ready before
+        # deploying the pulsar manager
+        - name: wait-broker-ready
+          image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+          imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          command: ["sh", "-c"]
+          args:
+            - >
+              set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
+              echo "broker cluster is ready";
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
         image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
