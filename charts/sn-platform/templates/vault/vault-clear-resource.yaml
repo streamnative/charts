@@ -53,12 +53,6 @@ spec:
         env:
         - name: NAMESPACE
           value: {{ template "pulsar.namespace" . }}
-        - name: VAULT_SECRET_KEY_NAME
-          value: {{ template "pulsar.vault-secret-key-name" . }}
-        - name: CONSOLE_SECRET_KEY_NAME
-          value: {{ template "pulsar.console-secret-key-name" . }}
-        - name: TOOLSET_TOKEN_SECRET_NAME
-          value: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
       restartPolicy: Never
 {{- end }}
 {{- end }}
