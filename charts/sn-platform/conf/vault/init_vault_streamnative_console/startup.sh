@@ -131,13 +131,13 @@ echo "brokerClientAuthenticationParameters=$VAULT_PULSAR_TOKEN" >> /tmp/pm_env
 echo "create secret for above secrets!"
 cat /tmp/pm_env
 
-kubectl delete secret $VAULT_SECRET_KEY_NAME -n $NAMESPACE
+kubectl delete secret $VAULT_SECRET_KEY_NAME -n $NAMESPACE --ignore-not-found=true
 kubectl create secret generic $VAULT_SECRET_KEY_NAME --from-env-file=/tmp/pm_env -n $NAMESPACE
 
 echo "create secret for console password! -> $CONSOLE_SECRET_KEY_NAME"
-kubectl delete secret $CONSOLE_SECRET_KEY_NAME -n $NAMESPACE
+kubectl delete secret $CONSOLE_SECRET_KEY_NAME -n $NAMESPACE --ignore-not-found=true
 kubectl create secret generic $CONSOLE_SECRET_KEY_NAME -n $NAMESPACE --from-literal=password=$VAULT_SUPER_USER_PASSWORD
 
 echo "create secret for toolset token -> $TOOLSET_TOKEN_SECRET_NAME"
-kubectl delete secret $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE
+kubectl delete secret $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --ignore-not-found=true
 kubectl create secret generic $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --from-literal=TOKEN=$VAULT_PULSAR_TOKEN
