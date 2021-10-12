@@ -43,7 +43,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-           kubectl delete secret {{ template "pulsar.vault-secret-key-name" . }} -n {{ template "pulsar.namespace" . }} && kubectl delete secret {{ template "pulsar.console-secret-key-name" . }} -n {{ template "pulsar.namespace" . }};
+           kubectl delete secret {{ template "pulsar.vault-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }} && kubectl delete secret {{ template "pulsar.console-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }} && kubectl delete secret {{ template "pulsar.vault-unseal-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }};
            until [ $? -eq 0 ]; do
               echo "Clear vault resource not ready now, wait another 5s~";
               sleep 5;
