@@ -194,9 +194,6 @@ spec:
         proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
         {{- end }}
     {{- end }}
-    tls:
-      certSecretName: tls
-      enabled: false
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
@@ -257,5 +254,4 @@ spec:
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
   {{- end }}
-{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 2 }}
 {{- end }}

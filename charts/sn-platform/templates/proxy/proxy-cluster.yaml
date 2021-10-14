@@ -30,7 +30,6 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
 spec:
-  zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   brokerAddress: {{ template "pulsar.proxy.broker.service.address" . }}
   replicas: {{ .Values.proxy.replicaCount }}
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
@@ -172,7 +171,6 @@ spec:
       tlsTrustCertsFilePath: "/etc/tls/pulsar-proxy-tls/ca.crt"
       {{- end }}
       {{- end }}
-{{ (.Files.Glob "conf/proxy/log4j2.yaml").AsConfig | indent 4 }}
   dnsNames: []
   issuerRef:
     name: ""
