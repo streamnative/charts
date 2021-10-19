@@ -149,6 +149,10 @@ spec:
       selector:
         istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
   {{- end }}
+  {{- if .Values.broker.dnsNames }}
+  dnsNames:
+{{ toYaml .Values.broker.dnsNames | indent 2}}
+  {{- end }}
   config:
     {{- if .Values.broker.functionmesh.enabled }}
     function:
@@ -157,10 +161,10 @@ spec:
         builtinConnectorsRef:
           name: builtin-connectors
       type: FunctionMesh
-      {{- end }}
+    {{- end }}
     advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
-    {{- if .Values.broker.kop.enabled }}
     protocolHandlers:
+    {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
         enabled: true
         tls:
@@ -183,22 +187,46 @@ spec:
             key: password
     {{- end }}
     {{- end }}
-    tls:
-      certSecretName: tls
-      enabled: false
+    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+      aop:
+        enabled: true
+        {{- if .Values.broker.aop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
+        {{- end }}
+    {{- end }}
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
 {{ toYaml .Values.broker.configData | indent 6 }}
-      {{- if .Values.auth.authentication.enabled }}
+      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
+      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+      PULSAR_PREFIX_chainAuthenticationEnabled: "true"
+      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
+      PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
+      PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
+      PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
+      PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
+      PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
+      PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
+      superUserRoles: "admin"
+      {{- else if .Values.auth.authentication.enabled }}
+      authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
       PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
       superUserRoles: "admin"
       {{- end }}
-      {{- if .Values.auth.authorization.enabled }}
+      {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
+      authorizationEnabled: "true"
+      authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
+      {{- else if .Values.auth.authorization.enabled }}
       authorizationEnabled: "true"
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
@@ -226,5 +254,4 @@ spec:
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
   {{- end }}
-{{ (.Files.Glob "conf/broker/log4j2.yaml").AsConfig | indent 2 }}
 {{- end }}

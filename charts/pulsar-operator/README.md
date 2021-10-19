@@ -27,7 +27,7 @@ To use the `pulsar-operator` chart to deploy BookKeeper Controller, ZooKeeper Co
 3. Install the `pulsar-operator` chart.
 
     ```
-    helm install pulsar-operators --namespace <k8s-namespace>  streamnative/pulsar-operators
+    helm install pulsar-operators --namespace <k8s-namespace>  streamnative/pulsar-operator
     ```
 
 4. Verify that the `pulsar-operator` chart is installed successfully.

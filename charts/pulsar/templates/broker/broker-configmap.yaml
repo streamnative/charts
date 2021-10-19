@@ -139,6 +139,13 @@ data:
   {{- else }}
   {{- if .Values.components.mop }}
   PULSAR_PREFIX_messagingProtocols: "mqtt"
+  {{- if .Values.mop.tls_psk.enabled }}
+  PULSAR_PREFIX_mqttProxyEnable: "true"
+  PULSAR_PREFIX_mqttProxyTlsPskEnabled: "true"
+  PULSAR_PREFIX_mqttProxyTlsPskPort: "{{ .Values.mop.ports.tls_psk }}"
+  PULSAR_PREFIX_tlsPskIdentityHint: "{{ .Values.mop.tls_psk.identityHint }}"
+  PULSAR_PREFIX_tlsPskIdentity: "{{ .Values.mop.tls_psk.identity }}:{{ .Values.mop.tls_psk.secret }}"
+  {{- end }}
   {{- end }}
   {{- if .Values.components.kop }}
   PULSAR_PREFIX_messagingProtocols: "kafka"

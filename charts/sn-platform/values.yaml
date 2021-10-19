@@ -94,6 +94,8 @@ components:
   sql_worker: false
   # kop
   kop: false
+  # aop
+  aop: false
   # pulsar detector
   pulsar_detector: true
   # superset
@@ -122,15 +124,15 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -139,28 +141,28 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.5-oauth2"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.5-oauth2"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/sn-platform
-  #   tag: "2.8.1.0"
+  #   tag: "2.8.1.4"
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -273,6 +275,20 @@ auth:
   # Enable vault based authentication
   vault:
     enabled: true
+  oauth:
+    enabled: false
+    oauthIssuerUrl: "https://login.microsoftonline.com/your-tenant-id/v2.0"
+    oauthAudience: "your-application-id"
+    oauthSubjectClaim: "oid"
+    oauthScopeClaim: "scp"
+    oauthAuthzRoleClaim: "roles"
+    # The name of the role when creating the application
+    oauthAuthzAdminRole: ""
+    # brokerClientCredential: ""
+    # brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
+    # brokerClientAuthenticationParameters: ""
+    authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
+    authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
 ######################################################################
 # External dependencies
 ######################################################################
@@ -934,6 +950,9 @@ broker:
   advertisedPodIP: false
   # For exposing kop service for external access
   advertisedDomain: ""
+  dnsNames:
+#    - my-pulsar-service-aop.example.com
+#    - my-pulsar-service-mop.example.com
   kop:
     enabled: true
     tls:
@@ -945,6 +964,9 @@ broker:
       #  key: password
       #  name: kop-keystore-password
   # choose istio selector
+  aop:
+    enabled: false
+    proxyEnabled: false
   istio:
     gateway:
       selector:
@@ -1479,6 +1501,38 @@ datadog:
 ##
 grafana:
   component: grafana
+  grafana.ini:
+    paths:
+      data: /var/lib/grafana/pulsar/data
+      plugins: /var/lib/grafana/pulsar/plugins
+      provisioning: /var/lib/grafana/pulsar_provisioning
+    server:
+      domain: "{{ GRAFANA_DOMAIN }}"
+      serve_from_sub_path: "{{ GRAFANA_SERVE_FROM_SUB_PATH }}"
+      root_url: "{{ GRAFANA_ROOT_URL }}"
+    analytics:
+      check_for_updates: true
+    security:
+      admin_user: "{{ GRAFANA_ADMIN_USER }}"
+      admin_password: "{{ GRAFANA_ADMIN_PASSWORD }}"
+    auth.azuread:
+      name: Azure AD
+      enabled: false
+      allow_sign_up: true
+      client_id: ""
+      client_secret: ""
+      scopes: openid email profile
+      auth_url: ""
+      token_url: ""
+      allowed_domains: ""
+      allowed_groups: ""
+    log:
+      mode: console
+    log.file:
+      level: info
+      format: text
+    grafana_com:
+      url: https://grafana.com
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool

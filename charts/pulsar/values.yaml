@@ -668,6 +668,7 @@ bookkeeper:
   ports:
     http: 8000
     bookie: 3181
+    streamStorage: 4181
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
@@ -877,6 +878,14 @@ kop:
 mop:
   ports:
     plaintext: 1883
+    tls_psk: 5684
+  # TLS PSK is introduced since sn-pulsar:2.8.1.1
+  tls_psk:
+    enabled: false
+    identity: "[ADD IDENTITY]"
+    identityHint: "[ADD HINT]"
+    secret: "[ADD SECRET]"
+
 
 # Istio is required for exposing Kafka service
 istio:
@@ -1030,6 +1039,7 @@ broker:
 ##
 functions:
   component: functions-worker
+  functionState: false
   enableCustomizerRuntime: false
   runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
   pulsarExtraClasspath: "extraLibs"
