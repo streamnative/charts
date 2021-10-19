@@ -1507,6 +1507,10 @@ grafana:
   admin:
     user: pulsar
     password: pulsar
+  auth:
+    azuread:
+      client_id: "theSSOClientID"
+      client_secret: "xxx"
 
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
