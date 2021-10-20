@@ -89,6 +89,20 @@ spec:
           value: http://{{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}.{{ .Release.Namespace }}.svc.cluster.local:3100/
         - name: GF_LOKI_DATASOURCE_NAME
           value: {{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}
+        {{- if .Values.grafana.azureAuthEnabled }}
+        - name: GF_AUTH_AZUREAD_ENABLED
+          value: "true"
+        {{- end }}
+        - name: GF_AUTH_AZUREAD_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-azuread-secret"
+              key: GF_AUTH_AZUREAD_CLIENT_ID
+        - name: GF_AUTH_AZUREAD_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-azuread-secret"
+              key: GF_AUTH_AZUREAD_CLIENT_SECRET
         - name: GRAFANA_ADMIN_USER
           valueFrom:
             secretKeyRef:
