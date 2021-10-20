@@ -96,12 +96,12 @@ spec:
         - name: GF_AUTH_AZUREAD_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.azuread }}-secret"
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-azuread-secret"
               key: GF_AUTH_AZUREAD_CLIENT_ID
         - name: GF_AUTH_AZUREAD_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.azuread }}-secret"
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-azuread-secret"
               key: GF_AUTH_AZUREAD_CLIENT_SECRET
         - name: GRAFANA_ADMIN_USER
           valueFrom:
