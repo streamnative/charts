@@ -1512,8 +1512,8 @@ grafana:
   ## see: https://grafana.com/docs/grafana/latest/administration/configuration/#override-configuration-with-environment-variables
   azureAuthEnabled: false
   azuread:
-    client_id: "[AZURE AD SSO CLIENT ID]"
-    client_secret: "[AZURE AD SSO CLIENT SECRET]"
+    client_id: "AZURE-AD-SSO-CLIENT-ID"
+    client_secret: "AZURE-AD-SSO-CLIENT-SECRET"
 
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
