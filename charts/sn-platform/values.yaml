@@ -1594,8 +1594,7 @@ grafana:
   ## Oauth2 for Azuread
   ## Grafana Override configuration with environment variables. 
   ## see: https://grafana.com/docs/grafana/latest/administration/configuration/#override-configuration-with-environment-variables
-  azureAuthEnabled: true
-  # azureAuthEnabled: false
+  azureAuthEnabled: false
   azuread:
     client_id: "[AZURE AD SSO CLIENT ID]"
     client_secret: "[AZURE AD SSO CLIENT SECRET]"
