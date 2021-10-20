@@ -1266,6 +1266,7 @@ toolset:
     requests:
       memory: 256Mi
       cpu: 0.1
+  useKafkaToolset: true
   ## Bastion configmap
   ## templates/bastion-configmap.yaml
   ##
