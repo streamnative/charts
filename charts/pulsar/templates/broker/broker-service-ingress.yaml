@@ -53,6 +53,14 @@ spec:
     port: {{ .Values.mop.ports.tls_psk }}
   {{- end }}
   {{- end }}
+  {{- if .Values.components.aop }}
+  - name: amqp
+    port: {{ .Values.aop.ports.plaintext }}
+  {{- if .Values.aop.proxy.enabled }}
+  - name: amqpproxy
+    port: {{ .Values.aop.proxy.ports.plaintext }}
+  {{- end }}
+  {{- end }}
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}

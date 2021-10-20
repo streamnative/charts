@@ -267,6 +267,14 @@ spec:
           containerPort: {{ .Values.mop.ports.tls_psk }}
         {{- end }}
         {{- end }}
+        {{- if .Values.components.aop }}
+        - name: amqp
+          containerPort: {{ .Values.aop.ports.plaintext }}
+        {{- if .Values.aop.proxy.enabled }}
+        - name: amqpproxy
+          containerPort: {{ .Values.aop.proxy.ports.plaintext }}
+        {{- end }}
+        {{- end }}
         env:
         {{- if .Values.broker.advertisedPodIP }}
         - name: advertisedAddress

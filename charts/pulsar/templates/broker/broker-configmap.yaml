@@ -134,21 +134,35 @@ data:
   # https://github.com/apache/bookkeeper/pull/2300
   bookkeeperUseV2WireProtocol: "false"
   {{- end }}
+  {{- if .Values.protocols }}
+  PULSAR_PREFIX_messagingProtocols: "{{ .Values.protocols }}"
+  {{- else }}
   {{- if and .Values.components.mop .Values.components.kop }}
   PULSAR_PREFIX_messagingProtocols: "mqtt,kafka"
-  {{- else }}
-  {{- if .Values.components.mop }}
+  {{- else if .Values.components.mop }}
   PULSAR_PREFIX_messagingProtocols: "mqtt"
+  {{- else }}
+  PULSAR_PREFIX_messagingProtocols: "kafka"
+  {{- end }}
+  {{- end }}
+  {{- if or .Values.components.aop .Values.components.kop }}
+  allowAutoTopicCreationType: "partitioned"
+  {{- end }}
+  {{- if .Values.components.aop }}
+  # AOP settings
+  PULSAR_PREFIX_amqpListeners: "amqp://0.0.0.0:{{ .Values.aop.ports.plaintext }}"
+  {{- if .Values.aop.proxy.enabled }}
+  PULSAR_PREFIX_amqpProxyEnable: "true"
+  PULSAR_PREFIX_amqpProxyPort: "{{ .Values.aop.proxy.ports.plaintext }}"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.components.mop }}
   {{- if .Values.mop.tls_psk.enabled }}
   PULSAR_PREFIX_mqttProxyEnable: "true"
   PULSAR_PREFIX_mqttProxyTlsPskEnabled: "true"
   PULSAR_PREFIX_mqttProxyTlsPskPort: "{{ .Values.mop.ports.tls_psk }}"
   PULSAR_PREFIX_tlsPskIdentityHint: "{{ .Values.mop.tls_psk.identityHint }}"
   PULSAR_PREFIX_tlsPskIdentity: "{{ .Values.mop.tls_psk.identity }}:{{ .Values.mop.tls_psk.secret }}"
-  {{- end }}
-  {{- end }}
-  {{- if .Values.components.kop }}
-  PULSAR_PREFIX_messagingProtocols: "kafka"
   {{- end }}
   {{- end }}
   {{- if .Values.components.kop }}

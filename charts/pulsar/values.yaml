@@ -94,6 +94,8 @@ components:
   kop: false
   # mop
   mop: false
+  # aop
+  aop: false
   # pulsar detector
   pulsar_detector: false
   # superset
@@ -868,6 +870,8 @@ pulsar_metadata:
   # it will use helm release name to generate a cluster name.
   clusterName: ""
 
+# protocols: 
+
 ## Pulsar: KoP Protocol Handler
 kop:
   ports:
@@ -886,6 +890,14 @@ mop:
     identityHint: "[ADD HINT]"
     secret: "[ADD SECRET]"
 
+## Pulsar: AoP Protocol Handler 
+aop:
+  ports:
+    plaintext: 5672
+  proxy:
+    enabled: true
+    ports:
+      plaintext: 5682
 
 # Istio is required for exposing Kafka service
 istio:
