@@ -1592,7 +1592,7 @@ grafana:
     user: pulsar
     password: pulsar
   ## Oauth2 for Azuread
-  ## Grafana Override configuration with environment variables. 
+  ## Grafana Override configuration with environment variables.
   ## see: https://grafana.com/docs/grafana/latest/administration/configuration/#override-configuration-with-environment-variables
   azureAuthEnabled: false
   azuread:
