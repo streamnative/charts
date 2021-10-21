@@ -88,6 +88,8 @@ components:
   toolset: true
   # pulsar manager
   pulsar_manager: true
+  # streamnative console
+  streamnative_console: true
   # pulsar sql
   sql_worker: false
   # kop
@@ -179,6 +181,11 @@ images:
     tag: 0.6.0
     pullPolicy: IfNotPresent
     hasCommand: false
+  streamnative_console:
+    repository: streamnative/sn-platform-console
+    tag: "1.1"
+    pullPolicy: IfNotPresent
+    hasCommand: false
   node_exporter:
     repository: prom/node-exporter
     tag: v0.16.0
@@ -242,6 +249,9 @@ tls:
   pulsar_manager:
     enabled: false
     cert_name: tls-pulsar-manager
+  streamnative_console:
+    enabled: false
+    cert_name: tls-streamnative_console
   presto:
     enabled: false
     cert_name: tls-presto
@@ -1658,6 +1668,86 @@ pulsar_manager:
     datasource:
       username: pulsar
       password: pulsar
+
+## Components Stack: streamnative_console
+## templates/streamnative-console.yaml
+##
+streamnative_console:
+  component: streamnative-console
+  username: "apachepulsar"
+  password: "apachepulsar"
+  ports:
+    frontend: 9527
+    backend: 7750
+
+  replicaCount: 1
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  annotations: {}
+  tolerations: []
+  gracePeriod: 0
+  resources:
+    requests:
+      memory: 250Mi
+      cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      # local_storage: true
+      # storageClassName: ""
+      ## If the storage class is left undefined when using persistence
+      ## the default storage class for the cluster will be used.
+      ##
+      # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+        # provisioner: kubernetes.io/gce-pd
+
+  ## Cloud Console service
+  ## templates/streamnative-console-service.yaml
+  ##
+  service:
+    # expose the load balancer
+    # type: LoadBalancer
+    spec: {}
+    annotations: {}
+    ports:
+      frontend: 9527
+      backend: 7750
+
+  ## cloud console configmap
+  ## templates/streamnative-console-configmap.yaml
+  ##
+  configData:
+    DEFAULT_ORGANIZATION: ""
+    INSTANCE_NAME: ""
+    GOOGLE_OAUTH2_ENABLED: false
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+    GOOGLE_REDIRECT_URI: ""
+    REDIRECT_SCHEME: ""
+    REDIRECT_HOST: ""
+    REDIRECT_PORT: ""
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
