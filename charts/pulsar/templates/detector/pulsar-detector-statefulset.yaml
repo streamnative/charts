@@ -92,7 +92,7 @@ spec:
             -webservice-url {{ .Values.pulsar_detector.external_service.web_service_url }} \
             {{- if .Values.pulsar_detector.external_service.auth.enabled }}
             -auth-plugin {{ .Values.pulsar_detector.external_service.auth.plugin }} \
-            -auth-params "{\"file\":\"/pulsar/tokens/client/token\"}"
+            -auth-params "{\"token\":\"$(cat /pulsar/tokens/client/token)\"}"
             {{- end }}
         {{- else }}
           bin/pulsar-detector -service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }};
