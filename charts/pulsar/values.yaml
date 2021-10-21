@@ -1078,6 +1078,8 @@ pulsar_detector:
   component: pulsar-detector
   replicaCount: 1
 
+  # external_service_url:
+
   gracePeriod: 30
   port: 9000
 

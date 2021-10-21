@@ -51,11 +51,12 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.pulsar_detector.gracePeriod }}
       initContainers:
+      {{- if not .Values.pulsar_detector.external_service_url }}
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
       - name: wait-zookeeper-ready
-        image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
-        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+        image: "{{ .Values.images.pulsar_detector.repository }}:{{ .Values.images.pulsar_detector.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar_detector.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -65,8 +66,8 @@ spec:
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
-        image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
-        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        image: "{{ .Values.images.pulsar_detector.repository }}:{{ .Values.images.pulsar_detector.tag }}"
+        imagePullPolicy: {{ .Values.images.pulsar_detector.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -77,6 +78,7 @@ spec:
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
         image: "{{ .Values.images.pulsar_detector.repository }}:{{ .Values.images.pulsar_detector.tag }}"
@@ -84,7 +86,11 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
+        {{- if .Values.pulsar_detector.external_service_url }}
+          bin/pulsar-detector -service-url {{ .Values.pulsar_detector.external_service_url }};
+        {{- else }}
           bin/pulsar-detector -service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }};
+        {{- end }}
         ports:
         # prometheus needs to access /metrics endpoint
         - name: server
