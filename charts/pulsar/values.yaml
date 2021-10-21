@@ -1078,7 +1078,17 @@ pulsar_detector:
   component: pulsar-detector
   replicaCount: 1
 
-  # external_service_url:
+  external_service:
+    enabled: false
+    broker_service_url: "[external broker service url]"
+    web_service_url: "[external web service url]"
+    auth:
+      enabled: false
+      plugin: token
+      tokenSecretRef: "token-pulsar-detector"
+
+  config:
+    
 
   gracePeriod: 30
   port: 9000

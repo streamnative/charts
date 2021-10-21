@@ -51,7 +51,7 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.pulsar_detector.gracePeriod }}
       initContainers:
-      {{- if not .Values.pulsar_detector.external_service_url }}
+      {{- if not .Values.pulsar_detector.external_service.enabled }}
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
       - name: wait-zookeeper-ready
@@ -86,8 +86,14 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-        {{- if .Values.pulsar_detector.external_service_url }}
-          bin/pulsar-detector -service-url {{ .Values.pulsar_detector.external_service_url }};
+        {{- if .Values.pulsar_detector.external_service.enabled }}
+          bin/pulsar-detector \
+            -service-url {{ .Values.pulsar_detector.external_service.broker_service_url }} \
+            -webservice-url {{ .Values.pulsar_detector.external_service.web_service_url }} \
+            {{- if .Values.pulsar_detector.external_service.auth.enabled }}
+            -auth-plugin {{ .Values.pulsar_detector.external_service.auth.plugin }} \
+            -auth-params file:///pulsar/tokens/client/token
+            {{- end }}
         {{- else }}
           bin/pulsar-detector -service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }};
         {{- end }}
@@ -95,4 +101,19 @@ spec:
         # prometheus needs to access /metrics endpoint
         - name: server
           containerPort: {{ .Values.pulsar_detector.port }}
+        volumeMounts:
+        {{- if and .Values.pulsar_detector.external_service.enabled .Values.pulsar_detector.external_service.auth.enabled }}
+        - mountPath: "/pulsar/tokens"
+          name: client-token
+          readOnly: true
+        {{- end }}
+      volumes:
+      {{- if and .Values.pulsar_detector.external_service.enabled .Values.pulsar_detector.external_service.auth.enabled }}
+      - name: client-token
+        secret:
+          secretName: "{{ .Values.pulsar_detector.external_service.auth.tokenSecretRef }}"
+          items:
+            - key: TOKEN
+              path: client/token
+      {{- end }}
 {{- end }}
