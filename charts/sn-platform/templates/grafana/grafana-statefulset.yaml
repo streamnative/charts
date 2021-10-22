@@ -92,7 +92,6 @@ spec:
         {{- if .Values.grafana.azureAuthEnabled }}
         - name: GF_AUTH_AZUREAD_ENABLED
           value: "true"
-        {{- end }}
         - name: GF_AUTH_AZUREAD_CLIENT_ID
           valueFrom:
             secretKeyRef:
@@ -103,6 +102,7 @@ spec:
             secretKeyRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-azuread-secret"
               key: GF_AUTH_AZUREAD_CLIENT_SECRET
+        {{- end }}
         - name: GRAFANA_ADMIN_USER
           valueFrom:
             secretKeyRef:
