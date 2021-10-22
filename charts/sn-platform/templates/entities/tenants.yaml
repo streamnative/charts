@@ -28,9 +28,8 @@ spec:
   name: {{ .name }}
   connectionRef:
     name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}"
-{{- if .adminRoles }}
-  adminRoles:
-{{- toYaml .adminRoles | nindent 4 }}
+{{- if .config }}
+{{- toYaml .config | nindent 2 }}
 {{- end }}
 ---
 {{- end }}

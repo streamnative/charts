@@ -24,7 +24,7 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.entities.component }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-  adminServiceUrl: {{ template "entities.admin.service.url" . }}
+  adminServiceURL: {{ template "entities.admin.service.url" . }}
   authentication:
     token:
       secretRef:

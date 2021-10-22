@@ -2,8 +2,8 @@
 Define the entities admin service url
 */}}
 {{- define "entities.admin.service.url" -}}
-{{- if .Values.entities.adminServiceUrl -}}
-{{ .Values.entities.adminServiceUrl }}
+{{- if .Values.entities.adminServiceURL -}}
+{{ .Values.entities.adminServiceURL }}
 {{- else -}}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
 https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
