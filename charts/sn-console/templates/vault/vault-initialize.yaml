@@ -55,7 +55,7 @@ spec:
         - name: VAULT_SECRET_KEY_NAME
           value: {{ template "streamnative_console.vault-secret-key-name" . }}
         - name: CONSOLE_SECRET_KEY_NAME
-          value: {{ template "streamnative_console.console-secret-key-name" . }}
+          value: {{ template "streamnative_console.admin-passwd-secret" . }}
         - name: TOOLSET_TOKEN_SECRET_NAME
           value: "{{ .Values.broker.auth.toolsetTokenSecretRef }}"
         - name: VAULT_ADDR

@@ -50,15 +50,13 @@ Define streamnative-console token volumes
       - key: PRIVATEKEY
         path: token/private.key
       {{- end}}
-{{- end }}
-{{- end }}
-{{- if or (eq .Values.broker.auth.authentication.provider "jwt") (and .Values.broker.auth.authentication.vault.enabled .Values.streamnative_console.force_vault) }}
 - name: streamnative-console-token
   secret:
-    secretName: "{{ .Values.broker.auth.superUserSecretRef }}"
+    secretName: "{{ .Values.broker.auth.jwt.superUserSecretRef }}"
     items:
       - key: TOKEN
         path: streamnative_console/token
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -83,9 +81,17 @@ storageClassName: "{{ .Values.volumes.data.storageClassName }}"
 Inject vault token values to pod through env variables
 */}}
 {{- define "streamnative_console.vault-secret-key-name" -}}
+{{- if .Values.broker.auth.authentication.vault.secretKeyRef -}}
+{{ .Values.broker.auth.authentication.vault.secretKeyRef }}
+{{- else -}}
 {{ template "sn_console.fullname" . }}-vault-secret-env-injection
-{{- end }}
+{{- end -}}
+{{- end -}}
 
-{{- define "streamnative_console.console-secret-key-name" -}}
+{{- define "streamnative_console.admin-passwd-secret" -}}
+{{- if .Values.broker.auth.authentication.vault.adminPasswordSecretRef -}}
+{{ .Values.broker.auth.authentication.vault.adminPasswordSecretRef }}
+{{- else -}}
 {{ template "sn_console.fullname" . }}-vault-console-admin-passwd
-{{- end }}
+{{- end -}}
+{{- end -}}

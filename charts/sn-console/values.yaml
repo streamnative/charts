@@ -8,7 +8,7 @@ image:
 
 # imagePullSecrets: "[image pull secrets]"
 
-component: snconsole
+component: console
 username: "apachepulsar"
 password: "apachepulsar"
 ports:
@@ -102,18 +102,25 @@ broker:
         # 2. if using public/private key, the public key should be added to `PUBLICKEY` key and the private key should be added to 
         #    `PRIVATEKEY` key of the secret that tokenKeySecretRef references to 
         usingSecretKey: false
+        # The secret that stores the super user token. It should store the token under `TOKEN` key
+        superUserSecretRef: "[super user secret name]"
       vault:
         enabled: false
-    # The secret that stores the super user token. It should store the token under `TOKEN` key
-    # if vault is used, the streamnative console initialization script will generate this secret
-    superUserSecretRef: "[super user secret name]"
-    # if vault is used, the streamnative console initialization script will generate this secret
-    toolsetTokenSecretRef: "[name of the toolset token secret]"
+        # Reference to a secret that stores all the vault settings used for configuring SN console. The secret should be generated using the vault-init job.
+        # secretKeyRef: "[secret key name]"
+        # Reference to a secret that stores the console admin password. The secret should be generated using the vault-init job.
+        # adminPasswordSecretRef: "[secret stores the console admin password]"
 
 # vault
 vault:
   # vault service url
   url: http://localhost:8200
+  # Flag to control whether to start a job to initialize vault for OIDC authentication
+  # The initialize job will create the following secrets:
+  # - A secret that contains vault secrets used for configuring the SN console
+  # - A secret that contains the password for user `admin` for the SN console
+  # - A toolset token to store in the secret `broker.auth.toolsetTokenSecretRef`
+  initialize: true
   serviceAccount:
     created: true
     name: ""
@@ -124,3 +131,5 @@ vault:
       pullPolicy: IfNotPresent
   # the root token should be stored under key `vault-root` in the secret 
   rootTokenSecretRef: "[root token secret ref]"
+  # the vault initialization script will generate a token and store in the secret below
+  toolsetTokenSecretRef: "[name of the toolset token secret]"
