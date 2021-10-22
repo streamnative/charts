@@ -1,0 +1,126 @@
+initialize: true
+
+image:
+  repository: streamnative/sn-platform-console
+  tag: "1.1"
+  pullPolicy: IfNotPresent
+  hasCommand: false
+
+# imagePullSecrets: "[image pull secrets]"
+
+component: snconsole
+username: "apachepulsar"
+password: "apachepulsar"
+ports:
+  frontend: 9527
+  backend: 7750
+
+replicaCount: 1
+probe:
+  liveness:
+    enabled: true
+    failureThreshold: 10
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  readiness:
+    enabled: true
+    failureThreshold: 10
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  startup:
+    enabled: false
+    failureThreshold: 30
+    initialDelaySeconds: 10
+    periodSeconds: 30
+# nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+annotations: {}
+tolerations: []
+gracePeriod: 0
+resources:
+  requests:
+    memory: 250Mi
+    cpu: 0.1
+volumes:
+  # use a persistent volume or emptyDir
+  persistence: true
+  data:
+    name: data
+    size: 10Gi
+    # local_storage: true
+    # storageClassName: ""
+    ## If the storage class is left undefined when using persistence
+    ## the default storage class for the cluster will be used.
+    ##
+    # storageClass:
+      # type: pd-standard
+      # fsType: xfs
+      # provisioner: kubernetes.io/gce-pd
+
+## Cloud Console service
+## templates/streamnative-console-service.yaml
+##
+service:
+  # expose the load balancer
+  # type: LoadBalancer
+  spec: {}
+  annotations: {}
+  ports:
+    frontend: 9527
+    backend: 7750
+
+## cloud console configmap
+## templates/streamnative-console-configmap.yaml
+##
+configData:
+  # *required*: the organization name to show in the SN console
+  DEFAULT_ORGANIZATION: ""
+  # *required*: the instance name to display for the Pulsar clusters in SN console
+  INSTANCE_NAME: ""
+  DEFAULT_NAME: ""
+  # Settings to enable google oauth2
+  GOOGLE_OAUTH2_ENABLED: false
+  GOOGLE_CLIENT_ID: ""
+  GOOGLE_CLIENT_SECRET: ""
+  GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+  GOOGLE_REDIRECT_URI: ""
+  REDIRECT_SCHEME: ""
+  REDIRECT_HOST: ""
+  REDIRECT_PORT: ""
+
+# broker related settings. configure how streamnative console should access Pulsar brokers.
+broker:
+  webServiceUrl: http://localhost:8080
+  # kopServiceUrl: localhost:9093
+  auth:
+    authentication:
+      enabled: false
+      provider: "jwt"
+      jwt: 
+        tokenKeySecretRef: "[token key secret name]"
+        # 1. if using secret key, the secret key should be added to `SECRETKEY` key of the secret that tokenKeySecretRef references to
+        # 2. if using public/private key, the public key should be added to `PUBLICKEY` key and the private key should be added to 
+        #    `PRIVATEKEY` key of the secret that tokenKeySecretRef references to 
+        usingSecretKey: false
+      vault:
+        enabled: false
+    # The secret that stores the super user token. It should store the token under `TOKEN` key
+    # if vault is used, the streamnative console initialization script will generate this secret
+    superUserSecretRef: "[super user secret name]"
+    # if vault is used, the streamnative console initialization script will generate this secret
+    toolsetTokenSecretRef: "[name of the toolset token secret]"
+
+# vault
+vault:
+  # vault service url
+  url: http://localhost:8200
+  serviceAccount:
+    created: true
+    name: ""
+  images:
+    vault_init:
+      repository: streamnative/pulsar_vault_init
+      tag: "v1.0.2"
+      pullPolicy: IfNotPresent
+  # the root token should be stored under key `vault-root` in the secret 
+  rootTokenSecretRef: "[root token secret ref]"

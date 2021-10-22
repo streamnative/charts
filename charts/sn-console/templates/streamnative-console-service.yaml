@@ -17,33 +17,31 @@
 # under the License.
 #
 
-{{- if .Values.components.streamnative_console }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
-  namespace: {{ template "pulsar.namespace" . }}
+  name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}"
+  namespace: {{ template "sn_console.namespace" . }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.streamnative_console.component }}
+    {{- include "sn_console.standardLabels" . | nindent 4 }}
+    component: {{ .Values.component }}
   annotations:
-{{ toYaml .Values.streamnative_console.service.annotations | indent 4 }}
+{{ toYaml .Values.service.annotations | indent 4 }}
 spec:
-{{- if .Values.streamnative_console.service.type }}
-  type: {{ .Values.streamnative_console.service.type }}
+{{- if .Values.service.type }}
+  type: {{ .Values.service.type }}
 {{- else }}
   clusterIP: None
 {{- end }}
-{{- with .Values.streamnative_console.service.spec }}
+{{- with .Values.service.spec }}
 {{ toYaml . | indent 2 }}
 {{- end }}
   ports:
     - name: frontend
-      port: {{ .Values.streamnative_console.service.ports.frontend }}
+      port: {{ .Values.service.ports.frontend }}
       protocol: TCP
-      targetPort: {{ .Values.streamnative_console.ports.frontend }}
+      targetPort: {{ .Values.ports.frontend }}
   selector:
-    app: {{ template "pulsar.name" . }}
+    app: {{ template "sn_console.name" . }}
     release: {{ .Release.Name }}
-    component: {{ .Values.streamnative_console.component }}
-{{- end }}
+    component: {{ .Values.component }}
