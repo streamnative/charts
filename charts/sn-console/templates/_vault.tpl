@@ -4,7 +4,7 @@
     {{- if .Values.vault.serviceAccount.name -}}
 {{ .Values.vault.serviceAccount.name }}
     {{- else -}}
-{{ template "sn_console.fullname" . }}-vault-acct
+{{ template "sn_console.fullname" . }}-vault-init-acct
     {{- end -}}
 {{- else -}}
 {{ .Values.vault.serviceAccount.name }}

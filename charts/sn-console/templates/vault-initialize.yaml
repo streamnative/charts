@@ -57,7 +57,7 @@ spec:
         - name: CONSOLE_SECRET_KEY_NAME
           value: {{ template "streamnative_console.console-secret-key-name" . }}
         - name: TOOLSET_TOKEN_SECRET_NAME
-          value: "{{ .Values.broker.toolsetTokenSecretRef }}"
+          value: "{{ .Values.broker.auth.toolsetTokenSecretRef }}"
         - name: VAULT_ADDR
           value: {{ .Values.vault.url }}
         volumeMounts:
