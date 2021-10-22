@@ -208,6 +208,10 @@ spec:
         - name: pulsarssl
           containerPort: {{ .Values.proxy.ports.pulsarssl }}
         {{- end }}
+        env:
+{{- with .Values.broker.extraEnv}}
+{{ toYaml . | indent 8 }}
+{{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
