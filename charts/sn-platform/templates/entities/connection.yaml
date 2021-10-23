@@ -23,6 +23,9 @@ kind: PulsarConnection
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.entities.component }}"
   namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.entities.component }}
 spec:
   adminServiceURL: {{ template "entities.admin.service.url" . }}
   authentication:

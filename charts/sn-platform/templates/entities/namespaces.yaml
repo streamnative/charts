@@ -24,6 +24,9 @@ kind: PulsarNamespace
 metadata:
   name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}-{{ template "entities.name-suffix" . }}"
   namespace: {{ template "pulsar.namespace" $ }}
+  labels:
+    {{- include "pulsar.standardLabels" $ | nindent 4 }}
+    component: {{ $.Values.entities.component }}
 spec:
   name: {{ .name }}
   connectionRef:
