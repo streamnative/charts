@@ -58,6 +58,10 @@ spec:
                 items:
                   type: string
                 type: array
+              allowedClusters:
+                items:
+                  type: string
+                type: array
               connectionRef:
                 description: ConnectionRef is the reference to the PulsarConnection
                   resource

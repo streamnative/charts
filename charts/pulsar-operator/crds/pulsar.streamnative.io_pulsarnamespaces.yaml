@@ -54,14 +54,19 @@ spec:
           spec:
             description: PulsarNamespaceSpec defines the desired state of PulsarNamespace
             properties:
-              backlogPolicy:
-                type: string
-              backlogSizeInByte:
-                format: int64
-                type: integer
-              backlogTimeInSecond:
+              backlogQuotaLimitSize:
+                anyOf:
+                - type: integer
+                - type: string
+                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                x-kubernetes-int-or-string: true
+              backlogQuotaLimitTime:
                 description: Backlog Should set at least one of them if setting backlog
-                format: int64
+                type: string
+              backlogQuotaRetentionPolicy:
+                type: string
+              bundles:
+                format: int32
                 type: integer
               connectionRef:
                 description: ConnectionRef is the reference to the PulsarConnection
@@ -77,26 +82,31 @@ spec:
                 - CleanUpAfterDeletion
                 - KeepAfterDeletion
                 type: string
-              maxConsumerPerSubscription:
+              maxConsumersPerSubscription:
+                format: int32
                 type: integer
-              maxConsumerPerTopic:
+              maxConsumersPerTopic:
+                format: int32
                 type: integer
-              maxProducerPerTopic:
+              maxProducersPerTopic:
                 description: Tenant Policy Setting
+                format: int32
                 type: integer
-              messageTTLInSecond:
-                type: integer
+              messageTTL:
+                type: string
               name:
                 description: Name is the namespace name
                 type: string
-              numOfBundle:
-                type: integer
-              retentionSizeInMB:
-                type: integer
-              retentionTimeInMinutes:
+              retentionSize:
+                anyOf:
+                - type: integer
+                - type: string
+                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                x-kubernetes-int-or-string: true
+              retentionTime:
                 description: Retention Should set at least one of them if setting
                   retention
-                type: integer
+                type: string
             required:
             - connectionRef
             - name
