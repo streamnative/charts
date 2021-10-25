@@ -72,6 +72,8 @@ service:
 ## cloud console configmap
 ## templates/streamnative-console-configmap.yaml
 ##
+## For details about the available settings, you can read
+## https://docs.streamnative.io/platform/v1.2.0/operator-guides/configure/streamnative-console
 configData:
   # *required*: the organization name to show in the SN console
   DEFAULT_ORGANIZATION: ""
