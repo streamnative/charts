@@ -222,6 +222,86 @@ rules:
       - update
       - watch
   - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsarconnections
+    verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsarconnections/status
+    verbs:
+    - get
+    - patch
+    - update
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsarnamespaces
+    verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsarnamespaces/status
+    verbs:
+    - get
+    - patch
+    - update
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsartenants
+    verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsartenants/status
+    verbs:
+    - get
+    - patch
+    - update
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsartopics
+    verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsartopics/status
+    verbs:
+    - get
+    - patch
+    - update
+  - apiGroups:
       - authentication.k8s.io
     resources:
       - tokenreviews

@@ -41,15 +41,15 @@ components:
 images:
   zookeeper:
     repository: streamnative/zookeeper-operator
-    tag: v0.8.7
+    tag: v0.8.9
     pullPolicy: IfNotPresent
   bookkeeper:
     repository: streamnative/bookkeeper-operator
-    tag: v0.8.7
+    tag: v0.8.9
     pullPolicy: IfNotPresent
   pulsar:
     repository: streamnative/pulsar-operator
-    tag: v0.8.7
+    tag: v0.8.9
     pullPolicy: IfNotPresent
 
 global:

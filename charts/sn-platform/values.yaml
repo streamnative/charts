@@ -100,6 +100,8 @@ components:
   pulsar_detector: true
   # superset
   superset: false
+  # entities
+  entities: false
 
 ## Monitoring Components
 ##
@@ -1920,3 +1922,6 @@ vault:
     size: 10Gi
     local_storage: true
     # storageClassName: ""
+
+entities:
+  component: "entities"
