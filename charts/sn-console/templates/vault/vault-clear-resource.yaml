@@ -18,55 +18,42 @@
 #
 
 {{- if .Values.vault.initialize }}
-{{- if and .Values.broker.auth.authentication.enabled .Values.broker.auth.authentication.vault.enabled }}
+{{- if .Values.vault.clear_resource }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ template "sn_console.fullname" . }}-vault-init"
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    helm.sh/hook: pre-delete
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: hook-succeeded
+  name: "{{ template "sn_console.fullname" . }}-vault-clear-resource"
   namespace: {{ template "sn_console.namespace" . }}
   labels:
     {{- include "sn_console.standardLabels" . | nindent 4 }}
-    component: "vault-init"
 spec:
   template:
     spec:
       serviceAccountName: {{ template "sn_console.vault.serviceAccount" . }}
       containers:
-      - name: "{{ template "sn_console.fullname" . }}-vault-init"
+      - name: "{{ template "sn_console.fullname" . }}-vault-clear-resource"
         image: "{{ .Values.vault.images.vault_init.repository }}:{{ .Values.vault.images.vault_init.tag }}"
         imagePullPolicy: {{ .Values.vault.images.vault_init.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >
-           ROOT_TOKEN=$(kubectl get secret {{ .Values.vault.rootTokenSecretRef }} -o jsonpath='{.data.vault-root}' | base64 -d);
-           echo ${ROOT_TOKEN} > /root/rootToken;
-           vault login $ROOT_TOKEN;
+           kubectl delete secret {{ template "streamnative_console.vault-secret-key-name" . }} --ignore-not-found=true -n {{ template "sn_console.namespace" . }} && kubectl delete secret {{ template "streamnative_console.admin-passwd-secret" . }} --ignore-not-found=true -n {{ template "sn_console.namespace" . }} && kubectl delete secret {{ .Values.vault.toolsetTokenSecretRef }} --ignore-not-found=true -n {{ template "sn_console.namespace" . }};
            until [ $? -eq 0 ]; do
-              echo "vault is not ready now, wait another 5s~";
+              echo "Clear vault resource not ready now, wait another 5s~";
               sleep 5;
-              vault login $ROOT_TOKEN;
+
+              kubectl delete secret {{ template "streamnative_console.vault-secret-key-name" . }} --ignore-not-found=true -n {{ template "sn_console.namespace" . }} && kubectl delete secret {{ template "streamnative_console.admin-passwd-secret" . }} --ignore-not-found=true -n {{ template "sn_console.namespace" . }} && kubectl delete secret {{ .Values.vault.toolsetTokenSecretRef }} --ignore-not-found=true -n {{ template "sn_console.namespace" . }};
            done;
-           echo "vault is ready~";
-           cd /root/pulsar/vault_init;
-           /usr/local/bin/zsh startup.sh
+           echo "Clear vault resource is ready~";
         env:
         - name: NAMESPACE
           value: {{ template "sn_console.namespace" . }}
-        - name: VAULT_SECRET_KEY_NAME
-          value: {{ template "streamnative_console.vault-secret-key-name" . }}
-        - name: CONSOLE_SECRET_KEY_NAME
-          value: {{ template "streamnative_console.admin-passwd-secret" . }}
-        - name: TOOLSET_TOKEN_SECRET_NAME
-          value: "{{ .Values.vault.toolsetTokenSecretRef }}"
-        - name: VAULT_ADDR
-          value: {{ .Values.vault.url }}
-        volumeMounts:
-        - name: "{{ template "sn_console.fullname" . }}-vault-init-configmap"
-          mountPath: "/root/pulsar/vault_init/"
-      volumes:
-      - name: "{{ template "sn_console.fullname" . }}-vault-init-configmap"
-        configMap:
-          name: "{{ template "sn_console.fullname" . }}-vault-init-configmap"
       restartPolicy: Never
 {{- end }}
 {{- end }}

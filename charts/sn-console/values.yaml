@@ -119,8 +119,10 @@ vault:
   # The initialize job will create the following secrets:
   # - A secret that contains vault secrets used for configuring the SN console
   # - A secret that contains the password for user `admin` for the SN console
-  # - A toolset token to store in the secret `broker.auth.toolsetTokenSecretRef`
+  # - A toolset token to store in the secret `vault.toolsetTokenSecretRef`
   initialize: true
+  # Flag to control whether to delete the secrets created by this vault-init job
+  clear_resource: true
   serviceAccount:
     created: true
     name: ""
