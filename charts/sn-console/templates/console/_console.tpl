@@ -6,6 +6,13 @@ Define the streamnative-console service
 {{- end }}
 
 {{/*
+Define the streamnative-console backend service
+*/}}
+{{- define "streamnative_console.backend.service" -}}
+{{ template "sn_console.fullname" . }}-{{ .Values.component }}-backend
+{{- end }}
+
+{{/*
 Define the streamnative-console hostname
 */}}
 {{- define "streamnative_console.hostname" -}}

@@ -47,7 +47,7 @@ spec:
           value: {{ .Values.broker.kopServiceUrl }}
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
-          value: http://{{ template "streamnative_console.service" . }}:7750
+          value: http://{{ template "streamnative_console.backend.service" . }}:7750
         - name: GOOGLE_CLIENT_ID
           value: {{ .Values.configData.GOOGLE_CLIENT_ID }}
         - name: GOOGLE_CLIENT_SECRET
