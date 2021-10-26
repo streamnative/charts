@@ -13,3 +13,35 @@ install proxy crd yaml file to tpl.
 {{- $files := .Files }}
 {{ $files.Get "crds/pulsar.streamnative.io_pulsarproxies" }}
 {{- end -}}
+
+{{/*
+install connection crd yaml file to tpl.
+*/}}
+{{- define "connection.crd" -}}
+{{- $files := .Files }}
+{{ $files.Get "crds/pulsar.streamnative.io_pulsarconnections" }}
+{{- end -}}
+
+{{/*
+install tenant crd yaml file to tpl.
+*/}}
+{{- define "tenant.crd" -}}
+{{- $files := .Files }}
+{{ $files.Get "crds/pulsar.streamnative.io_pulsartenants" }}
+{{- end -}}
+
+{{/*
+install connection crd yaml file to tpl.
+*/}}
+{{- define "namespace.crd" -}}
+{{- $files := .Files }}
+{{ $files.Get "crds/pulsar.streamnative.io_pulsarnamespaces" }}
+{{- end -}}
+
+{{/*
+install connection crd yaml file to tpl.
+*/}}
+{{- define "topic.crd" -}}
+{{- $files := .Files }}
+{{ $files.Get "crds/pulsar.streamnative.io_pulsartopics" }}
+{{- end -}}
