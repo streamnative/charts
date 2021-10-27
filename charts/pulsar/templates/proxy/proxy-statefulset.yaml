@@ -276,6 +276,10 @@ spec:
         - name: websockettls
           containerPort: {{ .Values.proxy.ports.websockettls }}
         {{- end }}
+        env:
+{{- with .Values.proxy.extraEnv }}
+{{ toYaml . | indent 8 }}
+{{- end }}
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.websocket.component }}"
