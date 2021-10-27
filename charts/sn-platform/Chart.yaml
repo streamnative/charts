@@ -27,5 +27,5 @@ sources:
 - https://github.com/streamnative/charts/tree/master/charts/sn-platform
 icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
 maintainers:
-- name: StreamNative Support
+- name: StreamNative Support 
   email: support@streamnative.io
