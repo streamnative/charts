@@ -16,16 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-apiVersion: v1
-appVersion: "0.8.9"
-description: Apache Pulsar Operators Helm chart for Kubernetes
-name: pulsar-operator
-version: 0.8.9
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+# deploy entities only when `components.entities` is true
+{{- if and .Values.components.entities }}
+{{- range .Values.entities.namespaces }}
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarNamespace
+metadata:
+  name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}-{{ template "entities.name-suffix" . }}"
+  namespace: {{ template "pulsar.namespace" $ }}
+  labels:
+    {{- include "pulsar.standardLabels" $ | nindent 4 }}
+    component: {{ $.Values.entities.component }}
+spec:
+  name: {{ .name }}
+  connectionRef:
+    name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}"
+{{- if .config }}
+{{- toYaml .config | nindent 2 }}
+{{- end }}
+---
+{{- end }}
+{{- end }}
