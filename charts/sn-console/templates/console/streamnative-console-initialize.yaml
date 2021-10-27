@@ -1,0 +1,88 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.initialize }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init"
+  namespace: {{ template "sn_console.namespace" . }}
+  labels:
+    {{- include "sn_console.standardLabels" . | nindent 4 }}
+    component: {{ .Values.component }}
+spec:
+  template:
+    spec:
+      containers:
+      - name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init"
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: SPRING_CONFIGURATION_FILE
+          value: /pulsar-manager/pulsar-manager/application.properties
+        - name: DEFAULT_ORGANIZATION
+          value: {{ .Values.configData.DEFAULT_ORGANIZATION }}
+        - name: INSTANCE_NAME
+          value: {{ .Values.configData.INSTANCE_NAME }}
+        - name: WEB_SERVICE_URL
+          value: {{ .Values.broker.webServiceUrl }}
+        {{- if .Values.broker.kopServiceUrl }}
+        - name: KOP_SERVICE_URL
+          value: {{ .Values.broker.kopServiceUrl }}
+        {{- end }}
+        - name: STREAMNATIVE_CONSOLE_BACKEND_URL
+          value: http://{{ template "streamnative_console.backend.service" . }}:7750
+        - name: GOOGLE_CLIENT_ID
+          value: {{ .Values.configData.GOOGLE_CLIENT_ID }}
+        - name: GOOGLE_CLIENT_SECRET
+          value: {{ .Values.configData.GOOGLE_CLIENT_SECRET }}
+        - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
+          value: {{ .Values.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+        - name: GOOGLE_OAUTH2_ENABLED
+          value: "{{ .Values.configData.GOOGLE_OAUTH2_ENABLED }}"
+        - name: GOOGLE_REDIRECT_URI
+          value: {{ .Values.configData.GOOGLE_REDIRECT_URI }}
+        - name: REDIRECT_SCHEME
+          value: {{ .Values.configData.REDIRECT_SCHEME }}
+        - name: REDIRECT_HOST
+          value: {{ .Values.configData.REDIRECT_HOST }}
+        - name: REDIRECT_PORT
+          value: {{ .Values.configData.REDIRECT_PORT }}
+        envFrom:
+        - secretRef:
+            name: {{ template "streamnative_console.vault-secret-key-name" . }}
+        volumeMounts:
+        - name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init-configmap"
+          mountPath: "/root/init_instance/"
+        command: ["sh", "-c"]
+        args:
+          - >
+            python3 /root/init_instance/init_instance.py 2>/dev/null;
+            until [ $? -eq 0 ]; do
+              echo "streamnative console is not ready now! wait another 10s~";
+              sleep 10;
+              python3 /root/init_instance/init_instance.py 2>/dev/null;
+            done;
+            echo "StreamNative Console is ready to use~";
+      restartPolicy: Never
+      volumes:
+        - name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init-configmap"
+          configMap:
+            name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init-configmap"
+{{- end }}

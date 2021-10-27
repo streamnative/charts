@@ -75,6 +75,12 @@ spec:
               serviceName: "{{ $fullName }}-{{ .Values.prometheus.component }}"
               servicePort: {{ .Values.prometheus.port }}
           {{- end }}
+          {{- if .Values.components.streamnative_console }}
+          - path: /console
+            backend:
+              serviceName: "{{ $fullName }}-{{ .Values.streamnative_console.component }}"
+              servicePort: {{ .Values.streamnative_console.ports.frontend }}
+          {{- end }}
           {{- if .Values.components.pulsar_manager }}
           - path: /
             backend:
