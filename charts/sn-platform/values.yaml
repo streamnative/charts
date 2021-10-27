@@ -1907,9 +1907,24 @@ vault:
     name: ""
   serviceType: "ClusterIP"
   volumeClaimTemplates: []
-  volumeMounts: []
   unsealConfig: {}
-  config: {}
+  volumeMounts:
+  - name: vault-raft
+    mountPath: /vault/file
+    # use raft protocol for a vault cluster
+  config:
+    storage:
+      raft:
+        path: "/vault/file"
+    listener:
+      tcp:
+        tls_disable: true
+        address: "0.0.0.0:8200"
+    api_addr: "http://${.Env.POD_NAME}:8200"
+    cluster_addr: "http://${.Env.POD_NAME}:8201"
+    ui: true
+    telemetry:
+      statsd_address: localhost:9125
   resources:
     limits:
       memory: "512Mi"
