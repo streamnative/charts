@@ -33,8 +33,10 @@ data:
   # use a seperate disk for tx log
   PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
   {{- end }}
+  {{- if .Values.zookeeper.useNettyIO }}
   PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
   serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+  {{- end }}
   # enable zookeeper tls
   {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
   secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
