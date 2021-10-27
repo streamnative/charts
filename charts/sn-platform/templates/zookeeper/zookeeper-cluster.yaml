@@ -180,10 +180,13 @@ spec:
     serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
     # copy from configmap
     custom:
-      dataDir: /pulsar/data/zookeeper
+      {{- if .Values.zookeeper.operator.adopt_existing }}
+      // if adopting existing zk cluster then also keep existing data/data-log dir setting
+      PULSAR_PREFIX_dataDir: /pulsar/data/zookeeper
       {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
-      # use a seperate disk for tx log
+      # use a separate disk for tx log
       PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
+      {{- end }}
       {{- end }}
       PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
       # enable zookeeper tls
