@@ -1935,7 +1935,7 @@ vault:
       cpu: "100m"
   volume:
     persistence: true
-    name: ""
+    name: "vault-volume"
     size: 10Gi
     local_storage: true
     # storageClassName: ""
