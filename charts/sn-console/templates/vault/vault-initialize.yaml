@@ -1,0 +1,72 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.vault.initialize }}
+{{- if and .Values.broker.auth.authentication.enabled .Values.broker.auth.authentication.vault.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ template "sn_console.fullname" . }}-vault-init"
+  namespace: {{ template "sn_console.namespace" . }}
+  labels:
+    {{- include "sn_console.standardLabels" . | nindent 4 }}
+    component: "vault-init"
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ template "sn_console.vault.serviceAccount" . }}
+      containers:
+      - name: "{{ template "sn_console.fullname" . }}-vault-init"
+        image: "{{ .Values.vault.images.vault_init.repository }}:{{ .Values.vault.images.vault_init.tag }}"
+        imagePullPolicy: {{ .Values.vault.images.vault_init.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+           ROOT_TOKEN=$(kubectl get secret {{ .Values.vault.rootTokenSecretRef }} -o jsonpath='{.data.vault-root}' | base64 -d);
+           echo ${ROOT_TOKEN} > /root/rootToken;
+           vault login $ROOT_TOKEN;
+           until [ $? -eq 0 ]; do
+              echo "vault is not ready now, wait another 5s~";
+              sleep 5;
+              vault login $ROOT_TOKEN;
+           done;
+           echo "vault is ready~";
+           cd /root/pulsar/vault_init;
+           /usr/local/bin/zsh startup.sh
+        env:
+        - name: NAMESPACE
+          value: {{ template "sn_console.namespace" . }}
+        - name: VAULT_SECRET_KEY_NAME
+          value: {{ template "streamnative_console.vault-secret-key-name" . }}
+        - name: CONSOLE_SECRET_KEY_NAME
+          value: {{ template "streamnative_console.admin-passwd-secret" . }}
+        - name: TOOLSET_TOKEN_SECRET_NAME
+          value: "{{ .Values.vault.toolsetTokenSecretRef }}"
+        - name: VAULT_ADDR
+          value: {{ .Values.vault.url }}
+        volumeMounts:
+        - name: "{{ template "sn_console.fullname" . }}-vault-init-configmap"
+          mountPath: "/root/pulsar/vault_init/"
+      volumes:
+      - name: "{{ template "sn_console.fullname" . }}-vault-init-configmap"
+        configMap:
+          name: "{{ template "sn_console.fullname" . }}-vault-init-configmap"
+      restartPolicy: Never
+{{- end }}
+{{- end }}

@@ -18,14 +18,21 @@
 #
 
 apiVersion: v1
-appVersion: "0.8.9"
-description: Apache Pulsar Operators Helm chart for Kubernetes
-name: pulsar-operator
-version: 0.8.9
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+kind: Service
+metadata:
+  name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-backend"
+  namespace: {{ template "sn_console.namespace" . }}
+  labels:
+    {{- include "sn_console.standardLabels" . | nindent 4 }}
+    component: {{ .Values.component }}
+spec:
+  clusterIP: None
+  ports:
+    - name: backend
+      port: {{ .Values.service.ports.backend }}
+      protocol: TCP
+      targetPort: {{ .Values.ports.backend }}
+  selector:
+    app: {{ template "sn_console.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.component }}

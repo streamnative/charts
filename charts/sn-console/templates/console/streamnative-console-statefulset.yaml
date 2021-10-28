@@ -1,0 +1,144 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}"
+  namespace: {{ template "sn_console.namespace" . }}
+  labels:
+    {{- include "sn_console.standardLabels" . | nindent 4 }}
+    component: {{ .Values.component }}
+spec:
+  serviceName: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "sn_console.matchLabels" . | nindent 6 }}
+      component: {{ .Values.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+
+  template:
+    metadata:
+      labels:
+        {{- include "sn_console.template.labels" . | nindent 8 }}
+        component: {{ .Values.component }}
+      annotations:
+{{- with .Values.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.gracePeriod }}
+      containers:
+        - name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.resources }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          {{- end }}
+          {{- if .Values.probe.readiness.enabled }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.ports.backend }}
+            initialDelaySeconds: {{ .Values.probe.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probe.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.probe.readiness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.probe.liveness.enabled }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.ports.backend }}
+            initialDelaySeconds: {{ .Values.probe.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probe.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.probe.liveness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.probe.startup.enabled }}
+          startupProbe:
+            tcpSocket:
+              port: {{ .Values.ports.backend }}
+            initialDelaySeconds: {{ .Values.probe.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probe.startup.periodSeconds }}
+            failureThreshold: {{ .Values.probe.startup.failureThreshold }}
+          {{- end }}
+          env:
+          - name: SPRING_CONFIGURATION_FILE
+            value: /pulsar-manager/pulsar-manager/application.properties
+          - name: DEFAULT_ORGANIZATION
+            value: {{ .Values.configData.DEFAULT_ORGANIZATION }}
+          - name: DEFAULT_NAME
+            value: {{ .Values.configData.DEFAULT_NAME }}
+          - name: INSTANCE_NAME
+            value: {{ .Values.configData.INSTANCE_NAME }}
+          - name: WEB_SERVICE_URL
+            value: {{ .Values.broker.webServiceUrl }}
+          - name: KOP_SERVICE_URL
+            value: {{ .Values.broker.kopServiceUrl }}
+          envFrom:
+          - secretRef:
+              name: {{ template "streamnative_console.vault-secret-key-name" . }}
+          
+          ports:
+          - name: frontend
+            containerPort: {{ .Values.ports.frontend }}
+          - name: backend
+            containerPort: {{ .Values.ports.backend }}
+
+          volumeMounts:
+          - name: streamnative-console-data
+            mountPath: /data
+
+      volumes:
+      {{- if not .Values.volumes.persistence }}
+      - name: streamnative-console-data
+        emptyDir: {}
+      {{- end }}
+      {{- if .Values.volumes.persistence }}
+      {{- if not (or .Values.volumes.data.storageClass .Values.volumes.data.storageClassName) }}
+      - name: streamnative-console-data
+        persistentVolumeClaim:
+          claimName: "{{ template "streamnative_console.data.pvc.name" . }}"
+      {{- end }}
+      {{- end }}
+
+  {{- if or .Values.volumes.data.storageClass .Values.volumes.data.storageClassName }}
+  volumeClaimTemplates:
+  - metadata:
+      name: streamnative-console-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.volumes.data.size }}
+      {{- include "streamnative_console.data.storage.class" . | nindent 6 }}
+  {{- end }}

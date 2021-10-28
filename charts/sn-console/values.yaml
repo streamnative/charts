@@ -1,0 +1,158 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+initialize: true
+
+image:
+  repository: streamnative/sn-platform-console
+  tag: "1.2"
+  pullPolicy: IfNotPresent
+  hasCommand: false
+
+# imagePullSecrets: "[image pull secrets]"
+
+component: console
+username: "apachepulsar"
+password: "apachepulsar"
+ports:
+  frontend: 9527
+  backend: 7750
+
+replicaCount: 1
+probe:
+  liveness:
+    enabled: true
+    failureThreshold: 10
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  readiness:
+    enabled: true
+    failureThreshold: 10
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  startup:
+    enabled: false
+    failureThreshold: 30
+    initialDelaySeconds: 10
+    periodSeconds: 30
+# nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+annotations: {}
+tolerations: []
+gracePeriod: 0
+resources:
+  requests:
+    memory: 250Mi
+    cpu: 0.1
+volumes:
+  # use a persistent volume or emptyDir
+  persistence: true
+  data:
+    name: data
+    size: 10Gi
+    # local_storage: true
+    # storageClassName: ""
+    ## If the storage class is left undefined when using persistence
+    ## the default storage class for the cluster will be used.
+    ##
+    # storageClass:
+      # type: pd-standard
+      # fsType: xfs
+      # provisioner: kubernetes.io/gce-pd
+
+## Cloud Console service
+## templates/streamnative-console-service.yaml
+##
+service:
+  # expose the load balancer
+  # type: LoadBalancer
+  spec: {}
+  annotations: {}
+  ports:
+    frontend: 9527
+    backend: 7750
+
+## cloud console configmap
+## templates/streamnative-console-configmap.yaml
+##
+## For details about the available settings, you can read
+## https://docs.streamnative.io/platform/v1.2.0/operator-guides/configure/streamnative-console
+configData:
+  # *required*: the organization name to show in the SN console
+  DEFAULT_ORGANIZATION: ""
+  # *required*: the instance name to display for the Pulsar clusters in SN console
+  INSTANCE_NAME: ""
+  DEFAULT_NAME: ""
+  # Settings to enable google oauth2
+  GOOGLE_OAUTH2_ENABLED: false
+  GOOGLE_CLIENT_ID: ""
+  GOOGLE_CLIENT_SECRET: ""
+  GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+  GOOGLE_REDIRECT_URI: ""
+  REDIRECT_SCHEME: ""
+  REDIRECT_HOST: ""
+  REDIRECT_PORT: ""
+
+# broker related settings. configure how streamnative console should access Pulsar brokers.
+broker:
+  webServiceUrl: http://localhost:8080
+  # kopServiceUrl: localhost:9093
+  auth:
+    authentication:
+      enabled: false
+      provider: "jwt"
+      jwt: 
+        tokenKeySecretRef: "[token key secret name]"
+        # 1. if using secret key, the secret key should be added to `SECRETKEY` key of the secret that tokenKeySecretRef references to
+        # 2. if using public/private key, the public key should be added to `PUBLICKEY` key and the private key should be added to 
+        #    `PRIVATEKEY` key of the secret that tokenKeySecretRef references to 
+        usingSecretKey: false
+        # The secret that stores the super user token. It should store the token under `TOKEN` key
+        superUserSecretRef: "[super user secret name]"
+      vault:
+        enabled: false
+        # Reference to a secret that stores all the vault settings used for configuring SN console. The secret should be generated using the vault-init job.
+        # secretKeyRef: "[secret key name]"
+        # Reference to a secret that stores the console admin password. The secret should be generated using the vault-init job.
+        # adminPasswordSecretRef: "[secret stores the console admin password]"
+
+# vault
+vault:
+  # vault service url
+  url: http://localhost:8200
+  # Flag to control whether to start a job to initialize vault for OIDC authentication
+  # The initialize job will create the following secrets:
+  # - A secret that contains vault secrets used for configuring the SN console
+  # - A secret that contains the password for user `admin` for the SN console
+  # - A toolset token to store in the secret `vault.toolsetTokenSecretRef`
+  initialize: true
+  # Flag to control whether to delete the secrets created by this vault-init job
+  clear_resource: true
+  serviceAccount:
+    created: true
+    name: ""
+  images:
+    vault_init:
+      repository: streamnative/pulsar_vault_init
+      tag: "v1.0.2"
+      pullPolicy: IfNotPresent
+  # the root token should be stored under key `vault-root` in the secret 
+  rootTokenSecretRef: "[root token secret ref]"
+  # the vault initialization script will generate a token and store in the secret below
+  toolsetTokenSecretRef: "[name of the toolset token secret]"

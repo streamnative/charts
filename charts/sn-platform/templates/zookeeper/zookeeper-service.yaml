@@ -48,4 +48,5 @@ spec:
   selector:
     {{- include "pulsar.matchLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
+  publishNotReadyAddresses: true
 {{- end }}

@@ -177,15 +177,17 @@ spec:
     reclaimPolicy: Delete
   {{- end }}
   config:
-    serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+    serverCnxnFactory: {{ .Values.zookeeper.serverCnxnFactory }}
     # copy from configmap
     custom:
-      dataDir: /pulsar/data/zookeeper
+      {{- if .Values.zookeeper.operator.adopt_existing }}
+      # if adopting existing zk cluster then also keep existing data/data-log dir setting
+      PULSAR_PREFIX_dataDir: /pulsar/data/zookeeper
       {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
-      # use a seperate disk for tx log
+      # use a separate disk for tx log
       PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
       {{- end }}
-      PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+      {{- end }}
       # enable zookeeper tls
       {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
       secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"

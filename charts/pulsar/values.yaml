@@ -568,6 +568,7 @@ zookeeper:
     zkServers: []
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
+  useNettyIO: true
   configData:
     PULSAR_MEM: >
       -Xms64m -Xmx128m
@@ -1395,6 +1396,7 @@ prometheus:
     ## Prometheus data retention period (default if not specified is 15 days)
     ##
     retention: "15d"
+  scrapeInterval: 15s
   securityContext:
     runAsUser: 65534
     runAsNonRoot: true

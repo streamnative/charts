@@ -1,0 +1,11 @@
+
+Thank you for installing StreamNative Console!
+
+Now that you have deployed StreamNative Console, you should look over the docs on using StreamNative Console available here:
+
+https://docs.streamnative.io/platform/v1.2.0/user-guides/admin/login-console
+
+You can find the password for user `admin` using the following command:
+
+  $ kubectl get secret {{ template "streamnative_console.admin-passwd-secret" . }} -o=jsonpath='{.data.password}' -n {{ template "sn_console.namespace" . }} | base64 --decode; echo
+

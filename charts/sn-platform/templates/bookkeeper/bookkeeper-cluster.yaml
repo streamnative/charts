@@ -144,6 +144,11 @@ spec:
     {{- end }}
     # Do not retain journal files as it increase the disk utilization
     journalMaxBackups: "0"
+    {{- if .Values.bookkeeper.operator.adopt_existing }}
+    # if adopting existing bk cluster then also keep existing ledger/journal dir setting
+    PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
+    PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+    {{- end }}
     BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
 {{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 4 }}
