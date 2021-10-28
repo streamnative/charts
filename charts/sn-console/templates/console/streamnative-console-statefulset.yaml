@@ -104,9 +104,21 @@ spec:
             value: {{ .Values.broker.webServiceUrl }}
           - name: KOP_SERVICE_URL
             value: {{ .Values.broker.kopServiceUrl }}
+          {{- if .Values.login.sso.google.enabled }}
+          - name: GOOGLE_OAUTH2_ENABLED
+            value: "true"
+          - name: GOOGLE_REDIRECT_URI
+            value: {{ .Values.login.sso.google.config.GOOGLE_REDIRECT_URI }}
+          - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
+            value: {{ .Values.login.sso.google.config.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+          {{- end }}
           envFrom:
           - secretRef:
               name: {{ template "streamnative_console.vault-secret-key-name" . }}
+          {{- if .Values.login.sso.google.enabled }}
+          - secretRef:
+              name: {{ .Values.login.sso.google.clientSecretRef }}
+          {{- end }}
           
           ports:
           - name: frontend
