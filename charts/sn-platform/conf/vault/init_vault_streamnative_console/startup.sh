@@ -52,7 +52,7 @@ vault write identity/oidc/key/service-account name=service-account rotation_peri
 
 superApproleName=$VAULT_APPROLE_SUPER_NAME
 vault policy write super-service-account $TMP_DIR/super-service-account.hcl
-vault write identity/entity name="super-service-account" policies="super-service-account"
+vault write identity/entity name="super-service-account" policies="super-service-account" medadata=system=true
 canonicalId=$(vault read identity/entity/name/super-service-account | grep -v _id | grep id | awk '{print $2}')
 vault write identity/entity-alias name="super-service-account"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='super-service-account'
 vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=24h verification_ttl=24h
@@ -69,7 +69,7 @@ vault auth tune -default-lease-ttl=5m approle/
 superUser=$VAULT_SUPER_USER_NAME
 superPassword=$VAULT_SUPER_USER_PASSWORD
 vault policy write super-user $TMP_DIR/super-user.hcl
-vault write auth/userpass/users/$superUser password="$superPassword" policies="super-user"
+vault write auth/userpass/users/$superUser password="$superPassword" policies="super-user" medadata=system=true
 vault write identity/entity name="super-user" policies="super-user"
 vault write identity/oidc/key/super-user name=super-user rotation_period=24h verification_ttl=24h
 vault write identity/oidc/role/super-user key=super-user ttl=12h template=@$TMP_DIR/super-user-template.json
