@@ -180,7 +180,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "1.2"
+    tag: "1.3"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
