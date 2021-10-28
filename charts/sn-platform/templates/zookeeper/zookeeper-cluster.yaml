@@ -177,7 +177,7 @@ spec:
     reclaimPolicy: Delete
   {{- end }}
   config:
-    serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+    serverCnxnFactory: {{ .Values.zookeeper.serverCnxnFactory }}
     # copy from configmap
     custom:
       {{- if .Values.zookeeper.operator.adopt_existing }}
@@ -188,7 +188,6 @@ spec:
       PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
       {{- end }}
       {{- end }}
-      PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
       # enable zookeeper tls
       {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
       secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"

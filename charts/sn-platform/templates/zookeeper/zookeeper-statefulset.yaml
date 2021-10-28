@@ -40,7 +40,7 @@ spec:
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
     type: {{ .Values.zookeeper.updateStrategy }}
-  podManagementPolicy: OrderedReady
+  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
