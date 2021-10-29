@@ -48,22 +48,6 @@ spec:
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
           value: http://{{ template "streamnative_console.backend.service" . }}:7750
-        - name: GOOGLE_CLIENT_ID
-          value: {{ .Values.configData.GOOGLE_CLIENT_ID }}
-        - name: GOOGLE_CLIENT_SECRET
-          value: {{ .Values.configData.GOOGLE_CLIENT_SECRET }}
-        - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
-          value: {{ .Values.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
-        - name: GOOGLE_OAUTH2_ENABLED
-          value: "{{ .Values.configData.GOOGLE_OAUTH2_ENABLED }}"
-        - name: GOOGLE_REDIRECT_URI
-          value: {{ .Values.configData.GOOGLE_REDIRECT_URI }}
-        - name: REDIRECT_SCHEME
-          value: {{ .Values.configData.REDIRECT_SCHEME }}
-        - name: REDIRECT_HOST
-          value: {{ .Values.configData.REDIRECT_HOST }}
-        - name: REDIRECT_PORT
-          value: {{ .Values.configData.REDIRECT_PORT }}
         envFrom:
         - secretRef:
             name: {{ template "streamnative_console.vault-secret-key-name" . }}

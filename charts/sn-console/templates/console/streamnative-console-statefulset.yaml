@@ -104,6 +104,22 @@ spec:
             value: {{ .Values.broker.webServiceUrl }}
           - name: KOP_SERVICE_URL
             value: {{ .Values.broker.kopServiceUrl }}
+          - name: GOOGLE_CLIENT_ID
+            value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_ID }}
+          - name: GOOGLE_CLIENT_SECRET
+            value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_SECRET }}
+          - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
+            value: {{ .Values.streamnative_console.configData.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+          - name: GOOGLE_OAUTH2_ENABLED
+            value: "{{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}"
+          - name: GOOGLE_REDIRECT_URI
+            value: {{ .Values.streamnative_console.configData.GOOGLE_REDIRECT_URI }}
+          - name: REDIRECT_SCHEME
+            value: {{ .Values.streamnative_console.configData.REDIRECT_SCHEME }}
+          - name: REDIRECT_HOST
+            value: {{ .Values.streamnative_console.configData.REDIRECT_HOST }}
+          - name: REDIRECT_PORT
+            value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
           envFrom:
           - secretRef:
               name: {{ template "streamnative_console.vault-secret-key-name" . }}
