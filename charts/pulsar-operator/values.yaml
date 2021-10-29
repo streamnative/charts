@@ -41,15 +41,15 @@ components:
 images:
   zookeeper:
     repository: streamnative/zookeeper-operator
-    tag: v0.8.9
+    tag: v0.8.10
     pullPolicy: IfNotPresent
   bookkeeper:
     repository: streamnative/bookkeeper-operator
-    tag: v0.8.9
+    tag: v0.8.10
     pullPolicy: IfNotPresent
   pulsar:
     repository: streamnative/pulsar-operator
-    tag: v0.8.9
+    tag: v0.8.10
     pullPolicy: IfNotPresent
 
 global:
@@ -118,6 +118,8 @@ pulsar:
   component: pulsar-controller-manager
   ## The worker numbers of the operator MaxConcurrentReconciles
   workers: 1
+  ## whether to watch cert-manager crds in the controller
+  watchCertManagerCRDs: false
   ## Install RBAC roles and bindings.
   rbac:
     create: true
