@@ -54,7 +54,7 @@ spec:
         - name: MAX_CONCURRENT_RECONCILES
           value: "{{ .Values.pulsar.workers }}"
         - name: WATCH_CERT_MANAGER_CRDS
-          value: "{{ .Values.pulsar.workers }}"
+          value: "{{ .Values.pulsar.watchCertManagerCRDs }}"
         {{- if .Values.pulsar.resources }}
         resources:
 {{ toYaml .Values.pulsar.resources | indent 10 }}
