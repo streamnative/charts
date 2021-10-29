@@ -135,7 +135,7 @@ spec:
           envFrom:
           - secretRef:
               name: {{ template "pulsar.vault-secret-key-name" . }}
-          {{- if .Values.login.sso.google.enabled }}
+          {{- if .Values.streamnative_console.login.sso.google.enabled }}
           - secretRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"
           {{- end }}
