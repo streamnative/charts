@@ -112,7 +112,7 @@ configData:
 login:
   sso: 
     google:
-      enabled: true
+      enabled: false
       # The secret should contain both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
       clientSecretRef: '[kubernetes secret that stores client secret for Google SSO]'
       config:

@@ -118,25 +118,27 @@ spec:
             value: {{ template "pulsar.web.service.url" . }}
           - name: KOP_SERVICE_URL
             value: {{ .Values.broker.advertisedDomain }}:9093
-          - name: GOOGLE_CLIENT_ID
-            value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_ID }}
-          - name: GOOGLE_CLIENT_SECRET
-            value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_SECRET }}
-          - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
-            value: {{ .Values.streamnative_console.configData.$GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+          {{- if .Values.streamnative_console.login.sso.google.enabled }}
           - name: GOOGLE_OAUTH2_ENABLED
-            value: "{{ .Values.streamnative_console.configData.GOOGLE_OAUTH2_ENABLED }}"
+            value: "true"
           - name: GOOGLE_REDIRECT_URI
-            value: {{ .Values.streamnative_console.configData.GOOGLE_REDIRECT_URI }}
+            value: {{ .Values.streamnative_console.login.sso.google.config.GOOGLE_REDIRECT_URI }}
+          - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
+            value: {{ .Values.streamnative_console.login.sso.google.config.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
           - name: REDIRECT_SCHEME
             value: {{ .Values.streamnative_console.configData.REDIRECT_SCHEME }}
           - name: REDIRECT_HOST
             value: {{ .Values.streamnative_console.configData.REDIRECT_HOST }}
           - name: REDIRECT_PORT
             value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
+          {{- end }}
           envFrom:
           - secretRef:
               name: {{ template "pulsar.vault-secret-key-name" . }}
+          {{- if .Values.login.sso.google.enabled }}
+          - secretRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"
+          {{- end }}
           ports:
           - name: frontend
             containerPort: {{ .Values.streamnative_console.ports.frontend }}
