@@ -98,7 +98,6 @@ configData:
   DEFAULT_ORGANIZATION: ""
   # *required*: the instance name to display for the Pulsar clusters in SN console
   INSTANCE_NAME: ""
-  DEFAULT_NAME: ""
   REDIRECT_SCHEME: ""
   REDIRECT_HOST: ""
   REDIRECT_PORT: ""
