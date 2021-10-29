@@ -163,6 +163,7 @@ spec:
       type: FunctionMesh
     {{- end }}
     advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
+    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) }}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
@@ -193,6 +194,7 @@ spec:
         {{- if .Values.broker.aop.proxyEnabled }}
         proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
         {{- end }}
+    {{- end }}
     {{- end }}
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
