@@ -887,7 +887,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/sn-platform
-    tag: "2.8.1.0"
+    tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
