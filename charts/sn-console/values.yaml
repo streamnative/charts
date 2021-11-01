@@ -98,7 +98,6 @@ configData:
   DEFAULT_ORGANIZATION: ""
   # *required*: the instance name to display for the Pulsar clusters in SN console
   INSTANCE_NAME: ""
-  DEFAULT_NAME: ""
   REDIRECT_SCHEME: ""
   REDIRECT_HOST: ""
   REDIRECT_PORT: ""
@@ -113,7 +112,7 @@ configData:
 login:
   sso: 
     google:
-      enabled: true
+      enabled: false
       # The secret should contain both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
       clientSecretRef: '[kubernetes secret that stores client secret for Google SSO]'
       config:

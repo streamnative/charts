@@ -1728,17 +1728,33 @@ streamnative_console:
   ## cloud console configmap
   ## templates/streamnative-console-configmap.yaml
   ##
+  ## For details about the available settings, you can read
+  ## https://docs.streamnative.io/platform/v1.2.0/operator-guides/configure/streamnative-console
   configData:
+    # *required*: the organization name to show in the SN console
     DEFAULT_ORGANIZATION: ""
+    # *required*: the instance name to display for the Pulsar clusters in SN console
     INSTANCE_NAME: ""
-    GOOGLE_OAUTH2_ENABLED: false
-    GOOGLE_CLIENT_ID: ""
-    GOOGLE_CLIENT_SECRET: ""
-    GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
     GOOGLE_REDIRECT_URI: ""
     REDIRECT_SCHEME: ""
     REDIRECT_HOST: ""
     REDIRECT_PORT: ""
+    # Deprecated. Configure google SSO using `login.sso.google.*` settings
+    # Settings to enable google oauth2
+    GOOGLE_OAUTH2_ENABLED: false
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+
+  login:
+    sso: 
+      google:
+        enabled: false
+        config:
+          GOOGLE_CLIENT_ID: "GOOGLE_CLIENT_ID"
+          GOOGLE_CLIENT_SECRET: "GOOGLE_CLIENT_SECRET"
+          GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+          GOOGLE_REDIRECT_URI: ""
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
