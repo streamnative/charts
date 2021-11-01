@@ -1747,7 +1747,7 @@ streamnative_console:
     GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
 
   login:
-    sso: 
+    sso:
       google:
         enabled: false
         config:
