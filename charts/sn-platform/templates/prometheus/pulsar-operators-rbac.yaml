@@ -19,7 +19,7 @@
 
 {{- if and .Values.rbac.enable .Values.prometheus.serviceAccount.create }}
 {{- if .Values.prometheus.serviceAccount.clusterRole }}
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.rbac.roleName }}"
@@ -91,7 +91,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 ---
 
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.rbac.roleBindingName }}"
@@ -105,7 +105,7 @@ subjects:
   namespace: {{ template "pulsar.namespace" . }}
 
 {{- else }}
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.rbac.roleName }}"
@@ -157,7 +157,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 ---
 
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.rbac.roleBindingName }}"
