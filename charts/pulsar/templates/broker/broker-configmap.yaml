@@ -168,33 +168,34 @@ data:
   {{- end }}
   {{- end }}
   {{- if and .Values.broker.offload.enabled .Values.broker.offload.filesystem.enabled }}
-  fileSystemProfilePath: "{{ .Values.broker.offload.filesystem.fileSystemProfilePath }}"
+  PULSAR_PREFIX_fileSystemProfilePath: "{{ .Values.broker.offload.filesystem.fileSystemProfilePath }}"
+  PULSAR_PREFIX_fileSystemURI: "{{ .Values.broker.offload.filesystem.fileSystemURI }}"
   filesystem-config.yaml: |
     <configuration>
     <!--file system uri, necessary-->
     <property>
         <name>fs.defaultFS</name>
-        <value>"{{ .Values.broker.offload.filesystem.fileDefaultFS }}"</value>
+        <value>{{ .Values.broker.offload.filesystem.fileDefaultFS }}</value>
     </property>
     <property>
         <name>hadoop.tmp.dir</name>
-        <value>"{{ .Values.broker.offload.filesystem.fileTmpDir }}"</value>
+        <value>{{ .Values.broker.offload.filesystem.fileTmpDir }}</value>
     </property>
     <property>
         <name>io.file.buffer.size</name>
-        <value>"{{ .Values.broker.offload.filesystem.fileBufferSize }}"</value>
+        <value>{{ .Values.broker.offload.filesystem.fileBufferSize }}</value>
     </property>
     <property>
         <name>io.seqfile.compress.blocksize</name>
-        <value>"{{ .Values.broker.offload.filesystem.ioSeqfileCompressBlocksize }}"</value>
+        <value>{{ .Values.broker.offload.filesystem.ioSeqfileCompressBlocksize }}</value>
     </property>
     <property>
         <name>io.seqfile.compression.type</name>
-        <value>"{{ .Values.broker.offload.filesystem.ioSeqFileCompressionType }}"</value>
+        <value>{{ .Values.broker.offload.filesystem.ioSeqFileCompressionType }}</value>
     </property>
     <property>
         <name>io.map.index.interval</name>
-        <value>"{{ .Values.broker.offload.filesystem.ioMapIndexInteval }}"</value>
+        <value>{{ .Values.broker.offload.filesystem.ioMapIndexInteval }}</value>
     </property>
     </configuration>
   {{- end }}

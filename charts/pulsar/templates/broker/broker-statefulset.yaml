@@ -338,6 +338,7 @@ spec:
           {{- include "pulsar.broker.runtime.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.offload.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.function.worker.config.volumeMounts" . | nindent 10 }}
+          {{- include "pulsar.broker.offload.filesystem.config.volumeMounts" . | nindent 10 }}
 {{- with .Values.broker.extraVolumeMounts }}
 {{ toYaml . | indent 10 }}
 {{- end }}
@@ -349,6 +350,7 @@ spec:
       {{- include "pulsar.broker.runtime.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.offload.volumes" . | nindent 6 }}
       {{- include "pulsar.function.worker.config.volumes" . | nindent 6 }}
+      {{- include "pulsar.broker.offload.filesystem.config.volumes" . | nindent 6 }}
 {{- with .Values.broker.extraVolumes }}
 {{ toYaml . | indent 6 }}
 {{- end }}
