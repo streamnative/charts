@@ -1530,6 +1530,7 @@ grafana:
       token_url: ""
       allowed_domains: ""
       allowed_groups: ""
+      role_attribute_strict: true
     log:
       mode: console
     log.file:
