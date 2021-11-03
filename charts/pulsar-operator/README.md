@@ -12,25 +12,19 @@ To use the `pulsar-operator` chart to deploy BookKeeper Controller, ZooKeeper Co
 
 ## Install `pulsar-operator` chart
 
-1. Register the CRDs with the Kubernetes cluster.
-
-    ```
-    kubectl apply -f ./crds
-    ```
-
-2. Create a Kubernetes namespace.
+1. Create a Kubernetes namespace.
 
     ```
     kubectl create namespace <k8s-namespace>
     ```
 
-3. Install the `pulsar-operator` chart.
+2. Install the `pulsar-operator` chart.
 
     ```
     helm install pulsar-operators --namespace <k8s-namespace>  streamnative/pulsar-operator
     ```
 
-4. Verify that the `pulsar-operator` chart is installed successfully.
+3. Verify that the `pulsar-operator` chart is installed successfully.
 
     ```
     kubectl get po -n <k8s-namespace>
