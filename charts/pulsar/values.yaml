@@ -1387,6 +1387,39 @@ datadog:
 ##
 grafana:
   component: grafana
+  grafana.ini:
+    paths:
+      data: /var/lib/grafana/pulsar/data
+      plugins: /var/lib/grafana/pulsar/plugins
+      provisioning: /var/lib/grafana/pulsar_provisioning
+    server:
+      domain: "{{ GRAFANA_DOMAIN }}"
+      serve_from_sub_path: "{{ GRAFANA_SERVE_FROM_SUB_PATH }}"
+      root_url: "{{ GRAFANA_ROOT_URL }}"
+    analytics:
+      check_for_updates: true
+    security:
+      admin_user: "{{ GRAFANA_ADMIN_USER }}"
+      admin_password: "{{ GRAFANA_ADMIN_PASSWORD }}"
+    auth.azuread:
+      name: Azure AD
+      enabled: false
+      allow_sign_up: true
+      client_id: ""
+      client_secret: ""
+      scopes: openid email profile
+      auth_url: ""
+      token_url: ""
+      allowed_domains: ""
+      allowed_groups: ""
+      role_attribute_strict: true
+    log:
+      mode: console
+    log.file:
+      level: info
+      format: text
+    grafana_com:
+      url: https://grafana.com
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -1445,6 +1478,13 @@ grafana:
   admin:
     user: pulsar
     password: pulsar
+  ## Oauth2 for Azuread
+  ## Grafana Override configuration with environment variables.
+  ## see: https://grafana.com/docs/grafana/latest/administration/configuration/#override-configuration-with-environment-variables
+  azureAuthEnabled: false
+  azuread:
+    client_id: "AZURE-AD-SSO-CLIENT-ID"
+    client_secret: "AZURE-AD-SSO-CLIENT-SECRET"
 
 ## Monitoring Stack: node_exporteer
 ## templates/node-exporter.yaml
