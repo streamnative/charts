@@ -26,6 +26,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.grafana.component }}
 data:
+  grafana.ini: |
 {{- range $key, $value := index .Values.grafana "grafana.ini" }}
     [{{ $key }}]
     {{- range $elem, $elemVal := $value }}
