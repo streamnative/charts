@@ -18,10 +18,10 @@
 #
 
 apiVersion: v1
-appVersion: "1.4"
+appVersion: "1.5"
 description: StreamNative Console Chart
 name: sn-console
-version: 1.4
+version: 1.5
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/tree/master/charts/sn-console
