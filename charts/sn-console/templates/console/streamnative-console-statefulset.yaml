@@ -118,6 +118,12 @@ spec:
           - name: REDIRECT_PORT
             value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
           {{- end }}
+          - name: REDIRECT_SCHEME
+            value: {{ .Values.configData.REDIRECT_SCHEME }}
+          - name: REDIRECT_HOST
+            value: {{ .Values.configData.REDIRECT_HOST }}
+          - name: REDIRECT_PORT
+            value: "{{ .Values.configData.REDIRECT_PORT }}"
           envFrom:
           - secretRef:
               name: {{ template "streamnative_console.vault-secret-key-name" . }}
