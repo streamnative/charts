@@ -112,6 +112,12 @@ spec:
           - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
             value: {{ .Values.login.sso.google.config.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
           {{- end }}
+          - name: REDIRECT_SCHEME
+            value: {{ .Values.configData.REDIRECT_SCHEME }}
+          - name: REDIRECT_HOST
+            value: {{ .Values.configData.REDIRECT_HOST }}
+          - name: REDIRECT_PORT
+            value: "{{ .Values.configData.REDIRECT_PORT }}"
           envFrom:
           - secretRef:
               name: {{ template "streamnative_console.vault-secret-key-name" . }}
