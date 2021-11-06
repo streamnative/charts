@@ -58,6 +58,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.broker.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.broker.imagePullSecrets }}
+      {{- end }}
       securityContext:
 {{- with .Values.broker.securityContext }}
 {{ toYaml . | indent 8 }}
