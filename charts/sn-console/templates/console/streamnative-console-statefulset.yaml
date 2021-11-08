@@ -111,6 +111,30 @@ spec:
             value: {{ .Values.login.sso.google.config.GOOGLE_REDIRECT_URI }}
           - name: GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME
             value: {{ .Values.login.sso.google.config.GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+          - name: GOOGLE_CLIENT_ID
+            value: {{ .Values.streamnative_console.configData.GOOGLE_CLIENT_ID }}
+          - name: GOOGLE_CLIENT_SECRET
+            value: "{{ .Values.streamnative_console.configData.GOOGLE_CLIENT_SECRET }}"
+          - name: REDIRECT_SCHEME
+            value: {{ .Values.streamnative_console.configData.REDIRECT_SCHEME }}
+          - name: REDIRECT_HOST
+            value: {{ .Values.streamnative_console.configData.REDIRECT_HOST }}
+          - name: REDIRECT_PORT
+            value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
+          {{- end }}
+          {{- if .Values.login.sso.azure.enabled }}
+          - name: AZURE_OAUTH2_ENABLED
+            value: "true"
+          - name: AZURE_REDIRECT_URI
+            value: {{ .Values.login.sso.azure.config.AZURE_REDIRECT_URI }}
+          - name: AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME
+            value: {{ .Values.login.sso.azure.config.AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+          - name: AZURE_TENANT_ID
+            value: {{ .Values.streamnative_console.configData.AZURE_TENANT_ID }}
+          - name: AZURE_CLIENT_ID
+            value: {{ .Values.streamnative_console.configData.AZURE_CLIENT_ID }}
+          - name: AZURE_CLIENT_SECRET
+            value: "{{ .Values.streamnative_console.configData.AZURE_CLIENT_SECRET }}"
           - name: REDIRECT_SCHEME
             value: {{ .Values.streamnative_console.configData.REDIRECT_SCHEME }}
           - name: REDIRECT_HOST
