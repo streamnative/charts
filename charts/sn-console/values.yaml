@@ -108,13 +108,6 @@ configData:
   GOOGLE_CLIENT_SECRET: ""
   GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
   GOOGLE_REDIRECT_URI: ""
-  # Settings to enable azure oauth2
-  AZURE_OAUTH2_ENABLED: false
-  AZURE_TENANT_ID: ""
-  AZURE_CLIENT_ID: ""
-  AZURE_CLIENT_SECRET: ""
-  AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
-  AZURE_REDIRECT_URI: ""
 
 login:
   sso: 
@@ -127,8 +120,8 @@ login:
         GOOGLE_REDIRECT_URI: ""
     azure:
       enabled: false
-      # The secret should contain both `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
-      clientSecretRef: '[kubernetes secret that stores client secret for Google SSO]'
+      # The secret should contain both `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` and `AZURE_TENANT_ID`
+      clientSecretRef: '[kubernetes secret that stores client secret for Azure SSO]'
       config:
         AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
         AZURE_REDIRECT_URI: ""
