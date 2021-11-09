@@ -286,8 +286,10 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+        {{- if and .Values.auth.authentication.enabled .Values.auth.vault.enabled }}
         - secretRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
+        {{- end }}
         volumeMounts:
           {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}
