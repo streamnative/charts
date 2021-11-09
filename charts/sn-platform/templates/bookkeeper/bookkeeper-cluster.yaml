@@ -129,6 +129,11 @@ spec:
         {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 8 }}
     reclaimPolicy: Delete
   {{- end }}
+  {{- if .Values.bookkeeper.custom }}
+  config:
+    custom:
+{{ toYaml .Values.bookkeeper.custom | indent 6 }}
+  {{- end }}
   conf:
     zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
     # enable bookkeeper http server

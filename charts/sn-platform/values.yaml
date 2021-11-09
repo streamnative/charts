@@ -774,6 +774,7 @@ bookkeeper:
   autoRollDeployment: true
   placementPolicy:
     rackAware: true
+  custom: {}
   configData:
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
