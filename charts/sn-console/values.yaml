@@ -118,6 +118,13 @@ login:
       config:
         GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
         GOOGLE_REDIRECT_URI: ""
+    azure:
+      enabled: false
+      # The secret should contain both `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` and `AZURE_TENANT_ID`
+      clientSecretRef: '[kubernetes secret that stores client secret for Azure SSO]'
+      config:
+        AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+        AZURE_REDIRECT_URI: ""
 
 # broker related settings. configure how streamnative console should access Pulsar brokers.
 broker:
