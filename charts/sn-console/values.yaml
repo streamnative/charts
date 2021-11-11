@@ -21,7 +21,7 @@ initialize: true
 
 image:
   repository: streamnative/sn-platform-console
-  tag: "1.4"
+  tag: "1.6"
   pullPolicy: IfNotPresent
   hasCommand: false
 
