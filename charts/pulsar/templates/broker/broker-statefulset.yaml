@@ -225,6 +225,9 @@ spec:
         {{- else }}
           export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local";
         {{- end }}
+        {{- if .Values.broker.extraStartupCommands }}
+          {{ .Values.broker.extraStartupCommands | nindent 10 }}
+        {{- end }}
           bin/apply-config-from-env.py conf/broker.conf;
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
