@@ -594,6 +594,8 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
+  advanced:
+    staticServerList: []
   securityContext: {}
   tolerations: []
   gracePeriod: 30
@@ -1615,6 +1617,12 @@ prometheus:
       memory: 256Mi
       cpu: 0.1
   # Definition of the serviceAccount used to run brokers.
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: preferredDuringSchedulingIgnoredDuringExecution
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
