@@ -69,6 +69,50 @@ spec:
       securityContext:
 {{ toYaml .Values.prometheus.securityContext | indent 8 }}
       {{- end }}
+      affinity:
+        {{- if and .Values.affinity.anti_affinity .Values.prometheus.affinity.anti_affinity}}
+        podAntiAffinity:
+          {{ if .Values.prometheus.affinity.customRules }}
+{{ toYaml .Values.prometheus.affinity.customRules | indent 10 }}
+          {{ else }}
+          {{ .Values.prometheus.affinity.type }}:
+          {{ if eq .Values.prometheus.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
+          - labelSelector:
+              matchExpressions:
+              - key: "app"
+                operator: In
+                values:
+                - "{{ template "pulsar.name" . }}"
+              - key: "release"
+                operator: In
+                values:
+                - {{ .Release.Name }}
+              - key: "component"
+                operator: In
+                values:
+                - {{ .Values.prometheus.component }}
+            topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "app"
+                      operator: In
+                      values:
+                      - "{{ template "pulsar.name" . }}"
+                    - key: "release"
+                      operator: In
+                      values:
+                      - {{ .Release.Name }}
+                    - key: "component"
+                      operator: In
+                      values:
+                      - {{ .Values.prometheus.component }}
+                topologyKey: "kubernetes.io/hostname"
+          {{ end }}
+          {{ end }}
+        {{- end }}
       containers:
       {{- if .Values.configmapReload.prometheus.enabled }}
       - name: {{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.configmapReload.prometheus.name }}
