@@ -171,7 +171,12 @@ spec:
       tlsTrustCertsFilePath: "/etc/tls/pulsar-proxy-tls/ca.crt"
       {{- end }}
       {{- end }}
-  dnsNames: []
+  dnsNames:
+  {{- if .Values.domain.enabled }}
+    - {{ template "pulsar.service_domain" . }}
+  {{- else }}
+    []
+  {{- end }}
   issuerRef:
     name: ""
   {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
@@ -180,5 +185,17 @@ spec:
   {{ else }}
   certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
   {{- end }}
+  {{- end }}
+  apiObjects:
+    externalService:
+  {{- if .Values.ingress.proxy.enabled }}
+      metadata:
+        name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-ingress"
+        annotations:
+        {{- with .Values.ingress.proxy.annotations }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+  {{- else }}
+      {}
   {{- end }}
 {{- end }}
