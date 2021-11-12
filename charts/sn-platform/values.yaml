@@ -1734,9 +1734,9 @@ streamnative_console:
   ## https://docs.streamnative.io/platform/v1.2.0/operator-guides/configure/streamnative-console
   configData:
     # *required*: the organization name to show in the SN console
-    DEFAULT_ORGANIZATION: ""
+    DEFAULT_ORGANIZATION: "streamnative"
     # *required*: the instance name to display for the Pulsar clusters in SN console
-    INSTANCE_NAME: ""
+    INSTANCE_NAME: "pulsar"
     GOOGLE_REDIRECT_URI: ""
     REDIRECT_SCHEME: ""
     REDIRECT_HOST: ""
