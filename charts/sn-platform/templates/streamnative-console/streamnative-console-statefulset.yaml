@@ -118,13 +118,6 @@ spec:
             value: {{ template "pulsar.web.service.url" . }}
           - name: KOP_SERVICE_URL
             value: {{ .Values.broker.advertisedDomain }}:9093
-          {{- if .Values.streamnative_console.configData.RESOURCES_GLOBAL_READ_ONLY }}
-          - name: RESOURCES_GLOBAL_READ_ONLY
-            value: "true"
-          {{- else }}
-          - name: RESOURCES_GLOBAL_READ_ONLY
-            value: "false"
-          {{- end }}
           {{- if .Values.streamnative_console.login.sso.google.enabled }}
           - name: GOOGLE_OAUTH2_ENABLED
             value: "true"
