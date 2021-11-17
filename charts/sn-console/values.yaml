@@ -130,7 +130,7 @@ login:
       # The secret should contain both `OKTA_CLIENT_ID`, `OKTA_CLIENT_SECRET` and `OKTA_TENANT_ID`
       clientSecretRef: '[kubernetes secret that stores client secret for Okta SSO]'
       config:
-        OKTA_CLIENT_SECRET: "OKTA_CLIENT_SECRET"
+        OKTA_DOMAIN: "OKTA_DOMAIN"
         OKTA_REDIRECT_URI: "OKTA_REDIRECT_URI"
         OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
 
