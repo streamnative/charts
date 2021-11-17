@@ -125,6 +125,14 @@ login:
       config:
         AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
         AZURE_REDIRECT_URI: ""
+    okta:
+      enabled: false
+      config:
+        OKTA_DOMAIN: "OKTA_DOMAIN"
+        OKTA_CLIENT_ID: "OKTA_CLIENT_ID"
+        OKTA_CLIENT_SECRET: "OKTA_CLIENT_SECRET"
+        OKTA_REDIRECT_URI: "OKTA_REDIRECT_URI"
+        OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
 
 # broker related settings. configure how streamnative console should access Pulsar brokers.
 broker:
