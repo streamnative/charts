@@ -1737,7 +1737,6 @@ streamnative_console:
     DEFAULT_ORGANIZATION: "streamnative"
     # *required*: the instance name to display for the Pulsar clusters in SN console
     INSTANCE_NAME: "pulsar"
-    GOOGLE_REDIRECT_URI: ""
     REDIRECT_SCHEME: ""
     REDIRECT_HOST: ""
     REDIRECT_PORT: ""
@@ -1765,6 +1764,14 @@ streamnative_console:
           AZURE_TENANT_ID: "AZURE_TENANT_ID"
           AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
           AZURE_REDIRECT_URI: ""
+      okta:
+        enabled: false
+        config:
+          OKTA_DOMAIN: "OKTA_DOMAIN"
+          OKTA_CLIENT_ID: "OKTA_CLIENT_ID"
+          OKTA_CLIENT_SECRET: "OKTA_CLIENT_SECRET"
+          OKTA_REDIRECT_URI: "OKTA_REDIRECT_URI"
+          OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml

@@ -125,6 +125,14 @@ login:
       config:
         AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
         AZURE_REDIRECT_URI: ""
+    okta:
+      enabled: false
+      # The secret should contain both `OKTA_CLIENT_ID`, `OKTA_CLIENT_SECRET` and `OKTA_TENANT_ID`
+      clientSecretRef: '[kubernetes secret that stores client secret for Okta SSO]'
+      config:
+        OKTA_DOMAIN: "OKTA_DOMAIN"
+        OKTA_REDIRECT_URI: "OKTA_REDIRECT_URI"
+        OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
 
 # broker related settings. configure how streamnative console should access Pulsar brokers.
 broker:
