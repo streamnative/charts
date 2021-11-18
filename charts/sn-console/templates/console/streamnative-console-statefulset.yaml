@@ -104,8 +104,8 @@ spec:
             value: {{ .Values.broker.webServiceUrl }}
           - name: KOP_SERVICE_URL
             value: {{ .Values.broker.kopServiceUrl }}
-          {{- if .Values.streamnative_console.configData.GLOBAL_RESOURCES_READ_ONLY }}
-          - name: GLOBAL_RESOURCES_READ_ONLY
+          {{- if .Values.streamnative_console.configData.GLOBAL_RESOURCE_READ_ONLY }}
+          - name: GLOBAL_RESOURCE_READ_ONLY
             value: "true"
           {{- end }}
           {{- if .Values.login.sso.google.enabled }}
