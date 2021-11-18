@@ -1737,6 +1737,7 @@ streamnative_console:
     DEFAULT_ORGANIZATION: "streamnative"
     # *required*: the instance name to display for the Pulsar clusters in SN console
     INSTANCE_NAME: "pulsar"
+    GLOBAL_RESOURCE_READ_ONLY: false
     REDIRECT_SCHEME: ""
     REDIRECT_HOST: ""
     REDIRECT_PORT: ""
@@ -1746,6 +1747,7 @@ streamnative_console:
     GOOGLE_CLIENT_ID: ""
     GOOGLE_CLIENT_SECRET: ""
     GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+    GOOGLE_REDIRECT_URI: ""
 
   login:
     sso:
