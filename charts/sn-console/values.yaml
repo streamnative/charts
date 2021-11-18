@@ -98,6 +98,7 @@ configData:
   DEFAULT_ORGANIZATION: "streamnative"
   # *required*: the instance name to display for the Pulsar clusters in SN console
   INSTANCE_NAME: "pulsar"
+  GLOBAL_RESOURCES_READ_ONLY: false
   REDIRECT_SCHEME: ""
   REDIRECT_HOST: ""
   REDIRECT_PORT: ""
