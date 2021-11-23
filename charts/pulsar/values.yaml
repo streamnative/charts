@@ -1035,6 +1035,16 @@ broker:
       #   [secret name]
       # ```
       # secret: [k8s secret that stores AWS credentials]
+    filesystem:
+      enabled: false
+      fileSystemURI: "file:///pulsar/data"
+      fileSystemProfilePath: "/pulsar/conf/filesystem-config.yaml"
+      fileDefaultFS: ""
+      fileTmpDir: "pulsar"
+      fileBuffersize: "4096"
+      ioSeqfileCompressBlocksize: "1000000"
+      ioSeqFileCompressionType: "BLOCK"
+      ioMapIndexInteval: "128"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
