@@ -359,6 +359,24 @@ Define gcs offload options mounts
 {{- end }}
 {{- end }}
 
+{{/* Define the filesystem offload config volumes*/}}
+{{- define "pulsar.broker.offload.filesystem.config.volumes" }}
+{{- if .Values.broker.offload.filesystem.enabled }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-ofc"
+  configMap:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+{{- end }}
+{{- end }}
+
+{{/*Define the filesystem offload config volume mount*/}}
+{{- define "pulsar.broker.offload.filesystem.config.volumeMounts" }}
+{{- if .Values.broker.offload.filesystem.enabled }}
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-ofc"
+  mountPath: "{{ template "pulsar.home" .}}/conf/filesystem-config.yaml"
+  subPath: filesystem-config.yaml
+{{- end }}
+{{- end }}
+
 {{/*Define broker service account*/}}
 {{- define "pulsar.broker.serviceAccount" -}}
 {{- if .Values.broker.serviceAccount.create -}}
