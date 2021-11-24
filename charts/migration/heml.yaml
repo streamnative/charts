@@ -1,0 +1,639 @@
+---
+# Source: sn-platform/templates/namespace.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+# Source: sn-platform/templates/pulsar-cluster-initialize.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+# Source: sn-platform/templates/bookkeeper/bookkeeper-cluster.yaml
+apiVersion: bookkeeper.streamnative.io/v1alpha1
+kind: BookKeeperCluster
+metadata:
+  name: "pulsar-sn-platform-bookie"
+  namespace: zxccc
+  annotations:
+    "cloud.streamnative.io/enable-config-prefix": "true"
+  labels:
+    app: sn-platform
+    cluster: pulsar-sn-platform
+    component: bookie
+    cloud.streamnative.io/pulsar-cluster: cluster
+    cloud.streamnative.io/role: bookkeeper
+spec:
+  zkServers: "zk:2181"
+  replicas: 3
+  image: "streamnative/sn-platform:2.8.1.4"
+  imagePullPolicy: IfNotPresent
+  pod:
+    labels:
+      app: sn-platform
+      cluster: pulsar-sn-platform
+      component: bookie
+      cloud.streamnative.io/pulsar-cluster: cluster
+      cloud.streamnative.io/role: bookkeeper
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8000"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "cluster"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "bookkeeper"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - bookie
+              topologyKey: "kubernetes.io/hostname"
+          
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "0.2"
+    terminationGracePeriodSeconds: 30
+    jvmOptions:
+      memoryOptions:
+        - -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+
+      gcOptions:
+        - -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem -XX:+PrintGCDetails -verbosegc -Xloggc:/var/log/bookie-gc.log
+
+  storage:
+    journal:
+      volumeClaimTemplate:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: sn-ssd
+    ledger:
+      volumeClaimTemplate:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: sn-default
+    reclaimPolicy: Delete
+  conf:
+    zkLedgersRootPath: "/ledgers"
+    # enable bookkeeper http server
+    httpServerEnabled: "true"
+    httpServerPort: "8000"
+    # config the stats provider
+    statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
+    # use hostname as the bookie id
+    useHostNameAsBookieID: "true"
+    # disable auto recovery on bookies since we will start AutoRecovery in separated pods
+    autoRecoveryDaemonEnabled: "false"
+    # Do not retain journal files as it increase the disk utilization
+    journalMaxBackups: "0"
+    BOOKIE_MEM: -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+
+    
+  autoRecovery:
+    replicas: 1
+    pod:
+      labels:
+        app: sn-platform
+        cluster: pulsar-sn-platform
+        component: recovery
+        cloud.streamnative.io/pulsar-cluster: cluster
+        cloud.streamnative.io/role: bookkeeper
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+      terminationGracePeriodSeconds: 30
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "cloud.streamnative.io/pulsar-cluster"
+                      operator: In
+                      values:
+                        - "cluster"
+                    - key: "cloud.streamnative.io/role"
+                      operator: In
+                      values:
+                        - "bookkeeper"
+                    - key: "component"
+                      operator: In
+                      values:
+                        - recovery
+                topologyKey: "kubernetes.io/hostname"
+            
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "0.05"
+    conf:
+      zkServers: "pulsar-sn-platform-zookeeper:2181"
+      zkLedgersRootPath: "/ledgers"
+      # enable bookkeeper http server
+      httpServerEnabled: "true"
+      httpServerPort: "8000"
+      # config the stats provider
+      statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
+      # use hostname as the bookie id
+      useHostNameAsBookieID: "true"
+      BOOKIE_MEM: |
+        -Xms64m -Xmx64m
+---
+# Source: sn-platform/templates/broker/broker-cluster.yaml
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarBroker
+metadata:
+  # no need to add component to name here as operator will add 
+  name: "pulsar-sn-platform-broker"
+  namespace: zxccc
+  annotations:
+    "cloud.streamnative.io/enable-config-prefix": "true"
+  labels:
+    app: sn-platform
+    cluster: pulsar-sn-platform
+    component: broker
+    cloud.streamnative.io/pulsar-cluster: cluster
+    cloud.streamnative.io/role: pulsar-broker
+spec:
+  zkServers: "zk:2181"
+  replicas: 1
+  image: "streamnative/sn-platform:2.8.1.5-oauth2"
+  imagePullPolicy: IfNotPresent
+  pod:
+    labels:
+      app: sn-platform
+      cluster: pulsar-sn-platform
+      component: broker
+      cloud.streamnative.io/pulsar-cluster: cluster
+      cloud.streamnative.io/role: pulsar-broker
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "cluster"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "pulsar-broker"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - broker
+              topologyKey: "kubernetes.io/hostname"
+          
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "0.2"
+    terminationGracePeriodSeconds: 30
+    jvmOptions:
+      extraOptions: []
+      memoryOptions:
+        - -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+
+      gcOptions:
+        - -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem
+
+      gcLoggingOptions: []
+  config:
+    function:
+      enabled: true
+      mesh:
+        builtinConnectorsRef:
+          name: builtin-connectors
+      type: FunctionMesh
+    advertisedDomain: ""
+    protocolHandlers:
+      kop:
+        enabled: true
+        tls:
+          enabled: false
+          certSecretName: "pulsar-tls-proxy"
+          passwordSecretRef:
+            name: cert-jks-passwd
+            key: password
+    custom:
+      PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
+      PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
+      PULSAR_GC: |
+        -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem
+      PULSAR_MEM: |
+        -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+      brokerDeleteInactiveTopicsEnabled: "false"
+      clusterName: pulsar
+      managedLedgerDefaultAckQuorum: "2"
+      managedLedgerDefaultEnsembleSize: "3"
+      managedLedgerDefaultWriteQuorum: "3"
+      PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+---
+# Source: sn-platform/templates/proxy/proxy-cluster.yaml
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarProxy
+metadata:
+  # no need to append component name to pod name here as operator will add 
+  name: "pulsar-sn-platform-proxy"
+  namespace: zxccc
+  annotations:
+    "cloud.streamnative.io/enable-config-prefix": "true"
+  labels:
+    app: sn-platform
+    cluster: pulsar-sn-platform
+    component: proxy
+    cloud.streamnative.io/pulsar-cluster: cluster
+    cloud.streamnative.io/role: pulsar-proxy
+spec:
+  brokerAddress: 
+  replicas: 1
+  image: "streamnative/sn-platform:2.8.1.5-oauth2"
+  imagePullPolicy: IfNotPresent
+  pod:
+    labels:
+      app: sn-platform
+      cluster: pulsar-sn-platform
+      component: proxy
+      cloud.streamnative.io/pulsar-cluster: cluster
+      cloud.streamnative.io/role: pulsar-proxy
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "cluster"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "pulsar-proxy"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - proxy
+              topologyKey: "kubernetes.io/hostname"
+          
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "0.2"
+    terminationGracePeriodSeconds: 30
+    jvmOptions:
+      extraOptions: []
+      memoryOptions:
+        - -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+
+      gcOptions:
+        - -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem
+
+      gcLoggingOptions: []
+  config:
+    tls:
+      enabled: false
+    custom:
+      PULSAR_GC: |
+        -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem
+      PULSAR_MEM: |
+        -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+      clusterName: pulsar
+  issuerRef:
+    name: ""
+---
+# Source: sn-platform/templates/zookeeper/zookeeper-cluster.yaml
+apiVersion: zookeeper.streamnative.io/v1alpha1
+kind: ZooKeeperCluster
+metadata:
+  name: "pulsar-sn-platform-zookeeper"
+  namespace: zxccc
+  annotations:
+    "cloud.streamnative.io/ignore-leader-check": "true"
+    "cloud.streamnative.io/cluster-force-update": "true"
+  labels:
+    app: sn-platform
+    cluster: pulsar-sn-platform
+    component: zookeeper
+    cloud.streamnative.io/pulsar-cluster: cluster
+    cloud.streamnative.io/role: zookeeper
+spec:
+  replicas: 3
+  image: "streamnative/sn-platform:2.8.1.4"
+  pod:
+    labels:
+      app: sn-platform
+      cluster: pulsar-sn-platform
+      component: zookeeper
+      cloud.streamnative.io/pulsar-cluster: cluster
+      cloud.streamnative.io/role: zookeeper
+    annotations:
+      prometheus.io/port: "8000"
+      prometheus.io/scrape: "true"
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "cluster"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "zookeeper"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - zookeeper
+              topologyKey: "kubernetes.io/hostname"
+          
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "0.1"
+    terminationGracePeriodSeconds: 30
+    jvmOptions:
+      memoryOptions:
+        - -Xms64m -Xmx128m
+
+      gcOptions:
+        - -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dcom.sun.management.jmxremote -Djute.maxbuffer=10485760 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:+DisableExplicitGC -XX:+PerfDisableSharedMem -Dzookeeper.forceSync=no
+
+  persistence:
+    data:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 50Gi
+      storageClassName: sn-default
+    dataLog:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: sn-ssd
+    reclaimPolicy: Delete
+  config:
+    serverCnxnFactory: org.apache.zookeeper.server.NIOServerCnxnFactory
+    # copy from configmap
+    custom:
+      # if adopting existing zk cluster then also keep existing data/data-log dir setting
+      PULSAR_PREFIX_dataDir: /pulsar/data/zookeeper
+      # use a separate disk for tx log
+      PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
+      # enable zookeeper tls
+      PULSAR_PREFIX_peerType: participant
+      PULSAR_GC: |
+        -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dcom.sun.management.jmxremote -Djute.maxbuffer=10485760 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:+DisableExplicitGC -XX:+PerfDisableSharedMem -Dzookeeper.forceSync=no
+      PULSAR_MEM: |
+        -Xms64m -Xmx128m
+      log4j2.yaml: |
+        #
+        # Licensed to the Apache Software Foundation (ASF) under one
+        # or more contributor license agreements.  See the NOTICE file
+        # distributed with this work for additional information
+        # regarding copyright ownership.  The ASF licenses this file
+        # to you under the Apache License, Version 2.0 (the
+        # "License"); you may not use this file except in compliance
+        # with the License.  You may obtain a copy of the License at
+        #
+        #   http://www.apache.org/licenses/LICENSE-2.0
+        #
+        # Unless required by applicable law or agreed to in writing,
+        # software distributed under the License is distributed on an
+        # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+        # KIND, either express or implied.  See the License for the
+        # specific language governing permissions and limitations
+        # under the License.
+        #
+      
+      
+        Configuration:
+          status: INFO
+          monitorInterval: 30
+          name: pulsar
+          packages: io.prometheus.client.log4j2
+      
+          Properties:
+            Property:
+              - name: "pulsar.log.dir"
+                value: "logs"
+              - name: "pulsar.log.file"
+                value: "pulsar.log"
+              - name: "pulsar.log.appender"
+                value: "RoutingAppender"
+              - name: "pulsar.log.root.level"
+                value: "info"
+              - name: "pulsar.log.level"
+                value: "info"
+              - name: "pulsar.routing.appender.default"
+                value: "Console"
+      
+          # Example: logger-filter script
+          Scripts:
+            ScriptFile:
+              name: filter.js
+              language: JavaScript
+              path: ./conf/log4j2-scripts/filter.js
+              charset: UTF-8
+      
+          Appenders:
+      
+            # Console
+            Console:
+              name: Console
+              target: SYSTEM_OUT
+              PatternLayout:
+                Pattern: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
+      
+            # Rolling file appender configuration
+            RollingFile:
+              name: RollingFile
+              fileName: "${sys:pulsar.log.dir}/${sys:pulsar.log.file}"
+              filePattern: "${sys:pulsar.log.dir}/${sys:pulsar.log.file}-%d{MM-dd-yyyy}-%i.log.gz"
+              immediateFlush: false
+              PatternLayout:
+                Pattern: "%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
+              Policies:
+                TimeBasedTriggeringPolicy:
+                  interval: 1
+                  modulate: true
+                SizeBasedTriggeringPolicy:
+                  size: 1 GB
+              # Delete file older than 30days
+              DefaultRolloverStrategy:
+                  Delete:
+                    basePath: ${sys:pulsar.log.dir}
+                    maxDepth: 2
+                    IfFileName:
+                      glob: "*/${sys:pulsar.log.file}*log.gz"
+                    IfLastModified:
+                      age: 30d
+      
+            Prometheus:
+              name: Prometheus
+      
+            # Routing
+            Routing:
+              name: RoutingAppender
+              Routes:
+                pattern: "$${ctx:function}"
+                Route:
+                  -
+                    Routing:
+                      name: InstanceRoutingAppender
+                      Routes:
+                        pattern: "$${ctx:instance}"
+                        Route:
+                          -
+                            RollingFile:
+                              name: "Rolling-${ctx:function}"
+                              fileName : "${sys:pulsar.log.dir}/functions/${ctx:function}/${ctx:functionname}-${ctx:instance}.log"
+                              filePattern : "${sys:pulsar.log.dir}/functions/${sys:pulsar.log.file}-${ctx:instance}-%d{MM-dd-yyyy}-%i.log.gz"
+                              PatternLayout:
+                                Pattern: "%d{ABSOLUTE} %level{length=5} [%thread] [instance: %X{instance}] %logger{1} - %msg%n"
+                              Policies:
+                                TimeBasedTriggeringPolicy:
+                                  interval: 1
+                                  modulate: true
+                                SizeBasedTriggeringPolicy:
+                                  size: "20MB"
+                                # Trigger every day at midnight that also scan
+                                # roll-over strategy that deletes older file
+                                CronTriggeringPolicy:
+                                  schedule: "0 0 0 * * ?"
+                              # Delete file older than 30days
+                              DefaultRolloverStrategy:
+                                  Delete:
+                                    basePath: ${sys:pulsar.log.dir}
+                                    maxDepth: 2
+                                    IfFileName:
+                                      glob: "*/${sys:pulsar.log.file}*log.gz"
+                                    IfLastModified:
+                                      age: 30d
+                          - ref: "${sys:pulsar.routing.appender.default}"
+                            key: "${ctx:function}"
+                  - ref: "${sys:pulsar.routing.appender.default}"
+                    key: "${ctx:function}"
+      
+          Loggers:
+      
+            # Default root logger configuration
+            Root:
+              level: "${sys:pulsar.log.root.level}"
+              additivity: true
+              AppenderRef:
+                - ref: "${sys:pulsar.log.appender}"
+                  level: "${sys:pulsar.log.level}"
+                - ref: Prometheus
+                  level: info
+      
+            Logger:
+              - name: org.apache.bookkeeper.bookie.BookieShell
+                level: info
+                additivity: false
+                AppenderRef:
+                  - ref: Console
+      
+              - name: verbose
+                level: info
+                additivity: false
+                AppenderRef:
+                  - ref: Console
+      
+            # Logger to inject filter script
+        #     - name: org.apache.bookkeeper.mledger.impl.ManagedLedgerImpl
+        #       level: debug
+        #       additivity: false
+        #       AppenderRef:
+        #         ref: "${sys:pulsar.log.appender}"
+        #         ScriptFilter:
+        #           onMatch: ACCEPT
+        #           onMisMatch: DENY
+        #           ScriptRef:
+        #             ref: filter.js
+  apiObjects:
+    clientService:
+      metadata:
+        name: "platform-pulsar-zookeeper"
+    headlessService: {}
+    statefulSet:
+      metadata:
+        name: "platform-pulsar-zookeeper"
+      updatePolicy:
+        - ""
+
+    configMap:
+      metadata:
+        name: "platform-pulsar-zookeeper"
+    pdb:
+      metadata:
+        name: "platform-pulsar-zookeeper"

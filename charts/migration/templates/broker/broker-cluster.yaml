@@ -1,0 +1,192 @@
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarBroker
+metadata:
+  # no need to add component to name here as operator will add 
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component}}"
+  namespace: {{ template "pulsar.namespace" . }}
+  annotations:
+    "cloud.streamnative.io/enable-config-prefix": "true"
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.broker.component }}
+    cloud.streamnative.io/pulsar-cluster: {{ .Values.cluster }}
+    cloud.streamnative.io/role: pulsar-broker
+spec:
+  zkServers: "{{ .Values.broker.zkServers }}"
+  replicas: {{ .Values.broker.replicaCount }}
+  image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+  imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+  pod:
+    labels:
+      {{- include "pulsar.template.labels" . | nindent 6 }}
+      component: {{ .Values.broker.component }}
+      {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
+      sidecar.istio.io/inject: "true"
+      {{- end }}
+      {{- if .Values.broker.additionalPodLabels  }}
+      {{ .Values.broker.additionalPodLabels }}
+      {{- end }}
+      cloud.streamnative.io/pulsar-cluster: {{ .Values.cluster }}
+      cloud.streamnative.io/role: pulsar-broker
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.broker.ports.http }}"
+{{- with .Values.broker.annotations }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
+    affinity:
+      podAntiAffinity:
+        {{ .Values.broker.affinity.type }}:
+          {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          - labelSelector:
+              matchExpressions:
+                - key: "cloud.streamnative.io/pulsar-cluster"
+                  operator: In
+                  values:
+                    - "{{ .Values.cluster }}"
+                - key: "cloud.streamnative.io/role"
+                  operator: In
+                  values:
+                    - "pulsar-broker"
+                - key: "component"
+                  operator: In
+                  values:
+                    - {{ .Values.broker.component }}
+            topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "{{ .Values.cluster }}"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "pulsar-broker"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - {{ .Values.broker.component }}
+              topologyKey: "kubernetes.io/hostname"
+          {{ end }}
+    {{- end }}
+    {{- if .Values.broker.resources }}
+    resources:
+      requests:
+        memory: "{{ .Values.broker.resources.requests.memory }}"
+        cpu: "{{ .Values.broker.resources.requests.cpu }}"
+    {{- end }}
+    {{- if .Values.broker.securityContext }}
+    securityContext: {{ .Values.broker.securityContext }}
+    {{- end }}
+    {{- if .Values.broker.nodeSelector }}
+    nodeSelector:
+{{ toYaml .Values.broker.nodeSelector | indent 6 }}
+    {{- end }}
+    {{- if .Values.broker.tolerations }}
+    tolerations:
+{{ toYaml .Values.broker.tolerations | indent 6 }}
+    {{- end }}
+    terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
+    jvmOptions:
+      extraOptions: []
+      memoryOptions:
+        - {{ .Values.broker.configData.PULSAR_MEM }}
+      gcOptions:
+        - {{ .Values.broker.configData.PULSAR_GC }}
+      gcLoggingOptions: []
+  {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
+  istio:
+    enabled: true
+    gateway:
+      create: true
+      selector:
+        istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
+  {{- end }}
+  {{- if .Values.broker.dnsNames }}
+  dnsNames:
+{{ toYaml .Values.broker.dnsNames | indent 2}}
+  {{- end }}
+  config:
+    {{- if .Values.broker.functionmesh.enabled }}
+    function:
+      enabled: true
+      mesh:
+        builtinConnectorsRef:
+          name: builtin-connectors
+      type: FunctionMesh
+    {{- end }}
+    advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
+    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) }}
+    protocolHandlers:
+    {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+      kop:
+        enabled: true
+        tls:
+          enabled: {{ .Values.broker.kop.tls.enabled }}
+    {{- if .Values.broker.kop.tls.certSecretName }}
+          certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
+    {{ else }}
+          certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+    {{- end }}
+    {{- if .Values.broker.kop.tls.passwordSecretRef }}
+          passwordSecretRef:
+            key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
+            name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+    {{ else }}
+          passwordSecretRef:
+            name: cert-jks-passwd
+            key: password
+    {{- end }}
+    {{- end }}
+    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+      aop:
+        enabled: true
+        {{- if .Values.broker.aop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+    custom:
+      PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
+      PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
+{{ toYaml .Values.broker.configData | indent 6 }}
+      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+      authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
+      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+      PULSAR_PREFIX_chainAuthenticationEnabled: "true"
+      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
+      PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
+      PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
+      PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
+      PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
+      PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
+      PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
+      superUserRoles: "admin"
+      {{- else if .Values.auth.authentication.enabled }}
+      authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
+      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      superUserRoles: "admin"
+      {{- end }}
+      {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
+      authorizationEnabled: "true"
+      authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
+      {{- else if .Values.auth.authorization.enabled }}
+      authorizationEnabled: "true"
+      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
+      {{- end }}
+      {{- if .Values.broker.kop.enabled }}
+      PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}

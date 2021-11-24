@@ -1,0 +1,153 @@
+apiVersion: zookeeper.streamnative.io/v1alpha1
+kind: ZooKeeperCluster
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  annotations:
+    "cloud.streamnative.io/ignore-leader-check": "true"
+    "cloud.streamnative.io/cluster-force-update": "true"
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.zookeeper.component }}
+    cloud.streamnative.io/pulsar-cluster: {{ .Values.cluster }}
+    cloud.streamnative.io/role: zookeeper
+spec:
+  replicas: {{ .Values.zookeeper.replicaCount }}
+  image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
+  pod:
+    {{- if .Values.zookeeper.serviceAccountName }}
+    serviceAccountName: {{ .Values.zookeeper.serviceAccountName }}
+    {{- end }}
+    labels:
+      {{- include "pulsar.template.labels" . | nindent 6 }}
+      component: {{ .Values.zookeeper.component }}
+      cloud.streamnative.io/pulsar-cluster: {{ .Values.cluster }}
+      cloud.streamnative.io/role: zookeeper
+    annotations:
+{{- with .Values.zookeeper.annotations }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    affinity:
+      {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity }}
+      podAntiAffinity:
+        {{ .Values.zookeeper.affinity.type }}:
+          {{ if eq .Values.zookeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          - labelSelector:
+              matchExpressions:
+                - key: "cloud.streamnative.io/pulsar-cluster"
+                  operator: In
+                  values:
+                    - "{{ .Values.cluster }}"
+                - key: "cloud.streamnative.io/role"
+                  operator: In
+                  values:
+                    - "zookeeper"
+                - key: "component"
+                  operator: In
+                  values:
+                    - {{ .Values.zookeeper.component }}
+            topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "{{ .Values.cluster }}"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "zookeeper"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - {{ .Values.zookeeper.component }}
+              topologyKey: "kubernetes.io/hostname"
+          {{ end }}
+        {{- end }}
+    {{- if .Values.zookeeper.resources }}
+    resources:
+      requests:
+        memory: "{{ .Values.zookeeper.resources.requests.memory }}"
+        cpu: "{{ .Values.zookeeper.resources.requests.cpu }}"
+    {{- end }}
+    {{- if .Values.zookeeper.securityContext }}
+    securityContext: {{ .Values.zookeeper.securityContext }}
+    {{- end }}
+    {{- if .Values.zookeeper.tolerations }}
+    tolerations:
+{{ toYaml .Values.zookeeper.tolerations | indent 6 }}
+    {{- end }}
+    terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
+    jvmOptions:
+      memoryOptions:
+        - {{ .Values.zookeeper.configData.PULSAR_MEM }}
+      gcOptions:
+        - {{ .Values.zookeeper.configData.PULSAR_GC }}
+  {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
+  persistence:
+    data:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.zookeeper.volumes.data.size }}
+      storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
+    dataLog:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
+          storage: {{ .Values.zookeeper.volumes.dataLog.size }}
+          {{- else }}
+          storage: "0"
+          {{- end }}
+      storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
+    reclaimPolicy: Delete
+  {{- end }}
+  config:
+    serverCnxnFactory: {{ .Values.zookeeper.serverCnxnFactory }}
+    # copy from configmap
+    custom:
+      {{- if .Values.zookeeper.operator.adopt_existing }}
+      # if adopting existing zk cluster then also keep existing data/data-log dir setting
+      PULSAR_PREFIX_dataDir: {{ .Values.zookeeper.volumes.data.dir }}
+      {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
+      # use a separate disk for tx log
+      PULSAR_PREFIX_dataLogDir: {{ .Values.zookeeper.volumes.dataLog.dir }}
+      {{- end }}
+      {{- end }}
+      # enable zookeeper tls
+      {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
+      secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
+      PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
+      {{- end }}
+      {{- if .Values.zookeeper.reconfig.enabled }}
+      PULSAR_PREFIX_reconfigEnabled: "true"
+      PULSAR_PREFIX_quorumListenOnAllIPs: "true"
+      {{- end }}
+      PULSAR_PREFIX_peerType: {{ .Values.zookeeper.peerType }}
+{{ toYaml .Values.zookeeper.configData | indent 6 }}
+{{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 6 }}
+  apiObjects:
+    headlessService:
+      metadata:
+        name: "{{ .Values.zookeeper.apiobjects.clientService.name }}"
+    statefulSet:
+      metadata:
+        name: "{{ .Values.zookeeper.apiobjects.statefulSet.name }}"
+      updatePolicy:
+      {{- if .Values.zookeeper.operator.adopt_existing }}
+        {{ .Values.zookeeper.operator.updatePolicy }}
+      {{- else }}
+        - all
+      {{- end }}
+    configMap:
+      metadata:
+        name: "{{ .Values.zookeeper.apiobjects.configMap.name }}"
+    pdb:
+      metadata:
+        name: "{{ .Values.zookeeper.apiobjects.pdb.name }}"

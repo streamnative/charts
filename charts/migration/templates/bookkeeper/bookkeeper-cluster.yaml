@@ -1,0 +1,220 @@
+apiVersion: bookkeeper.streamnative.io/v1alpha1
+kind: BookKeeperCluster
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  annotations:
+    "cloud.streamnative.io/enable-config-prefix": "true"
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.bookkeeper.component }}
+    cloud.streamnative.io/pulsar-cluster: {{ .Values.cluster }}
+    cloud.streamnative.io/role: bookkeeper
+spec:
+  zkServers: "{{ .Values.bookkeeper.zkServers }}"
+  replicas: {{ .Values.bookkeeper.replicaCount }}
+  image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
+  imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
+  pod:
+    labels:
+      {{- include "pulsar.template.labels" . | nindent 6 }}
+      component: {{ .Values.bookkeeper.component }}
+      cloud.streamnative.io/pulsar-cluster: {{ .Values.cluster }}
+      cloud.streamnative.io/role: bookkeeper
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
+{{- with .Values.bookkeeper.annotations }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
+    affinity:
+      podAntiAffinity:
+        {{ .Values.bookkeeper.affinity.type }}:
+          {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          - labelSelector:
+              matchExpressions:
+                - key: "cloud.streamnative.io/pulsar-cluster"
+                  operator: In
+                  values:
+                    - "{{ .Values.cluster }}"
+                - key: "cloud.streamnative.io/role"
+                  operator: In
+                  values:
+                    - "bookkeeper"
+                - key: "component"
+                  operator: In
+                  values:
+                    - {{ .Values.bookkeeper.component }}
+            topologyKey: "kubernetes.io/hostname"
+          {{ else }}
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "{{ .Values.cluster }}"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "bookkeeper"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - {{ .Values.bookkeeper.component }}
+              topologyKey: "kubernetes.io/hostname"
+          {{ end }}
+    {{- end }}
+    {{- if .Values.bookkeeper.resources }}
+    resources:
+      requests:
+        memory: "{{ .Values.bookkeeper.resources.requests.memory }}"
+        cpu: "{{ .Values.bookkeeper.resources.requests.cpu }}"
+    {{- end }}
+    {{- if .Values.bookkeeper.securityContext }}
+    securityContext: {{ .Values.bookkeeper.securityContext }}
+    {{- end }}
+    {{- if .Values.bookkeeper.nodeSelector }}
+    nodeSelector:
+{{ toYaml .Values.bookkeeper.nodeSelector | indent 6 }}
+    {{- end }}
+    {{- if .Values.bookkeeper.tolerations }}
+    tolerations:
+{{ toYaml .Values.bookkeeper.tolerations | indent 6 }}
+    {{- end }}
+    terminationGracePeriodSeconds: {{ .Values.bookkeeper.gracePeriod }}
+    jvmOptions:
+      memoryOptions:
+        - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
+      gcOptions:
+        - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+  {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
+  storage:
+    journal:
+      volumeClaimTemplate:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.bookkeeper.volumes.journal.size }}
+        storageClassName: {{ .Values.bookkeeper.volumes.journal.storageClassName }}
+    ledger:
+      volumeClaimTemplate:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
+        storageClassName: {{ .Values.bookkeeper.volumes.ledgers.storageClassName }}
+    reclaimPolicy: Delete
+  {{- end }}
+  {{- if .Values.bookkeeper.custom }}
+  config:
+    custom:
+{{ toYaml .Values.bookkeeper.configData | indent 6 }}
+  {{- end }}
+  conf:
+    zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+    # enable bookkeeper http server
+    httpServerEnabled: "true"
+    httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
+    # config the stats provider
+    statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
+    # use hostname as the bookie id
+    useHostNameAsBookieID: "true"
+    {{- if .Values.components.autorecovery }}
+    # disable auto recovery on bookies since we will start AutoRecovery in separated pods
+    autoRecoveryDaemonEnabled: "false"
+    {{- end }}
+    # Do not retain journal files as it increase the disk utilization
+    journalMaxBackups: "0"
+    {{- if .Values.bookkeeper.operator.adopt_existing }}
+    # if adopting existing bk cluster then also keep existing ledger/journal dir setting
+    PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
+    PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+    {{- end }}
+    BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
+{{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
+  autoRecovery:
+    {{- if and .Values.components.autorecovery }}
+    replicas: {{ .Values.autorecovery.replicaCount }}
+    {{- else }}
+    replicas: 0
+    {{- end }}
+    pod:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.autorecovery.component }}
+        cloud.streamnative.io/pulsar-cluster: {{ .Values.cluster }}
+        cloud.streamnative.io/role: bookkeeper
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
+{{- with .Values.autorecovery.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+      {{- if .Values.autorecovery.securityContext }}
+      securityContext: {{ .Values.autorecovery.securityContext }}
+      {{- end }}
+      {{- if .Values.autorecovery.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.autorecovery.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.autorecovery.tolerations }}
+      tolerations:
+{{ toYaml .Values.autorecovery.tolerations | indent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
+      {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
+      affinity:
+        podAntiAffinity:
+          {{ .Values.autorecovery.affinity.type }}:
+            {{ if eq .Values.autorecovery.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+            - labelSelector:
+                matchExpressions:
+                  - key: "cloud.streamnative.io/pulsar-cluster"
+                    operator: In
+                    values:
+                      - "{{ .Values.cluster }}"
+                  - key: "cloud.streamnative.io/role"
+                    operator: In
+                    values:
+                      - "bookkeeper"
+                  - key: "component"
+                    operator: In
+                    values:
+                      - {{ .Values.autorecovery.component }}
+              topologyKey: "kubernetes.io/hostname"
+            {{ else }}
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: "cloud.streamnative.io/pulsar-cluster"
+                      operator: In
+                      values:
+                        - "{{ .Values.cluster }}"
+                    - key: "cloud.streamnative.io/role"
+                      operator: In
+                      values:
+                        - "bookkeeper"
+                    - key: "component"
+                      operator: In
+                      values:
+                        - {{ .Values.autorecovery.component }}
+                topologyKey: "kubernetes.io/hostname"
+            {{ end }}
+      {{- end }}
+      {{- if .Values.autorecovery.resources }}
+      resources:
+        requests:
+          memory: "{{ .Values.autorecovery.resources.requests.memory }}"
+          cpu: "{{ .Values.autorecovery.resources.requests.cpu }}"
+      {{- end }}
+    conf:
+      {{- include "pulsar.bookkeeper.config.common" . | nindent 6 }}
+{{ toYaml .Values.autorecovery.configData | indent 6 }}
+{{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
+
