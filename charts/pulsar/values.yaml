@@ -176,7 +176,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
-    tag: 0.6.0
+    tag: 0.3.0
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
