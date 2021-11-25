@@ -325,7 +325,7 @@ zookeeper:
   resourcePolicy:
     keep: false
   apiobjects:
-    clientService:
+    headlessService:
       name: "platform-pulsar-zookeeper"
     statefulSet:
       name: "platform-pulsar-zookeeper"

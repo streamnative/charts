@@ -135,7 +135,7 @@ spec:
   apiObjects:
     headlessService:
       metadata:
-        name: "{{ .Values.zookeeper.apiobjects.clientService.name }}"
+        name: "{{ .Values.zookeeper.apiobjects.headlessService.name }}"
     statefulSet:
       metadata:
         name: "{{ .Values.zookeeper.apiobjects.statefulSet.name }}"
