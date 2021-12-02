@@ -331,6 +331,8 @@ rules:
     - pulsarpermissions/status
     verbs:
     - get
+    - patch
+    - update
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
