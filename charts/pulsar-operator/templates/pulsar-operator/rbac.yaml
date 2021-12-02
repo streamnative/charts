@@ -313,6 +313,24 @@ rules:
       - subjectaccessreviews
     verbs:
       - create
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsarpermissions
+    verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+  - apiGroups:
+    - pulsar.streamnative.io
+    resources:
+    - pulsarpermissions/status
+    verbs:
+    - get
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
