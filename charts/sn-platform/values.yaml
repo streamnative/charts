@@ -102,6 +102,8 @@ components:
   superset: false
   # entities
   entities: false
+  # autoscaling
+  autoscaling: false
 
 ## Monitoring Components
 ##
@@ -1974,6 +1976,10 @@ vault:
     size: 10Gi
     local_storage: true
     # storageClassName: ""
+
+autoscaling:
+  component: "autoscaling"
+  metric_server_cert_secret_name: "cert-secret"
 
 entities:
   component: "entities"
