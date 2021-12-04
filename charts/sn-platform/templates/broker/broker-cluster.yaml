@@ -118,9 +118,7 @@ spec:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.broker.resources }}
     resources:
-      requests:
-        memory: "{{ .Values.broker.resources.requests.memory }}"
-        cpu: "{{ .Values.broker.resources.requests.cpu }}"
+{{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
     {{- if .Values.broker.securityContext }}
     securityContext: {{ .Values.broker.securityContext }}
