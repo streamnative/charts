@@ -28,9 +28,12 @@ metadata:
     component: {{ .Values.entities.component }}
 spec:
   adminServiceURL: {{ template "entities.admin.service.url" . }}
+  {{- if .Values.auth.authentication.enabled }}
+  # TODO add secretRef according to authentication type(oauth2 or vault)
   authentication:
     token:
       secretRef:
         name: {{ template "pulsar.vault-secret-key-name" . }}
         key: brokerClientAuthenticationParameters
+  {{- end }}
 {{- end }}
