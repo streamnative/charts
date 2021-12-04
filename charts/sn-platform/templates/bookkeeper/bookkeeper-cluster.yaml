@@ -158,6 +158,13 @@ spec:
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
 {{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 4 }}
   autoRecovery:
+    {{- if and .Values.components.autoscaling .Values.bookkeeper.maxReplicas }}
+    autoScalingPolicy:
+      maxReplicas: {{ .Values.bookkeeper.maxReplicas }}
+      {{- if .Values.bookkeeper.minReplicas }}
+      minReplicas: {{ .Values.bookkeeper.minReplicas }}
+      {{- end }}
+    {{- end }}
     {{- if and .Values.components.autorecovery .Values.autorecovery.operator.enabled }}
     replicas: {{ .Values.autorecovery.replicaCount }}
     {{- else }}
@@ -235,6 +242,13 @@ spec:
       {{- include "pulsar.bookkeeper.config.common" . | nindent 6 }}
 {{ toYaml .Values.autorecovery.configData | indent 6 }}
 {{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
+  {{- if and .Values.components.autoscaling .Values.bookkeeper.maxReplicas }}
+  autoScalingPolicy:
+    maxReplicas: {{ .Values.bookkeeper.maxReplicas }}
+    {{- if .Values.bookkeeper.minReplicas }}
+    minReplicas: {{ .Values.bookkeeper.minReplicas }}
+    {{- end }}
+  {{- end }}
   apiObjects:
     clientService: {}
     headlessService:

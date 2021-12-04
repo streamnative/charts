@@ -17,11 +17,11 @@
 # under the License.
 #
 
-dependencies:
-- name: loki-stack
-  version: 0.36.1
-  repository: https://grafana.github.io/loki/charts
-  condition: monitoring.loki
+#dependencies:
+#- name: loki-stack
+#  version: 0.36.1
+#  repository: https://grafana.github.io/loki/charts
+#  condition: monitoring.loki
 #- name: superset
 #  version: 0.1.1
 #  repository:  https://apache.github.io/superset

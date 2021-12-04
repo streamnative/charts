@@ -18,4 +18,176 @@
 #
 
 {{- if .Values.components.autoscaling }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-clusterrole"
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+      - nodes/proxy
+      - services
+      - endpoints
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-serviceaccount"
+  namespace: {{ .Values.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-binding"
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-clusterrole"
+subjects:
+  - kind: ServiceAccount
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-serviceaccount"
+    namespace: {{ .Values.namespace }}
+---
+# scrape config for prometheus scraping metrics for HPA
+# currently only container_spec_cpu_shares, container_cpu_usage_seconds_total, container_network_receive_bytes_total,
+# container_network_transmit_bytes_total, container_fs_reads_bytes_total, container_fs_writes_bytes_total
+# from cadvisor and kubelet_volume_stats_available_bytes, kubelet_volume_stats_capacity_bytes from kubelet
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-conf"
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+type: Opaque
+stringData:
+  scrape.yaml: |
+    - job_name: kubernetes-cadvisor
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+        - role: node
+      relabel_configs:
+        - target_label: __address__
+          replacement: kubernetes.default.svc.cluster.local:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+          target_label: __metrics_path__
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+      metric_relabel_configs:
+        - source_labels:
+            - __name__
+          regex: (container_spec_cpu_shares|container_cpu_usage_seconds_total|container_network_receive_bytes_total|container_network_transmit_bytes_total|container_fs_reads_bytes_total|container_fs_writes_bytes_total)
+          action: keep
+        - source_labels:
+            - namespace
+          regex: (sn-system|kube-system|olm|cert-manager)
+          action: drop
+    - job_name: 'kubernetes-nodes'
+      scheme: https
+      kubernetes_sd_configs:
+        - role: node
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: /api/v1/nodes/${1}/proxy/metrics
+      metric_relabel_configs:
+        - source_labels:
+            - __name__
+          regex: (kubelet_volume_stats_available_bytes|kubelet_volume_stats_capacity_bytes)
+          action: keep
+        - source_labels:
+            - namespace
+          regex: (sn-system|kube-system|olm|cert-manager)
+          action: drop
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-service"
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+spec:
+  ports:
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+  selector:
+    app: prometheus
+    cloud.streamnative.io/role: autoscaling-prometheus
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus"
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+spec:
+  additionalScrapeConfigs:
+    key: scrape.yaml
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-conf"
+  evaluationInterval: {{ .Values.autoscaling.prometheus.evaluationInterval }}
+  image: {{ .Values.images.autoscaling_prometheus.repository }}
+  replicas: {{ .Values.autoscaling.prometheus.replicas }}
+  podMetadata:
+    labels:
+      app: prometheus
+      cloud.streamnative.io/role: autoscaling-prometheus
+  resources:
+    limits:
+      cpu: {{ .Values.autoscaling.prometheus.resources.limits.cpu }}
+      memory: {{ .Values.autoscaling.prometheus.resources.limits.memory }}
+    requests:
+      cpu: {{ .Values.autoscaling.prometheus.resources.requests.cpu }}
+      memory: {{ .Values.autoscaling.prometheus.resources.requests.memory }}
+  retention: {{ .Values.autoscaling.prometheus.retention }}
+  scrapeInterval: {{ .Values.autoscaling.prometheus.scrapeInterval }}
+  serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-serviceaccount"
+  serviceMonitorSelector:
+    matchLabels:
+      app: prometheus
+      cloud.streamnative.io/role: autoscaling-prometheus
+  version: {{ .Values.images.autoscaling_prometheus.tag }}
+  #https://github.com/prometheus-operator/prometheus-operator/issues/3459
+  securityContext:
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
 {{- end }}

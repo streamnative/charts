@@ -135,6 +135,6 @@ spec:
       volumes:
         - name: script
           configMap:
-            name: init-script
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-init-configmap"
       restartPolicy: Never
   {{- end }}

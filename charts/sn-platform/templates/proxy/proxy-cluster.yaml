@@ -198,4 +198,11 @@ spec:
   {{- else }}
       {}
   {{- end }}
+  {{- if and .Values.components.autoscaling .Values.proxy.maxReplicas }}
+  autoScalingPolicy:
+    maxReplicas: {{ .Values.proxy.maxReplicas }}
+    {{- if .Values.proxy.minReplicas }}
+    minReplicas: {{ .Values.proxy.minReplicas }}
+  {{- end }}
+  {{- end }}
 {{- end }}
