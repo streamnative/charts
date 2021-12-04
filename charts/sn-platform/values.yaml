@@ -786,6 +786,14 @@ bookkeeper:
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
+
+    # Note: The following Java8 vm options are deprecated in Java11, and the latter is the replacement
+    # https://docs.oracle.com/javase/9/tools/java.htm#GUID-BE93ABDC-999C-4CB5-A88B-1994AAAC74D5__CONVERTGCLOGGINGFLAGSTOXLOG-A5046BD1
+    # -XX:+PrintGCDetails ==> -Xlog:gc*
+    # -XX:+PrintGCTimeStamps ==> -Xlog:::time,level,tags
+    # -XX:+PrintGCApplicationStoppedTime ==> -Xlog:safepoint
+    # -XX:+PrintHeapAtGC ==> -Xlog:gc+heap=trace
+    # -Xloggc:/var/log/bookie-gc.log  ==> -Xlog:gc:/var/log/bookie-gc.log
     PULSAR_GC: >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
@@ -800,7 +808,10 @@ bookkeeper:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      -XX:+PrintGCDetails
+      -Xlog:gc*
+      -Xlog:::time,level,tags
+      -Xlog:safepoint
+      -Xlog:gc+heap=trace
       -verbosegc
       -Xloggc:/var/log/bookie-gc.log
   ## Bookkeeper Service
