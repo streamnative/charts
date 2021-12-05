@@ -256,11 +256,23 @@ spec:
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
   {{- end }}
-  {{- if and .Values.components.autoscaling .Values.broker.maxReplicas }}
+  {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
   autoScalingPolicy:
-    maxReplicas: {{ .Values.broker.maxReplicas }}
-    {{- if .Values.broker.minReplicas }}
-    minReplicas: {{ .Values.broker.minReplicas }}
+    maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
+    {{- if .Values.broker.autoscaling.minReplicas }}
+    minReplicas: {{ .Values.broker.autoscaling.minReplicas }}
+    {{- end }}
+    {{- if .Values.broker.autoscaling.metrics }}
+    metrics:
+{{- with .Values.broker.autoscaling.metrics }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- end }}
+    {{- if .Values.broker.autoscaling.behavior }}
+    behavior:
+{{- with .Values.broker.autoscaling.behavior }}
+{{ toYaml . | indent 6 }}
+{{- end }}
     {{- end }}
   {{- end }}
 {{- end }}

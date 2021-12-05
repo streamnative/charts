@@ -103,7 +103,7 @@ components:
   # entities
   entities: false
   # autoscaling
-  autoscaling: false
+  autoscaling: true
 
 ## Monitoring Components
 ##
@@ -685,6 +685,8 @@ bookkeeper:
         # memory: 4Gi
         # cpu: 2
   replicaCount: 4
+  autoscaling:
+    maxReplicas: 4
   ports:
     http: 8000
     bookie: 3181
@@ -848,6 +850,8 @@ autorecovery:
   # so the metrics are correctly rendered in grafana dashboard
   component: recovery
   replicaCount: 1
+  autoscaling:
+    maxReplicas: 1
   ports:
     http: 8000
   # nodeSelector:
@@ -927,6 +931,8 @@ broker:
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
   replicaCount: 3
+  autoscaling:
+    maxReplicas: 3
   ports:
     http: 8080
     https: 8443
@@ -1175,6 +1181,8 @@ proxy:
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
   replicaCount: 3
+  autoscaling:
+    maxReplicas: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
