@@ -17,11 +17,11 @@
 # under the License.
 #
 
-{{- if and .Values.components.autoscaling .Values.autoscaling.custom_metric_server.enabled }}
+{{- if and .Values.components.custom_metric_server .Values.custom_metric_server.enabled }}
 kind: ServiceAccount
 apiVersion: v1
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-serviceaccount"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-serviceaccount"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
@@ -29,7 +29,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-resource-reader-clusterrole"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-clusterrole"
   labels:
   {{- include "pulsar.standardLabels" . | nindent 4 }}
 rules:
@@ -47,22 +47,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-resource-reader"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-reader"
   labels:
   {{- include "pulsar.standardLabels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-resource-reader-clusterrole"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-clusterrole"
 subjects:
   - kind: ServiceAccount
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-serviceaccount"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-serviceaccount"
     namespace: {{ .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-system:auth-delegator"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-system:auth-delegator"
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 roleRef:
@@ -71,13 +71,13 @@ roleRef:
   name: system:auth-delegator
 subjects:
   - kind: ServiceAccount
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-serviceaccount"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-serviceaccount"
     namespace: {{ .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-auth-reader"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-auth-reader"
   namespace: kube-system
   labels:
   {{- include "pulsar.standardLabels" . | nindent 4 }}
@@ -87,13 +87,13 @@ roleRef:
   name: extension-apiserver-authentication-reader
 subjects:
   - kind: ServiceAccount
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-serviceaccount"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-serviceaccount"
     namespace: {{ .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-server-resources-clusterrole"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-resources-clusterrole"
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 rules:
@@ -106,13 +106,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-hpa-controller-custom-metrics"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-hpa-controller-custom-metrics"
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-server-resources-clusterrole"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-resources-clusterrole"
 subjects:
   - kind: ServiceAccount
     name: horizontal-pod-autoscaler
@@ -122,32 +122,32 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: custom-metrics-apiserver
+    cloud.streamnative.io/role: custom-metrics-apiserver
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-apiserver"
   namespace: {{ .Values.namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: custom-metrics-apiserver
+      cloud.streamnative.io/role: custom-metrics-apiserver
   template:
     metadata:
       labels:
-        app: custom-metrics-apiserver
+        cloud.streamnative.io/role: custom-metrics-apiserver
       name: custom-metrics-apiserver
     spec:
-      serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-serviceaccount"
+      serviceAccountName: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-serviceaccount"
       containers:
         - name: custom-metrics-apiserver
-          image: "{{ .Values.images.autoscaling_metric_server.repository }}:{{ .Values.images.autoscaling_metric_server.tag }}"
+          image: "{{ .Values.images.custom_metric_server.repository }}:{{ .Values.images.custom_metric_server.tag }}"
           args:
             - --secure-port=6443
             - --tls-cert-file=/var/run/serving-cert/serving.crt
             - --tls-private-key-file=/var/run/serving-cert/serving.key
             - --logtostderr=true
-            - --prometheus-url={{ template "autoscaling.metricserver.prometheus.url" . }}
-            - --metrics-relist-interval={{ .Values.autoscaling.custom_metric_server.relist_interval }}
+            - --prometheus-url={{ template "metricserver.prometheus.url" . }}
+            - --metrics-relist-interval={{ .Values.custom_metric_server.relist_interval }}
             - --config=/etc/adapter/config.yaml
           ports:
             - containerPort: 6443
@@ -163,17 +163,17 @@ spec:
       volumes:
         - name: volume-serving-cert
           secret:
-            secretName: {{ .Values.autoscaling.metric_server_cert_secret_name }}
+            secretName: {{ .Values.custom_metric_server.cert_secret_name }}
         - name: config
           configMap:
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-adapter-config"
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-config"
         - name: tmp-vol
           emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-service"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-apiserver-service"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
@@ -182,7 +182,7 @@ spec:
     - port: 443
       targetPort: 6443
   selector:
-    app: custom-metrics-apiserver
+    cloud.streamnative.io/role: custom-metrics-apiserver
 ---
 apiVersion: apiregistration.k8s.io/v1beta1
 kind: APIService
@@ -192,7 +192,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 spec:
   service:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-service"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-apiserver-service"
     namespace: {{ .Values.namespace }}
   group: custom.metrics.k8s.io
   version: v1beta1
@@ -208,7 +208,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 spec:
   service:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-custom-metrics-apiserver-service"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-apiserver-service"
     namespace: {{ .Values.namespace }}
   group: custom.metrics.k8s.io
   version: v1beta2
@@ -219,7 +219,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-adapter-config"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.custom_metric_server.component }}-config"
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
