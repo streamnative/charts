@@ -511,8 +511,11 @@ zookeeper:
   gracePeriod: 30
   resources:
     requests:
-      memory: 256Mi
-      cpu: 0.1
+      memory: "256Mi"
+      cpu: "0.1"
+    # limits:
+    #   memory: "1Gi"
+    #   cpu: "0.4"
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -708,8 +711,11 @@ bookkeeper:
   gracePeriod: 30
   resources:
     requests:
-      memory: 512Mi
-      cpu: 0.2
+      memory: "512Mi"
+      cpu: "0.2"
+    # limits:
+    #   memory: "2Gi"
+    #   cpu: "0.8"
   # Definition of the serviceAccount used to run bookies.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -854,8 +860,11 @@ autorecovery:
   gracePeriod: 30
   resources:
     requests:
-      memory: 64Mi
-      cpu: 0.05
+      memory: "64Mi"
+      cpu: "0.05"
+    # limits:
+    #   memory: "256Mi"
+    #   cpu: "0.2"
   extraInitContainers: []
   ## Bookkeeper auto-recovery configmap
   ## templates/autorecovery-configmap.yaml
@@ -979,8 +988,11 @@ broker:
     enabled: true
   resources:
     requests:
-      memory: 512Mi
-      cpu: 0.2
+      memory: "512Mi"
+      cpu: "0.2"
+    # limits:
+    #   memory: "2Gi"
+    #   cpu: "0.8"
   extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
@@ -1195,8 +1207,11 @@ proxy:
   gracePeriod: 30
   resources:
     requests:
-      memory: 128Mi
-      cpu: 0.2
+      memory: "128Mi"
+      cpu: "0.2"
+    # limits:
+    #   memory: "512Mi"
+    #   cpu: "0.8"
   extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
