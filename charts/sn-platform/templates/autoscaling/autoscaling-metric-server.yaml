@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.autoscaling }}
+{{- if and .Values.components.autoscaling .Values.autoscaling.custom_metric_server.enabled }}
 kind: ServiceAccount
 apiVersion: v1
 metadata:
@@ -146,8 +146,8 @@ spec:
             - --tls-cert-file=/var/run/serving-cert/serving.crt
             - --tls-private-key-file=/var/run/serving-cert/serving.key
             - --logtostderr=true
-            - --prometheus-url=http://{{ template "pulsar.fullname" . }}-{{ .Values.autoscaling.component }}-prometheus-service.{{ .Values.namespace }}.svc.cluster.local:9090/
-            - --metrics-relist-interval=1m
+            - --prometheus-url={{ template "autoscaling.metricserver.prometheus.url" . }}
+            - --metrics-relist-interval={{ .Values.autoscaling.custom_metric_server.relist_interval }}
             - --config=/etc/adapter/config.yaml
           ports:
             - containerPort: 6443

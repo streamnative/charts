@@ -1996,7 +1996,12 @@ vault:
 autoscaling:
   component: "autoscaling"
   metric_server_cert_secret_name: "cert-secret"
+  custom_metric_server:
+    enabled: true
+    prometheus_url:
+    relist_interval: "1m"
   prometheus:
+    enabled: true
     replicas: 1
     resources:
       limits:

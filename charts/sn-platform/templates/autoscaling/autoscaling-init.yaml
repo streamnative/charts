@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.components.autoscaling }}
+{{- if and .Values.components.autoscaling .Values.autoscaling.custom_metric_server.enabled }}
 kind: ServiceAccount
 apiVersion: v1
 metadata:
