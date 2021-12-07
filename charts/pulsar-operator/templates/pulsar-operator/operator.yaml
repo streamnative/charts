@@ -40,8 +40,8 @@ spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.component }}"
-        image: "{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag }}"
-        imagePullPolicy: {{ .Values.images.pulsar.pullPolicy }}
+        image: {{template "pulsar.image" . }}
+        imagePullPolicy: {{ .Values.pulsar.image.pullPolicy }}
         args:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election

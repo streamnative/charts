@@ -41,8 +41,8 @@ spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-        image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
-        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+        image: {{template "zookeeper.image" . }}
+        imagePullPolicy: {{ .Values.zookeeper.image.pullPolicy }}
         args:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election
