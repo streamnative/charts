@@ -78,15 +78,15 @@ Pulsar Cluster Name.
 
 {{/*Define the image for bookkeeper*/}}
 {{- define "bookkeeper.image" -}}
-{{ .Values.bookkeeper.image.registry | default .Values.images.registry }}/{{ .Values.bookkeeper.image.repository }}:{{ .Values.bookkeeper.image.tag | default .Values.images.tag }}
+{{ .Values.images.bookkeeper.registry | default .Values.images.registry }}/{{ .Values.images.bookkeeper.repository }}:{{ .Values.images.bookkeeper.tag | default .Values.images.tag }}
 {{- end -}}
 
 {{/*Define the image for pulsar*/}}
 {{- define "pulsar.image" -}}
-{{ .Values.pulsar.image.registry | default .Values.images.registry }}/{{ .Values.pulsar.image.repository }}:{{ .Values.pulsar.image.tag | default .Values.images.tag }}
+{{ .Values.images.pulsar.registry | default .Values.images.registry }}/{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag | default .Values.images.tag }}
 {{- end -}}
 
 {{/*Define the image for zookeeper*/}}
 {{- define "zookeeper.image" -}}
-{{ .Values.zookeeper.image.registry | default .Values.images.registry }}/{{ .Values.zookeeper.image.repository }}:{{ .Values.zookeeper.image.tag | default .Values.images.tag }}
+{{ .Values.images.zookeeper.registry | default .Values.images.registry }}/{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag | default .Values.images.tag }}
 {{- end -}}

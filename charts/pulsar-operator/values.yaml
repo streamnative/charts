@@ -42,16 +42,29 @@ images:
   registry: "docker.io"
   tag: "v0.8.10"
 
+  zookeeper:
+    registry: ""
+    repository: streamnative/zookeeper-operator
+    tag: ""
+    pullPolicy: IfNotPresent
+  
+  bookkeeper:
+    registry: ""
+    repository: streamnative/bookkeeper-operator
+    tag: ""
+    pullPolicy: IfNotPresent
+  
+  pulsar:
+    registry: ""
+    repository: streamnative/pulsar-operator
+    tag: ""
+    pullPolicy: IfNotPresent
+
 global:
   # Lists the secrets you need to use to pull operators image from a private registry.
   imagePullSecrets: []
 
 zookeeper:
-  image:
-    registry: ""
-    repository: streamnative/zookeeper-operator
-    tag: ""
-    pullPolicy: IfNotPresent
   component: zookeeper-controller-manager
   ## The worker numbers of the operator MaxConcurrentReconciles
   workers: 1
@@ -81,11 +94,6 @@ zookeeper:
   terminationGracePeriodSeconds: 10
 
 bookkeeper:
-  image:
-    registry: ""
-    repository: streamnative/bookkeeper-operator
-    tag: ""
-    pullPolicy: IfNotPresent
   component: bookkeeper-controller-manager
   ## The worker numbers of the operator MaxConcurrentReconciles
   workers: 2
@@ -115,11 +123,6 @@ bookkeeper:
   terminationGracePeriodSeconds: 10
 
 pulsar:
-  image:
-    registry: ""
-    repository: streamnative/pulsar-operator
-    tag: ""
-    pullPolicy: IfNotPresent
   component: pulsar-controller-manager
   ## The worker numbers of the operator MaxConcurrentReconciles
   workers: 1
