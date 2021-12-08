@@ -102,6 +102,8 @@ components:
   superset: false
   # entities
   entities: false
+  # custom_metric_server
+  custom_metric_server: false
 
 ## Monitoring Components
 ##
@@ -128,6 +130,13 @@ images:
     repository: streamnative/sn-platform
     tag: "2.8.1.4"
     pullPolicy: IfNotPresent
+    customTools:
+      backup:
+        repository: "streamnative/pulsar-metadata-tool"
+        tag: "2.7.0-2"
+      restore:
+        repository: "streamnative/pulsar-metadata-tool"
+        tag: "2.7.0-2"
   bookie:
     repository: streamnative/sn-platform
     tag: "2.8.1.4"
@@ -162,10 +171,14 @@ images:
     tag: "2.8.1.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
-  # toolset:
-  #   repository: streamnative/sn-platform
-  #   tag: "2.8.1.4"
-  #   pullPolicy: IfNotPresent
+  toolset:
+    repository: streamnative/sn-platform
+    tag: "2.8.1.4"
+    pullPolicy: IfNotPresent
+    kafka:
+      repository: confluentinc/cp-kafka
+      tag: "5.0.0"
+      pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
     tag: "v2.17.2"
@@ -198,6 +211,67 @@ images:
   vault_init:
     repository: streamnative/pulsar_vault_init
     tag: "v1.0.2"
+  custom_metric_server_prometheus:
+    repository: prom/prometheus
+    tag: "v2.19.2"
+    pullPolicy: IfNotPresent
+  custom_metric_server:
+    repository: k8s.gcr.io/prometheus-adapter/prometheus-adapter
+    tag: "v0.9.0"
+    pullPolicy: IfNotPresent
+  pulsar_metadata:
+    repository: streamnative/sn-platform
+    tag: "2.8.1.4"
+    pullPolicy: IfNotPresent
+  configmapReload:
+    repository: jimmidyson/configmap-reload
+    tag: v0.3.0
+    pullPolicy: IfNotPresent
+  external_dns:
+    repository: k8s.gcr.io/external-dns/external-dns
+    tag: "0.7.3"
+    pullPolicy: IfNotPresent
+  imagePuller:
+    hook:
+      repository: streamnative/k8s-image-awaiter
+      tag: "0.1.0"
+      pullPolicy: IfNotPresent
+    pause:
+      repository: gcr.io/google_containers/pause
+      tag: "0.3.0"
+      pullPolicy: IfNotPresent
+  functionnmesh:
+    repository: streamnative/function-mesh
+    tag: v0.1.6
+    pullPolicy: IfNotPresent
+  pulsar_operator:
+    repository: streamnative/pulsar-operator
+    tag: v0.8.15
+    pullPolicy: IfNotPresent
+  bookkeeper_operator:
+    repository: streamnative/pulsar-operator
+    tag: v0.8.15
+    pullPolicy: IfNotPresent
+  zookeeper_operator:
+    repository: streamnative/pulsar-operator
+    tag: v0.8.15
+    pullPolicy: IfNotPresent
+  cert_manager_controller:
+    repository: quay.io/jetstack/cert-manager-controller
+    tag: v1.3.1
+    pullPolicy: IfNotPresent
+  cert_manager_cainjector:
+    repository: quay.io/jetstack/cert-manager-controller
+    tag: v1.3.1
+    pullPolicy: IfNotPresent
+  cert_manager_webhook:
+    repository: quay.io/jetstack/cert-manager-controller
+    tag: v1.3.1
+    pullPolicy: IfNotPresent
+  vault_operator:
+    repository: ghcr.io/banzaicloud/vault-operator
+    tag: v1.3.0
+    pullPolicy: IfNotPresent
 
 ## TLS
 ## templates/tls-certs.yaml
@@ -612,6 +686,7 @@ zookeeper:
     backup:
       component: "backup"
       enable: false
+      # Deprecated, this configuration repository and tag has been moved to the images section
       repository: "streamnative/pulsar-metadata-tool"
       tag: "2.7.0-2"
       pullPolicy: IfNotPresent
@@ -638,6 +713,7 @@ zookeeper:
     restore:
       component: "restore"
       enable: false
+      # Deprecated, this configuration repository and tag has been moved to the images section
       repository: "streamnative/pulsar-metadata-tool"
       tag: "2.7.0-2"
       pullPolicy: IfNotPresent
@@ -678,6 +754,8 @@ bookkeeper:
         # memory: 4Gi
         # cpu: 2
   replicaCount: 4
+  autoscaling:
+    maxReplicas: 4
   ports:
     http: 8000
     bookie: 3181
@@ -844,6 +922,8 @@ autorecovery:
   # so the metrics are correctly rendered in grafana dashboard
   component: recovery
   replicaCount: 1
+  autoscaling:
+    maxReplicas: 1
   ports:
     http: 8000
   # nodeSelector:
@@ -896,6 +976,7 @@ pulsar_metadata:
     # the image used for running `pulsar-cluster-initialize` job
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
+    # Deprecated, this configuration repository and tag has been moved to the images section
     repository: streamnative/sn-platform
     tag: "2.8.1.4"
     pullPolicy: IfNotPresent
@@ -926,6 +1007,8 @@ broker:
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
   replicaCount: 3
+  autoscaling:
+    maxReplicas: 3
   ports:
     http: 8080
     https: 8443
@@ -1177,6 +1260,8 @@ proxy:
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
   replicaCount: 3
+  autoscaling:
+    maxReplicas: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
@@ -1352,6 +1437,7 @@ configmapReload:
     name: configmap-reload
     ## configmap-reload container image
     ##
+    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
     image:
       repository: jimmidyson/configmap-reload
       tag: v0.3.0
@@ -1386,6 +1472,7 @@ configmapReload:
     ##
     name: configmap-reload
 
+    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
     ## configmap-reload container image
     ##
     image:
@@ -1989,6 +2076,29 @@ vault:
     size: 10Gi
     local_storage: true
     # storageClassName: ""
+
+custom_metric_server:
+  component: "custom-metric-server"
+  cert_secret_name: "cert-secret"
+  enabled: true
+  prometheus_url:
+  relist_interval: "1m"
+  prometheus:
+    enabled: true
+    replicas: 1
+    resources:
+      limits:
+        memory: "1G"
+        cpu: "200m"
+      requests:
+        memory: "1G"
+        cpu: "200m"
+    retention: "2h"
+    evaluationInterval: "30s"
+    scrapeInterval: "15s"
+
+entities:
+  component: "entities"
 
 # ## Pulsar Resources 
 # ## templates/entities/*.yaml

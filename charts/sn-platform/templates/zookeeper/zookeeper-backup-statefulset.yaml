@@ -123,7 +123,7 @@ spec:
       {{- if .Values.zookeeper.customTools.backup.enable }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
-        image: "{{ .Values.zookeeper.customTools.backup.repository }}:{{ .Values.zookeeper.customTools.backup.tag }}"
+        image: "{{ .Values.images.zookeeper.customTools.backup.repository }}:{{ .Values.images.zookeeper.customTools.backup.tag }}"
         imagePullPolicy: {{ .Values.zookeeper.customTools.backup.pullPolicy }}
         command: ["sh", "-c"]
         args:
