@@ -62,8 +62,8 @@ spec:
       containers:
       {{- if .Values.configmapReload.alertmanager.enabled }}
       - name: {{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}-{{ .Values.configmapReload.alertmanager.name }}
-        image: "{{ .Values.configmapReload.alertmanager.image.repository }}:{{ .Values.configmapReload.alertmanager.image.tag }}"
-        imagePullPolicy: "{{ .Values.configmapReload.alertmanager.image.pullPolicy }}"
+        image: "{{ .Values.images.configmapReload.repository }}:{{ .Values.images.configmapReload.tag }}"
+        imagePullPolicy: "{{ .Values.images.configmapReload.pullPolicy }}"
         args:
           - --volume-dir=/etc/config
           - --webhook-url=http://127.0.0.1:{{ .Values.alert_manager.port }}{{ template "pulsar.control_center_path.alertmanager" . }}/-/reload

@@ -237,7 +237,7 @@ spec:
   initJobPod:
     initContainers:
       - name: cleanup
-        image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+        image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
         command:
           - bash
           - '-c'
