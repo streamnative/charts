@@ -18,7 +18,6 @@
 #
 
 {{- if .Values.components.vault }}
-{{- if .Values.initialize }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -41,5 +40,4 @@ metadata:
 data:
 {{ (.Files.Glob "conf/vault/init_vault_streamnative_console/*").AsConfig | indent 2 }}
 
-{{- end }}
 {{- end }}
