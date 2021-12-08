@@ -121,9 +121,7 @@ spec:
         {{- end }}
     {{- if .Values.zookeeper.resources }}
     resources:
-      requests:
-        memory: "{{ .Values.zookeeper.resources.requests.memory }}"
-        cpu: "{{ .Values.zookeeper.resources.requests.cpu }}"
+{{ toYaml .Values.zookeeper.resources | indent 6 }}
     {{- end }}
     {{- if .Values.zookeeper.securityContext }}
     securityContext: {{ .Values.zookeeper.securityContext }}

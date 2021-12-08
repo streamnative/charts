@@ -118,9 +118,7 @@ spec:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.broker.resources }}
     resources:
-      requests:
-        memory: "{{ .Values.broker.resources.requests.memory }}"
-        cpu: "{{ .Values.broker.resources.requests.cpu }}"
+{{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
     {{- if .Values.broker.securityContext }}
     securityContext: {{ .Values.broker.securityContext }}
@@ -255,5 +253,24 @@ spec:
       - name: cleanup-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+  {{- end }}
+  {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
+  autoScalingPolicy:
+    maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
+    {{- if .Values.broker.autoscaling.minReplicas }}
+    minReplicas: {{ .Values.broker.autoscaling.minReplicas }}
+    {{- end }}
+    {{- if .Values.broker.autoscaling.metrics }}
+    metrics:
+{{- with .Values.broker.autoscaling.metrics }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- end }}
+    {{- if .Values.broker.autoscaling.behavior }}
+    behavior:
+{{- with .Values.broker.autoscaling.behavior }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- end }}
   {{- end }}
 {{- end }}
