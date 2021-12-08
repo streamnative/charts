@@ -156,9 +156,11 @@ spec:
           - name: REDIRECT_PORT
             value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
           {{- end }}
+          {{- if .Values.components.vault }}
           envFrom:
           - secretRef:
               name: {{ template "pulsar.vault-secret-key-name" . }}
+          {{- end }}
           {{- if .Values.streamnative_console.login.sso.google.enabled }}
           - secretRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"

@@ -105,9 +105,7 @@ spec:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.proxy.resources }}
     resources:
-      requests:
-        memory: "{{ .Values.proxy.resources.requests.memory }}"
-        cpu: "{{ .Values.proxy.resources.requests.cpu }}"
+{{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
     {{- if .Values.proxy.securityContext }}
     securityContext: {{ .Values.proxy.securityContext }}

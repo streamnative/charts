@@ -88,9 +88,7 @@ spec:
     {{- end }}
     {{- if .Values.bookkeeper.resources }}
     resources:
-      requests:
-        memory: "{{ .Values.bookkeeper.resources.requests.memory }}"
-        cpu: "{{ .Values.bookkeeper.resources.requests.cpu }}"
+{{ toYaml .Values.bookkeeper.resources | indent 6 }}
     {{- end }}
     {{- if .Values.bookkeeper.securityContext }}
     securityContext: {{ .Values.bookkeeper.securityContext }}
@@ -246,9 +244,7 @@ spec:
       {{- end }}
       {{- if .Values.autorecovery.resources }}
       resources:
-        requests:
-          memory: "{{ .Values.autorecovery.resources.requests.memory }}"
-          cpu: "{{ .Values.autorecovery.resources.requests.cpu }}"
+{{ toYaml .Values.autorecovery.resources | indent 8 }}
       {{- end }}
     conf:
       {{- include "pulsar.bookkeeper.config.common" . | nindent 6 }}
