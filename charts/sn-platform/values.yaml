@@ -249,11 +249,11 @@ images:
     tag: v0.8.15
     pullPolicy: IfNotPresent
   bookkeeper_operator:
-    repository: streamnative/pulsar-operator
+    repository: streamnative/bookkeeper-operator
     tag: v0.8.15
     pullPolicy: IfNotPresent
   zookeeper_operator:
-    repository: streamnative/pulsar-operator
+    repository: streamnative/zookeeper-operator
     tag: v0.8.15
     pullPolicy: IfNotPresent
   cert_manager_controller:
@@ -261,11 +261,11 @@ images:
     tag: v1.3.1
     pullPolicy: IfNotPresent
   cert_manager_cainjector:
-    repository: quay.io/jetstack/cert-manager-controller
+    repository: quay.io/jetstack/cert-manager-cainjector
     tag: v1.3.1
     pullPolicy: IfNotPresent
   cert_manager_webhook:
-    repository: quay.io/jetstack/cert-manager-controller
+    repository: quay.io/jetstack/cert-manager-webhook
     tag: v1.3.1
     pullPolicy: IfNotPresent
   vault_operator:
