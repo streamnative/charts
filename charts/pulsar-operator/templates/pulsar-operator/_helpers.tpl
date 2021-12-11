@@ -16,5 +16,5 @@ install proxy crd yaml file to tpl.
 
 {{/*Define the image for pulsar*/}}
 {{- define "pulsar.image" -}}
-{{ .Values.images.registry | default .Values.images.pulsar.registry }}/{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag | default .Values.images.tag }}
+{{ .Values.images.registry | default .Values.images.pulsar.registry }}/{{ .Values.images.pulsar.repository }}:{{ .Values.images.tag | default .Values.images.pulsar.tag }}
 {{- end -}}

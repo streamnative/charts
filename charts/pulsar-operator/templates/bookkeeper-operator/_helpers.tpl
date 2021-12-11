@@ -8,5 +8,5 @@ install crd yaml file to tpl.
 
 {{/*Define the image for bookkeeper*/}}
 {{- define "bookkeeper.image" -}}
-{{ .Values.images.registry | default .Values.images.bookkeeper.registry }}/{{ .Values.images.bookkeeper.repository }}:{{ .Values.images.bookkeeper.tag | default .Values.images.tag }}
+{{ .Values.images.registry | default .Values.images.bookkeeper.registry }}/{{ .Values.images.bookkeeper.repository }}:{{ .Values.images.tag | default .Values.images.bookkeeper.tag }}
 {{- end -}}
