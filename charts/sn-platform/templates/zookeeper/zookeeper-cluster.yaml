@@ -136,6 +136,8 @@ spec:
         - {{ .Values.zookeeper.configData.PULSAR_MEM }}
       gcOptions:
         - {{ .Values.zookeeper.configData.PULSAR_GC }}
+      extraOptions:
+        - {{ .Values.zookeeper.configData.EXTRA_JVM_OPTION }}
   {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   persistence:
     data:

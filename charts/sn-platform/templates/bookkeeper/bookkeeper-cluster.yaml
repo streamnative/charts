@@ -107,6 +107,8 @@ spec:
         - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
       gcOptions:
         - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+      extraOptions:
+        - {{ .Values.bookkeeper.configData.EXTRA_JVM_OPTION }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
@@ -202,6 +204,9 @@ spec:
 {{ toYaml .Values.autorecovery.tolerations | indent 8 }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
+      jvmOptions:
+      extraOptions:
+        - {{ .Values.autorecovery.configData.EXTRA_JVM_OPTION }}
       {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
       affinity:
         podAntiAffinity:

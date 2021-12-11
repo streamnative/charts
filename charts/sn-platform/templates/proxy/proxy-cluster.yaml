@@ -120,7 +120,8 @@ spec:
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
     jvmOptions:
-      extraOptions: []
+      extraOptions:
+        - {{ .Values.proxy.configData.EXTRA_JVM_OPTION }}
       memoryOptions:
         - {{ .Values.proxy.configData.PULSAR_MEM }}
       gcOptions:

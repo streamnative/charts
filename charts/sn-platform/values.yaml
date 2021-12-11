@@ -650,6 +650,8 @@ zookeeper:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:
+    EXTRA_JVM_OPTION:
+      -Dlog4j2:formatMsgNoLookups=true
     PULSAR_MEM: >
       -Xms64m -Xmx128m
     PULSAR_GC: >
@@ -860,6 +862,8 @@ bookkeeper:
     rackAware: true
   custom: {}
   configData:
+    EXTRA_JVM_OPTION:
+      -Dlog4j2:formatMsgNoLookups=true
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
       -Xms128m
@@ -952,6 +956,8 @@ autorecovery:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:
+    EXTRA_JVM_OPTION:
+      -Dlog4j2:formatMsgNoLookups=true
     BOOKIE_MEM: >
       -Xms64m -Xmx64m
   ## Operator Controller
@@ -1100,6 +1106,8 @@ broker:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   configData:
+    EXTRA_JVM_OPTION:
+      -Dlog4j2:formatMsgNoLookups=true
     PULSAR_MEM: >
       -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
     PULSAR_GC: >
@@ -1346,6 +1354,8 @@ proxy:
   brokerServiceURLTLS: ""
   brokerWebServiceURLTLS: ""
   configData:
+    EXTRA_JVM_OPTION:
+      -Dlog4j2:formatMsgNoLookups=true
     PULSAR_MEM: >
       -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
     PULSAR_GC: >

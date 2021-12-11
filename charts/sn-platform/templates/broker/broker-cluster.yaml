@@ -133,7 +133,8 @@ spec:
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
     jvmOptions:
-      extraOptions: []
+      extraOptions:
+        - {{ .Values.broker.configData.EXTRA_JVM_OPTION }}
       memoryOptions:
         - {{ .Values.broker.configData.PULSAR_MEM }}
       gcOptions:
