@@ -205,8 +205,8 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       jvmOptions:
-      extraOptions:
-        - {{ .Values.autorecovery.configData.EXTRA_JVM_OPTION }}
+        extraOptions:
+          - {{ .Values.autorecovery.configData.EXTRA_JVM_OPTION }}
       {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
       affinity:
         podAntiAffinity:
