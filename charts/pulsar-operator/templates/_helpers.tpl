@@ -75,18 +75,3 @@ Pulsar Cluster Name.
 {{- template "pulsar.fullname" . }}
 {{- end }}
 {{- end }}
-
-{{/*Define the image for bookkeeper*/}}
-{{- define "bookkeeper.image" -}}
-{{ .Values.images.bookkeeper.registry | default .Values.images.registry }}/{{ .Values.images.bookkeeper.repository }}:{{ .Values.images.bookkeeper.tag | default .Values.images.tag }}
-{{- end -}}
-
-{{/*Define the image for pulsar*/}}
-{{- define "pulsar.image" -}}
-{{ .Values.images.pulsar.registry | default .Values.images.registry }}/{{ .Values.images.pulsar.repository }}:{{ .Values.images.pulsar.tag | default .Values.images.tag }}
-{{- end -}}
-
-{{/*Define the image for zookeeper*/}}
-{{- define "zookeeper.image" -}}
-{{ .Values.images.zookeeper.registry | default .Values.images.registry }}/{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag | default .Values.images.tag }}
-{{- end -}}
