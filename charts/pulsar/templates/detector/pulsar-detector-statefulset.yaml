@@ -94,7 +94,7 @@ spec:
         {{- if eq .Values.auth.authentication.provider "jwt" }}
         - name: PulsarClientAuthenticationParameters
           valueFrom:
-           secretKeyRef:
+            secretKeyRef:
               name: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
               key: TOKEN
         {{- end }}
