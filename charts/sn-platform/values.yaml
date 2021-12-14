@@ -229,7 +229,7 @@ images:
     pullPolicy: IfNotPresent
   external_dns:
     repository: k8s.gcr.io/external-dns/external-dns
-    tag: "0.7.3"
+    tag: "v0.7.3"
     pullPolicy: IfNotPresent
   imagePuller:
     hook:
