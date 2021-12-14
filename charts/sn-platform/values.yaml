@@ -193,7 +193,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "1.8"
+    tag: "1.9"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
