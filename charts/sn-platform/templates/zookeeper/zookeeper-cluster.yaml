@@ -46,7 +46,7 @@ spec:
     {{- if .Values.zookeeper.customTools.restore.enable }}
     initContainers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.customTools.restore.component }}"
-        image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+        image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
         imagePullPolicy: {{ .Values.zookeeper.customTools.restore.pullPolicy }}
         command: ["sh", "-c"]
         args:
@@ -121,9 +121,7 @@ spec:
         {{- end }}
     {{- if .Values.zookeeper.resources }}
     resources:
-      requests:
-        memory: "{{ .Values.zookeeper.resources.requests.memory }}"
-        cpu: "{{ .Values.zookeeper.resources.requests.cpu }}"
+{{ toYaml .Values.zookeeper.resources | indent 6 }}
     {{- end }}
     {{- if .Values.zookeeper.securityContext }}
     securityContext: {{ .Values.zookeeper.securityContext }}

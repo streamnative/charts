@@ -81,8 +81,8 @@ spec:
         {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
       {{- if .Values.components.kop }}
       - name: "kafka"
-        image: "confluentinc/cp-kafka:5.0.0"
-        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        image: "{{ .Values.images.toolset.kafka.repository }}:{{ .Values.images.toolset.kafka.tag }}"
+        imagePullPolicy: {{ .Values.images.toolset.kafka.pullPolicy }}
         workingDir: {{ template "pulsar.home" . }}
       {{- if .Values.toolset.resources }}
         resources:

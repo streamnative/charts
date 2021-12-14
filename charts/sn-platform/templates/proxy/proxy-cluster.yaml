@@ -105,9 +105,7 @@ spec:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.proxy.resources }}
     resources:
-      requests:
-        memory: "{{ .Values.proxy.resources.requests.memory }}"
-        cpu: "{{ .Values.proxy.resources.requests.cpu }}"
+{{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
     {{- if .Values.proxy.securityContext }}
     securityContext: {{ .Values.proxy.securityContext }}
@@ -197,5 +195,24 @@ spec:
         {{- end }}
   {{- else }}
       {}
+  {{- end }}
+  {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
+  autoScalingPolicy:
+    maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
+    {{- if .Values.proxy.autoscaling.minReplicas }}
+    minReplicas: {{ .Values.proxy.autoscaling.minReplicas }}
+    {{- end }}
+    {{- if .Values.proxy.autoscaling.metrics }}
+    metrics:
+{{- with .Values.proxy.autoscaling.metrics }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- end }}
+    {{- if .Values.proxy.autoscaling.behavior }}
+    behavior:
+{{- with .Values.proxy.autoscaling.behavior }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    {{- end }}
   {{- end }}
 {{- end }}

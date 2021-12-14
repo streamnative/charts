@@ -41,15 +41,15 @@ components:
 images:
   zookeeper:
     repository: streamnative/zookeeper-operator
-    tag: v0.8.10
+    tag: v0.8.17
     pullPolicy: IfNotPresent
   bookkeeper:
     repository: streamnative/bookkeeper-operator
-    tag: v0.8.10
+    tag: v0.8.17
     pullPolicy: IfNotPresent
   pulsar:
     repository: streamnative/pulsar-operator
-    tag: v0.8.10
+    tag: v0.8.17
     pullPolicy: IfNotPresent
 
 global:
@@ -62,7 +62,10 @@ zookeeper:
   workers: 1
   ## Install RBAC roles and bindings.
   rbac:
-    create: true
+    clusterrole:
+      create: true
+    role:
+      create: false
     name: zookeeper-controller-manager
   ## Service account name and whether to create it.
   serviceAccount:
@@ -91,7 +94,10 @@ bookkeeper:
   workers: 2
   ## Install RBAC roles and bindings.
   rbac:
-    create: true
+    clusterrole:
+      create: true
+    role:
+      create: false
     name: bookkeeper-controller-manager
   ## Service account name and whether to create it.
   serviceAccount:
@@ -122,7 +128,10 @@ pulsar:
   watchCertManagerCRDs: false
   ## Install RBAC roles and bindings.
   rbac:
-    create: true
+    clusterrole:
+      create: true
+    role:
+      create: false
     name: pulsar-controller-manager
   ## Service account name and whether to create it.
   serviceAccount:
