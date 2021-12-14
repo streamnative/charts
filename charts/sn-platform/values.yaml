@@ -2123,11 +2123,13 @@ entities:
 #       # +optional
 #       adminRoles:
 #       - admin
-#       # The list of allowed clusters. If empty, the tenant will have access to all clusters
+#       # The list of allowed clusters. If it is empty, the tenant will have access to all clusters
+#       # if you set a list of specific names, please make sure the clusters do exist in pulsar
 #       # +optional
-#       allowedClusters:
-#       - pulsar
+#       # allowedClusters:
+#       # - pulsar
 # 
+
 #   # Pulsar Namespace
 #   # templates/entities/namepsaces.yaml
 #   #
