@@ -27,6 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
 data:
+  PULSAR_EXTRA_OPTS: "-Dlog4j2.formatMsgNoLookups=true"
   # Metadata settings
   zookeeperServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   {{- if .Values.pulsar_metadata.configurationStore }}

@@ -177,9 +177,9 @@ spec:
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           {{- include "pulsar.bookkeeper.zookeeper.tls.settings" . | nindent 10 }}
           {{- if eq .Values.images.bookie.repository "streamnative/sn-pulsar" }}
-          OPTS="${OPTS} -Dlog4j2.formatMsgNoLookups=true" scripts/run-bookie.sh;
+          scripts/run-bookie.sh;
           {{- else }}
-          OPTS="${OPTS} -Dlog4j2.formatMsgNoLookups=true" bin/pulsar bookie;
+          bin/pulsar bookie;
           {{- end }}
         ports:
         - name: bookie

@@ -27,6 +27,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
 data:
+  PULSAR_EXTRA_OPTS: "-Dlog4j2.formatMsgNoLookups=true"
   clusterName: {{ template "pulsar.cluster" . }}
   httpNumThreads: "8"
   statusFilePath: "{{ template "pulsar.home" . }}/status"

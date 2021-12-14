@@ -31,6 +31,7 @@ metadata:
     "helm.sh/resource-policy": keep
     {{- end }}
 data:
+  BOOKIE_EXTRA_OPTS: "-Dlog4j2.formatMsgNoLookups=true"
   # common config
   {{- include "pulsar.bookkeeper.config.common" . | nindent 2 }}
 {{ toYaml .Values.autorecovery.configData | indent 2 }}

@@ -128,7 +128,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-            OPTS="${OPTS} -Dlog4j2.formatMsgNoLookups=true" bin/pulsar-metadata-tool backup
+            bin/pulsar-metadata-tool backup
         volumeMounts:
         {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
@@ -170,7 +170,7 @@ spec:
           {{- end }}
           bin/gen-zk-conf.sh conf/zookeeper.conf {{ .Values.zookeeper.initialMyId }} {{ .Values.zookeeper.peerType }};
           cat conf/zookeeper.conf;
-          OPTS="${OPTS} -Dlog4j2.formatMsgNoLookups=true" bin/pulsar zookeeper;
+          bin/pulsar zookeeper;
         ports:
         - name: metrics
           containerPort: {{ .Values.zookeeper.ports.metrics }}

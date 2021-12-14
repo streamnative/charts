@@ -651,7 +651,7 @@ zookeeper:
   autoRollDeployment: true
   configData:
     EXTRA_JVM_OPTION:
-      -Dlog4j2:formatMsgNoLookups=true
+      -Dlog4j2.formatMsgNoLookups=true
     PULSAR_MEM: >
       -Xms64m -Xmx128m
     PULSAR_GC: >
@@ -699,7 +699,7 @@ zookeeper:
       managedLedgerPath: "/managed-ledgers"
       configData:
         # extra opts for the java command
-        OPTS: ""
+        OPTS: "-Dlog4j2.formatMsgNoLookups=true"
       secrets:
         use: false
     #    aws:
@@ -724,7 +724,7 @@ zookeeper:
       managedLedgerPath: "/managed-ledgers"
       bucket: "s3a://bucket"
       configData:
-        OPTS: ""
+        OPTS: "-Dlog4j2.formatMsgNoLookups=true"
       secrets:
         use: false
 #        aws:
@@ -863,7 +863,10 @@ bookkeeper:
   custom: {}
   configData:
     EXTRA_JVM_OPTION:
-      -Dlog4j2:formatMsgNoLookups=true
+      -Dlog4j2.formatMsgNoLookups=true
+      -Dpulsar.allocator.exit_on_oom=true
+      -Dio.netty.recycler.maxCapacity.default=1000
+      -Dio.netty.recycler.linkCapacity=1024
     # `BOOKIE_MEM` is used for `bookie shell`
     BOOKIE_MEM: >
       -Xms128m
@@ -957,7 +960,10 @@ autorecovery:
   autoRollDeployment: true
   configData:
     EXTRA_JVM_OPTION:
-      -Dlog4j2:formatMsgNoLookups=true
+      -Dlog4j2.formatMsgNoLookups=true
+      -Dpulsar.allocator.exit_on_oom=true
+      -Dio.netty.recycler.maxCapacity.default=1000
+      -Dio.netty.recycler.linkCapacity=1024
     BOOKIE_MEM: >
       -Xms64m -Xmx64m
   ## Operator Controller
@@ -1107,7 +1113,11 @@ broker:
   autoRollDeployment: true
   configData:
     EXTRA_JVM_OPTION:
-      -Dlog4j2:formatMsgNoLookups=true
+      -Dlog4j2.formatMsgNoLookups=true
+      -Dpulsar.allocator.exit_on_oom=true
+      -Dio.netty.recycler.maxCapacity.default=1000
+      -Dio.netty.recycler.linkCapacity=1024
+      -Dnetworkaddress.cache.ttl=60
     PULSAR_MEM: >
       -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
     PULSAR_GC: >
@@ -1355,7 +1365,11 @@ proxy:
   brokerWebServiceURLTLS: ""
   configData:
     EXTRA_JVM_OPTION:
-      -Dlog4j2:formatMsgNoLookups=true
+      -Dlog4j2.formatMsgNoLookups=true
+      -Dpulsar.allocator.exit_on_oom=true
+      -Dio.netty.recycler.maxCapacity.default=1000
+      -Dio.netty.recycler.linkCapacity=1024
+      -Dnetworkaddress.cache.ttl=60
     PULSAR_MEM: >
       -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
     PULSAR_GC: >

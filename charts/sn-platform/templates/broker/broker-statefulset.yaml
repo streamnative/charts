@@ -240,7 +240,7 @@ spec:
             sleep 10;
             bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get ${BROKER_ZNODE};
           done;
-          OPTS="${OPTS} -Dlog4j2.formatMsgNoLookups=true" bin/pulsar broker;
+          bin/pulsar broker;
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http

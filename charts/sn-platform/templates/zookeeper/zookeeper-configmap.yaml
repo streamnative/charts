@@ -32,6 +32,7 @@ metadata:
     "helm.sh/resource-policy": keep
     {{- end }}
 data:
+  PULSAR_EXTRA_OPTS: "-Dlog4j2.formatMsgNoLookups=true"
   dataDir: /pulsar/data/zookeeper
   {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
   # use a seperate disk for tx log

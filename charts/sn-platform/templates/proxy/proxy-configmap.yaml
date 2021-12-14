@@ -31,6 +31,7 @@ metadata:
     "helm.sh/resource-policy": keep
     {{- end }}
 data:
+  PULSAR_EXTRA_OPTS: "-Dlog4j2.formatMsgNoLookups=true"
   # Proxy settings
   clusterName: {{ template "pulsar.cluster" . }}
   httpNumThreads: "8"
