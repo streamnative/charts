@@ -925,6 +925,22 @@ entries:
     version: 0.7.0
   sn-console:
   - apiVersion: v1
+    appVersion: "1.9"
+    created: "2021-12-15T08:53:58.649973988Z"
+    description: StreamNative Console Chart
+    digest: c5f5143697a138d92aa9ab817f7400a8f48f115a86df7ea327fc1bd910f9f74b
+    home: https://streamnative.io
+    icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-console
+    sources:
+    - https://github.com/streamnative/charts/tree/master/charts/sn-console
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-console-1.9/sn-console-1.9.tgz
+    version: "1.9"
+  - apiVersion: v1
     appVersion: "1.8"
     created: "2021-11-30T11:14:17.364722506Z"
     description: StreamNative Console Chart
@@ -1005,6 +1021,27 @@ entries:
     - https://github.com/streamnative/charts/releases/download/sn-console-1.3/sn-console-1.3.tgz
     version: "1.3"
   sn-platform:
+  - apiVersion: v1
+    appVersion: 1.2.24
+    created: "2021-12-15T08:53:58.879322234Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/loki/charts
+      version: 0.36.1
+    description: StreamNative Platform Chart
+    digest: cead6db2d59176a60f4bd40f441a1460e39242196ca3d7a3c7188bcf18c206a2
+    home: https://streamnative.io
+    icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-platform
+    sources:
+    - https://github.com/streamnative/charts/tree/master/charts/sn-platform
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-platform-1.2.24/sn-platform-1.2.24.tgz
+    version: 1.2.24
   - apiVersion: v1
     appVersion: 1.2.23
     created: "2021-12-14T10:17:47.69774303Z"
@@ -1656,4 +1693,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/sn-platform-1.1.0/sn-platform-1.1.0.tgz
     version: 1.1.0
-generated: "2021-12-14T10:17:47.698271153Z"
+generated: "2021-12-15T08:53:58.880063973Z"
