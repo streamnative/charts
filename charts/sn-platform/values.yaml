@@ -897,7 +897,7 @@ bookkeeper:
       -Xlog:safepoint
       -Xlog:gc+heap=trace
       -verbosegc
-      -Xloggc:/var/log/bookie-gc.log
+      -Xlog:gc:/var/log/bookie-gc.log
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
