@@ -1085,7 +1085,7 @@ functions:
     # Extra annotations for the serviceAccount definition. This can either be
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
-    annotations: { }
+    annotations: {}
     # whether to create a cluster role
     clusterRole: true
   autoRollDeployment: true
