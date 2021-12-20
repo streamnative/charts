@@ -95,7 +95,7 @@ components:
   # mop
   mop: false
   # pulsar detector
-  pulsar_detector: false
+  pulsar_detector: true
   # superset
   superset: false
 
@@ -151,7 +151,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.8.1.4
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-pulsar
@@ -249,7 +249,7 @@ tls:
 # Enable or disable broker authentication and authorization.
 auth:
   authentication:
-    enabled: false
+    enabled: true
     provider: "jwt"
     jwt:
       # Enable JWT authentication
