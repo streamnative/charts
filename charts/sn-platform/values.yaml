@@ -2116,7 +2116,7 @@ entities:
 #   # component is the part of instance name.
 #   # The full name format is <release_name>-<chart_name>-<entities.component>-<sha256sum>
 #   component: "entities"
-# 
+#
 #   # Pulsar Tenant
 #   # templates/entities/tenants.yaml
 #   #
@@ -2152,7 +2152,7 @@ entities:
 #       # Backlog quota size limit, eg(10Mi, 10Gi)
 #       # +optional
 #       # backlogQuotaLimitSize: 1Gi
-# 
+#
 #       # Retention policy to enforce when the limit is reached
 #       # +optional
 #       # backlogQuotaRetentionPolicy: producer_request_hold
