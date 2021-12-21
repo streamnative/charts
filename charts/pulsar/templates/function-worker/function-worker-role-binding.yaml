@@ -42,11 +42,6 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 rules:
-- apiGroups: [""]
-  resources:
-  - configmap
-  - configmaps
-  verbs: ["get", "list", "watch"]
 - apiGroups: ["", "extensions", "apps"]
   resources:
     - pods
