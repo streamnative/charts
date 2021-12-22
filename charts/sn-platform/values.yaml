@@ -2107,16 +2107,16 @@ custom_metric_server:
 entities:
   component: "entities"
 
-# ## Pulsar Resources 
+# ## Pulsar Resources
 # ## templates/entities/*.yaml
-# ## 
+# ##
 # ## To create the pulsar resources automaticlly for initialization
 # ## Make sure components.entities is true to open the feature
 # entities:
-#   # component is the part of instance name. 
+#   # component is the part of instance name.
 #   # The full name format is <release_name>-<chart_name>-<entities.component>-<sha256sum>
 #   component: "entities"
-# 
+#
 #   # Pulsar Tenant
 #   # templates/entities/tenants.yaml
 #   #
@@ -2135,7 +2135,7 @@ entities:
 #       # +optional
 #       # allowedClusters:
 #       # - pulsar
-# 
+#
 
 #   # Pulsar Namespace
 #   # templates/entities/namepsaces.yaml
@@ -2152,38 +2152,29 @@ entities:
 #       # Backlog quota size limit, eg(10Mi, 10Gi)
 #       # +optional
 #       # backlogQuotaLimitSize: 1Gi
-# 
 #       # Retention policy to enforce when the limit is reached
 #       # +optional
 #       # backlogQuotaRetentionPolicy: producer_request_hold
-# 
 #       # Message TTL time duration
 #       # +optional
 #       # messageTTL: 1h
-# 
 #       # Number of bundles to activate, default is 4
 #       # bundles: 16
-# 
 #       # Max producers per topic for a namespace
 #       # +optional
 #       # maxProducersPerTopic: 2
-# 
 #       # Max consumers per topic for a namespace
 #       # +optional
 #       # maxConsumersPerTopic: 2
-# 
 #       # Max consumers per subscription for a namespace
 #       # +optional
 #       # maxConsumersPerSubscription: 2
-# 
 #       # Retention time in minutes, hours, days, weeks
 #       # +optional
 #       # retentionTime: 20h
-# 
 #       # Retention size limit
 #       # +optional
 #       # retentionSize: 2Gi
-# 
 #   # Pulsar Topic
 #   # templates/entities/topics.yaml
 #   #
@@ -2191,58 +2182,46 @@ entities:
 #   topics:
 #   # Topic name
 #   - name: persistent://cloud/test/user
-#     # The config for creating topic 
+#     # The config for creating topic
 #     config:
-#       # persistent or nonpersistent topic. 
+#       # persistent or nonpersistent topic.
 #       # +optional
 #       # persistent: true
-# 
 #       # Number of partitions for the topic
 #       # +optional
 #       # partitions: 8
-# 
 #       # Max producers for a topic
 #       # +optional
 #       # maxProducers: 8
-# 
 #       # Max consumers for a topic
 #       # +optional
 #       # maxConsumers: 8
-# 
 #       # Message TTL time duration
 #       # +optional
 #       # messageTTL:
-# 
 #       # Max unacked messages num on consumer
 #       # +optional
 #       # maxUnAckedMessagesPerConsumer:
-# 
 #       # Max unacked messages num on subscription
 #       # +optional
 #       # maxUnAckedMessagesPerSubscription:
 #       # Retention time in minutes, hours, days, weeks
 #       # +optional
 #       # retentionTime: 20h
-# 
 #       # Retention size limit
 #       # +optional
 #       # retentionSize: 2Gi
-# 
 #       # Backlog quota time limit in seconds
 #       # +optional
 #       # backlogQuotaLimitTime: 24h
-# 
 #       # Backlog quota size limit, eg(10Mi, 10Gi)
 #       # +optional
 #       # backlogQuotaLimitSize: 1Gi
-# 
 #       # Retention policy to enforce when the limit is reached
 #       # +optional
 #       # backlogQuotaRetentionPolicy: producer_request_hold
-# 
 #   # Pulsar Permission
 #   # templates/entities/permissions.yaml
-#   #
 #   # Setup permission config of namespace or topic to grant automaticlly
 #   permissions:
 #   - name: p1
