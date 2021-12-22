@@ -1054,7 +1054,7 @@ broker:
 ##
 functions:
   component: functions-worker
-  useDedicatedRunner: true
+  useDedicatedRunner: false
   replicaCount: 1
   functionState: false
   enableCustomizerRuntime: false
