@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.components.functions .Values.functions.useDedicateRunner }}
+{{- if and .Values.components.functions .Values.functions.useDedicatedRunner }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -42,13 +42,10 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.functions.component }}
       annotations:
-        {{- if .Values.monitoring.datadog }}
-        {{- include "pulsar.broker.datadog.annotation" . | nindent 8 }}
-        {{- end }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.functions.ports.http }}"
         {{- if .Values.functions.autoRollDeployment }}
-        checksum/config: {{ include (print $.Template.BasePath "/broker/broker-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/broker/function-worker-configfile-configmap.yaml") . | sha256sum }}
     {{- end }}
     {{- with .Values.functions.annotations }}
     {{ toYaml . | indent 8 }}
@@ -59,10 +56,10 @@ spec:
         - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       securityContext:
-      {{- with .Values.broker.securityContext }}
+      {{- with .Values.functions.securityContext }}
       {{ toYaml . | indent 8 }}
       {{- end }}
-      {{- if or .Values.broker.serviceAccount.use (and .Values.components.functions  (not .Values.functions.useDedicateRunner)) }}
+      {{- if or .Values.functions.serviceAccount.use (and .Values.components.functions  (not .Values.functions.useDedicatedRunner)) }}
       serviceAccountName: {{ template "pulsar.function.serviceAccount" . }}
       {{- end }}
       {{- if .Values.functions.nodeSelector }}
@@ -74,7 +71,7 @@ spec:
       {{ toYaml .Values.functions.tolerations | indent 8 }}
       {{- end }}
       affinity:
-        {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity}}
+        {{- if and .Values.affinity.anti_affinity .Values.functions.affinity.anti_affinity}}
         podAntiAffinity:
           {{ .Values.functions.affinity.type }}:
           {{ if eq .Values.functions.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
@@ -113,9 +110,9 @@ spec:
                   topologyKey: "kubernetes.io/hostname"
         {{ end }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
+      terminationGracePeriodSeconds: {{ .Values.functions.gracePeriod }}
       initContainers:
-        # This init container will wait for pulsar broker to be ready before deploying the function worker
+        # This init container will wait for pulsar proxy to be ready before deploying the function worker
         - name: wait-proxy-ready
           image: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
           imagePullPolicy: {{ .Values.images.functions.pullPolicy }}
@@ -166,7 +163,7 @@ spec:
             # prometheus needs to access /metrics endpoint
             - name: http
               containerPort: {{ .Values.functions.ports.http }}
-            {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+            {{- if and .Values.tls.enabled .Values.tls.functions.enabled }}
             - name: https
               containerPort: {{ .Values.functions.ports.https }}
             {{- end }}
@@ -189,4 +186,4 @@ spec:
 {{- with .Values.functions.extraVolumes }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-  {{- end }}
+{{- end }}

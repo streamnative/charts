@@ -151,7 +151,7 @@ Function worker can also be deployed as separate Kubernetes Statefulset for stab
 Enabling it by:
 ```yaml
 functions:
-  useDedicateRunner: true
+  useDedicatedRunner: true
 ```
 Then upgrade the chart
 ```

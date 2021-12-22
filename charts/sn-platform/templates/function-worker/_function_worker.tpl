@@ -15,7 +15,7 @@
 Pulsar Broker Service URL
 */}}
 {{- define "pulsar.function.broker.service.url" -}}
-{{- if or .Values.functions.useDedicateRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
+{{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
 pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsar }}
 {{- else -}}
 pulsar://localhost:6650
@@ -26,7 +26,7 @@ pulsar://localhost:6650
 Pulsar Web Service URL
 */}}
 {{- define "pulsar.function.web.service.url" -}}
-{{- if or .Values.functions.useDedicateRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
+{{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
 {{- else -}}
 http://localhost:8080
@@ -37,7 +37,7 @@ http://localhost:8080
 Pulsar Broker Service URL TLS
 */}}
 {{- define "pulsar.function.broker.service.url.tls" -}}
-{{- if or .Values.functions.useDedicateRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
+{{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
 pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsarssl }}
 {{- else -}}
 pulsar+ssl://localhost:6651
@@ -48,7 +48,7 @@ pulsar+ssl://localhost:6651
 Pulsar Web Service URL TLS
 */}}
 {{- define "pulsar.function.web.service.url.tls" -}}
-{{- if or .Values.functions.useDedicateRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
+{{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
 https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
 {{- else -}}
 https://localhost:8443

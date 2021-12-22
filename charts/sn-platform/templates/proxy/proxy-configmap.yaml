@@ -87,7 +87,7 @@ data:
   {{- end }}
   {{- end }}
   {{- end }}
-  {{- if .Values.functions.useDedicateRunner}}
+  {{- if .Values.functions.useDedicatedRunner}}
   functionWorkerWebServiceURL: {{ template "pulsar.proxy.function.service.url" . }}
   {{- if .Values.tls.functions.enabled}}
   functionWorkerWebServiceURLTLS: {{ template "pulsar.proxy.function.service.url.tls" . }}

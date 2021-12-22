@@ -1195,7 +1195,7 @@ broker:
 functions:
   component: functions-worker
   enableCustomizerRuntime: false
-  useDedicateRunner: false
+  useDedicatedRunner: false
   replicaCount: 1
   runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
   pulsarExtraClasspath: "extraLibs"
@@ -1205,9 +1205,11 @@ functions:
   pulsarRootDir: ""
   # nodeSelector:
   # cloud.google.com/gke-nodepool: default-pool
+  securityContext: {}
   tolerations: []
   extraVolumes: []
   extraVolumeMounts: []
+  gracePeriod: 30
   # Definition of the serviceAccount used to run function worker.
   serviceAccount:
     # Specifies whether to use a service account to run this component

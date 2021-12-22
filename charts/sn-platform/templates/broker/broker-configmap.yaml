@@ -76,7 +76,7 @@ data:
 
   # Function Worker Settings
   # function worker configuration
-  {{- if and .Values.components.functions (not .Values.functions.useDedicateRunner) }}
+  {{- if and .Values.components.functions (not .Values.functions.useDedicatedRunner) }}
   functionsWorkerEnabled: "true"
   {{- if .Values.functions.enableCustomizerRuntime }}
   PULSAR_EXTRA_CLASSPATH: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"
@@ -105,7 +105,7 @@ data:
   authenticateOriginalAuthData: "true"
   {{- if .Values.auth.authorization.enabled }}
   authorizationEnabled: "true"
-  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
+  superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.streamnative_console }}
   proxyRoles: {{ .Values.auth.superUsers.proxy }}
   {{- end }}
   {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
