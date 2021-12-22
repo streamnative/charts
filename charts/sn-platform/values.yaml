@@ -452,7 +452,12 @@ ingress:
     enabled: false
     tls:
       enabled: true
+    ## Type options are LoadBalancer, ClusterIP
     type: LoadBalancer
+    ## When type is LoadBalancer, If exposeSSLPort is true and tls is disabled, it will
+    ## expose proxy service port with 443 and 6651 to replace 8080 and 6650
+    ## optional
+    # exposeSSLPort: true
     annotations: {}
     extraSpec: {}
   ## templates/broker-service-ingress.yaml
