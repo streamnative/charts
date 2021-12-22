@@ -195,8 +195,12 @@ helm upgrade -f /path/to/pulsar/value/file.yaml $RELEASE_NAME $PULSAR_CHART
 When migrating function worker from run with broker mode to standalone mode, if using **KubernetesRuntimeFactory** then functions will be spin up as independent Statefulset
 and you don't need to worry about the upgrade interrupting the running function. If using **ThreadRuntimeFactory** or **ProcessRuntimeFactory**
 then the function should resume working once the function worker is up and running.
+
 For authentication, if enabled authentication and vault function worker will mount the same token broker use to do intra broker communication.
 For authorization, it'll have the same permission granted to broker super user role.
+
+After running function worker in standalone mode, admin operation related to function should add --admin-url <address to pulsar proxy>
+as proxy knows how to redirect the request to function worker.
 
 ## Upgrade StreamNative Platform
 
