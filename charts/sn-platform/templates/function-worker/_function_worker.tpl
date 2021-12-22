@@ -74,7 +74,7 @@ Define function tls certs volumes
 */}}
 {{- define "pulsar.function.certs.volumes" -}}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
-- name: broker-certs
+- name: function-certs
   secret:
     secretName: "{{ .Release.Name }}-{{ .Values.tls.functions.cert_name }}"
     items:

@@ -267,6 +267,20 @@ https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Va
 {{- end -}}
 {{- end -}}
 
+{{/*
+Pulsar Function Service URL
+*/}}
+{{- define "pulsar.proxy.function.service.url" -}}
+http://{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}:{{ .Values.functions.ports.http }}
+{{- end -}}
+
+{{/*
+Pulsar Function Service URL TLS
+*/}}
+{{- define "pulsar.proxy.function.service.url.tls" -}}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}:{{ .Values.functions.ports.https }}
+{{- end -}}
+
 {{/*Define proxy service account*/}}
 {{- define "pulsar.proxy.serviceAccount" -}}
 {{- if .Values.proxy.serviceAccount.create -}}

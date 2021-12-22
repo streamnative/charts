@@ -264,8 +264,6 @@ auth:
   superUsers:
     # broker to broker communication
     broker: "broker-admin"
-    # function-worker to broker communication
-    functions: "functions-admin"
     # proxy to broker communication
     proxy: "proxy-admin"
     # websocket proxy to broker communication
