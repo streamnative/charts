@@ -2144,7 +2144,7 @@ entities:
 #   namespaces:
 #   # namespace name
 #   - name: cloud/test
-#     # The config for creating namespace 
+#     # The config for creating namespace
 #     config:
 #       # Backlog quota time limit in seconds
 #       # +optional
@@ -2226,7 +2226,7 @@ entities:
 #   permissions:
 #   - name: p1
 #     config:
-#       # Resource type, namespace or topic  
+#       # Resource type, namespace or topic
 #       resourceType: namespace
 #       # Resource name
 #       resourceName: cloud/test
