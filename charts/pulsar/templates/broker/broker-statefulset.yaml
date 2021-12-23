@@ -62,7 +62,7 @@ spec:
 {{- with .Values.broker.securityContext }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-    {{- if or .Values.broker.serviceAccount.use .Values.components.functions }}
+    {{- if or .Values.broker.serviceAccount.use (and .Values.components.functions  (not .Values.functions.useDedicatedRunner)) }}
       serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
     {{- end }}
     {{- if .Values.broker.nodeSelector }}

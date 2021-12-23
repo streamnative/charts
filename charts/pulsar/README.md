@@ -134,6 +134,40 @@ You can also checkout out the example values file for different deployments.
 - [Deploy a Pulsar cluster with JWT authentication using asymmetric key](../../examples/pulsar/values-jwt-asymmetric.yaml)
 - [Deploy a Pulsar cluster with KoP, Istio, and TLS encryption](../../examples/pulsar/values-kop-tls-istio.yaml)
 
+## Deploy Function Worker
+
+To deploy function worker service, we can update the value.yaml to enable function worker by
+```yaml
+components:
+  # functions
+  functions: true
+```
+Then upgrade the chart
+```
+helm upgrade -f /path/to/pulsar/value/file.yaml $RELEASE_NAME $PULSAR_CHART
+```
+
+Function worker can also be deployed as separate Kubernetes Statefulset for stability and process power.
+Enabling it by:
+```yaml
+functions:
+  useDedicatedRunner: true
+```
+Then upgrade the chart
+```
+helm upgrade -f /path/to/pulsar/value/file.yaml $RELEASE_NAME $PULSAR_CHART
+```
+
+When migrating function worker from run with broker mode to standalone mode, if using **KubernetesRuntimeFactory** then functions will be spin up as independent Statefulset
+and you don't need to worry about the upgrade interrupting the running function. If using **ThreadRuntimeFactory** or **ProcessRuntimeFactory**
+then the function should resume working once the function worker is up and running.
+
+For authentication, if enabled authentication and vault function worker will mount the same token broker use to do intra broker communication.
+For authorization, it'll have the same permission granted to broker super user role.
+
+After running function worker in standalone mode, admin operation related to function should add --admin-url <address to pulsar proxy>
+as proxy knows how to redirect the request to function worker.
+
 ## Upgrading
 
 Once your Pulsar Chart is installed, configuration changes and chart updates should be done using the `helm upgrade` command.

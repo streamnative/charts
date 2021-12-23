@@ -219,6 +219,9 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+  functions:
+    enabled: false
+    cert_name: tls-function
   # settings for generating certs for kop
   kop:
     enabled: false
@@ -1051,6 +1054,8 @@ broker:
 ##
 functions:
   component: functions-worker
+  useDedicatedRunner: false
+  replicaCount: 1
   functionState: false
   enableCustomizerRuntime: false
   runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
@@ -1061,6 +1066,61 @@ functions:
   pulsarRootDir: ""
   # pulsarAdminUrlOverride:
   # pulsarServiceUrlOverride:
+  # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  securityContext: {}
+  tolerations: []
+  extraVolumes: []
+  extraVolumeMounts: []
+  gracePeriod: 30
+  # Definition of the serviceAccount used to run function worker.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+    # whether to create a cluster role
+    clusterRole: true
+  autoRollDeployment: true
+  annotations: {}
+  ports:
+    http: 8080
+    https: 8443
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 0.2
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 10
+  service:
+    annotations: {}
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: preferredDuringSchedulingIgnoredDuringExecution
   configData:
     downloadDirectory: download/pulsar_functions
     pulsarFunctionsNamespace: public/functions

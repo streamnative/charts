@@ -116,7 +116,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
       initContainers:
       # This init container will wait for zookeeper to be ready before
-      # deploying the bookies
+      # deploying the pulsar proxy
       - name: wait-zookeeper-ready
         image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
         imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}

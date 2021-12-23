@@ -76,7 +76,7 @@ data:
 
   # Function Worker Settings
   # function worker configuration
-  {{- if .Values.components.functions }}
+  {{- if and .Values.components.functions (not .Values.functions.useDedicatedRunner) }}
   functionsWorkerEnabled: "true"
   {{- if .Values.functions.enableCustomizerRuntime }}
   PULSAR_EXTRA_CLASSPATH: "{{ template "pulsar.home" .}}/{{ .Values.functions.pulsarExtraClasspath }}"

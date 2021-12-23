@@ -304,6 +304,9 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+  functions:
+    enabled: false
+    cert_name: tls-function
   # settings for generating certs for bookies
   bookie:
     enabled: false
@@ -1192,12 +1195,69 @@ broker:
 functions:
   component: functions-worker
   enableCustomizerRuntime: false
+  useDedicatedRunner: false
+  replicaCount: 1
   runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
   pulsarExtraClasspath: "extraLibs"
   # Specify the namespace to run pulsar functions
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
+  # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  securityContext: {}
+  tolerations: []
+  extraVolumes: []
+  extraVolumeMounts: []
+  gracePeriod: 30
+  # Definition of the serviceAccount used to run function worker.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+    # whether to create a cluster role
+    clusterRole: true
+  autoRollDeployment: true
+  annotations: {}
+  ports:
+    http: 8080
+    https: 8443
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 0.2
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 10
+  service:
+    annotations: {}
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: preferredDuringSchedulingIgnoredDuringExecution
   configData:
     downloadDirectory: download/pulsar_functions
     pulsarFunctionsNamespace: public/functions
@@ -2107,16 +2167,16 @@ custom_metric_server:
 entities:
   component: "entities"
 
-# ## Pulsar Resources 
+# ## Pulsar Resources
 # ## templates/entities/*.yaml
-# ## 
+# ##
 # ## To create the pulsar resources automaticlly for initialization
 # ## Make sure components.entities is true to open the feature
 # entities:
-#   # component is the part of instance name. 
+#   # component is the part of instance name.
 #   # The full name format is <release_name>-<chart_name>-<entities.component>-<sha256sum>
 #   component: "entities"
-# 
+#
 #   # Pulsar Tenant
 #   # templates/entities/tenants.yaml
 #   #
@@ -2135,7 +2195,7 @@ entities:
 #       # +optional
 #       # allowedClusters:
 #       # - pulsar
-# 
+#
 
 #   # Pulsar Namespace
 #   # templates/entities/namepsaces.yaml
@@ -2144,7 +2204,7 @@ entities:
 #   namespaces:
 #   # namespace name
 #   - name: cloud/test
-#     # The config for creating namespace 
+#     # The config for creating namespace
 #     config:
 #       # Backlog quota time limit in seconds
 #       # +optional
@@ -2152,38 +2212,38 @@ entities:
 #       # Backlog quota size limit, eg(10Mi, 10Gi)
 #       # +optional
 #       # backlogQuotaLimitSize: 1Gi
-# 
+#
 #       # Retention policy to enforce when the limit is reached
 #       # +optional
 #       # backlogQuotaRetentionPolicy: producer_request_hold
-# 
+#
 #       # Message TTL time duration
 #       # +optional
 #       # messageTTL: 1h
-# 
+#
 #       # Number of bundles to activate, default is 4
 #       # bundles: 16
-# 
+#
 #       # Max producers per topic for a namespace
 #       # +optional
 #       # maxProducersPerTopic: 2
-# 
+#
 #       # Max consumers per topic for a namespace
 #       # +optional
 #       # maxConsumersPerTopic: 2
-# 
+#
 #       # Max consumers per subscription for a namespace
 #       # +optional
 #       # maxConsumersPerSubscription: 2
-# 
+#
 #       # Retention time in minutes, hours, days, weeks
 #       # +optional
 #       # retentionTime: 20h
-# 
+#
 #       # Retention size limit
 #       # +optional
 #       # retentionSize: 2Gi
-# 
+#
 #   # Pulsar Topic
 #   # templates/entities/topics.yaml
 #   #
@@ -2191,55 +2251,55 @@ entities:
 #   topics:
 #   # Topic name
 #   - name: persistent://cloud/test/user
-#     # The config for creating topic 
+#     # The config for creating topic
 #     config:
-#       # persistent or nonpersistent topic. 
+#       # persistent or nonpersistent topic.
 #       # +optional
 #       # persistent: true
-# 
+#
 #       # Number of partitions for the topic
 #       # +optional
 #       # partitions: 8
-# 
+#
 #       # Max producers for a topic
 #       # +optional
 #       # maxProducers: 8
-# 
+#
 #       # Max consumers for a topic
 #       # +optional
 #       # maxConsumers: 8
-# 
+#
 #       # Message TTL time duration
 #       # +optional
 #       # messageTTL:
-# 
+#
 #       # Max unacked messages num on consumer
 #       # +optional
 #       # maxUnAckedMessagesPerConsumer:
-# 
+#
 #       # Max unacked messages num on subscription
 #       # +optional
 #       # maxUnAckedMessagesPerSubscription:
 #       # Retention time in minutes, hours, days, weeks
 #       # +optional
 #       # retentionTime: 20h
-# 
+#
 #       # Retention size limit
 #       # +optional
 #       # retentionSize: 2Gi
-# 
+#
 #       # Backlog quota time limit in seconds
 #       # +optional
 #       # backlogQuotaLimitTime: 24h
-# 
+#
 #       # Backlog quota size limit, eg(10Mi, 10Gi)
 #       # +optional
 #       # backlogQuotaLimitSize: 1Gi
-# 
+#
 #       # Retention policy to enforce when the limit is reached
 #       # +optional
 #       # backlogQuotaRetentionPolicy: producer_request_hold
-# 
+#
 #   # Pulsar Permission
 #   # templates/entities/permissions.yaml
 #   #
@@ -2247,7 +2307,7 @@ entities:
 #   permissions:
 #   - name: p1
 #     config:
-#       # Resource type, namespace or topic  
+#       # Resource type, namespace or topic
 #       resourceType: namespace
 #       # Resource name
 #       resourceName: cloud/test
