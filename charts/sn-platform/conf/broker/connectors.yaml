@@ -97,7 +97,6 @@
   name: kafka
   description: Kafka source and sink connector
   sourceClass: org.apache.pulsar.io.kafka.KafkaBytesSource
-  sinkClass: org.apache.pulsar.io.kafka.KafkaBytesSink
   imageRepository: streamnative/pulsar-io-kafka
   version: 2.8.1.23
   imageTag: 2.8.1.23
