@@ -101,7 +101,6 @@
   version: 2.8.1.23
   imageTag: 2.8.1.23
   sourceConfigClass: org.apache.pulsar.io.kafka.KafkaSourceConfig
-  sinkConfigClass: org.apache.pulsar.io.kafka.KafkaSinkConfig
   sourceTypeClassName: java.nio.ByteBuffer
 - id: pulsar-io-elastic-search
   name: elasticsearch
