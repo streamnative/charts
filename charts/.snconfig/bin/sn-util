@@ -1,0 +1,166 @@
+#!/bin/bash
+
+releaseName="pulsar"
+grafanaUser="pulsar"
+grafanaPassword="pulsar"
+bootProfile=""
+mainProfile=""
+
+
+set -e
+
+openCommand() {
+  if command -v xdg-open &> /dev/null; then
+    xdg-open "$@"
+  else
+    open "$@"
+  fi
+}
+
+tailCommand() {
+  if command -v stern &> /dev/null; then
+    stern "$1" --tail 1000
+  else
+    echo "failing back to kubectl logs, won't get nice colors"
+    kubectl logs -f -t 1000 "$1"
+  fi
+}
+
+tailAllCommand() {
+  if command -v stern &> /dev/null; then
+    stern "$1" --tail 1000
+  else
+    echo "failing back to kubectl logs, won't get nice colors"
+    kubectl logs -f -t 1000 sts/"$1"
+  fi
+}
+
+
+USAGE=$(cat <<'EOM'
+sn-util is a command to help standardize and make it easy to interact with a customer cluster.
+
+It takes the form of:
+sn-util <command> [positional args]
+
+Here are the following commands and there descriptions:
+
+  grafana [port]
+    description: Starts a port-forward to grafana and opens the browser
+    args:
+      port: the local port to start on, defaults to 3000
+
+  toolset
+    description: Execs into the toolset pod
+
+  tail [component] [pod-num]
+    description: Starts tailing the logs of a single pod, assumes a stateful set. If you have 'stern' installed, it will be used, otherwise just uses kubectl logs
+    args:
+      component: defaults to broker, but any component (proxy, bookie, zookeeper, etc) should work
+      pod-num: the number of the pod in the sts to exec into, defaults to 0
+
+  tail-all [component]
+    description: Starts tailing the logs of all the pods, assuming a stateful set. If you have 'stern' installed, it will be used, otherwise juse uses kubectl logs
+    args:
+      component: defaults to broker, but any component (proxy, bookie. zookeeper, etc) should work
+
+  exec [component] [pod-num] [command]
+    description: Starts a shell in a container, assumes a stateful set
+    args:
+      component: defaults to broker, but any component (proxy, bookie, zookeeper, etc) should work
+      pod-num: the number of the pod in the sts to exec into, defaults to 0
+      command: the command to use, defaults to /bin/bash
+
+  aws-login [profile]
+    description: Logs in to the aws console
+    args:
+      profile: can be either 'main' or 'boot', defaults to main, determines which profile to use
+EOM
+)
+
+if [ "$#" == "0" ]; then
+	echo "$USAGE"
+	exit 1
+fi
+
+commandName="$1"
+shift
+
+function grafana() {
+  local hostPort=${1:-3000}
+  local browserPage=http://localhost:"$hostPort"
+  echo "starting port forward then opening browser to grafana at $browserPage (after ~2 seconds). If it fails, just reload the page!"
+  echo "username: $grafanaUser"
+  echo "password: $grafanaPassword"
+  # we fork this into the background and wait for 2 seconds to give a chance for the port-forward to start
+  ( sleep 2.5; openCommand "$browserPage") &
+  kubectl port-forward svc/"$releaseName"-grafana "$hostPort":3000
+}
+
+function toolset() {
+  kubectl exec -it "$releaseName"-toolset-0  -- /bin/bash
+}
+
+function tailAll() {
+  local component=${1:-broker}
+  tailAllCommand "$releaseName-$component"
+}
+
+function tail() {
+  local component=${1:-broker}
+  local num=${2:-0}
+  tailCommand "$releaseName-$component-$num"
+}
+
+function exec() {
+  local component=${1:-broker}; shift
+  local num=${2:-0}; shift
+  kubectl exec -it "$releaseName-$component-$num"  -- "$@"
+}
+
+function awsLogin() {
+  local sourceProfile=${1:-main}
+  if [ "$CLOUD_PROVIDER" == "aws" ]; then
+    if [ "$sourceProfile" == "boot" ]; then
+      aws-vault login "$bootProfile"
+    elif [ "$sourceProfile" == "main" ]; then
+      aws-vault login "$mainProfile"
+    else
+      echo "don't know which profile you want to login with"
+    fi
+  else
+    echo "don't know how to login to $CLOUD_PROVIDER, only aws"
+  fi
+}
+
+case $commandName in
+  grafana)
+    grafana "$@"
+    ;;
+
+  toolset)
+    toolset
+    ;;
+
+  tail)
+    tail "$@"
+    ;;
+
+  tail-all)
+    tailAll "$@"
+    ;;
+
+  exec)
+    exec "$@"
+    ;;
+
+  aws-login)
+    awsLogin "$@"
+    ;;
+
+  *)
+   echo "invalid command, see usage"
+   echo "$USAGE"
+   exit 1
+   ;;
+
+esac
