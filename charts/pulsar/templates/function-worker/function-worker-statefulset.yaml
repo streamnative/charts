@@ -172,6 +172,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+{{- with .Values.functions.extraEnvs }}
+{{ toYaml . | indent 12 }}
+{{- end }}
           volumeMounts:
           {{- include "pulsar.function.worker.config.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.function.token.volumeMounts" . | nindent 10 }}

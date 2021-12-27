@@ -1073,6 +1073,7 @@ functions:
   tolerations: []
   extraVolumes: []
   extraVolumeMounts: []
+  extraEnvs: []
   gracePeriod: 30
   # Definition of the serviceAccount used to run function worker.
   serviceAccount:
