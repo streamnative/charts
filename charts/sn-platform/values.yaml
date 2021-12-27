@@ -753,6 +753,9 @@ bookkeeper:
       # requests:
         # memory: 4Gi
         # cpu: 2
+  # The replicaCount must be equal or greater than 3, the BookKeeper Operator  will set it to 3 if it is less than 3
+  # The minimum number of bookies is three for self-verifying according to the docs
+  # https://bookkeeper.apache.org/archives/docs/master/bookkeeperConfig.html
   replicaCount: 4
   autoscaling:
     maxReplicas: 4
