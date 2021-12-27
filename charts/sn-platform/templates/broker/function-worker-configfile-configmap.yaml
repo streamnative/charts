@@ -91,7 +91,12 @@ data:
     {{- if .Values.auth.authorization.enabled }}
     authorizationEnabled: "true"
     authorizationProvider: org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider
-    superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
+    superUserRoles:
+      - {{ .Values.auth.superUsers.broker }}
+      - {{ .Values.auth.superUsers.proxy }}
+      - {{ .Values.auth.superUsers.websocket }}
+      - {{ .Values.auth.superUsers.client }}
+      - {{ .Values.auth.superUsers.pulsar_manager }}
     {{- end }}
     {{- if eq .Values.auth.authentication.provider "jwt" }}
     # token authentication configuration
@@ -104,6 +109,11 @@ data:
     brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
     brokerClientAuthenticationParameters: "file:///pulsar/tokens/function/token"
     authenticationEnabled: "true"
+    authenticationProviders:
+{{- with .Values.functions.authenticationProviders }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    authenticateMetricsEndpoint: "false"
     {{- end }}
     {{- end }}
 {{ toYaml .Values.functions.configData | indent 4 }}
