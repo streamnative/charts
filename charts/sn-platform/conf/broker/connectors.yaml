@@ -18,14 +18,14 @@
 #
 - id: pulsar-io-data-generator
   name: data-generator
-  description: Test data generator source
+  description: Test data generator connector
   sourceClass: org.apache.pulsar.io.datagenerator.DataGeneratorSource
   sourceConfigClass: org.apache.pulsar.io.datagenerator.DataGeneratorSourceConfig
   sinkClass: org.apache.pulsar.io.datagenerator.DataGeneratorPrintSink
   imageRepository: streamnative/pulsar-io-data-generator
-  version: 2.8.0-rc-202106091215
-  imageTag: 2.8.0-rc-202106091215
-  typeClassName: org.apache.pulsar.client.impl.schema.JSONSchema
+  version: 2.8.0.5
+  imageTag: 2.8.0.5
+  typeClassName: org.apache.pulsar.io.datagenerator.Person
 - id: pulsar-io-kinesis
   name: kinesis
   description: Kinesis connectors
@@ -34,8 +34,8 @@
   sourceConfigClass: org.apache.pulsar.io.kinesis.KinesisSourceConfig
   sinkConfigClass: org.apache.pulsar.io.kinesis.KinesisSinkConfig
   imageRepository: streamnative/pulsar-io-kinesis
-  version: 2.8.0-rc-202106091215
-  imageTag: 2.8.0-rc-202106091215
+  version: 2.8.0.5
+  imageTag: 2.8.0.5
 - id: pulsar-io-sqs
   name: sqs
   description: SQS connectors
@@ -44,16 +44,18 @@
   sourceConfigClass: org.apache.pulsar.ecosystem.io.sqs.SQSConnectorConfig
   sinkClass: org.apache.pulsar.ecosystem.io.sqs.SQSSink
   sinkConfigClass: org.apache.pulsar.ecosystem.io.sqs.SQSConnectorConfig
-  version: 2.8.0-rc-202106091215
-  imageTag: 2.8.0-rc-202106091215
+  version: 2.8.0.8-patch-3
+  imageTag: 2.8.0.8-patch-3
+  sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+  sourceTypeClassName: java.lang.String
 - id: pulsar-io-cloud-storage
   name: cloud-storage
   description: Cloud storage connectors
   sinkClass: org.apache.pulsar.io.jcloud.sink.CloudStorageGenericRecordSink
   sinkConfigClass: org.apache.pulsar.io.jcloud.sink.CloudStorageSinkConfig
   imageRepository: streamnative/pulsar-io-cloud-storage
-  version: 2.8.0-rc-202106091215
-  imageTag: 2.8.0-rc-202106091215
+  version: 2.8.0.5
+  imageTag: 2.8.0.5
   typeClassName: org.apache.pulsar.client.api.schema.GenericRecord
 - id: pulsar-io-amqp1_0
   name: amqp1_0
@@ -63,7 +65,49 @@
   sinkConfigClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSinkConfig
   sourceConfigClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSourceConfig
   imageRepository: streamnative/pulsar-io-amqp-1-0
-  version: 2.8.0-rc-202106091215
-  imageTag: 2.8.0-rc-202106091215
+  version: 2.8.0.5
+  imageTag: 2.8.0.5
   typeClassName: java.nio.ByteBuffer
   defaultSchemaType: org.apache.pulsar.client.impl.schema.ByteBufferSchema
+- id: pulsar-io-debezium-mysql
+  name: debezium-mysql
+  description: Debezium MySql Source
+  sourceClass: org.apache.pulsar.io.debezium.mysql.DebeziumMysqlSource
+  imageRepository: streamnative/pulsar-io-debezium-mysql
+  version: 2.9.0-rc-202108202021
+  imageTag: 2.9.0-rc-202108202021
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-debezium-postgres
+  name: debezium-postgres
+  description: Debezium Postgres Source
+  sourceClass: org.apache.pulsar.io.debezium.postgres.DebeziumPostgresSource
+  imageRepository: streamnative/pulsar-io-debezium-postgres
+  version: 2.9.0-rc-202108202021
+  imageTag: 2.9.0-rc-202108202021
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-debezium-mongodb
+  name: debezium-mongodb
+  description: Debezium MongoDb Source
+  sourceClass: org.apache.pulsar.io.debezium.mongodb.DebeziumMongoDbSource
+  imageRepository: streamnative/pulsar-io-debezium-mongodb
+  version: 2.9.0-rc-202108202021
+  imageTag: 2.9.0-rc-202108202021
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-kafka
+  name: kafka
+  description: Kafka source and sink connector
+  sourceClass: org.apache.pulsar.io.kafka.KafkaBytesSource
+  imageRepository: streamnative/pulsar-io-kafka
+  version: 2.8.1.23
+  imageTag: 2.8.1.23
+  sourceConfigClass: org.apache.pulsar.io.kafka.KafkaSourceConfig
+  sourceTypeClassName: java.nio.ByteBuffer
+- id: pulsar-io-elastic-search
+  name: elasticsearch
+  description: Writes data into Elasticsearch
+  sinkClass: org.apache.pulsar.io.elasticsearch.ElasticSearchSink
+  sinkConfigClass: org.apache.pulsar.io.elasticsearch.ElasticSearchConfig
+  imageRepository: streamnative/pulsar-io-elastic-search
+  version: 2.8.1.23
+  imageTag: 2.8.1.23
+  typeClassName: org.apache.pulsar.client.api.schema.GenericObject
