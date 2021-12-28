@@ -46,6 +46,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.pulsar_manager.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.pulsar_manager.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.pulsar_detector.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
     {{- end }}
