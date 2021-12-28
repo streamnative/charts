@@ -117,6 +117,7 @@ spec:
                               description: Number or name of the port to access on
                                 the pods targeted by the service. When add new service
                                 port, it shouldn't be empty
+                              format: int32
                               type: integer
                           type: object
                         type: array
