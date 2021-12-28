@@ -47,18 +47,18 @@ spec:
         {{- if .Values.functions.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/broker/function-worker-configfile-configmap.yaml") . | sha256sum }}
     {{- end }}
-    {{- with .Values.functions.annotations }}
-    {{ toYaml . | indent 8 }}
-    {{- end }}
+{{- with .Values.functions.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       securityContext:
-      {{- with .Values.functions.securityContext }}
-      {{ toYaml . | indent 8 }}
-      {{- end }}
+{{- with .Values.functions.securityContext }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       {{- if or .Values.functions.serviceAccount.use (and .Values.components.functions  (not .Values.functions.useDedicatedRunner)) }}
       serviceAccountName: {{ template "pulsar.function.serviceAccount" . }}
       {{- end }}
@@ -126,9 +126,9 @@ spec:
                 sleep 10;
                 proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
               done;
-      {{- with .Values.common.extraInitContainers }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       containers:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}"
           image: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
@@ -172,6 +172,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+{{- with .Values.functions.extraEnvs }}
+{{ toYaml . | indent 12 }}
+{{- end }}
           volumeMounts:
           {{- include "pulsar.function.worker.config.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.function.token.volumeMounts" . | nindent 10 }}

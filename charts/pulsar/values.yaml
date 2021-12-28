@@ -1061,6 +1061,7 @@ functions:
   runtimeCustomizerClassName: "org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer"
   pulsarExtraClasspath: "extraLibs"
   # Specify the namespace to run pulsar functions
+  authenticationProviders: []
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
@@ -1072,6 +1073,7 @@ functions:
   tolerations: []
   extraVolumes: []
   extraVolumeMounts: []
+  extraEnvs: []
   gracePeriod: 30
   # Definition of the serviceAccount used to run function worker.
   serviceAccount:

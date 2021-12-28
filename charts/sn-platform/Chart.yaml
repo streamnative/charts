@@ -18,10 +18,10 @@
 #
 
 apiVersion: v1
-appVersion: "1.2.27"
+appVersion: "1.2.28"
 description: StreamNative Platform Chart
 name: sn-platform
-version: 1.2.27
+version: 1.2.28
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/tree/master/charts/sn-platform
