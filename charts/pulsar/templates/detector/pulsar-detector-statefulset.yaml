@@ -46,22 +46,15 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.pulsar_detector.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.pulsar_detector.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.pulsar_detector.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.pulsar_detector.gracePeriod }}
       initContainers:
-      # This init container will wait for zookeeper to be ready before
-      # deploying the bookies
-      - name: wait-zookeeper-ready
-        image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
-        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
-        command: ["sh", "-c"]
-        args:
-          - >-
-            until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
-              sleep 3;
-            done;
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
