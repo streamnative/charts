@@ -195,8 +195,11 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- end }}
+      {{- if ne .Values.ingress.proxy.type "LoadBalancer" }}
       type: {{ .Values.ingress.proxy.type }}
+      {{- end }}
       {{- if and (eq .Values.ingress.proxy.type "LoadBalancer") .Values.ingress.proxy.exposeSSLPort (not .Values.ingress.proxy.tls.enabled) }}
+      type: {{ .Values.ingress.proxy.type }}
       exposeSSLPort: true 
       {{- end }}
 
