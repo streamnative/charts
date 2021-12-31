@@ -198,7 +198,7 @@ spec:
       {{- if ne .Values.ingress.proxy.type "LoadBalancer" }}
       type: {{ .Values.ingress.proxy.type }}
       {{ else }}
-      {{- if and .Values.ingress.proxy.tls.enabled (not .Values.tls.enabled) (not .Values.tls.enabled)}}
+      {{- if and .Values.ingress.proxy.tls.enabled (not .Values.tls.enabled) (not .Values.tls.proxy.enabled)}}
       type: LoadBalancer
       exposeSSLPort: true 
       {{- end }}
