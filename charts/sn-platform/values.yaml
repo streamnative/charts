@@ -450,14 +450,16 @@ ingress:
   ## Ingresses for exposing pulsar service publicly
   proxy:
     enabled: false
+
+    ## When these conditions are satisfied
+    ##   1. Values.ingress.proxy.type == LoadBalancer 
+    ##   2. Values.tls.enabled == false and Values.tls.proxy.enabled == false
+    ## If tls is enabled, it will expose proxy service port with TLS port 443 and 6651
+    ## otherwise, the ports will be 8080 and 6650 as default
     tls:
       enabled: true
     ## Type options are LoadBalancer, ClusterIP
     type: LoadBalancer
-    ## When type is LoadBalancer, If exposeSSLPort is true and tls is disabled, it will
-    ## expose proxy service port with 443 and 6651 to replace 8080 and 6650
-    ## optional
-    # exposeSSLPort: true
     annotations: {}
     extraSpec: {}
   ## templates/broker-service-ingress.yaml
