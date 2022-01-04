@@ -189,10 +189,21 @@ spec:
   {{- if .Values.ingress.proxy.enabled }}
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-ingress"
+        {{- if .Values.ingress.proxy.annotations }}
         annotations:
         {{- with .Values.ingress.proxy.annotations }}
           {{- toYaml . | nindent 10 }}
         {{- end }}
+        {{- end }}
+      {{- if ne .Values.ingress.proxy.type "LoadBalancer" }}
+      type: {{ .Values.ingress.proxy.type }}
+      {{ else }}
+      {{- if and .Values.ingress.proxy.tls.enabled (not .Values.tls.enabled) (not .Values.tls.proxy.enabled)}}
+      type: LoadBalancer
+      exposeSSLPort: true 
+      {{- end }}
+      {{- end }}
+
   {{- else }}
       {}
   {{- end }}
