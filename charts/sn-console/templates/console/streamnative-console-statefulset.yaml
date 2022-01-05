@@ -104,7 +104,7 @@ spec:
             value: {{ .Values.broker.webServiceUrl }}
           - name: KOP_SERVICE_URL
             value: {{ .Values.broker.kopServiceUrl }}
-          {{- if .Values.streamnative_console.configData.GLOBAL_RESOURCE_READ_ONLY }}
+          {{- if .Values.configData.GLOBAL_RESOURCE_READ_ONLY }}
           - name: GLOBAL_RESOURCE_READ_ONLY
             value: "true"
           {{- end }}
@@ -124,23 +124,23 @@ spec:
           - name: AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME
             value: {{ .Values.login.sso.azure.config.AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
           {{- end }}
-          {{- if .Values.streamnative_console.login.sso.okta.enabled }}
+          {{- if .Values.login.sso.okta.enabled }}
           - name: OKTA_OAUTH2_ENABLED
             value: "true"
           - name: OKTA_REDIRECT_URI
-            value: {{ .Values.streamnative_console.login.sso.okta.config.OKTA_REDIRECT_URI }}
+            value: {{ .Values.login.sso.okta.config.OKTA_REDIRECT_URI }}
           - name: OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME
-            value: {{ .Values.streamnative_console.login.sso.okta.config.OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+            value: {{ .Values.login.sso.okta.config.OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME }}
           - name: OKTA_DOMAIN
-            value: {{ .Values.streamnative_console.login.sso.okta.config.OKTA_DOMAIN }}
+            value: {{ .Values.login.sso.okta.config.OKTA_DOMAIN }}
           {{- end }}
-          {{- if or (eq .Values.streamnative_console.login.sso.google.enabled true) (eq .Values.streamnative_console.login.sso.azure.enabled true) (eq .Values.streamnative_console.login.sso.okta.enabled true) }}
+          {{- if or (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) }}
           - name: REDIRECT_SCHEME
-            value: {{ .Values.streamnative_console.configData.REDIRECT_SCHEME }}
+            value: {{ .Values.configData.REDIRECT_SCHEME }}
           - name: REDIRECT_HOST
-            value: {{ .Values.streamnative_console.configData.REDIRECT_HOST }}
+            value: {{ .Values.configData.REDIRECT_HOST }}
           - name: REDIRECT_PORT
-            value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
+            value: "{{ .Values.configData.REDIRECT_PORT }}"
           {{- end }}
           envFrom:
           - secretRef:
