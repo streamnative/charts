@@ -24,7 +24,7 @@ spec:
         - jsonPath: .spec.replicas
           name: Replicas
           type: integer
-        - jsonPath: .status.replicas
+        - jsonPath: .status.readyReplicas
           name: Ready Replicas
           type: integer
         - jsonPath: .spec.image
