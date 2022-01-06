@@ -39,17 +39,25 @@ components:
 ##
 ## Control what images to use for each component
 images:
+  registry: "docker.io"
+  tag: "v0.8.17"
+
   zookeeper:
+    registry: ""
     repository: streamnative/zookeeper-operator
-    tag: v0.8.17
+    tag: ""
     pullPolicy: IfNotPresent
+  
   bookkeeper:
+    registry: ""
     repository: streamnative/bookkeeper-operator
-    tag: v0.8.17
+    tag: ""
     pullPolicy: IfNotPresent
+  
   pulsar:
+    registry: ""
     repository: streamnative/pulsar-operator
-    tag: v0.8.17
+    tag: ""
     pullPolicy: IfNotPresent
 
 global:

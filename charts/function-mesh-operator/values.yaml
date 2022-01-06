@@ -26,9 +26,12 @@ rbac:
   create: true
 
 # operatorImage is Function Mesh Operator image
-operatorImage: streamnative/function-mesh:v0.1.6-rc1
-imagePullPolicy: IfNotPresent
-imagePullSecrets: []
+images: 
+  registry: "docker.io"
+  repository: "streamnative/function-mesh"
+  tag: "v0.1.6-rc1"
+  imagePullPolicy: IfNotPresent
+  imagePullSecrets: []
 
 controllerManager:
   create: true
