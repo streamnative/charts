@@ -16,7 +16,7 @@ Pulsar Broker Service URL
 */}}
 {{- define "pulsar.function.broker.service.url" -}}
 {{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
-pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.pulsar }}
+pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.pulsar }}
 {{- else -}}
 pulsar://localhost:6650
 {{- end -}}
@@ -38,7 +38,7 @@ Pulsar Broker Service URL TLS
 */}}
 {{- define "pulsar.function.broker.service.url.tls" -}}
 {{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
-pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.pulsarssl }}
+pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.pulsarssl }}
 {{- else -}}
 pulsar+ssl://localhost:6651
 {{- end -}}
