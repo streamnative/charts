@@ -40,7 +40,7 @@ components:
 ## Control what images to use for each component
 images:
   registry: "docker.io"
-  tag: "v0.8.17"
+  tag: "v0.8.21"
 
   zookeeper:
     registry: ""
