@@ -455,7 +455,7 @@ ingress:
     enabled: false
 
     ## When these conditions are satisfied
-    ##   1. Values.ingress.proxy.type == LoadBalancer 
+    ##   1. Values.ingress.proxy.type == LoadBalancer
     ##   2. Values.tls.enabled == false and Values.tls.proxy.enabled == false
     ## If tls is enabled, it will expose proxy service port with TLS port 443 and 6651
     ## otherwise, the ports will be 8080 and 6650 as default
