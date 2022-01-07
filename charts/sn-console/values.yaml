@@ -126,6 +126,8 @@ login:
       config:
         AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
         AZURE_REDIRECT_URI: ""
+        SERVICE_ACCOUNT_OAUTH2_AUDIENCE: ""
+        SERVICE_ACCOUNT_OAUTH2_SCOPE: ""
     okta:
       enabled: false
       # The secret should contain both `OKTA_CLIENT_ID`, `OKTA_CLIENT_SECRET` and `OKTA_TENANT_ID`
