@@ -29,9 +29,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
-    {{- with .Values.proxy.labels }}
-    {{ toYaml . | indent 4 }}
-    {{- end }}
+{{- with .Values.proxy.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   brokerAddress: {{ template "pulsar.proxy.broker.service.address" . }}
   replicas: {{ .Values.proxy.replicaCount }}
@@ -41,9 +41,9 @@ spec:
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.proxy.component }}
-      {{- with .Values.proxy.labels }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
+{{- with .Values.proxy.labels }}
+{{ toYaml . | indent 6 }}
+{{- end }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.proxy.datadog.annotation" . | nindent 6 }}
