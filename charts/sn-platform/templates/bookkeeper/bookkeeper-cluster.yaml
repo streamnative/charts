@@ -28,7 +28,7 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
-    {{- with .Values.broker.labels }}
+    {{- with .Values.bookkeeper.labels }}
     {{ toYaml . | indent 4 }}
     {{- end }}
 spec:
@@ -40,7 +40,7 @@ spec:
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.bookkeeper.component }}
-      {{- with .Values.broker.labels }}
+      {{- with .Values.bookkeeper.labels }}
       {{ toYaml . | indent 6 }}
       {{- end }}
     annotations:
