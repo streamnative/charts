@@ -47,13 +47,13 @@ images:
     repository: streamnative/zookeeper-operator
     tag: ""
     pullPolicy: IfNotPresent
-  
+
   bookkeeper:
     registry: ""
     repository: streamnative/bookkeeper-operator
     tag: ""
     pullPolicy: IfNotPresent
-  
+
   pulsar:
     registry: ""
     repository: streamnative/pulsar-operator
