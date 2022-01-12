@@ -746,6 +746,7 @@ zookeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
+  labels: {}
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -933,6 +934,7 @@ bookkeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
+  labels: {}
 
 ## Pulsar: Bookkeeper AutoRecovery
 ## templates/autorecovery-statefulset.yaml
@@ -1198,6 +1200,7 @@ broker:
   ## Retention Policy
   resourcePolicy:
     keep: false
+  labels: {}
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1474,6 +1477,7 @@ proxy:
   ## Retention Policy
   resourcePolicy:
     keep: false
+  labels: {}
 
 ## Pulsar ToolSet
 ## templates/toolset-deployment.yaml
