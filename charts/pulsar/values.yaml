@@ -157,6 +157,10 @@ images:
     repository: streamnative/sn-pulsar
     tag: 2.8.0.8
     pullPolicy: IfNotPresent
+  function_worker:
+    repository: streamnative/sn-pulsar
+    tag: 2.8.0.8
+    pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/pulsar-all

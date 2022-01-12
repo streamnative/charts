@@ -114,8 +114,8 @@ spec:
       initContainers:
         # This init container will wait for pulsar proxy to be ready before deploying the function worker
         - name: wait-proxy-ready
-          image: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
-          imagePullPolicy: {{ .Values.images.functions.pullPolicy }}
+          image: "{{ .Values.images.function_worker.repository }}:{{ .Values.images.function_worker.tag }}"
+          imagePullPolicy: {{ .Values.images.function_worker.pullPolicy }}
           command: ["sh", "-c"]
           args:
             - >-
@@ -131,8 +131,8 @@ spec:
 {{- end }}
       containers:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}"
-          image: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
-          imagePullPolicy: {{ .Values.images.functions.pullPolicy }}
+          image: "{{ .Values.images.function_worker.repository }}:{{ .Values.images.function_worker.tag }}"
+          imagePullPolicy: {{ .Values.images.function_worker.pullPolicy }}
           {{- if .Values.functions.probe.liveness.enabled }}
           livenessProbe:
             httpGet:

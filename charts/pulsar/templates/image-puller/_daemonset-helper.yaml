@@ -105,6 +105,13 @@ spec:
             - /bin/sh
             - -c
             - echo "Pulling complete"
+        - name: image-pull-function-worker
+          image: {{ .function_worker.repository }}:{{ .function_worker.tag }}
+          imagePullPolicy: {{ .function_worker.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - echo "Pulling complete"
         - name: image-pull-prometheus
           image: {{ .prometheus.repository }}:{{ .prometheus.tag }}
           imagePullPolicy: {{ .prometheus.pullPolicy }}
