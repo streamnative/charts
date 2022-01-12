@@ -170,6 +170,10 @@ images:
     repository: streamnative/sn-platform
     tag: "2.8.1.30"
     pullPolicy: IfNotPresent
+  function_worker:
+    repository: streamnative/sn-platform
+    tag: "2.8.1.30"
+    pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
