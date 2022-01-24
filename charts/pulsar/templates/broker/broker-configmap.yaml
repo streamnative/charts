@@ -155,7 +155,7 @@ data:
   PULSAR_PREFIX_brokerEntryMetadataInterceptors: "org.apache.pulsar.common.intercept.AppendBrokerTimestampMetadataInterceptor,org.apache.pulsar.common.intercept.AppendIndexMetadataInterceptor"
   PULSAR_PREFIX_brokerDeleteInactiveTopicsEnabled: "false"
   PULSAR_PREFIX_allowAutoTopicCreationType: "partitioned"
-  {{- if .Values.auth.authentication.enabled }}
+  {{- if and .Values.auth.authentication.enabled .Values.kop.auth.enabled }}
   {{- if eq .Values.auth.authentication.provider "jwt" }}
   PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
   {{- end }}

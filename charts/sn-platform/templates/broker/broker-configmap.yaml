@@ -140,7 +140,7 @@ data:
   {{- end }}
   {{- if .Values.components.kop }}
   messagingProtocols: "kafka"
-  {{- if .Values.auth.authentication.enabled }}
+  {{- if and .Values.auth.authentication.enabled .Values.kop.auth.enabled }}
   {{- if eq .Values.auth.authentication.provider "jwt" }}
   PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
   {{- end }}

@@ -881,6 +881,8 @@ kop:
   ports:
     plaintext: 9092
     ssl: 9093
+  auth:
+    enabled: false
 
 ## Pulsar: MoP Protocol Handler
 mop:
