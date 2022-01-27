@@ -236,7 +236,7 @@ spec:
       authorizationEnabled: "true"
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
-      {{- if .Values.broker.kop.enabled }}
+      {{- if and .Values.broker.kop.enabled .Values.kop.auth.enabled }}
       PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
       {{- end }}
   {{- if .Values.zookeeper.customTools.restore.enable }}
