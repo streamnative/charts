@@ -57,6 +57,11 @@ spec:
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+    {{- if .Values.broker.readPublicKeyFromFile }}
+    secretRefs:
+    - mountPath: /pulsar/vault/v1/identity/oidc/.well-known/keys
+      secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
+    {{- end }}
     {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
     affinity:
       podAntiAffinity:
@@ -211,7 +216,11 @@ spec:
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_chainAuthenticationEnabled: "true"
       PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      {{- if .Values.broker.readPublicKeyFromFile }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
+      {{- else }}
       PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      {{- end  }}
       PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
       PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
       PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
@@ -226,7 +235,11 @@ spec:
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+      {{- if .Values.broker.readPublicKeyFromFile }}
+      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
+      {{- else }}
       PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+      {{- end  }}
       superUserRoles: "admin"
       {{- end }}
       {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
