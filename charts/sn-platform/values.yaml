@@ -1207,6 +1207,8 @@ broker:
     keep: false
   labels: {}
   readPublicKeyFromFile: false
+  publicKeyPath: ""
+  publicKeySecret: ""
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1485,6 +1487,8 @@ proxy:
     keep: false
   labels: {}
   readPublicKeyFromFile: false
+  publicKeyPath: ""
+  publicKeySecret: ""
 
 ## Pulsar ToolSet
 ## templates/toolset-deployment.yaml
