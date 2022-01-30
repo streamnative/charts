@@ -79,3 +79,18 @@ pulsar controller ingress target port for http endpoint
 {{- print "http" -}}
 {{- end -}}
 {{- end -}}
+
+{{/* Allow kubernetes version to be overridend */}}
+{{- define "pulsar.kubeVersion" -}}
+    {{- default .Capabilities.KubeVersion.Version .Values.kubeVersionOverride -}}
+{{- end -}}
+
+
+{{/* Check Ingress API version is stable or not */}}
+{{- define "pulsar.ingress.isStable" -}}
+    {{- if and (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (semverCompare ">= 1.19-0" (include "pulsar.kubeVersion" .)) -}}
+        {{- print "true" -}}
+    {{- else -}}
+        {{- print "false" -}}
+    {{- end -}}
+{{- end -}}
