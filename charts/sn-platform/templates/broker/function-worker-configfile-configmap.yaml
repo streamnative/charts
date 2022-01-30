@@ -98,7 +98,7 @@ data:
       - {{ .Values.auth.superUsers.client }}
       - {{ .Values.auth.superUsers.pulsar_manager }}
     {{- end }}
-    {{- if eq .Values.auth.authentication.provider "jwt" }}
+    {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }}
     # token authentication configuration
     {{- if eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory" }}
     functionAuthProviderClassName: org.apache.pulsar.functions.auth.KubernetesSecretsTokenAuthProvider
