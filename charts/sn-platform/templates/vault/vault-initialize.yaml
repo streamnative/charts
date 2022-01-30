@@ -56,7 +56,10 @@ spec:
            done;
            echo "vault is ready~";
 
-           cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh
+           cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
+           echo "Start init public key to secret";
+           publicKey=$(wget -qO- http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200/v1/identity/oidc/.well-known/keys | base64 | tr -d \\n);
+           kubectl patch secret {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key --type='json' -p='[{"op":"replace","path":"/data/publicKey","value":"'$publicKey'"}]' -n {{ template "pulsar.namespace" . }};
         env:
         - name: NAMESPACE
           value: {{ template "pulsar.namespace" . }}
