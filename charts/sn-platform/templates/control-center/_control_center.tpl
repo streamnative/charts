@@ -85,6 +85,15 @@ pulsar controller ingress target port for http endpoint
     {{- default .Capabilities.KubeVersion.Version .Values.kubeVersionOverride -}}
 {{- end -}}
 
+{{/* Check Kubernetes version is less than v1.22 */}}
+{{- define "pulsar.kubeVersion.isLessThanV122" -}}
+    {{- if semverCompare "< 1.22-0" (include "pulsar.kubeVersion" .) -}}
+        {{- print "true" -}}
+    {{- else -}}
+        {{- print "false" -}}
+    {{- end -}}
+{{- end -}}
+
 
 {{/* Check Ingress API version is stable or not */}}
 {{- define "pulsar.ingress.isStable" -}}
@@ -92,5 +101,14 @@ pulsar controller ingress target port for http endpoint
         {{- print "true" -}}
     {{- else -}}
         {{- print "false" -}}
+    {{- end -}}
+{{- end -}}
+
+
+{{- define "pulsar.ingress.image" -}}
+    {{- if and (eq (include "pulsar.kubeVersion.isLessThanV122" .) "false") (semverCompare "< 1.0.0" .Values.images.nginx_ingress_controller.tag )}}
+        {{- print "k8s.gcr.io/ingress-nginx/controller:v1.1.1"}}
+    {{- else -}}
+        {{- printf "%s:%s" .Values.images.nginx_ingress_controller.repository .Values.images.nginx_ingress_controller.tag -}}
     {{- end -}}
 {{- end -}}
