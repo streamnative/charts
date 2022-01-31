@@ -88,6 +88,18 @@ service:
     frontend: 9527
     backend: 7750
 
+ingress:
+  host: ""
+  public_issuer:
+    enabled: false
+    issuer: pulsar-public-cert-issuer
+    type: acme
+  enabled: false
+  tls:
+    enabled: false
+  annotations: {}
+  pathType: ImplementationSpecific
+
 ## cloud console configmap
 ## templates/streamnative-console-configmap.yaml
 ##
