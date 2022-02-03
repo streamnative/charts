@@ -39,6 +39,7 @@ spec:
         component: {{ .Values.bookkeeper.component }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.serviceAccount.name }}'
+      {{- include "pulsar.imagePullSecrets" . | indent 6 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
         image: {{template "bookkeeper.image" . }}

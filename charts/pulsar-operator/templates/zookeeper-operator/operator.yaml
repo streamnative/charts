@@ -39,6 +39,7 @@ spec:
         component: {{ .Values.zookeeper.component }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
+      {{- include "pulsar.imagePullSecrets" . | indent 6 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
         image: {{template "zookeeper.image" . }}

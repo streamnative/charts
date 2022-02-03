@@ -38,6 +38,7 @@ spec:
         component: {{ .Values.pulsar.component }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
+      {{- include "pulsar.imagePullSecrets" . | indent 6 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.component }}"
         image: {{template "pulsar.image" . }}
