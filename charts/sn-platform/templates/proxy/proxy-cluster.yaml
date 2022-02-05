@@ -79,7 +79,10 @@ spec:
       {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
       podAntiAffinity:
         {{ .Values.proxy.affinity.type }}:
-          {{ if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- with .Values.proxy.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
           - labelSelector:
               matchExpressions:
                 - key: "app"

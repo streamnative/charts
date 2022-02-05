@@ -98,7 +98,10 @@ spec:
       {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity }}
       podAntiAffinity:
         {{ .Values.zookeeper.affinity.type }}:
-          {{ if eq .Values.zookeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- if eq .Values.zookeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- with .Values.zookeeper.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
           - labelSelector:
               matchExpressions:
                 - key: "app"

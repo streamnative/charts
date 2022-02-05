@@ -593,6 +593,17 @@ zookeeper:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
 
+    # -- setup podAffinity for customized podAntiAffinity rules when type is requiredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - topologyKey: "topology.kubernetes.io/zone"
+    #   labelSelector:
+    #     matchExpressions:
+    #     - key: "component"
+    #       operator: In
+    #       values:
+    #       - zookeeper
+
+
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
     nodeAffinity: false
     # nodeSelectorTerms:
@@ -812,6 +823,16 @@ bookkeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+
+    # -- setup podAffinity for customized podAntiAffinity rules when type is requiredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - topologyKey: "topology.kubernetes.io/zone"
+    #   labelSelector:
+    #     matchExpressions:
+    #     - key: "component"
+    #       operator: In
+    #       values:
+    #       - bookkeeper
 
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
     nodeAffinity: false
@@ -1087,6 +1108,16 @@ broker:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+
+    # -- setup podAffinity for customized podAntiAffinity rules when type is requiredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - topologyKey: "topology.kubernetes.io/zone"
+    #   labelSelector:
+    #     matchExpressions:
+    #     - key: "component"
+    #       operator: In
+    #       values:
+    #       - broker
 
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
     nodeAffinity: false
@@ -1408,6 +1439,16 @@ proxy:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+
+    # -- setup podAffinity for customized podAntiAffinity rules when type is requiredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - topologyKey: "topology.kubernetes.io/zone"
+    #   labelSelector:
+    #     matchExpressions:
+    #     - key: "component"
+    #       operator: In
+    #       values:
+    #       - proxy
 
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
     nodeAffinity: false

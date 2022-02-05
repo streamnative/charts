@@ -83,7 +83,10 @@ spec:
       {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
       podAntiAffinity:
         {{ .Values.broker.affinity.type }}:
-          {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- with .Values.broker.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
           - labelSelector:
               matchExpressions:
                 - key: "app"

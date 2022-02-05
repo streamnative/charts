@@ -65,7 +65,10 @@ spec:
       {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
       podAntiAffinity:
         {{ .Values.bookkeeper.affinity.type }}:
-          {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+          {{- with .Values.bookkeeper.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10 }}
+          {{- end }}
           - labelSelector:
               matchExpressions:
                 - key: "app"
