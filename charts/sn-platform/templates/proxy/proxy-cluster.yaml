@@ -66,8 +66,17 @@ spec:
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
       {{- end }}
     {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
+    {{- if or .Values.affinity.anti_affinity .Values.affinity.nodeAffinity }}
     affinity:
+      {{- if and .Values.affinity.nodeAffinity .Values.proxy.affinity.nodeAffinity }}
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          {{- with .Values.proxy.affinity.nodeSelectorTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
+      {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
       podAntiAffinity:
         {{ .Values.proxy.affinity.type }}:
           {{ if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
@@ -105,6 +114,7 @@ spec:
                       - {{ .Values.proxy.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
+      {{- end }}
     {{- end }}
     {{- if .Values.auth.authentication.enabled }}
     vars:

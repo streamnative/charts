@@ -67,6 +67,7 @@ volumes:
 ## the `affinity.anti_affinity` settings to `false` for that component.
 affinity:
   anti_affinity: true
+  nodeAffinity: true
 
 ## Components
 ##
@@ -591,6 +592,16 @@ zookeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+
+    # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
+    nodeAffinity: false
+    # nodeSelectorTerms:
+    # - matchExpressions:
+    #   - key: topology.kubernetes.io/zone
+    #     operator: In
+    #     values:
+    #     - asia-northeast1-c
+
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
@@ -801,6 +812,17 @@ bookkeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+
+    # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
+    nodeAffinity: false
+    # nodeSelectorTerms:
+    # - matchExpressions:
+    #   - key: topology.kubernetes.io/zone
+    #     operator: In
+    #     values:
+    #     - asia-northeast1-c
+
+
   annotations: {}
   securityContext: {}
   tolerations: []
@@ -1065,6 +1087,16 @@ broker:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+
+    # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
+    nodeAffinity: false
+    # nodeSelectorTerms:
+    # - matchExpressions:
+    #   - key: topology.kubernetes.io/zone
+    #     operator: In
+    #     values:
+    #     - asia-northeast1-c
+
   annotations: {}
   tolerations: []
   securityContext: {}
@@ -1376,6 +1408,15 @@ proxy:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+
+    # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
+    nodeAffinity: false
+    # nodeSelectorTerms:
+    # - matchExpressions:
+    #   - key: topology.kubernetes.io/zone
+    #     operator: In
+    #     values:
+    #     - asia-northeast1-c
   annotations: {}
   securityContext: {}
   tolerations: []

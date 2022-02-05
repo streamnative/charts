@@ -52,8 +52,17 @@ spec:
 {{- with .Values.bookkeeper.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
+    {{- if or .Values.affinity.anti_affinity .Values.affinity.nodeAffinity }}
     affinity:
+      {{- if and .Values.affinity.nodeAffinity .Values.bookkeeper.affinity.nodeAffinity }}
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          {{- with .Values.bookkeeper.affinity.nodeSelectorTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
+      {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
       podAntiAffinity:
         {{ .Values.bookkeeper.affinity.type }}:
           {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
@@ -91,6 +100,7 @@ spec:
                       - {{ .Values.bookkeeper.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
+      {{- end }}
     {{- end }}
     {{- if .Values.bookkeeper.resources }}
     resources:

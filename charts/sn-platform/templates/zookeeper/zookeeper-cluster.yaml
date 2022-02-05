@@ -85,7 +85,16 @@ spec:
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
     {{- end }}
+    {{- if or .Values.affinity.anti_affinity .Values.affinity.nodeAffinity }}
     affinity:
+      {{- if and .Values.affinity.nodeAffinity .Values.zookeeper.affinity.nodeAffinity }}
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          {{- with .Values.zookeeper.affinity.nodeSelectorTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
+      {{- end }}
       {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity }}
       podAntiAffinity:
         {{ .Values.zookeeper.affinity.type }}:
@@ -124,7 +133,8 @@ spec:
                       - {{ .Values.zookeeper.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
-        {{- end }}
+      {{- end }}
+    {{- end }}
     {{- if .Values.zookeeper.resources }}
     resources:
 {{ toYaml .Values.zookeeper.resources | indent 6 }}
