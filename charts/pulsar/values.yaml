@@ -89,7 +89,7 @@ components:
   # pulsar manager
   pulsar_manager: true
   # pulsar sql
-  sql_worker: false
+  sql_worker: true
   # kop
   kop: false
   # mop
@@ -1863,6 +1863,21 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
+      config: >
+        -Dpresto-temporarily-allow-java8=true
+        -server
+        -Xmx500M
+        -XX:+UseG1GC
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+AggressiveOpts
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
     log:
       presto:
         level: DEBUG
@@ -1912,6 +1927,21 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
+      config: >
+        -Dpresto-temporarily-allow-java8=true
+        -server
+        -Xmx500M
+        -XX:+UseG1GC
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+AggressiveOpts
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
     log:
       presto:
         level: DEBUG

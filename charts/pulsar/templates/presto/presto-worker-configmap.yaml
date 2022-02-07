@@ -32,6 +32,9 @@ data:
     node.environment={{ .Values.presto.node.environment }}
     node.data-dir={{ template "pulsar.home" . }}/data
   jvm.config: |
+    {{- if .Values.presto.worker.jvm.config }}
+    {{.Values.presto.worker.jvm.config}}
+    {{- else }}
     -Dpresto-temporarily-allow-java8=true
     -server
     -Xmx{{ .Values.presto.worker.jvm.memory }}
@@ -43,6 +46,7 @@ data:
     -XX:+ExitOnOutOfMemoryError
     -Dpresto-temporarily-allow-java8=true
     -Djdk.attach.allowAttachSelf=true
+    {{- end}}
   config.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
