@@ -134,8 +134,8 @@ spec:
         {{ toYaml .Values.grafana.renderResources | indent 10 }}
         {{- end }}
         ports:
-          - name: render
-            containerPort: {{ .Values.grafana.renderPort }}
+        - name: render
+          containerPort: {{ .Values.grafana.renderPort }}
         env:
           - name: HTTP_PORT
             value: "{{ .Values.grafana.renderPort }}"

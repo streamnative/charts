@@ -41,9 +41,9 @@ data:
     chmod 750 /data;
     su - pulsar -s /bin/sh /pulsar-manager/startup.sh;
     echo 'Starting Pulsar Manager Front end';
-    export JAVA_OPTS="${JAVA_OPTS} -Dlog4j2.formatMsgNoLookups=true";
     nginx;
     echo 'Starting Pulsar Manager Back end';
+    export JAVA_OPTS="${JAVA_OPTS} -Dlog4j2.formatMsgNoLookups=true";
     /pulsar-manager/pulsar-backend-entrypoint.sh;
   backend_entrypoint.sh: |
     {{ .Values.pulsar_manager.scripts.backend_entrypoint.command }} \
