@@ -75,14 +75,3 @@ Pulsar Cluster Name.
 {{- template "pulsar.fullname" . }}
 {{- end }}
 {{- end }}
-
-{{/* Pulsar image pull secret */}}
-
-{{- define "pulsar.imagePullSecrets" }}
-{{- if .Values.global.imagePullSecrets }}
-imagePullSecrets:
-{{- range .Values.global.imagePullSecrets }}
-- name: {{ . }}
-{{- end }}
-{{- end }}
-{{- end }}
