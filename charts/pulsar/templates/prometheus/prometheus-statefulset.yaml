@@ -115,7 +115,7 @@ spec:
           - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.prometheus" . }}/
   {{- end }}
           - --web.enable-lifecycle
-  {{ if .Values.prometheus.maxQuerySamples }}
+  {{- if .Values.prometheus.maxQuerySamples }}
           - --query.max-samples={{.Values.prometheus.maxQuerySamples }}
   {{- end }}
         ports:
