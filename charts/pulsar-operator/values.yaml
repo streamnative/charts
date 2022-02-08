@@ -60,9 +60,9 @@ images:
     tag: ""
     pullPolicy: IfNotPresent
 
-global:
-  # Lists the secrets you need to use to pull operators image from a private registry.
-  imagePullSecrets: []
+# Lists the secrets you need to use to pull operators image from a private registry.
+imagePullSecrets:
+# - name: sn-gcr-req
 
 zookeeper:
   component: zookeeper-controller-manager
