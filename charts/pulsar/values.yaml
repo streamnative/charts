@@ -1863,7 +1863,7 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
-      jdk11: false
+      jdk11: true
     log:
       presto:
         level: DEBUG
@@ -1913,7 +1913,7 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
-      jdk11: false
+      jdk11: true
     log:
       presto:
         level: DEBUG
