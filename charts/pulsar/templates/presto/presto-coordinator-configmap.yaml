@@ -31,8 +31,21 @@ data:
     node.environment={{ .Values.presto.node.environment }}
     node.data-dir={{ template "pulsar.home" . }}/data
   jvm.config: |
-    {{- if .Values.presto.coordinator.jvm.config }}
-    {{.Values.presto.coordinator.jvm.config}}
+    {{- if not .Values.presto.coordinator.jvm.jdk11 }}
+    -Dpresto-temporarily-allow-java8=true
+    -server
+    -Xmx500M
+    -XX:+UseG1GC
+    -XX:+UnlockExperimentalVMOptions
+    -XX:+AggressiveOpts
+    -XX:+DoEscapeAnalysis
+    -XX:ParallelGCThreads=4
+    -XX:ConcGCThreads=4
+    -XX:G1NewSizePercent=50
+    -XX:+DisableExplicitGC
+    -XX:-ResizePLAB
+    -XX:+ExitOnOutOfMemoryError
+    -XX:+PerfDisableSharedMem
     {{- else }}
     -Dpresto-temporarily-allow-java8=true
     -server

@@ -29,12 +29,14 @@ metadata:
     component: {{ .Values.functions.component }}
 data:
   functions_worker.yml: |
+    {{- if .Values.functions.useDedicatedRunner}}
     {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
     # `tlsEnabled` and `workerPortTls` are required to set to true in order to make HTTPS work for functions REST api
     workerPortTls: {{ .Values.functions.ports.https }}
     tlsEnabled: true
     {{- else}}
     workerPort: {{ .Values.functions.ports.http }}
+    {{- end }}
     {{- end }}
     {{- if and .Values.components.functions .Values.functions.functionState }}
     # enable function state
