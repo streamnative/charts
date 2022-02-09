@@ -52,6 +52,6 @@ helm uninstall pulsar-operator -n <k8s-namespace>
 
 `version`: The version of the chart. It will be changed only when there are some changes to the chart or the `appVersion` bumps a new version.
 
-`appVersion`: The version of the application image that this chart contains, it will change only when operator image bumps a new version.
+`appVersion`: The version of the application image that the chart contains. It will be changed only when the operator image bumps a new version.
 
 `kubeVersion`: The range of compatible kubernetes versions. 
