@@ -881,6 +881,23 @@ entries:
   pulsar-operator:
   - apiVersion: v1
     appVersion: 0.8.21
+    created: "2022-02-09T03:30:10.122867617Z"
+    description: Apache Pulsar Operators Helm chart for Kubernetes
+    digest: 30cf6aec0ff10e8cd63d40f7f2c334280e5b91ffb6fe01f8fe7fd15557367df6
+    home: https://streamnative.io
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    kubeVersion: '>= 1.16.0-0 < 1.24.0'
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: pulsar-operator
+    sources:
+    - https://github.com/streamnative/pulsar-operators
+    urls:
+    - https://github.com/streamnative/charts/releases/download/pulsar-operator-0.8.22/pulsar-operator-0.8.22.tgz
+    version: 0.8.22
+  - apiVersion: v1
+    appVersion: 0.8.21
     created: "2022-01-11T12:08:55.17200276Z"
     description: Apache Pulsar Operators Helm chart for Kubernetes
     digest: 3c3427302aaaf827cbd0e81870bd6a16c6839fbf903927a8d95962a0acb4e741
@@ -1956,4 +1973,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/sn-platform-1.1.0/sn-platform-1.1.0.tgz
     version: 1.1.0
-generated: "2022-02-07T02:28:45.497927073Z"
+generated: "2022-02-09T03:30:10.123406221Z"
