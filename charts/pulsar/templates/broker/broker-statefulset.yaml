@@ -122,6 +122,11 @@ spec:
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
         command: ["sh", "-c"]
         args:
+          {{ if .Values.broker.zkInitCommandOverride }}
+          {{ with .Values.broker.zkInitCommandOverride }}
+          -{{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{ else }}
           - >-
             {{ if .Values.broker.skipZookeeperReady }}
             echo "Skipping zookeeper ready check"
@@ -141,6 +146,7 @@ spec:
               echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
             {{ end }}
+            {{ end }}
         volumeMounts:
         {{- include "pulsar.broker.certs.volumeMounts" . | nindent 8 }}
       # This init container will wait for bookkeeper to be ready before
@@ -150,6 +156,11 @@ spec:
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
         command: ["sh", "-c"]
         args:
+          {{ if .Values.broker.bkInitCommandOverride }}
+          {{ with .Values.broker.bkInitCommandOverride }}
+          -{{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{ else }}
           - >
 
             {{- if .Values.broker.advertisedPodIP }}
@@ -171,6 +182,7 @@ spec:
               bookieServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }} | grep Name | wc -l)";
             done;
             echo "bookkeeper cluster is ready";
+          {{ end }}
         envFrom:
           - configMapRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
@@ -221,6 +233,11 @@ spec:
         args:
         # NOTE: We need to set `BROKER_ADDRESS` at the beginning. Because
         # other scripts will use this variable.
+        {{ if .Values.broker.brokerCommandOverride }}
+        {{ with .Values.broker.brokerCommandOverride }}
+        -{{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{ else }}
         - >
 
         {{- if .Values.broker.advertisedPodIP }}
@@ -240,6 +257,7 @@ spec:
             bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get ${BROKER_ZNODE};
           done;
           bin/pulsar broker;
+        {{ end }}
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http
