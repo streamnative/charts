@@ -105,6 +105,15 @@ pulsar controller ingress target port for http endpoint
 {{- end -}}
 
 
+{{/* 
+Get ingress image according to the k8s version.
+
+When k8s version is higher or equal than v1.22, ingress image should use version v1.x.x,
+otherwise it should use the default version 0.26.2 that defines in values.yaml.
+
+If k8s version is higher or equal than v1.22, but the .Values.images.nginx_ingress_controller.tag is less than v1.x.x,
+it will use k8s.gcr.io/ingress-nginx/controller:v1.1.1 as default to make ingress work.
+*/}}
 {{- define "pulsar.ingress.image" -}}
     {{- if and (eq (include "pulsar.kubeVersion.isLessThanV122" .) "false") (semverCompare "< 1.0.0" .Values.images.nginx_ingress_controller.tag )}}
         {{- print "k8s.gcr.io/ingress-nginx/controller:v1.1.1"}}
