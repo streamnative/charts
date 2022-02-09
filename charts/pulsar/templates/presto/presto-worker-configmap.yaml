@@ -35,7 +35,7 @@ data:
     {{- if not .Values.presto.worker.jvm.jdk11 }}
     -Dpresto-temporarily-allow-java8=true
     -server
-    -Xmx500M
+    -Xmx{{ .Values.presto.worker.jvm.memory }}
     -XX:+UseG1GC
     -XX:+UnlockExperimentalVMOptions
     -XX:+AggressiveOpts
