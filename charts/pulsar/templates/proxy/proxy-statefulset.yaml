@@ -124,7 +124,7 @@ spec:
         args:
           {{ if .Values.proxy.zkInitCommandOverride }}
           {{ with .Values.proxy.zkInitCommandOverride }}
-          -{{- toYaml . | nindent 10 }}
+          -{{- toYaml . | indent 10 }}
           {{- end }}
           {{ else }}
           - >-
@@ -149,7 +149,7 @@ spec:
         args:
           {{ if .Values.proxy.bkInitCommandOverride }}
           {{ with .Values.proxy.bkInitCommandOverride }}
-          -{{- toYaml . | nindent 10 }}
+          -{{- toYaml . | indent 10 }}
           {{- end }}
           {{ else }} 
           - >-
@@ -206,7 +206,7 @@ spec:
         args:
         {{ if .Values.proxy.proxyCommandOverride }}
         {{ with .Values.proxy.proxyCommandOverride }}
-        -{{- toYaml . | nindent 10 }}
+        -{{- toYaml . | indent 10 }}
         {{- end }}
         {{ else }}
         - >
