@@ -124,7 +124,7 @@ spec:
         args:
           {{ if .Values.broker.zkInitCommandOverride }}
           {{ with .Values.broker.zkInitCommandOverride }}
-          -{{- toYaml . | nindent 10 }}
+          -{{- toYaml . | indent 10 }}
           {{- end }}
           {{ else }}
           - >-
@@ -158,7 +158,7 @@ spec:
         args:
           {{ if .Values.broker.bkInitCommandOverride }}
           {{ with .Values.broker.bkInitCommandOverride }}
-          -{{- toYaml . | nindent 10 }}
+          -{{- toYaml . | indent 10 }}
           {{- end }}
           {{ else }}
           - >
@@ -235,7 +235,7 @@ spec:
         # other scripts will use this variable.
         {{ if .Values.broker.brokerCommandOverride }}
         {{ with .Values.broker.brokerCommandOverride }}
-        -{{- toYaml . | nindent 10 }}
+        -{{- toYaml . | indent 10 }}
         {{- end }}
         {{ else }}
         - >
