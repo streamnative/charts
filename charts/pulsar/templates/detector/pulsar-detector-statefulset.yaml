@@ -46,6 +46,14 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+    {{- if .Values.pulsar_detector.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.pulsar_detector.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.pulsar_detector.tolerations }}
+      tolerations:
+{{ toYaml .Values.pulsar_detector.tolerations | indent 8 }}
+    {{- end }}
     {{- if .Values.pulsar_detector.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
     {{- end }}
