@@ -25,6 +25,11 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
 data:
+  {{if .Values.zookeeper.genZKCommandOverride }}
+  {{ with .Values.zookeeper.genZKCommandOverride }}
+  gen-zk-conf.sh: {{- toYaml . | indent 10 }}
+  {{- end }}
+  {{ else }}
   gen-zk-conf.sh: |
     #!/bin/bash
     
@@ -77,3 +82,4 @@ data:
             echo $MY_ID > $DATA_DIR/myid
         fi
     fi
+  {{ end }}
