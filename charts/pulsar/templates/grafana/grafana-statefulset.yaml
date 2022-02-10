@@ -137,7 +137,7 @@ spec:
 {{- if .Values.grafana.enableRendering }}
         - name: GF_RENDERING_SERVER_URL
           value: "http://localhost:{{ .Values.grafana.renderPort }}{{ .Values.grafana.renderPath }}"
-{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana }}
+{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana (not .Values.grafana.localRenderCallback) }}
         - name: GF_RENDERING_CALLBACK_URL
           value: {{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.grafana" . }}/
 {{- else }}
