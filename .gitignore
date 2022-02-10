@@ -16,3 +16,7 @@ charts/**/*.lock
 
 PRIVATEKEY
 PUBLICKEY
+
+node_modules
+yarn.lock
+scripts/generate-image/*.json
