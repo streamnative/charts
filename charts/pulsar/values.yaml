@@ -1572,6 +1572,7 @@ grafana:
   tolerations: []
   gracePeriod: 0
   port: 3000
+  localRenderCallback: false
   resources:
     requests:
       memory: 250Mi
