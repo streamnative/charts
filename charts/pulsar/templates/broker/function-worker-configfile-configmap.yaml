@@ -29,7 +29,7 @@ metadata:
     component: {{ .Values.functions.component }}
 data:
   functions_worker.yml: |
-    {{- if .Values.functions.useDedicatedRunner}}
+    {{- if or .Values.functions.useDedicatedRunner .Values.functions.addWorkerPort }}
     {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
     # `tlsEnabled` and `workerPortTls` are required to set to true in order to make HTTPS work for functions REST api
     workerPortTls: {{ .Values.functions.ports.https }}
@@ -44,8 +44,16 @@ data:
     {{- end }}
     # Function package management
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
+    {{- if .Values.functions.pulsarUrlOverride }}
+    pulsarServiceUrl: {{ .Values.functions.pulsarUrlOverride }}
+    {{- else }}
     pulsarServiceUrl: {{template "pulsar.function.broker.service.url" . }}
+    {{- end }}
+    {{- if .Values.functions.pulsarWebServiceUrlOverride }}
+    pulsarWebServiceUrl: {{ .Values.functions.pulsarWebServiceUrlOverride }}
+    {{- else }}
     pulsarWebServiceUrl: {{template "pulsar.function.web.service.url" . }}
+    {{- end }}
     pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
     functionRuntimeFactoryConfigs:
       jobNamespace: {{ template "pulsar.functions.namespace" . }}
