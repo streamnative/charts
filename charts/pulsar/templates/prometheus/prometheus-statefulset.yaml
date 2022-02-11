@@ -104,6 +104,9 @@ spec:
 {{ toYaml .Values.prometheus.resources | indent 10 }}
       {{- end }}
         args:
+          {{- if .Values.prometheus.args.logLevel }}
+          - --log.level={{ .Values.prometheus.args.logLevel }}
+          {{- end }}
           - --config.file=/etc/config/prometheus.yml
           {{- if .Values.prometheus.args.retention }}
           - --storage.tsdb.retention.time={{ .Values.prometheus.args.retention }}
