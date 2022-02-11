@@ -308,7 +308,7 @@ spec:
               name: {{ .Values.broker.offload.s3.secret }}
               key: AWS_SECRET_ACCESS_KEY
         {{- end }}
-        {{- if or .Values.components.mop .Values.components.kop }}
+        {{- if or .Values.components.mop .Values.components.kop .Values.broker.addPodName }}
         - name: POD_NAME
           valueFrom:
             fieldRef:
