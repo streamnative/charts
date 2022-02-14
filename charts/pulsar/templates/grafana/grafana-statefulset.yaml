@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.monitoring.grafana }}
-{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence (not .Values.grafana.useDeployment) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
