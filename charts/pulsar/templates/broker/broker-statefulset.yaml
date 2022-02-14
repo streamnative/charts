@@ -58,6 +58,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.broker.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.broker.imagePullSecrets }}
+      {{- end }}
       securityContext:
 {{- with .Values.broker.securityContext }}
 {{ toYaml . | indent 8 }}
@@ -73,6 +77,10 @@ spec:
       tolerations:
 {{ toYaml .Values.broker.tolerations | indent 8 }}
     {{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.broker.custom_affinity}}
+      affinity:
+{{ toYaml .Values.broker.custom_affinity | indent 8 }}
+    {{ else }}  
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity}}
         podAntiAffinity:
@@ -106,13 +114,14 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component" 
+                    - key: "component"
                       operator: In
                       values:
                       - {{ .Values.broker.component }}
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
       initContainers:
       # This init container will wait for zookeeper to be ready before
@@ -122,8 +131,15 @@ spec:
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
         command: ["sh", "-c"]
         args:
+          {{ if .Values.broker.zkInitCommandOverride }}
+          {{ with .Values.broker.zkInitCommandOverride }}
+          -{{- toYaml . | indent 10 }}
+          {{- end }}
+          {{ else }}
           - >-
-
+            {{ if .Values.broker.skipZookeeperReady }}
+            echo "Skipping zookeeper ready check"
+            {{ else }}
             {{- if .Values.broker.advertisedPodIP }}
             export BROKER_ADDRESS="${advertisedAddress}"
             {{- else }}
@@ -138,6 +154,8 @@ spec:
             {{- end }}
               echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 3 seconds ..." && sleep 3;
             done;
+            {{ end }}
+            {{ end }}
         volumeMounts:
         {{- include "pulsar.broker.certs.volumeMounts" . | nindent 8 }}
       # This init container will wait for bookkeeper to be ready before
@@ -147,6 +165,11 @@ spec:
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
         command: ["sh", "-c"]
         args:
+          {{ if .Values.broker.bkInitCommandOverride }}
+          {{ with .Values.broker.bkInitCommandOverride }}
+          -{{- toYaml . | indent 10 }}
+          {{- end }}
+          {{ else }}
           - >
 
             {{- if .Values.broker.advertisedPodIP }}
@@ -168,6 +191,7 @@ spec:
               bookieServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }} | grep Name | wc -l)";
             done;
             echo "bookkeeper cluster is ready";
+          {{ end }}
         envFrom:
           - configMapRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
@@ -218,13 +242,19 @@ spec:
         args:
         # NOTE: We need to set `BROKER_ADDRESS` at the beginning. Because
         # other scripts will use this variable.
+        {{ if .Values.broker.brokerCommandOverride }}
+        {{ with .Values.broker.brokerCommandOverride }}
+        -{{- toYaml . | indent 10 }}
+        {{- end }}
+        {{ else }}
         - >
 
         {{- if .Values.broker.advertisedPodIP }}
-          export BROKER_ADDRESS="${advertisedAddress}";
+          export BROKER_ADDRESS="${advertisedAddress}"
         {{- else }}
-          export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local";
+          export BROKER_ADDRESS="${HOSTNAME}.{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
         {{- end }}
+          
           bin/apply-config-from-env.py conf/broker.conf;
           echo "OK" > status;
           {{- include "pulsar.broker.zookeeper.tls.settings" . | nindent 10 }}
@@ -236,6 +266,7 @@ spec:
             bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get ${BROKER_ZNODE};
           done;
           bin/pulsar broker;
+        {{ end }}
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http
@@ -286,10 +317,12 @@ spec:
               name: {{ .Values.broker.offload.s3.secret }}
               key: AWS_SECRET_ACCESS_KEY
         {{- end }}
+        {{- if or .Values.components.mop .Values.components.kop .Values.broker.addPodName }}
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        {{- end }}
         {{- if .Values.components.mop }}
         - name: PULSAR_PREFIX_mqttListeners
           value: mqtt://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.mop.ports.plaintext }}
@@ -334,23 +367,31 @@ spec:
           {{- include "pulsar.broker.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.certs.volumeMounts" . | nindent 10 }}
+          {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
           {{- include "pulsar.kop.certs.volumeMounts" . | nindent 10 }}
+          {{- end }}
           {{- include "pulsar.broker.runtime.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.broker.offload.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.function.worker.config.volumeMounts" . | nindent 10 }}
+          {{- if .Values.broker.offload.filesystem.enabled }}
           {{- include "pulsar.broker.offload.filesystem.config.volumeMounts" . | nindent 10 }}
+          {{- end }}
 {{- with .Values.broker.extraVolumeMounts }}
 {{ toYaml . | indent 10 }}
 {{- end }}
       volumes:
       {{- include "pulsar.broker.token.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.certs.volumes" . | nindent 6 }}
+      {{- if and .Values.tls.enabled .Values.tls.kop.enabled }}
       {{- include "pulsar.kop.certs.volumes" . | nindent 6 }}
+      {{- end }}
       {{- include "pulsar.broker.log.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.runtime.volumes" . | nindent 6 }}
       {{- include "pulsar.broker.offload.volumes" . | nindent 6 }}
       {{- include "pulsar.function.worker.config.volumes" . | nindent 6 }}
+      {{- if .Values.broker.offload.filesystem.enabled }}
       {{- include "pulsar.broker.offload.filesystem.config.volumes" . | nindent 6 }}
+      {{- end }}
 {{- with .Values.broker.extraVolumes }}
 {{ toYaml . | indent 6 }}
 {{- end }}

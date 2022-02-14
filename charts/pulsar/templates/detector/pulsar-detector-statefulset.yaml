@@ -46,6 +46,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.pulsar_detector.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.pulsar_detector.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.pulsar_detector.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
     {{- end }}
@@ -53,6 +57,7 @@ spec:
       initContainers:
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
+      {{- if .Values.pulsar_detector.waitZkReady }}
       - name: wait-zookeeper-ready
         image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
         imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
@@ -62,6 +67,7 @@ spec:
             until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
               sleep 3;
             done;
+      {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
@@ -84,9 +90,19 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/pulsar-detector -service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }};
+          bin/pulsar-detector -service-url pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }} -webservice-url http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }} {{- if .Values.auth.authentication.enabled }} -auth-plugin token -auth-params "{\"token\":\"$PulsarClientAuthenticationParameters\"}" {{- end }};
         ports:
         # prometheus needs to access /metrics endpoint
         - name: server
           containerPort: {{ .Values.pulsar_detector.port }}
+        env:
+        {{- if .Values.auth.authentication.enabled }}
+        {{- if eq .Values.auth.authentication.provider "jwt" }}
+        - name: PulsarClientAuthenticationParameters
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
+              key: TOKEN
+        {{- end }}
+        {{- end }}
 {{- end }}
