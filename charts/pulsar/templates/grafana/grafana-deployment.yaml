@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.monitoring.grafana }}
-{{- if not (and .Values.volumes.persistence .Values.grafana.volumes.persistence) }}
+{{- if or (not (and .Values.volumes.persistence .Values.grafana.volumes.persistence)) .Values.grafana.useDeployment }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
