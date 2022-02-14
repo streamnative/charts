@@ -51,6 +51,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.pulsar_manager.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.pulsar_manager.imagePullSecrets }}
+      {{- end }}
     {{- if .Values.pulsar_manager.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.pulsar_manager.nodeSelector | indent 8 }}
