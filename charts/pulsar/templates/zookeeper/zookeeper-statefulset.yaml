@@ -36,7 +36,7 @@ spec:
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
     type: {{ .Values.zookeeper.updateStrategy }}
-  podManagementPolicy: OrderedReady
+  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy | default "OrderedReady" }}
   template:
     metadata:
       labels:
@@ -72,6 +72,10 @@ spec:
       tolerations:
 {{ toYaml .Values.zookeeper.tolerations | indent 8 }}
     {{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.zookeeper.custom_affinity}}
+      affinity:
+{{ toYaml .Values.zookeeper.custom_affinity | indent 8 }}
+    {{ else }}  
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity}}
         podAntiAffinity:
@@ -112,6 +116,7 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
       {{- if .Values.zookeeper.customTools.restore.enable }}
