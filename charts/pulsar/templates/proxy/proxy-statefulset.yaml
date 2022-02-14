@@ -58,6 +58,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.proxy.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.proxy.imagePullSecrets }}
+      {{- end }}
       securityContext:
 {{- with .Values.proxy.securityContext }}
 {{ toYaml . | indent 8 }}
