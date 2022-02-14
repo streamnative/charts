@@ -2,6 +2,9 @@
 pulsar service domain
 */}}
 {{- define "pulsar.service_domain" -}}
+{{- if .Values.ingress.proxy.externalDomainOverride -}}
+{{ .Values.ingress.proxy.externalDomainOverride }}
+{{- else -}}
 {{- if .Values.ingress.proxy.enabled -}}
   {{- if .Values.ingress.proxy.external_domain }}
 {{- print .Values.ingress.proxy.external_domain -}}
@@ -12,6 +15,7 @@ pulsar service domain
 {{- print "" -}}
       {{- end -}}
   {{- end -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
