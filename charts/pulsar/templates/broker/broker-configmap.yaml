@@ -87,6 +87,17 @@ data:
   brokerServicePort: "{{ .Values.broker.ports.pulsar }}"
   {{- end }}
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  {{- if .Values.tls.brokerClient.enabled }}
+  brokerServicePortTls: "{{ .Values.broker.ports.pulsarssl }}"
+  webServicePortTls: "{{ .Values.broker.ports.https }}"
+  # TLS Settings
+  tlsEnabled: "true"
+  tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+  tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
+  tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  brokerClientTlsEnabled: "true"
+  brokerClientTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+  {{- else }}
   brokerServicePortTls: "{{ .Values.broker.ports.pulsarssl }}"
   webServicePortTls: "{{ .Values.broker.ports.https }}"
   # TLS Settings
@@ -94,7 +105,7 @@ data:
   tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
   tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   {{- end }}
-
+  {{- end }}
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"

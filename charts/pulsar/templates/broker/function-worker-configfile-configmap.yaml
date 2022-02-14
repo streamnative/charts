@@ -29,6 +29,9 @@ metadata:
     component: {{ .Values.functions.component }}
 data:
   functions_worker.yml: |
+    {{- if .Values.functions.config }}
+{{ toYaml .Values.functions.config | indent 4 }}
+    {{- end }} 
     {{- if or .Values.functions.useDedicatedRunner .Values.functions.addWorkerPort }}
     {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
     # `tlsEnabled` and `workerPortTls` are required to set to true in order to make HTTPS work for functions REST api
