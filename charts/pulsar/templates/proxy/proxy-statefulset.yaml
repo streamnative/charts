@@ -58,6 +58,10 @@ spec:
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
+      {{- if .Values.proxy.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.proxy.imagePullSecrets }}
+      {{- end }}
       securityContext:
 {{- with .Values.proxy.securityContext }}
 {{ toYaml . | indent 8 }}
@@ -73,6 +77,10 @@ spec:
       tolerations:
 {{ toYaml .Values.proxy.tolerations | indent 8 }}
     {{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.proxy.custom_affinity}}
+      affinity:
+{{ toYaml .Values.proxy.custom_affinity | indent 8 }}
+    {{ else }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity}}
         podAntiAffinity:
@@ -113,17 +121,25 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
       initContainers:
       # This init container will wait for zookeeper to be ready before
-      # deploying the pulsar proxy
+      # deploying the bookies
       - name: wait-zookeeper-ready
         image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
         imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
         command: ["sh", "-c"]
         args:
+          {{ if .Values.proxy.zkInitCommandOverride }}
+          {{ with .Values.proxy.zkInitCommandOverride }}
+          -{{- toYaml . | indent 10 }}
+          {{- end }}
+          {{ else }}
           - >-
-            {{- if $zk:=.Values.pulsar_metadata.userProvidedZookeepers }}
+            {{ if .Values.proxy.skipZookeeperReady }}
+            echo "Skipping zookeeper ready check"
+            {{ else if $zk:=.Values.pulsar_metadata.userProvidedZookeepers }}
             until bin/pulsar zookeeper-shell -server {{ $zk }} ls {{ or .Values.metadataPrefix "/" }}; do
               echo "user provided zookeepers {{ $zk }} are unreachable... check in 3 seconds ..." && sleep 3;
             done;
@@ -131,7 +147,8 @@ spec:
             until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
               sleep 3;
             done;
-            {{- end}}
+            {{ end}}
+          {{ end}}
       # This init container will wait for at least one broker to be ready before
       # deploying the proxy
       - name: wait-broker-ready
@@ -139,6 +156,11 @@ spec:
         imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
         command: ["sh", "-c"]
         args:
+          {{ if .Values.proxy.bkInitCommandOverride }}
+          {{ with .Values.proxy.bkInitCommandOverride }}
+          -{{- toYaml . | indent 10 }}
+          {{- end }}
+          {{ else }} 
           - >-
             set -e;
             brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
@@ -147,6 +169,7 @@ spec:
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
+          {{ end }}
 {{- with .Values.common.extraInitContainers }}
 {{ toYaml . | indent 6 }}
 {{- end }}
@@ -190,10 +213,16 @@ spec:
       {{- end }}
         command: ["sh", "-c"]
         args:
+        {{ if .Values.proxy.proxyCommandOverride }}
+        {{ with .Values.proxy.proxyCommandOverride }}
+        -{{- toYaml . | indent 10 }}
+        {{- end }}
+        {{ else }}
         - >
           bin/apply-config-from-env.py conf/proxy.conf;
           echo "OK" > status;
           bin/pulsar proxy;
+        {{ end }}
         ports:
         # prometheus needs to access /metrics endpoint
         - name: http
@@ -208,13 +237,13 @@ spec:
         - name: pulsarssl
           containerPort: {{ .Values.proxy.ports.pulsarssl }}
         {{- end }}
+        envFrom:
+        - configMapRef:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
         env:
 {{- with .Values.broker.extraEnv}}
 {{ toYaml . | indent 8 }}
 {{- end }}
-        envFrom:
-        - configMapRef:
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
         volumeMounts:
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}
@@ -259,11 +288,17 @@ spec:
         {{- end }}
         command: ["sh", "-c"]
         args:
+        {{ if .Values.proxy.websocketCommandOverride }}
+        {{ with .Values.proxy.websocketCommandOverride }}
+        -{{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{ else }} 
         - >
           cat /pulsar/tokens/websocket/token;
           bin/apply-config-from-env.py conf/websocket.conf;
           echo "OK" > status;
           bin/pulsar websocket;
+        {{ end }}
         ports:
         - name: websocket
           containerPort: {{ .Values.proxy.ports.websocket }}
