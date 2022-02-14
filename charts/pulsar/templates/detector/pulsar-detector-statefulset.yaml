@@ -57,6 +57,7 @@ spec:
       initContainers:
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
+      {{- if .Values.pulsar_detector.waitZkReady }}
       - name: wait-zookeeper-ready
         image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
         imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
@@ -66,6 +67,7 @@ spec:
             until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
               sleep 3;
             done;
+      {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
