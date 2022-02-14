@@ -223,6 +223,8 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+  brokerClient:
+    enabled: false
   functions:
     enabled: false
     cert_name: tls-function
@@ -1161,7 +1163,7 @@ pulsar_detector:
 
   gracePeriod: 30
   port: 9000
-
+  waitZkReady: true
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
