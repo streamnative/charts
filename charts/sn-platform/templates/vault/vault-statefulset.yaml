@@ -56,7 +56,7 @@ spec:
 
   unsealConfig:
     kubernetes:
-      secretNamespace: {{ .Values.namespace }}
+      secretNamespace: {{ template "pulsar.namespace" . }}
 
   {{- if .Values.vault.config }}
   # A YAML representation of a final vault config file.
