@@ -89,7 +89,7 @@ components:
   # pulsar manager
   pulsar_manager: true
   # pulsar sql
-  sql_worker: false
+  sql_worker: true
   # kop
   kop: false
   # mop
@@ -223,6 +223,8 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+  brokerClient:
+    enabled: false
   functions:
     enabled: false
     cert_name: tls-function
@@ -1161,6 +1163,7 @@ pulsar_detector:
 
   gracePeriod: 30
   port: 9000
+  waitZkReady: true
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   # tolerations: []
@@ -1574,6 +1577,7 @@ grafana:
   tolerations: []
   gracePeriod: 0
   port: 3000
+  localRenderCallback: false
   resources:
     requests:
       memory: 250Mi
@@ -1865,6 +1869,7 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
+      jdk11: true
     log:
       presto:
         level: DEBUG
@@ -1914,6 +1919,7 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
+      jdk11: true
     log:
       presto:
         level: DEBUG
