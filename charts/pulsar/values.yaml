@@ -1068,6 +1068,7 @@ functions:
   pulsarExtraClasspath: "extraLibs"
   # Specify the namespace to run pulsar functions
   authenticationProviders: []
+  authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
