@@ -100,14 +100,23 @@ Define zookeeper log volumes
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
 {{- end }}
 
+{{/*Define zookeeper pod name*/}}
+{{- define "pulsar.zookeeper.podName" -}}
+{{- if .Values.zookeeper.operator.enabled -}}
+{{- print "zookeeper" -}}
+{{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}
+{{- end -}}
+{{- end -}}
+
 {{/*Define zookeeper datadog annotation*/}}
 {{- define "pulsar.zookeeper.datadog.annotation"}}
 {{- if .Values.datadog.components.zookeeper.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
