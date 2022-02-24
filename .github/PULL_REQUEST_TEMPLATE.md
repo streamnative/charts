@@ -1,0 +1,71 @@
+<!--
+### Contribution Checklist
+  
+  - Name the pull request in the form "[charts/<chart-name>] Title of the pull request".
+    Skip *[charts/<chart-name>]* if the PR doesn't change a specific chart. E.g. `[docs] Fix typo in README`.
+
+  - Fill out the template below to describe the changes contributed by the pull request. That will give reviewers the context they need to do the review.
+  
+  - Each pull request should address only one issue, not mix up code from multiple issues.
+  
+  - Each commit in the pull request has a meaningful commit message
+
+  - Once all items of the checklist are addressed, remove the above text and this checklist, leaving only the filled out template below.
+
+**(The sections below can be removed for hotfixes of typos)**
+-->
+
+*(If this PR fixes a github issue, please add `Fixes #<xyz>`.)*
+
+Fixes #<xyz>
+
+*(or if this PR is one task of a github issue, please add `Master Issue: #<xyz>` to link to the master issue.)*
+
+Master Issue: #<xyz>
+
+### Motivation
+
+*Explain here the context, and why you're making that change. What is the problem you're trying to solve.*
+
+### Modifications
+
+*Describe the modifications you've done.*
+
+### Verifying this change
+
+- [ ] Make sure that the change passes the CI checks.
+
+*(Please pick either of the following options)*
+
+This change is a trivial rework / code cleanup without any test coverage.
+
+*(or)*
+
+This change is already covered by existing tests, such as *(please describe tests)*.
+
+*(or)*
+
+This change added tests and can be verified as follows:
+
+*(example:)*
+  - *Added integration tests for end-to-end deployment with large payloads (10MB)*
+  - *Extended integration test for recovery after broker failure*
+
+### Documentation
+
+Check the box below.
+
+Need to update docs? 
+
+- [ ] doc-required 
+  
+  (If you need help on updating docs, create a doc issue)
+  
+- [ ] no-need-doc 
+  
+  (Please explain why)
+  
+- [ ] doc 
+  
+  (If this PR contains doc changes)
+
