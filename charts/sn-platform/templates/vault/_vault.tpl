@@ -22,7 +22,31 @@ Inject vault token values to pod through env variables
 {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-console-admin-passwd
 {{- end }}
 
-
+{{/*Define vault datadog annotation*/}}
+{{- define "pulsar.vault.datadog.annotation" -}}
+{{- if .Values.datadog.components.vault.enabled }}
+ad.datadoghq.com/vault.check_names: |
+  ["vault"]
+ad.datadoghq.com/vault.init_configs: |
+  [{}]
+ad.datadoghq.com/vault.instances: |
+  [
+    {
+      "api_url": "http://%%host%%:8200/v1",
+      {{- if .Values.datadog.components.vault.auth.enabled }}
+      "client_token": {{ .Values.datadog.components.vault.auth.token }}
+      {{- else }}
+      "no_token": true
+      {{- end }}
+      {{- if .Values.datadog.components.vault.tags }}
+      "tags": [
+{{ toYaml .Values.datadog.components.vault.tags | indent 8 }}
+       ]
+       {{- end }}
+    }
+  ]
+{{- end }}
+{{- end }}
 
 {{- define "pulsar.vault-unseal-secret-key-name" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-unseal-keys

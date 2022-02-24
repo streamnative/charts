@@ -1699,6 +1699,14 @@ datadog:
       metrics: [
         "\"_*\""
       ]
+    vault:
+      enabled: true
+      auth:
+        enabled: false
+        token: ""
+      tags: {}
+    prometheus:
+      enabled: false
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-statefulset.yaml
@@ -2141,6 +2149,8 @@ vault:
     created: true
     name: ""
   serviceType: "ClusterIP"
+  tolerations: []
+  nodeSelector: {}
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
