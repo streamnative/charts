@@ -32,9 +32,23 @@ spec:
   serviceType: {{ .Values.vault.serviceType }}
 
   statsdDisabled: true
-
-
+  
+  {{- if .Values.monitoring.datadog }}
+  vaultAnnotations:
+{{- include "pulsar.vault.datadog.annotation" . | nindent 4 }}
+  {{- end }}
 {{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
+
+  {{- if .Values.vault.tolerations }}
+  tolerations:
+{{ toYaml .Values.vault.tolerations | indent 4 }}
+  {{- end }}
+
+  {{- if .Values.vault.nodeSelector }}
+  nodeSelector:
+{{ toYaml .Values.vault.nodeSelector | indent 4 }}
+  {{- end }}
+  
   volumeClaimTemplates:
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
