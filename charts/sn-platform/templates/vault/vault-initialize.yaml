@@ -30,6 +30,10 @@ spec:
   template:
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"
         image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"

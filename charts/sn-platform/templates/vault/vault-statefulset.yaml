@@ -48,6 +48,12 @@ spec:
   nodeSelector:
 {{ toYaml .Values.vault.nodeSelector | indent 4 }}
   {{- end }}
+
+  {{- if .Values.imagePullSecrets }}
+  vaultPodSpec:
+    imagePullSecrets:
+    - name: {{ .Values.imagePullSecrets }}
+  {{- end }}
   
   volumeClaimTemplates:
   - metadata:
