@@ -106,6 +106,15 @@ data:
     brokerClientTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
     {{- end }}
 
+    {{- if .Values.functions.skipTls }}
+    tlsAllowInsecureConnection: false
+    tlsEnableHostnameVerification: false
+    {{- end }}
+    
+    {{- if .Values.functions.RefreshCheckDurationSec }}
+    tlsCertRefreshCheckDurationSec: {{ .Values.functions.RefreshCheckDurationSec }}
+    {{- end }}
+
     {{- if .Values.pulsar_metadata.configurationStore }}
     configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
     {{- end }}
