@@ -57,15 +57,15 @@ Check the box below.
 
 Need to update docs? 
 
-- [ ] doc-required 
+- [ ] `doc-required` 
   
   (If you need help on updating docs, create a doc issue)
   
-- [ ] no-need-doc 
+- [ ] `no-need-doc` 
   
   (Please explain why)
   
-- [ ] doc 
+- [ ] `doc` 
   
   (If this PR contains doc changes)
 
