@@ -1070,6 +1070,7 @@ functions:
   pulsarExtraClasspath: "extraLibs"
   # Specify the namespace to run pulsar functions
   authenticationProviders: []
+  authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
@@ -1164,6 +1165,9 @@ pulsar_detector:
   gracePeriod: 30
   port: 9000
   waitZkReady: true
+  # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  # tolerations: []
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component

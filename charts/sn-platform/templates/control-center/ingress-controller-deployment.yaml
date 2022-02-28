@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.ingress.controller.enabled }}
+{{- $isKubeVersionLessThanV122 := eq (include "pulsar.kubeVersion.isLessThanV122" .) "true" }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -60,7 +61,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.ingress.controller.gracePeriod }}
       containers:
       - name: nginx-ingress-controller
-        image: "{{ .Values.images.nginx_ingress_controller.repository }}:{{ .Values.images.nginx_ingress_controller.tag }}"
+        image: {{ include "pulsar.ingress.image" .}}
         imagePullPolicy: {{ .Values.images.nginx_ingress_controller.pullPolicy }}
         args:
         - /nginx-ingress-controller
@@ -76,8 +77,13 @@ spec:
               - ALL
             add:
               - NET_BIND_SERVICE
+          {{- if $isKubeVersionLessThanV122 }}
           # www-data -> 33
           runAsUser: 33
+          {{- else }}
+          # www-data -> 101, use image v1.1.1 will need this user permission
+          runAsUser: 101
+          {{- end }}
         env:
         - name: POD_NAME
           valueFrom:
