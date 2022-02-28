@@ -1222,6 +1222,7 @@ functions:
   pulsarExtraClasspath: "extraLibs"
   # Specify the namespace to run pulsar functions
   authenticationProviders: []
+  authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
@@ -1313,7 +1314,9 @@ pulsar_detector:
 
   gracePeriod: 30
   port: 9000
-
+  # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  # tolerations: []
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1696,6 +1699,14 @@ datadog:
       metrics: [
         "\"_*\""
       ]
+    vault:
+      enabled: true
+      auth:
+        enabled: false
+        token: ""
+      tags: {}
+    prometheus:
+      enabled: false
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-statefulset.yaml
@@ -2138,6 +2149,8 @@ vault:
     created: true
     name: ""
   serviceType: "ClusterIP"
+  tolerations: []
+  nodeSelector: {}
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
