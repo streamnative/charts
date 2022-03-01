@@ -2169,7 +2169,7 @@ vault:
     cluster_addr: "http://${.Env.POD_NAME}:8201"
     ui: true
     telemetry:
-      statsd_address: localhost:9125
+      statsd_address: ""
   resources:
     limits:
       memory: "512Mi"
