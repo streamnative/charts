@@ -234,11 +234,11 @@ Define function worker config volume
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
-ad.datadoghq.com/{{ template "pulsar.broker.podName" }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.broker.podName" }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.broker.podName" }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",

@@ -112,11 +112,11 @@ Define zookeeper log volumes
 {{/*Define zookeeper datadog annotation*/}}
 {{- define "pulsar.zookeeper.datadog.annotation"}}
 {{- if .Values.datadog.components.zookeeper.enabled }}
-ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",

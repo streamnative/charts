@@ -161,11 +161,11 @@ Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
