@@ -128,11 +128,18 @@ spec:
             {{- end }}
           {{- else }}
           - path: /
+            {{- if $isIngressAPIStable }}
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: default
                 port: 
                   number: 80
+            {{- else }}
+            backend:
+              serviceName: default
+              servicePort: 80
+            {{- end }}
           {{- end }}
       {{- if .Values.ingress.control_center.external_domain }}
       host: {{ template "pulsar.control_center_domain" . }}
