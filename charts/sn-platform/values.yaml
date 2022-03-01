@@ -911,8 +911,6 @@ bookkeeper:
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
       -Xlog:gc*
-      -Xlog:::time,level,tags
-      -Xlog:safepoint
       -Xlog:gc+heap=trace
       -verbosegc
       -Xlog:gc:/var/log/bookie-gc.log
