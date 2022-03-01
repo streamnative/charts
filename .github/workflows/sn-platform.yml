@@ -47,5 +47,5 @@ jobs:
 
       - name: Install chart
         run: |
-          helm dependency update ./charts/charts/sn-platform
-          helm template pulsar -f ./charts/.ci/clusters/values-datadog.yaml ./charts/charts/sn-platform
+          helm dependency update charts/sn-platform
+          helm template pulsar -f .ci/clusters/values-datadog.yaml charts/sn-platform
