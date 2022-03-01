@@ -146,6 +146,9 @@ spec:
         - {{ .Values.proxy.configData.PULSAR_GC }}
       gcLoggingOptions: []
   config:
+    {{- if .Values.pulsar_metadata.clusterName }}
+    clusterName: {{ .Values.pulsar_metadata.clusterName }}
+    {{- end }}
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
