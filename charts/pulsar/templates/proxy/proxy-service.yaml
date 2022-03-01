@@ -27,11 +27,9 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
   annotations:
-  {{- if and .Values.external_dns.enabled (not .Values.ingress.proxy.enabled) }}
-    {{- if .Values.domain.enabled }}
+    {{- if and .Values.domain.enabled (not .Values.ingress.proxy.enabled) }}
     external-dns.alpha.kubernetes.io/hostname: {{ template "pulsar.service_domain" . }}
     {{- end }}
-  {{- end }}
   {{- with .Values.proxy.service.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}

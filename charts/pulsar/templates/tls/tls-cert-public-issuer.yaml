@@ -17,7 +17,6 @@
 # under the License.
 #
 
-{{- if .Values.external_dns.enabled }}
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if eq .Values.certs.public_issuer.type "acme" }}
 {{- if not .Values.certs.public_issuer.issuer_override }}
@@ -49,7 +48,6 @@ spec:
 {{ toYaml .Values.certs.issuers.acme.solvers.route53 | indent 10 }}
       {{- end }}
       {{- end }}
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

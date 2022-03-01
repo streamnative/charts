@@ -86,33 +86,12 @@ components:
   proxy: true
   # toolset
   toolset: true
-  # pulsar manager
-  pulsar_manager: true
-  # pulsar sql
-  sql_worker: true
   # kop
   kop: false
   # mop
   mop: false
-  # pulsar detector
-  pulsar_detector: false
-  # superset
-  superset: false
 
-## Monitoring Components
-##
-## Control what components of the monitoring stack to deploy for the cluster
 monitoring:
-  # monitoring - prometheus
-  prometheus: true
-  # monitoring - grafana
-  grafana: true
-  # monitoring - node_exporter
-  node_exporter: true
-  # alerting - alert-manager
-  alert_manager: true
-  # monitoring - loki
-  loki: true
   # monitoring - datadog
   datadog: false
 
@@ -128,15 +107,6 @@ images:
     repository: streamnative/pulsar-all
     tag: 2.7.2.8
     pullPolicy: IfNotPresent
-  presto:
-    repository: streamnative/pulsar-all
-    tag: 2.7.2.8
-    pullPolicy: IfNotPresent
-  # NOTE: allow overriding the presto worker image
-  # presto_worker:
-  #   repository: streamnative/pulsar-all
-  #   tag: 2.7.2.8
-  #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
     tag: 2.7.2.8
@@ -149,10 +119,6 @@ images:
     repository: streamnative/sn-pulsar
     tag: 2.8.0.8
     pullPolicy: IfNotPresent
-  pulsar_detector:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
-    pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-pulsar
     tag: 2.8.0.8
@@ -161,37 +127,7 @@ images:
     repository: streamnative/sn-pulsar
     tag: 2.8.0.8
     pullPolicy: IfNotPresent
-  # NOTE: allow overriding the toolset image
-  # toolset:
-  #   repository: streamnative/pulsar-all
-  #   tag: 2.7.0.4
-  #   pullPolicy: IfNotPresent
-  prometheus:
-    repository: prom/prometheus
-    tag: v2.17.2
-    pullPolicy: IfNotPresent
-  alert_manager:
-    repository: prom/alertmanager
-    tag: v0.20.0
-    pullPolicy: IfNotPresent
-  grafana:
-    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.16
-    pullPolicy: IfNotPresent
-  pulsar_manager:
-    repository: streamnative/pulsar-manager
-    tag: 0.3.0
-    pullPolicy: IfNotPresent
-    hasCommand: false
-  node_exporter:
-    repository: prom/node-exporter
-    tag: v0.16.0
-    pullPolicy: "IfNotPresent"
-  nginx_ingress_controller:
-    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
-    tag: 0.26.2
-    pullPolicy: "IfNotPresent"
-
+ 
 ## TLS
 ## templates/tls-certs.yaml
 ##
@@ -215,6 +151,7 @@ tls:
     enabled: false
     cert_name: tls-proxy
     untrustedCa: true
+    commonNameOverride:
   # settings for generating certs for proxy
   pulsar_detector:
     enabled: false
@@ -223,6 +160,7 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+    commonNameOverride:
   brokerClient:
     enabled: false
   functions:
@@ -239,22 +177,20 @@ tls:
     enabled: false
     cert_name: tls-bookie
   # settings for generating certs for zookeeper
+  bookkeeper:
+    commonNameOverride:
   zookeeper:
     enabled: false
     cert_name: tls-zookeeper
+    commonNameOverride:
   # settings for generating certs for recovery
   autorecovery:
     cert_name: tls-recovery
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
-  pulsar_manager:
-    enabled: false
-    cert_name: tls-pulsar-manager
-  presto:
-    enabled: false
-    cert_name: tls-presto
-
+    commonNameOverride:
+ 
 # Enable or disable broker authentication and authorization.
 auth:
   authentication:
@@ -292,7 +228,7 @@ auth:
 ## for components within a Pulsar cluster
 certs:
   internal_issuer:
-    enabled: false
+    enabled: true
     component: internal-cert-issuer
     type: selfsigning
   public_issuer:
@@ -327,33 +263,6 @@ certs:
     ca_ref:
       secretName: "[SECRET STORES lets encrypt CA]"
       keyName: "[KEY IN THE SECRET STORES let encrypt CA]"
-
-## External DNS
-## templates/external-dns.yaml
-## templates/external-dns-rbac.yaml
-##
-## External DNS is used for synchronizing exposed Ingresses with DNS providers
-external_dns:
-  enabled: false
-  use_existing: false
-  component: external-dns
-  policy: upsert-only
-  registry: txt
-  owner_id: pulsar
-  domain_filter: pulsar.example.local
-  provider: google
-  providers:
-    google:
-      # project: external-dns-test
-      project: "[GOOGLE PROJECT ID]"
-    aws:
-      zoneType: public
-  serviceAcct:
-    annotations: {}
-  securityContext: {}
-  extraMounts: []
-  extraEnv: []
-
 
 ## Domain requested from External DNS
 domain:
@@ -460,7 +369,6 @@ imagePuller:
       name: gcr.io/google_containers/pause
       tag: '3.1'
 
-
 ######################################################################
 # Below are settings for each component
 ######################################################################
@@ -468,6 +376,31 @@ imagePuller:
 ## Common properties applied to pulsar components
 common:
   extraInitContainers: []
+
+datadog:
+  component: datadog
+  namespace: pulsar
+  components:
+    zookeeper:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    bookkeeper:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    broker:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    proxy:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
 
 ## Pulsar: Zookeeper cluster
 ## templates/zookeeper-statefulset.yaml
@@ -662,6 +595,19 @@ zookeeper:
 ## templates/bookkeeper-statefulset.yaml
 ##
 bookkeeper:
+#  nameOverride:
+#    autorecoveryConfigmap:
+#    autorecoveryService:
+#    autorecoveryStatefulset:
+#    initjob:
+#    clusterRolebinding:
+#    configmap:
+#    pdb:
+#    rolebinding:
+#    service:
+#    serviceAccount:
+#    statefulset:
+#    storageClass:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
@@ -1155,50 +1101,6 @@ functions:
     narExtractionDirectory: ""
   functionRuntimeFactoryConfigs:
 
-## Pulsar: pulsar detector
-## templates/pulsar-detector-statefulset.yaml
-##
-pulsar_detector:
-  component: pulsar-detector
-  replicaCount: 1
-
-  gracePeriod: 30
-  port: 9000
-  waitZkReady: true
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
-  # tolerations: []
-  # Definition of the serviceAccount used to run brokers.
-  serviceAccount:
-    # Specifies whether to use a service account to run this component
-    use: true
-    # Specifies whether a service account should be created
-    create: true
-    # The name of the service account to use.
-    # If not set and create is true, a name is generated using the fullname template
-    name: ""
-    # Extra annotations for the serviceAccount definition. This can either be
-    # YAML or a YAML-formatted multi-line templated string map of the
-    # annotations to apply to the serviceAccount.
-    annotations: {}
-
-  ## Proxy service
-  ## templates/pulsar-detector-service.yaml
-  ##
-  service:
-    # spec:
-    # clusterIP: None
-    annotations: {}
-
-  ## Pulsar detector PodDisruptionBudget
-  ## templates/pulsar-detector-pdb.yaml
-  ##
-  pdb:
-    usePolicy: true
-    maxUnavailable: 1
-## Pulsar: Proxy Cluster
-## templates/proxy-statefulset.yaml
-##
 proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
@@ -1430,518 +1332,7 @@ configmapReload:
     ##
     resources: {}
 
-## Monitoring Stack: Prometheus
-## templates/prometheus-deployment.yaml
-##
-prometheus:
-  component: prometheus
-  replicaCount: 1
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
-  annotations: {}
-  tolerations: []
-  gracePeriod: 0
-  port: 9090
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 0.1
-  # Definition of the serviceAccount used to run brokers.
-  serviceAccount:
-    # Specifies whether to use a service account to run this component
-    use: true
-    # Specifies whether a service account should be created
-    create: true
-    # The name of the service account to use.
-    # If not set and create is true, a name is generated using the fullname template
-    name: ""
-    # Extra annotations for the serviceAccount definition. This can either be
-    # YAML or a YAML-formatted multi-line templated string map of the
-    # annotations to apply to the serviceAccount.
-    annotations: {}
-    # specify to use a clusterRole, set to false to only allow in a single namespace
-    clusterRole: true
-  volumes:
-    # use a persistent volume or emptyDir
-    persistence: true
-    data:
-      name: data
-      size: 10Gi
-      local_storage: true
-      useVolumeClaimTemplates: false
-      # storageClassName: ""
-      ## If the storage class is left undefined when using persistence
-      ## the default storage class for the cluster will be used.
-      ##
-      # storageClass:
-        # type: pd-standard
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
-  args:
-    ## Prometheus data retention period (default if not specified is 15 days)
-    ##
-    retention: "15d"
-  scrapeInterval: 15s
-  securityContext:
-    runAsUser: 65534
-    runAsNonRoot: true
-    runAsGroup: 65534
-    fsGroup: 65534
-  probe:
-    liveness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    readiness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 30
-      periodSeconds: 10
-  customRelabelConfigs: []
-
-  ## Prometheus service
-  ## templates/prometheus-service.yaml
-  ##
-  service:
-    # expose the load balancer
-    # type: LoadBalancer
-    annotations: {}
-
-datadog:
-  component: datadog
-  namespace: pulsar
-  components:
-    zookeeper:
-      enabled: false
-      metrics: [
-        "\"_*\""
-      ]
-    bookkeeper:
-      enabled: false
-      metrics: [
-        "\"_*\""
-      ]
-    broker:
-      enabled: false
-      metrics: [
-        "\"_*\""
-      ]
-    proxy:
-      enabled: false
-      metrics: [
-        "\"_*\""
-      ]
-
-## Monitoring Stack: Grafana
-## templates/grafana-statefulset.yaml
-##
-grafana:
-  component: grafana
-  grafana.ini:
-    paths:
-      data: /var/lib/grafana/pulsar/data
-      plugins: /var/lib/grafana/pulsar/plugins
-      provisioning: /var/lib/grafana/pulsar_provisioning
-    server:
-      domain: "{{ GRAFANA_DOMAIN }}"
-      serve_from_sub_path: "{{ GRAFANA_SERVE_FROM_SUB_PATH }}"
-      root_url: "{{ GRAFANA_ROOT_URL }}"
-    analytics:
-      check_for_updates: true
-    security:
-      admin_user: "{{ GRAFANA_ADMIN_USER }}"
-      admin_password: "{{ GRAFANA_ADMIN_PASSWORD }}"
-    auth.azuread:
-      name: Azure AD
-      enabled: false
-      allow_sign_up: true
-      client_id: ""
-      client_secret: ""
-      scopes: openid email profile
-      auth_url: ""
-      token_url: ""
-      allowed_domains: ""
-      allowed_groups: ""
-      role_attribute_strict: true
-    log:
-      mode: console
-    log.file:
-      level: info
-      format: text
-    grafana_com:
-      url: https://grafana.com
-  replicaCount: 1
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
-  annotations: {}
-  tolerations: []
-  gracePeriod: 0
-  port: 3000
-  localRenderCallback: false
-  resources:
-    requests:
-      memory: 250Mi
-      cpu: 0.1
-  volumes:
-    # use a persistent volume or emptyDir
-    persistence: true
-    ## templates/grafana-statefulset.yaml
-    ## environment variables since grafana.ini settings do not override in Docker container
-    ## https://grafana.com/docs/grafana/latest/administration/configure-docker/#default-paths
-    env:
-      - name: GF_PATHS_DATA
-        value: /var/lib/grafana/pulsar/data
-      - name: GF_PATHS_PLUGINS
-        value: /var/lib/grafana/pulsar/plugin
-      # - name: GF_PATHS_LOGS
-      #   value: /var/lib/grafana/pulsar/logs
-      - name: GF_PATHS_PROVISIONING
-        value: /var/lib/grafana/pulsar_provisioning
-    securityContext:
-      # Grafana docker image user and groups: https://grafana.com/docs/grafana/latest/installation/docker/#migration-from-a-previous-version-of-the-docker-container-to-5-1-or-later
-      runAsUser: 472
-      runAsNonRoot: true
-      runAsGroup: 472
-      fsGroup: 472
-    mountPath: /var/lib/grafana/pulsar
-    data:
-      name: data
-      size: 10Gi
-      local_storage: true
-      # storageClassName: ""
-      ## If the storage class is left undefined when using persistence
-      ## the default storage class for the cluster will be used.
-      ##
-      # storageClass:
-        # type: pd-standard
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
-
-  ## Grafana service
-  ## templates/grafana-service.yaml
-  ##
-  service:
-    # spec:
-    # type: clusterIP
-    annotations: {}
-  datasources:
-    loki: loki
-  admin:
-    user: pulsar
-    password: pulsar
-  ## Oauth2 for Azuread
-  ## Grafana Override configuration with environment variables.
-  ## see: https://grafana.com/docs/grafana/latest/administration/configuration/#override-configuration-with-environment-variables
-  azureAuthEnabled: false
-  azuread:
-    client_id: "AZURE-AD-SSO-CLIENT-ID"
-    client_secret: "AZURE-AD-SSO-CLIENT-SECRET"
-
-## Monitoring Stack: node_exporteer
-## templates/node-exporter.yaml
-##
-
-node_exporter:
-  component: node-exporter
-  annotations: {}
-  limits:
-    cpu: 10m
-    memory: 50Mi
-  requests:
-    cpu: 10m
-    memory: 50Mi
-
-alert_manager:
-  component: alert-manager
-  port: 9093
-  annotations: {}
-  replicaCount: 1
-  gracePeriod: 0
-  resources:
-    requests:
-      memory: 250Mi
-      cpu: 0.1
-  service:
-    # spec:
-    # clusterIP: None
-    annotations: {}
-  securityContext:
-    runAsUser: 65534
-    runAsNonRoot: true
-    runAsGroup: 65534
-    fsGroup: 65534
-  probe:
-    readiness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 30
-      periodSeconds: 10
-  # alert manager config
-  config:
-    global:
-      resolve_timeout: 1m
-    route:
-      group_interval: 1m
-      repeat_interval: 10m
-      receiver: 'pagerduty-notifications'
-    receivers:
-      - name: 'pagerduty-notifications'
-        pagerduty_configs:
-        - service_key: "[PAGER DUTRY SERVICE KEY]"
-          send_resolved: true
-  # add alert rules below
-  rules:
-    groups:
-
-## Components Stack: pulsar_manager
-## templates/pulsar-manager.yaml
-##
-pulsar_manager:
-  component: pulsar-manager
-  # this can be used to indiciate to use vault auth for pulsar-manager
-  # even if authentication isn't enabled for other components
-  force_vault: false
-  ports:
-    frontend: 9527
-    backend: 7750
-  replicaCount: 1
-  probe:
-    liveness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 10
-      periodSeconds: 30
-    readiness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 10
-      periodSeconds: 30
-    startup:
-      enabled: false
-      failureThreshold: 30
-      initialDelaySeconds: 10
-      periodSeconds: 30
-  # nodeSelector:
-    # cloud.google.com/gke-nodepool: default-pool
-  annotations: {}
-  tolerations: []
-  gracePeriod: 0
-  resources:
-    requests:
-      memory: 250Mi
-      cpu: 0.1
-  volumes:
-    # use a persistent volume or emptyDir
-    persistence: true
-    data:
-      name: data
-      size: 10Gi
-      local_storage: true
-      useVolumeClaimTemplates: false
-      # storageClassName: ""
-      ## If the storage class is left undefined when using persistence
-      ## the default storage class for the cluster will be used.
-      ##
-      # storageClass:
-        # type: pd-standard
-        # fsType: xfs
-        # provisioner: kubernetes.io/gce-pd
-  ## Pulsar manager service
-  ## templates/pulsar-manager-service.yaml
-  ##
-  service:
-    # expose the load balancer
-    # type: LoadBalancer
-    spec: {}
-    annotations: {}
-    ports:
-      frontend: 9527
-  backend_service:
-    spec:
-      clusterIP: None
-    annotations: {}
-  ## pulsar manager configmap
-  ## templates/pulsar-manager-configmap.yaml
-  ##
-  configData: {}
-  superuser:
-    user: "pulsarmanager"
-    password: "welovepulsar"
-    description: "Pulsar Manager Admin"
-    email: support@pulsar.io
-  redirect:
-    host: localhost
-  scripts:
-    backend_entrypoint:
-      command: /pulsar-manager/pulsar-manager/bin/pulsar-manager
-      # extra arguments
-      # extraArgs:
-  spring:
-    datasource:
-      username: pulsar
-      password: pulsar
-
-## Components Stack: pulsar operators rbac
-## templates/pulsar-operators-rbac.yaml
-##
-
 rbac:
   enable: true
   roleName: pulsar-operator
   roleBindingName: pulsar-operator-cluster-role-binding
-
-# Deploy pulsar sql
-presto:
-  security:
-    authentication:
-      password:
-        enabled: false
-        # a K8S secret that stores the password file
-        #
-        # a) generate the password file `password.db`:
-        #    $ touch password.db
-        #    $ htpasswd -B -C 10 password.db <username>
-        #
-        # b) generate the secret: `kubectl -n pulsar create secret generic [PASSWORD FILE SECRET NAME] --from-file=password=password.db`
-        #    example: kubectl -n pulsar create secret generic prod-pulsar-presto-password --from-file=password=password.db
-        passwordFileName: "password.db"
-        passwordFileSecret: '[PASSWORD FILE SECRET NAME]'
-        passwordFileSecretKey: 'password'
-      jwt:
-        enabled: false
-        publicKeyFileName: "public.key"
-        publicKeyConfigMapName: '[PUBLIC KEY CM NAME]'
-        # the public key stored in the configmap should be persisted in PEM format.
-        # presto prefers the PEM format. If you generate the public key using `pulsar tokens` CLI,
-        # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
-        # to convert the public key file to a public key file in PEM format.
-        publicKeyConfigMapKey: 'public.key'
-    rules: >
-      {
-        "rules": [
-        ]
-      }
-  coordinator:
-    component: coordinator
-    replicaCount: 1
-    tolerations: []
-    affinity:
-      anti_affinity: true
-      # Set the anti affinity type. Valid values:
-      # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
-      # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
-      type: preferredDuringSchedulingIgnoredDuringExecution
-    annotations: {}
-    gracePeriod: 10
-    ports:
-      http: 8081
-      https: 8443
-    resources:
-      requests:
-        memory: 4Gi
-        cpu: 2
-    # nodeSelector:
-      # cloud.google.com/gke-nodepool: default-pool
-    probe:
-      liveness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-        path: "/v1/status"
-      readiness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-        path: "/v1/status"
-      startup:
-        enabled: false
-        failureThreshold: 30
-        initialDelaySeconds: 10
-        periodSeconds: 30
-    config:
-      http:
-        port: 8081
-      query:
-        maxMemory: "1GB"
-        maxMemoryPerNode: "128MB"
-        maxTotalMemoryPerNode: "256MB"
-    jvm:
-      memory: 2G
-      jdk11: true
-    log:
-      presto:
-        level: DEBUG
-  worker:
-    service:
-      spec:
-        type: ClusterIP
-    component: worker
-    replicaCount: 2
-    tolerations: []
-    affinity:
-      anti_affinity: true
-      # Set the anti affinity type. Valid values:
-      # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
-      # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
-      type: preferredDuringSchedulingIgnoredDuringExecution
-    annotations: {}
-    gracePeriod: 10
-    ports:
-      http: 8081
-    resources:
-      requests:
-        memory: 4Gi
-        cpu: 2
-    # nodeSelector:
-      # cloud.google.com/gke-nodepool: default-pool
-    probe:
-      liveness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-      readiness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-      startup:
-        enabled: false
-        failureThreshold: 30
-        initialDelaySeconds: 10
-        periodSeconds: 30
-    config:
-      query:
-        maxMemory: "1GB"
-        maxMemoryPerNode: "128MB"
-        maxTotalMemoryPerNode: "256MB"
-    jvm:
-      memory: 2G
-      jdk11: true
-    log:
-      presto:
-        level: DEBUG
-  node:
-    environment: production
-  read_offload:
-    enabled: false
-  catalog:
-    pulsar:
-      maxEntryReadBatchSize: "100"
-      targetNumSplits: "16"
-      maxSplitMessageQueueSize: "10000"
-      maxSplitEntryQueueSize: "1000"
-      namespaceDelimiterRewriteEnable: "true"
-      rewriteNamespaceDelimiter: "/"
-      bookkeeperThrottleValue: "0"
-      managedLedgerCacheSizeMB: "0"
-      bookkeeperNumIOThreads: "8"
-      bookkeeperNumWorkerThreads: "8"
-      mlNumWorkerThreads: "8"
-      mlNumSchedulerThreads: "8"
-  service:
-    spec:
-      type: ClusterIP
