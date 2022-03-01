@@ -3,13 +3,14 @@ control center domain
 */}}
 {{- define "pulsar.control_center_domain" -}}
 {{- if .Values.ingress.control_center.enabled -}}
-    {{- if .Values.deployment.openshift -}}
-{{- printf "%s-%s.%s" .Values.pulsar.pulsar_manager.service .Values.pulsar.namespace .Values.domain.suffix -}}
+    {{- if .Values.deployment.openshift }}
+{{- printf "%s-%s-%s.%s" .Values.pulsar_metadata.clusterName .Values.pulsar_manager.component .Release.Namespace .Values.domain.suffix -}}
     {{- else -}}
-    {{- if .Values.ingress.control_center.external_domain }}
+        {{- if .Values.ingress.control_center.external_domain }}
 {{- printf "%s" .Values.ingress.control_center.external_domain -}}
-    {{- else -}}
+        {{- else -}}
 {{- printf "admin.%s.%s" .Release.Name .Values.domain.suffix -}}
+        {{- end -}}
     {{- end -}}
 {{- else -}}
 {{- print "" -}}
