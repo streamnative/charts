@@ -171,6 +171,9 @@ spec:
 {{ toYaml .Values.broker.dnsNames | indent 2}}
   {{- end }}
   config:
+    {{- if .Values.pulsar_metadata.clusterName }}
+    clusterName: {{ .Values.pulsar_metadata.clusterName }}
+    {{- end }}
     {{- if .Values.broker.functionmesh.enabled }}
     function:
       enabled: true
