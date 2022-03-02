@@ -68,6 +68,13 @@ volumes:
 affinity:
   anti_affinity: true
 
+## Deployment type
+##
+## Control what configurations of Apache Pulsar to deploy for a specified environment type
+deployment:
+  # This option will configure specific resources/object for a deployment on openshift
+  openshift: false
+
 ## Components
 ##
 ## Control what components of Apache Pulsar to deploy for the cluster

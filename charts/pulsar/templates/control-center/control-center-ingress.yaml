@@ -21,8 +21,11 @@
 {{- $fullName := include "pulsar.fullname" . -}}
 
 {{/* COMMENT */}}
-
+{{- if .Values.deployment.openshift }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else }}
 apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress"
@@ -44,7 +47,9 @@ metadata:
 {{- else }}
     ingress.kubernetes.io/ssl-redirect: "false"
 {{- end }}
+{{- if not .Values.deployment.openshift }}
     kubernetes.io/ingress.class: nginx
+{{- end }}
   {{- with .Values.ingress.control_center.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
