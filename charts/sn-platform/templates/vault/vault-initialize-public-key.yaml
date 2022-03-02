@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.components.vault }}
+{{- if .Values.initialize}}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -62,4 +63,5 @@ spec:
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}
       restartPolicy: Never
+{{- end }}
 {{- end }}
