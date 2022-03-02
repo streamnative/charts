@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.components.vault }}
+{{- if .Values.initialize }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -79,4 +80,5 @@ spec:
       {{- include "pulsar.vault.createPulsarTokens.volumes" . | nindent 6 }}
       {{- include "pulsar.vault.initStreamNativeConsole.volumes" . | nindent 6 }}
       restartPolicy: Never
+{{- end }}
 {{- end }}
