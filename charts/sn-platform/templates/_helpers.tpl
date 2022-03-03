@@ -88,3 +88,14 @@ Pulsar Cluster Name.
 {{- template "pulsar.fullname" . }}
 {{- end }}
 {{- end }}
+
+{{/*
+Inject vault token values to pod through env variables
+*/}}
+{{- define "pulsar.vault-secret-key-name" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-secret-env-injection
+{{- end }}
+
+{{- define "pulsar.vault.url" -}}
+http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200
+{{- end }}

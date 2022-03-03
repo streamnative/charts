@@ -17,7 +17,6 @@
 # under the License.
 #
 # deploy PulsarProxy only when `components.proxy and operator.enabled` is true
-{{- if and .Values.components.proxy .Values.proxy.operator.enabled }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarProxy
 metadata:
@@ -264,4 +263,3 @@ spec:
 {{- end }}
     {{- end }}
   {{- end }}
-{{- end }}

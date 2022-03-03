@@ -17,7 +17,6 @@
 # under the License.
 #
 # deploy PulsarBroker only when `components.broker and operator.enabled` is true
-{{- if and .Values.components.broker .Values.broker.operator.enabled }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarBroker
 metadata:
@@ -311,4 +310,3 @@ spec:
 {{- end }}
     {{- end }}
   {{- end }}
-{{- end }}

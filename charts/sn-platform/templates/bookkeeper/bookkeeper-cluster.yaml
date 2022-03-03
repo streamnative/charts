@@ -16,8 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-# deploy BookKeeperCluster only when `components.bookkeeper and operator.enabled` is true
-{{- if and .Values.components.bookkeeper .Values.bookkeeper.operator.enabled }}
 apiVersion: bookkeeper.streamnative.io/v1alpha1
 kind: BookKeeperCluster
 metadata:
@@ -181,11 +179,7 @@ spec:
 {{- end }}
       {{- end }}
     {{- end }}
-    {{- if and .Values.components.autorecovery .Values.autorecovery.operator.enabled }}
     replicas: {{ .Values.autorecovery.replicaCount }}
-    {{- else }}
-    replicas: 0
-    {{- end }}
     pod:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
@@ -310,4 +304,3 @@ spec:
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
-{{- end }}

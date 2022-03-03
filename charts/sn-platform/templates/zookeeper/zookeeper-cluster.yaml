@@ -17,7 +17,6 @@
 # under the License.
 #
 # deploy zookeeper only when `components.zookeeper` is true
-{{- if and .Values.components.zookeeper .Values.zookeeper.operator.enabled }}
 apiVersion: zookeeper.streamnative.io/v1alpha1
 kind: ZooKeeperCluster
 metadata:
@@ -226,4 +225,3 @@ spec:
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-{{- end }}
