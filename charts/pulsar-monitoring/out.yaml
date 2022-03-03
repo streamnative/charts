@@ -1,0 +1,1886 @@
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/podsecuritypolicy.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: pulsar-loki
+  namespace: zxc
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    heritage: Helm
+    release: pulsar
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'persistentVolumeClaim'
+    - 'secret'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1
+      max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+    - min: 1
+      max: 65535
+  readOnlyRootFilesystem: true
+  requiredDropCapabilities:
+    - ALL
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/podsecuritypolicy.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: pulsar-promtail
+  namespace: zxc
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    heritage: Helm
+    release: pulsar
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  volumes:
+    - 'secret'
+    - 'configMap'
+    - 'hostPath'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'RunAsAny'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+  readOnlyRootFilesystem: true
+  requiredDropCapabilities:
+    - ALL
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    heritage: Helm
+    release: pulsar
+  annotations:
+    {}
+  name: pulsar-loki
+  namespace: zxc
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    heritage: Helm
+    release: pulsar
+  name: pulsar-promtail
+  namespace: zxc
+---
+# Source: pulsar-monitoring/templates/prometheus/pulsar-operators-rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pulsar-pulsar-monitoring-pulsar-operator
+  namespace: zxc
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pulsar-loki
+  namespace: zxc
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    release: pulsar
+    heritage: Helm
+data:
+  loki.yaml: YXV0aF9lbmFibGVkOiBmYWxzZQpjaHVua19zdG9yZV9jb25maWc6CiAgbWF4X2xvb2tfYmFja19wZXJpb2Q6IDAKaW5nZXN0ZXI6CiAgY2h1bmtfYmxvY2tfc2l6ZTogMjYyMTQ0CiAgY2h1bmtfaWRsZV9wZXJpb2Q6IDNtCiAgY2h1bmtfcmV0YWluX3BlcmlvZDogMW0KICBsaWZlY3ljbGVyOgogICAgcmluZzoKICAgICAga3ZzdG9yZToKICAgICAgICBzdG9yZTogaW5tZW1vcnkKICAgICAgcmVwbGljYXRpb25fZmFjdG9yOiAxCiAgbWF4X3RyYW5zZmVyX3JldHJpZXM6IDAKbGltaXRzX2NvbmZpZzoKICBlbmZvcmNlX21ldHJpY19uYW1lOiBmYWxzZQogIHJlamVjdF9vbGRfc2FtcGxlczogdHJ1ZQogIHJlamVjdF9vbGRfc2FtcGxlc19tYXhfYWdlOiAxNjhoCnNjaGVtYV9jb25maWc6CiAgY29uZmlnczoKICAtIGZyb206ICIyMDE4LTA0LTE1IgogICAgaW5kZXg6CiAgICAgIHBlcmlvZDogMTY4aAogICAgICBwcmVmaXg6IGluZGV4XwogICAgb2JqZWN0X3N0b3JlOiBmaWxlc3lzdGVtCiAgICBzY2hlbWE6IHY5CiAgICBzdG9yZTogYm9sdGRiCnNlcnZlcjoKICBodHRwX2xpc3Rlbl9wb3J0OiAzMTAwCnN0b3JhZ2VfY29uZmlnOgogIGJvbHRkYjoKICAgIGRpcmVjdG9yeTogL2RhdGEvbG9raS9pbmRleAogIGZpbGVzeXN0ZW06CiAgICBkaXJlY3Rvcnk6IC9kYXRhL2xva2kvY2h1bmtzCnRhYmxlX21hbmFnZXI6CiAgcmV0ZW50aW9uX2RlbGV0ZXNfZW5hYmxlZDogZmFsc2UKICByZXRlbnRpb25fcGVyaW9kOiAwcw==
+---
+# Source: pulsar-monitoring/templates/grafana/grafana-admin-secret.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: Secret
+metadata:
+  name: "pulsar-pulsar-monitoring-grafana-secret"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: grafana
+type: Opaque
+stringData:
+  GRAFANA_ADMIN_PASSWORD: pulsar
+  GRAFANA_ADMIN_USER: pulsar
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pulsar-promtail
+  namespace: zxc
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    release: pulsar
+    heritage: Helm
+data:
+  promtail.yaml: |
+    client:
+      backoff_config:
+        maxbackoff: 5s
+        maxretries: 20
+        minbackoff: 100ms
+      batchsize: 102400
+      batchwait: 1s
+      external_labels: {}
+      timeout: 10s
+    positions:
+      filename: /run/promtail/positions.yaml
+    server:
+      http_listen_port: 3101
+    target_config:
+      sync_period: 10s
+    scrape_configs:
+    - job_name: kubernetes-pods-name
+      pipeline_stages:
+        - docker: {}
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_pod_label_name
+        target_label: __service__
+      - source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: __host__
+      - action: drop
+        regex: ''
+        source_labels:
+        - __service__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        replacement: $1
+        separator: /
+        source_labels:
+        - __meta_kubernetes_namespace
+        - __service__
+        target_label: job
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: instance
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_container_name
+        target_label: container_name
+      - replacement: /var/log/pods/*$1/*.log
+        separator: /
+        source_labels:
+        - __meta_kubernetes_pod_uid
+        - __meta_kubernetes_pod_container_name
+        target_label: __path__
+    - job_name: kubernetes-pods-app
+      pipeline_stages:
+        - docker: {}
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: drop
+        regex: .+
+        source_labels:
+        - __meta_kubernetes_pod_label_name
+      - source_labels:
+        - __meta_kubernetes_pod_label_app
+        target_label: __service__
+      - source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: __host__
+      - action: drop
+        regex: ''
+        source_labels:
+        - __service__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        replacement: $1
+        separator: /
+        source_labels:
+        - __meta_kubernetes_namespace
+        - __service__
+        target_label: job
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: instance
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_container_name
+        target_label: container_name
+      - replacement: /var/log/pods/*$1/*.log
+        separator: /
+        source_labels:
+        - __meta_kubernetes_pod_uid
+        - __meta_kubernetes_pod_container_name
+        target_label: __path__
+    - job_name: kubernetes-pods-direct-controllers
+      pipeline_stages:
+        - docker: {}
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: drop
+        regex: .+
+        separator: ''
+        source_labels:
+        - __meta_kubernetes_pod_label_name
+        - __meta_kubernetes_pod_label_app
+      - action: drop
+        regex: '[0-9a-z-.]+-[0-9a-f]{8,10}'
+        source_labels:
+        - __meta_kubernetes_pod_controller_name
+      - source_labels:
+        - __meta_kubernetes_pod_controller_name
+        target_label: __service__
+      - source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: __host__
+      - action: drop
+        regex: ''
+        source_labels:
+        - __service__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        replacement: $1
+        separator: /
+        source_labels:
+        - __meta_kubernetes_namespace
+        - __service__
+        target_label: job
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: instance
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_container_name
+        target_label: container_name
+      - replacement: /var/log/pods/*$1/*.log
+        separator: /
+        source_labels:
+        - __meta_kubernetes_pod_uid
+        - __meta_kubernetes_pod_container_name
+        target_label: __path__
+    - job_name: kubernetes-pods-indirect-controller
+      pipeline_stages:
+        - docker: {}
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: drop
+        regex: .+
+        separator: ''
+        source_labels:
+        - __meta_kubernetes_pod_label_name
+        - __meta_kubernetes_pod_label_app
+      - action: keep
+        regex: '[0-9a-z-.]+-[0-9a-f]{8,10}'
+        source_labels:
+        - __meta_kubernetes_pod_controller_name
+      - action: replace
+        regex: '([0-9a-z-.]+)-[0-9a-f]{8,10}'
+        source_labels:
+        - __meta_kubernetes_pod_controller_name
+        target_label: __service__
+      - source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: __host__
+      - action: drop
+        regex: ''
+        source_labels:
+        - __service__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        replacement: $1
+        separator: /
+        source_labels:
+        - __meta_kubernetes_namespace
+        - __service__
+        target_label: job
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: instance
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_container_name
+        target_label: container_name
+      - replacement: /var/log/pods/*$1/*.log
+        separator: /
+        source_labels:
+        - __meta_kubernetes_pod_uid
+        - __meta_kubernetes_pod_container_name
+        target_label: __path__
+    - job_name: kubernetes-pods-static
+      pipeline_stages:
+        - docker: {}
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - action: drop
+        regex: ''
+        source_labels:
+        - __meta_kubernetes_pod_annotation_kubernetes_io_config_mirror
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_label_component
+        target_label: __service__
+      - source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: __host__
+      - action: drop
+        regex: ''
+        source_labels:
+        - __service__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - action: replace
+        replacement: $1
+        separator: /
+        source_labels:
+        - __meta_kubernetes_namespace
+        - __service__
+        target_label: job
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: instance
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_container_name
+        target_label: container_name
+      - replacement: /var/log/pods/*$1/*.log
+        separator: /
+        source_labels:
+        - __meta_kubernetes_pod_annotation_kubernetes_io_config_mirror
+        - __meta_kubernetes_pod_container_name
+        target_label: __path__
+---
+# Source: pulsar-monitoring/charts/loki-stack/templates/datasources.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pulsar-loki-stack
+  namespace: zxc
+  labels:
+    app: loki-stack
+    chart: loki-stack-0.36.1
+    release: pulsar
+    heritage: Helm
+    grafana_datasource: "1"
+data:
+  loki-stack-datasource.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://pulsar-loki:3100
+      version: 1
+---
+# Source: pulsar-monitoring/charts/loki-stack/templates/tests/loki-test-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pulsar-loki-stack-test
+  labels:
+    app: loki-stack
+    chart: loki-stack-0.36.1
+    release: pulsar
+    heritage: Helm
+data:
+  test.sh: |
+    #!/usr/bin/env bash
+
+    LOKI_URI="http://${LOKI_SERVICE}:${LOKI_PORT}"
+
+    function setup() {
+      apk add -u curl jq
+      until (curl -s ${LOKI_URI}/api/prom/label/app/values | jq -e '.values[] | select(. == "loki")'); do
+        sleep 1
+      done
+    }
+
+    @test "Has labels" {
+      curl -s ${LOKI_URI}/api/prom/label | \
+      jq -e '.values[] | select(. == "app")'
+    }
+
+    @test "Query log entry" {
+      curl -sG ${LOKI_URI}/api/prom/query?limit=10 --data-urlencode 'query={app="loki"}' | \
+      jq -e '.streams[].entries | length >= 1'
+    }
+
+    @test "Push log entry legacy" {
+      local timestamp=$(date -Iseconds -u | sed 's/UTC/.000000000+00:00/')
+      local data=$(jq -n --arg timestamp "${timestamp}" '{"streams": [{"labels": "{app=\"loki-test\"}", "entries": [{"ts": $timestamp, "line": "foobar"}]}]}')
+
+      curl -s -X POST -H "Content-Type: application/json" ${LOKI_URI}/api/prom/push -d "${data}"
+
+      curl -sG ${LOKI_URI}/api/prom/query?limit=1 --data-urlencode 'query={app="loki-test"}' | \
+      jq -e '.streams[].entries[].line == "foobar"'
+    }
+
+    @test "Push log entry" {
+      local timestamp=$(date +%s000000000)
+      local data=$(jq -n --arg timestamp "${timestamp}" '{"streams": [{"stream": {"app": "loki-test"}, "values": [[$timestamp, "foobar"]]}]}')
+
+      curl -s -X POST -H "Content-Type: application/json" ${LOKI_URI}/loki/api/v1/push -d "${data}"
+
+      curl -sG ${LOKI_URI}/api/prom/query?limit=1 --data-urlencode 'query={app="loki-test"}' | \
+      jq -e '.streams[].entries[].line == "foobar"'
+    }
+---
+# Source: pulsar-monitoring/templates/alert-manager/alertmanager-configmap.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "pulsar-pulsar-monitoring-alert-manager"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: alert-manager
+data:
+  # For more configuration about the alert manager, please refer to https://prometheus.io/docs/alerting/configuration/
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 1m
+    receivers:
+    - name: pagerduty-notifications
+      pagerduty_configs:
+      - send_resolved: true
+        service_key: '[PAGER DUTRY SERVICE KEY]'
+    route:
+      group_interval: 1m
+      receiver: pagerduty-notifications
+      repeat_interval: 10m
+---
+# Source: pulsar-monitoring/templates/grafana/grafana-configmap.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "pulsar-pulsar-monitoring-grafana"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: grafana
+data:  
+  grafana.ini: |
+    [analytics]
+    check_for_updates = true
+    [auth.azuread]
+    allow_sign_up = true
+    allowed_domains = 
+    allowed_groups = 
+    auth_url = 
+    client_id = 
+    client_secret = 
+    enabled = false
+    name = Azure AD
+    role_attribute_strict = true
+    scopes = openid email profile
+    token_url = 
+    [grafana_com]
+    url = https://grafana.com
+    [log]
+    mode = console
+    [log.file]
+    format = text
+    level = info
+    [paths]
+    data = /var/lib/grafana/pulsar/data
+    plugins = /var/lib/grafana/pulsar/plugins
+    provisioning = /var/lib/grafana/pulsar_provisioning
+    [security]
+    admin_password = {{ GRAFANA_ADMIN_PASSWORD }}
+    admin_user = {{ GRAFANA_ADMIN_USER }}
+    [server]
+    domain = {{ GRAFANA_DOMAIN }}
+    root_url = {{ GRAFANA_ROOT_URL }}
+    serve_from_sub_path = {{ GRAFANA_SERVE_FROM_SUB_PATH }}
+---
+# Source: pulsar-monitoring/templates/prometheus/prometheus-configmap.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "pulsar-pulsar-monitoring-prometheus"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: prometheus
+data:
+  # Include prometheus configuration file, setup to monitor all the
+  # Kubernetes pods with the "scrape=true" annotation.
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    rule_files:
+      - 'rules.yml'
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets: ['pulsar-pulsar-monitoring-alert-manager:9093']
+        path_prefix: /
+    scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+      - targets:
+        - '127.0.0.1:9090'
+      metrics_path: /metrics
+    - job_name: 'kubernetes-pods'
+      kubernetes_sd_configs:
+      - role: pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_label_component]
+        action: replace
+        target_label: job
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+      metric_relabel_configs:
+    - job_name: 'kubernetes-nodes'
+      scheme: https
+      kubernetes_sd_configs:
+        - role: node
+
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: /api/v1/nodes/${1}/proxy/metrics
+    - job_name: 'kubernetes-cadvisor'
+      scheme: https
+      kubernetes_sd_configs:
+        - role: node
+
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - target_label: __address__
+          replacement: kubernetes.default.svc:443
+        - source_labels: [__meta_kubernetes_node_name]
+          regex: (.+)
+          target_label: __metrics_path__
+          replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+  rules.yml: |
+    groups: null
+---
+# Source: pulsar-monitoring/templates/prometheus/prometheus-pvc.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: "pulsar-pulsar-monitoring-prometheus-data"
+  namespace: zxc
+spec:
+  resources:
+    requests:
+      storage: 10Gi
+  accessModes: [ "ReadWriteOnce" ]
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/clusterrole.yaml
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    release: pulsar
+    heritage: Helm
+  name: pulsar-promtail-clusterrole
+  namespace: zxc
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "watch", "list"]
+---
+# Source: pulsar-monitoring/templates/prometheus/pulsar-operators-rbac.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: "pulsar-pulsar-monitoring-pulsar-operator"
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+- apiGroups: [""]
+  resources:
+    - namespaces
+    - persistentvolumes
+    - persistentvolumeclaims
+  verbs:
+    - list
+    - watch
+    - get
+    - create
+- apiGroups: ["", "extensions", "apps"]
+  resources:
+    - pods
+    - deployments
+    - ingresses
+    - secrets
+    - statefulsets
+  verbs:
+    - list
+    - watch
+    - get
+    - update
+    - create
+    - delete
+    - patch
+- apiGroups: [""]
+  resources:
+    - replicasets
+  verbs:
+    - list
+    - watch
+    - get
+- apiGroups: [""]
+  resources:
+    - events
+  verbs:
+    - list
+    - watch
+    - get
+- apiGroups:
+    - "rbac.authorization.k8s.io"
+  resources:
+    - clusterrolebindings
+    - clusterroles
+  verbs:
+    - "*"
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/clusterrolebinding.yaml
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pulsar-promtail-clusterrolebinding
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    release: pulsar
+    heritage: Helm
+subjects:
+  - kind: ServiceAccount
+    name: pulsar-promtail
+    namespace: zxc
+roleRef:
+  kind: ClusterRole
+  name: pulsar-promtail-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: pulsar-monitoring/templates/prometheus/pulsar-operators-rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: "pulsar-pulsar-monitoring-pulsar-operator-cluster-role-binding"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: "pulsar-pulsar-monitoring-pulsar-operator"
+subjects:
+- kind: ServiceAccount
+  name: pulsar-pulsar-monitoring-pulsar-operator
+  namespace: zxc
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pulsar-loki
+  namespace: zxc
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    heritage: Helm
+    release: pulsar
+rules:
+- apiGroups:      ['extensions']
+  resources:      ['podsecuritypolicies']
+  verbs:          ['use']
+  resourceNames:  [pulsar-loki]
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pulsar-promtail
+  namespace: zxc
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    heritage: Helm
+    release: pulsar
+rules:
+- apiGroups:      ['extensions']
+  resources:      ['podsecuritypolicies']
+  verbs:          ['use']
+  resourceNames:  [pulsar-promtail]
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pulsar-loki
+  namespace: zxc
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    heritage: Helm
+    release: pulsar
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pulsar-loki
+subjects:
+- kind: ServiceAccount
+  name: pulsar-loki
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pulsar-promtail
+  namespace: zxc
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    heritage: Helm
+    release: pulsar
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pulsar-promtail
+subjects:
+- kind: ServiceAccount
+  name: pulsar-promtail
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/service-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pulsar-loki-headless
+  namespace: zxc
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    release: pulsar
+    heritage: Helm
+    variant: headless
+spec:
+  clusterIP: None
+  ports:
+    - port: 3100
+      protocol: TCP
+      name: http-metrics
+      targetPort: http-metrics
+  selector:
+    app: loki
+    release: pulsar
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: pulsar-loki
+  namespace: zxc
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    release: pulsar
+    heritage: Helm
+  annotations:
+    {}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3100
+      protocol: TCP
+      name: http-metrics
+      targetPort: http-metrics
+  selector:
+    app: loki
+    release: pulsar
+---
+# Source: pulsar-monitoring/templates/alert-manager/alertmanager-service.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: "pulsar-pulsar-monitoring-alert-manager"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: alert-manager
+  annotations:
+            {}
+spec:
+  clusterIP: None
+  ports:
+    - name: server
+      port: 9093
+  selector:
+    app: pulsar-monitoring
+    release: pulsar
+    component: alert-manager
+---
+# Source: pulsar-monitoring/templates/grafana/grafana-service.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: "pulsar-pulsar-monitoring-grafana"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: grafana
+  annotations:
+spec:
+  clusterIP: None
+  ports:
+    - name: server
+      port: 3000
+      protocol: TCP
+  selector:
+    app: pulsar-monitoring
+    release: pulsar
+    component: grafana
+---
+# Source: pulsar-monitoring/templates/prometheus/prometheus-service.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: "pulsar-pulsar-monitoring-prometheus"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: prometheus
+  annotations:
+    {}
+spec:
+  clusterIP: None
+  ports:
+    - name: server
+      port: 9090
+  selector:
+    app: pulsar-monitoring
+    release: pulsar
+    component: prometheus
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/promtail/templates/daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: pulsar-promtail
+  namespace: zxc
+  labels:
+    app: promtail
+    chart: promtail-0.22.1
+    release: pulsar
+    heritage: Helm
+  annotations:
+    {}
+spec:
+  selector:
+    matchLabels:
+      app: promtail
+      release: pulsar
+  updateStrategy:
+    {}
+  template:
+    metadata:
+      labels:
+        app: promtail
+        release: pulsar          
+      annotations:
+        checksum/config: 5d34679a4923433cd06df3df3fcec315cf283a564952d463719a2a836b760987
+        prometheus.io/port: http-metrics
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: pulsar-promtail
+      containers:
+        - name: promtail
+          image: "grafana/promtail:1.4.1"
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-config.file=/etc/promtail/promtail.yaml"
+            - "-client.url=http://pulsar-loki:3100/loki/api/v1/push"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/promtail
+            - name: run
+              mountPath: /run/promtail
+            - mountPath: /var/lib/docker/containers
+              name: docker
+              readOnly: true
+            - mountPath: /var/log/pods
+              name: pods
+              readOnly: true
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - containerPort: 3101
+              name: http-metrics
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsGroup: 0
+            runAsUser: 0
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            {}
+      nodeSelector:
+        {}
+      affinity:
+        {}
+      tolerations:
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+          operator: Exists
+      volumes:
+        - name: config
+          configMap:
+            name: pulsar-promtail
+        - name: run
+          hostPath:
+            path: /run/promtail
+        - hostPath:
+            path: /var/lib/docker/containers
+          name: docker
+        - hostPath:
+            path: /var/log/pods
+          name: pods
+---
+# Source: pulsar-monitoring/templates/node-exporter/node-exporter.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: "pulsar-pulsar-monitoring-node-exporter"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: node-exporter
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+spec:
+  selector:
+    matchLabels:
+      app: pulsar-monitoring
+      release: pulsar
+      component: node-exporter
+  updateStrategy:
+    type: OnDelete
+  template:
+    metadata:
+      labels:
+        app: pulsar-monitoring
+        release: pulsar
+        cluster: pulsar-pulsar-monitoring
+        component: node-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+    spec:
+      containers:
+        - name: prometheus-node-exporter
+          image: "prom/node-exporter:v0.16.0"
+          imagePullPolicy: IfNotPresent
+          args:
+            - --path.procfs=/host/proc
+            - --path.sysfs=/host/sys
+          ports:
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly:  true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+      hostNetwork: true
+      hostPID: true
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+---
+# Source: pulsar-monitoring/charts/loki-stack/charts/loki/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pulsar-loki
+  namespace: zxc
+  labels:
+    app: loki
+    chart: loki-0.28.1
+    release: pulsar
+    heritage: Helm
+  annotations:
+    {}
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+      release: pulsar
+  serviceName: pulsar-loki-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: loki
+        name: loki
+        release: pulsar
+      annotations:
+        checksum/config: a64ad191de26c5a0cb51b8f08492c998fa3ee8aa0a92d932fd835b4707df4866
+        prometheus.io/port: http-metrics
+        prometheus.io/scrape: "true"
+    spec:
+      serviceAccountName: pulsar-loki
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      initContainers:
+        []
+      containers:
+        - name: loki
+          image: "grafana/loki:1.4.1"
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-config.file=/etc/loki/loki.yaml"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki
+            - name: storage
+              mountPath: "/data"
+              subPath: 
+          ports:
+            - name: http-metrics
+              containerPort: 3100
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 45
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 45
+          resources:
+            {}
+          securityContext:
+            readOnlyRootFilesystem: true
+          env:
+      nodeSelector:
+        {}
+      affinity:
+        {}
+      tolerations:
+        []
+      terminationGracePeriodSeconds: 4800
+      volumes:
+        - name: config
+          secret:
+            secretName: pulsar-loki
+        - name: storage
+          emptyDir: {}
+---
+# Source: pulsar-monitoring/templates/alert-manager/alertmanager-statefulset.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "pulsar-pulsar-monitoring-alert-manager"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: alert-manager
+spec:
+  serviceName: "pulsar-pulsar-monitoring-alert-manager"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulsar-monitoring
+      release: pulsar
+      component: alert-manager
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        app: pulsar-monitoring
+        release: pulsar
+        cluster: pulsar-pulsar-monitoring
+        component: alert-manager
+      annotations:
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+      - name: pulsar-pulsar-monitoring-alert-manager-configmap-reload
+        image: "jimmidyson/configmap-reload:v0.3.0"
+        imagePullPolicy: "IfNotPresent"
+        args:
+          - --volume-dir=/etc/config
+          - --webhook-url=http://127.0.0.1:9093/-/reload
+        resources:
+            {}
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+            readOnly: true
+      - name: "pulsar-pulsar-monitoring-alert-manager"
+        image: "prom/alertmanager:v0.20.0"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 250Mi
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        args:
+          - --config.file=/etc/config/alertmanager.yml
+          - --cluster.advertise-address=$(POD_IP):6783
+          - --storage.path=/alertmanager
+        ports:
+        - name: server
+          containerPort: 9093
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9093
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 10
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+      volumes:
+      - name: config-volume
+        configMap:
+          name: "pulsar-pulsar-monitoring-alert-manager"
+---
+# Source: pulsar-monitoring/templates/grafana/grafana-statefulset.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "pulsar-pulsar-monitoring-grafana"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: grafana
+spec:
+  serviceName: "pulsar-pulsar-monitoring-grafana"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulsar-monitoring
+      release: pulsar
+      component: grafana
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        app: pulsar-monitoring
+        release: pulsar
+        cluster: pulsar-pulsar-monitoring
+        component: grafana
+      annotations:
+        checksum/config: 739b5d45a18d18b4441649b4a71db8ebec0ff426952e08bb28658405782f2359
+    spec:
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        fsGroup: 472
+        runAsGroup: 472
+        runAsNonRoot: true
+        runAsUser: 472
+      containers:
+      - name: "pulsar-pulsar-monitoring-grafana"
+        image: "streamnative/apache-pulsar-grafana-dashboard-k8s:0.0.16"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 250Mi
+        ports:
+        - name: server
+          containerPort: 3000
+        env:
+        # for supporting apachepulsar/pulsar-grafana
+        - name: PROMETHEUS_URL
+          value: http://pulsar-pulsar-monitoring-prometheus:9090/
+        # for supporting streamnative/apache-pulsar-grafana-dashboard
+        - name: PULSAR_PROMETHEUS_URL
+          value: http://pulsar-pulsar-monitoring-prometheus:9090/
+        - name: PULSAR_CLUSTER
+          value: pulsar-pulsar-monitoring
+        - name: GF_LOKI_URL
+          value: http://pulsar-loki.zxc.svc.cluster.local:3100/
+        - name: GF_LOKI_DATASOURCE_NAME
+          value: pulsar-loki
+        - name: GRAFANA_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: "pulsar-pulsar-monitoring-grafana-secret"
+              key: GRAFANA_ADMIN_USER
+        - name: GRAFANA_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "pulsar-pulsar-monitoring-grafana-secret"
+              key: GRAFANA_ADMIN_PASSWORD
+        - name: GRAFANA_CFG_FILE
+          value: /pulsar/conf/grafana.ini
+        - name: GF_PATHS_DATA
+          value: /var/lib/grafana/pulsar/data
+        - name: GF_PATHS_PLUGINS
+          value: /var/lib/grafana/pulsar/plugin
+        - name: GF_PATHS_PROVISIONING
+          value: /var/lib/grafana/pulsar_provisioning
+        - name: GRAFANA_DOMAIN
+          value: admin.pulsar.test.pulsar.example.local
+        - name: GRAFANA_ROOT_URL
+          value: /grafana/
+        - name: GRAFANA_SERVE_FROM_SUB_PATH
+          value: "true"
+        volumeMounts:
+        - name: "cfg"
+          mountPath: "/pulsar/conf/grafana.ini"
+          subPath: grafana.ini
+        - name: "pulsar-pulsar-monitoring-grafana-data"
+          mountPath: /var/lib/grafana/pulsar
+      volumes:
+      - name: "cfg"
+        configMap:
+          name: "pulsar-pulsar-monitoring-grafana"
+  volumeClaimTemplates:
+  - metadata:
+      name: "pulsar-pulsar-monitoring-grafana-data"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+---
+# Source: pulsar-monitoring/templates/prometheus/prometheus-statefulset.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "pulsar-pulsar-monitoring-prometheus"
+  namespace: zxc
+  labels:
+    app: pulsar-monitoring
+    chart: pulsar-monitoring-0.1.0
+    release: pulsar
+    heritage: Helm
+    cluster: pulsar-pulsar-monitoring
+    component: prometheus
+spec:
+  serviceName: "pulsar-pulsar-monitoring-prometheus"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pulsar-monitoring
+      release: pulsar
+      component: prometheus
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        app: pulsar-monitoring
+        release: pulsar
+        cluster: pulsar-pulsar-monitoring
+        component: prometheus
+      annotations:
+    spec:
+      serviceAccount: pulsar-pulsar-monitoring-pulsar-operator
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        fsGroup: 65534
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+      - name: pulsar-pulsar-monitoring-prometheus-configmap-reload
+        image: "jimmidyson/configmap-reload:v0.3.0"
+        imagePullPolicy: "IfNotPresent"
+        args:
+          - --volume-dir=/etc/config
+          - --webhook-url=http://127.0.0.1:9090/-/reload
+        resources:
+          {}
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+            readOnly: true
+      - name: "pulsar-pulsar-monitoring-prometheus"
+        image: "prom/prometheus:v2.17.2"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 0.1
+            memory: 256Mi
+        args:
+          - --config.file=/etc/config/prometheus.yml
+          - --storage.tsdb.retention.time=15d
+          - --storage.tsdb.path=/prometheus
+          - --web.console.libraries=/etc/prometheus/console_libraries
+          - --web.console.templates=/etc/prometheus/consoles
+          - --web.enable-lifecycle
+        ports:
+        - name: server
+          containerPort: 9090
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 10
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 10
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        - name: "pulsar-pulsar-monitoring-prometheus-data"
+          mountPath: /prometheus
+        
+      volumes:
+      - name: config-volume
+        configMap:
+          name: "pulsar-pulsar-monitoring-prometheus"
+      - name: "pulsar-pulsar-monitoring-prometheus-data"
+        persistentVolumeClaim:
+          claimName: "pulsar-pulsar-monitoring-prometheus-data"
+---
+# Source: pulsar-monitoring/templates/grafana/grafana-azuread-secret.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+# Source: pulsar-monitoring/templates/grafana/grafana-deployment.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+# Source: pulsar-monitoring/templates/grafana/grafana-storageclass.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+# Source: pulsar-monitoring/templates/namespace.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+# Source: pulsar-monitoring/templates/prometheus/prometheus-storageclass.yaml
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+---
+# Source: pulsar-monitoring/charts/loki-stack/templates/tests/loki-test-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    "helm.sh/hook": test-success
+  labels:
+    app: loki-stack
+    chart: loki-stack-0.36.1
+    release: pulsar
+    heritage: Helm
+  name: pulsar-loki-stack-test
+spec:
+  containers:
+  - name: test
+    image: bats/bats:v1.1.0
+    args:
+    - /var/lib/loki/test.sh
+    env:
+    - name: LOKI_SERVICE
+      value: pulsar-loki
+    - name: LOKI_PORT
+      value: "3100"
+    volumeMounts:
+    - name: tests
+      mountPath: /var/lib/loki
+  restartPolicy: Never
+  volumes:
+  - name: tests
+    configMap:
+      name: pulsar-loki-stack-test
