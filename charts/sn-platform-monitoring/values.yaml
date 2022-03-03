@@ -1,0 +1,988 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Flag to control whether to run initialize job
+initialize: false
+
+###
+### K8S Settings
+###
+
+## Namespace to deploy pulsar
+# NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
+#       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
+#       a higher control structure that is not part of the application.
+namespace: ""
+namespaceCreate: false
+
+###
+### Global Settings
+###
+
+## Pulsar Metadata Prefix
+##
+## By default, pulsar stores all the metadata at root path.
+## You can configure to have a prefix (e.g. "/my-pulsar-cluster").
+## If you do so, all the pulsar and bookkeeper metadata will
+## be stored under the provided path
+metadataPrefix: ""
+
+## Persistence
+##
+## If persistence is enabled, components that have state will
+## be deployed with PersistentVolumeClaims, otherwise, for test
+## purposes, they will be deployed with emptyDir
+##
+## This is a global setting that is applied to all components.
+## If you need to disable persistence for a component,
+## you can set the `volume.persistence` setting to `false` for
+## that component.
+volumes:
+  persistence: true
+  # configure the components to use local persistent volume
+  # the local provisioner should be installed prior to enable local persistent volume
+  local_storage: false
+
+## AntiAffinity
+##
+## Flag to enable and disable `AntiAffinity` for all components.
+## This is a global setting that is applied to all components.
+## If you need to disable AntiAffinity for a component, you can set
+## the `affinity.anti_affinity` settings to `false` for that component.
+affinity:
+  anti_affinity: true
+
+## Components
+##
+## Control what components of Apache Pulsar to deploy for the cluster
+components:
+  # superset
+  superset: false
+
+## Monitoring Components
+##
+## Control what components of the monitoring stack to deploy for the cluster
+monitoring:
+  # monitoring - prometheus
+  prometheus: true
+  # monitoring - grafana
+  grafana: true
+  # monitoring - node_exporter
+  node_exporter: true
+  # alerting - alert-manager
+  alert_manager: true
+  # monitoring - loki
+  loki: false
+
+## Images
+##
+## Control what images to use for each component
+images:
+  prometheus:
+    repository: prom/prometheus
+    tag: "v2.17.2"
+    pullPolicy: IfNotPresent
+  alert_manager:
+    repository: prom/alertmanager
+    tag: "v0.20.0"
+    pullPolicy: IfNotPresent
+  grafana:
+    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
+    tag: "0.0.16"
+    pullPolicy: IfNotPresent
+  node_exporter:
+    repository: prom/node-exporter
+    tag: "v0.16.0"
+    pullPolicy: "IfNotPresent"
+  nginx_ingress_controller:
+    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
+    tag: "0.26.2"
+    pullPolicy: "IfNotPresent"
+  configmapReload:
+    repository: jimmidyson/configmap-reload
+    tag: v0.3.0
+    pullPolicy: IfNotPresent
+    
+## TLS
+## templates/tls-certs.yaml
+##
+## The chart is using cert-manager for provisioning TLS certs for
+## brokers and proxies.
+tls:
+  enabled: false
+  # common settings for generating certs
+  common:
+    # 90d
+    duration: 2160h
+    # 15d
+    renewBefore: 360h
+    organization:
+      - pulsar
+    keySize: 4096
+    keyAlgorithm: rsa
+    keyEncoding: pkcs8
+  # settings for generating certs for proxy
+  proxy:
+    enabled: false
+    cert_name: tls-proxy
+    untrustedCa: true
+  # settings for generating certs for proxy
+  pulsar_detector:
+    enabled: false
+    cert_name: tls-pulsar-detector
+  # settings for generating certs for broker
+  broker:
+    enabled: false
+    cert_name: tls-broker
+  functions:
+    enabled: false
+    cert_name: tls-function
+  # settings for generating certs for bookies
+  bookie:
+    enabled: false
+    cert_name: tls-bookie
+  # settings for generating certs for zookeeper
+  zookeeper:
+    enabled: false
+    cert_name: tls-zookeeper
+  # settings for generating certs for recovery
+  autorecovery:
+    cert_name: tls-recovery
+  # settings for generating certs for toolset
+  toolset:
+    cert_name: tls-toolset
+  presto:
+    enabled: false
+    cert_name: tls-presto
+  streamnative_console:
+    enabled: false
+    cert_name: tls-streamnative_console
+
+# Enable or disable broker authentication and authorization.
+auth:
+  authentication:
+    enabled: true
+    provider: "jwt"
+    jwt:
+      # Enable JWT authentication
+      # If the token is generated by a secret key, set the usingSecretKey as true.
+      # If the token is generated by a private key, set the usingSecretKey as false.
+      usingSecretKey: false
+  authorization:
+    enabled: true
+  superUsers:
+    # broker to broker communication
+    broker: "broker-admin"
+    # proxy to broker communication
+    proxy: "proxy-admin"
+    # websocket proxy to broker communication
+    websocket: "ws-admin"
+    # pulsar-admin client to broker/proxy communication
+    client: "admin"
+    # streamnative-console
+    streamnative-console: "super"
+  # Enable vault based authentication
+  vault:
+    enabled: true
+  oauth:
+    enabled: false
+    oauthIssuerUrl: "https://login.microsoftonline.com/your-tenant-id/v2.0"
+    oauthAudience: "your-application-id"
+    oauthSubjectClaim: "oid"
+    oauthScopeClaim: "scp"
+    oauthAuthzRoleClaim: "roles"
+    # The name of the role when creating the application
+    oauthAuthzAdminRole: ""
+    # brokerClientCredential: ""
+    # brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
+    # brokerClientAuthenticationParameters: ""
+    authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
+    authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
+######################################################################
+# External dependencies
+######################################################################
+
+## cert-manager
+## templates/tls-cert-issuer.yaml
+##
+## Cert manager is used for automatically provisioning TLS certificates
+## for components within a Pulsar cluster
+certs:
+  internal_issuer:
+    enabled: false
+    component: internal-cert-issuer
+    type: selfsigning
+  public_issuer:
+    enabled: false
+    component: public-cert-issuer
+    type: acme
+  issuers:
+    selfsigning:
+    acme:
+      # You must replace this email address with your own.
+      # Let's Encrypt will use this to contact you about expiring
+      # certificates, and issues related to your account.
+      email: contact@example.local
+      # change this to production endpoint once you successfully test it
+      # server: https://acme-v02.api.letsencrypt.org/directory
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      solver: clouddns
+      solvers:
+        clouddns:
+          # TODO: add a link about how to configure this section
+          project: "[YOUR GCP PROJECT ID]"
+          serviceAccountSecretRef:
+            name: "[NAME OF SECRET]"
+            key: "[KEY OF SECRET]"
+        # route53:
+        #   region: "[ROUTE53 REGION]"
+        #   secretAccessKeySecretRef:
+        #     name: "[NAME OF SECRET]"
+        #     key: "[KEY OF SECRET]"
+        #   role: "[ASSUME A ROLE]"
+  lets_encrypt:
+    ca_ref:
+      secretName: "[SECRET STORES lets encrypt CA]"
+      keyName: "[KEY IN THE SECRET STORES let encrypt CA]"
+
+## Domain requested from External DNS
+domain:
+  enabled: false
+  suffix: test.pulsar.example.local
+
+## Ingresses for exposing Pulsar services
+ingress:
+  ## templates/proxy-service-ingress.yaml
+  ##
+  ## Ingresses for exposing pulsar service publicly
+  proxy:
+    enabled: false
+
+    ## When these conditions are satisfied
+    ##   1. Values.ingress.proxy.type == LoadBalancer
+    ##   2. Values.tls.enabled == false and Values.tls.proxy.enabled == false
+    ## If tls is enabled, it will expose proxy service port with TLS port 443 and 6651
+    ## otherwise, the ports will be 8080 and 6650 as default
+    tls:
+      enabled: true
+    ## Type options are LoadBalancer, ClusterIP
+    type: LoadBalancer
+    annotations: {}
+    extraSpec: {}
+  ## templates/broker-service-ingress.yaml
+  ##
+  ## Ingresses for exposing pulsar service publicly
+  broker:
+    enabled: false
+    type: LoadBalancer
+    annotations: {}
+    extraSpec: {}
+  ## templates/presto-service-ingress.yaml
+  ##
+  ## Ingresses for exposing presto service publicly
+  presto:
+    enabled: false
+    tls:
+      enabled: true
+    type: LoadBalancer
+    annotations: {}
+    extraSpec: {}
+    ports:
+      http: 80
+      https: 443
+  ## templates/control-center-ingress.yaml
+  ##
+  ## Ingresses for exposing monitoring/management services publicly
+  controller:
+    enabled: false
+    rbac: true
+    component: nginx-ingress-controller
+    replicaCount: 1
+    # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+    tolerations: []
+    gracePeriod: 300
+    annotations: {}
+    ports:
+      http: 80
+      https: 443
+    # flag whether to terminate the tls at the loadbalancer level
+    tls:
+      termination: false
+  control_center:
+    enabled: true
+    component: control-center
+    endpoints:
+      grafana: true
+      prometheus: false
+      alertmanager: false
+    # Set external domain of the load balancer of ingress controller
+    # external_domain: your.external.control.center.domain
+    # external_domain_scheme: https://
+    tls:
+      enabled: false
+    annotations: {}
+
+imagePuller:
+  component: image-puller
+  pullSecret:
+    enabled: false
+  hook:
+    enabled: false
+    image:
+      name: streamnative/k8s-image-awaiter
+      tag: '0.1.0'
+  rbac:
+    enabled: true
+  continuous:
+    enabled: false
+  pause:
+    image:
+      name: gcr.io/google_containers/pause
+      tag: '3.1'
+
+
+######################################################################
+# Below are settings for each component
+######################################################################
+
+## Common properties applied to pulsar components
+common:
+  extraInitContainers: []
+
+## Monitoring Stack: Prometheus
+## templates/prometheus-deployment.yaml
+##
+prometheus:
+  component: prometheus
+  replicaCount: 1
+    # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  annotations: {}
+  tolerations: []
+  gracePeriod: 0
+  port: 9090
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 0.1
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+    # specify to use a clusterRole, set to false to only allow in a single namespace
+    clusterRole: true
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+        # storageClassName: ""
+        ## If the storage class is left undefined when using persistence
+        ## the default storage class for the cluster will be used.
+        ##
+        # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+      # provisioner: kubernetes.io/gce-pd
+  args:
+    ## Prometheus data retention period (default if not specified is 15 days)
+    ##
+    retention: "15d"
+  scrapeInterval: 15s
+  securityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+    runAsGroup: 65534
+    fsGroup: 65534
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  customRelabelConfigs: []
+
+  ## Prometheus service
+  ## templates/prometheus-service.yaml
+  ##
+  service:
+    # expose the load balancer
+    # type: LoadBalancer
+    annotations: {}
+
+datadog:
+  component: datadog
+  namespace: pulsar
+  components:
+    zookeeper:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    bookkeeper:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    broker:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    proxy:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    vault:
+      enabled: true
+      auth:
+        enabled: false
+        token: ""
+      tags: {}
+    prometheus:
+      enabled: false
+      
+rbac:
+  enable: true
+
+## Monitoring Stack: Grafana
+## templates/grafana-statefulset.yaml
+##
+grafana:
+  component: grafana
+  grafana.ini:
+    paths:
+      data: /var/lib/grafana/pulsar/data
+      plugins: /var/lib/grafana/pulsar/plugins
+      provisioning: /var/lib/grafana/pulsar_provisioning
+    server:
+      domain: "{{ GRAFANA_DOMAIN }}"
+      serve_from_sub_path: "{{ GRAFANA_SERVE_FROM_SUB_PATH }}"
+      root_url: "{{ GRAFANA_ROOT_URL }}"
+    analytics:
+      check_for_updates: true
+    security:
+      admin_user: "{{ GRAFANA_ADMIN_USER }}"
+      admin_password: "{{ GRAFANA_ADMIN_PASSWORD }}"
+    auth.azuread:
+      name: Azure AD
+      enabled: false
+      allow_sign_up: true
+      client_id: ""
+      client_secret: ""
+      scopes: openid email profile
+      auth_url: ""
+      token_url: ""
+      allowed_domains: ""
+      allowed_groups: ""
+      role_attribute_strict: true
+    log:
+      mode: console
+    log.file:
+      level: info
+      format: text
+    grafana_com:
+      url: https://grafana.com
+  replicaCount: 1
+    # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  annotations: {}
+  tolerations: []
+  gracePeriod: 0
+  port: 3000
+  resources:
+    requests:
+      memory: 250Mi
+      cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    ## templates/grafana-statefulset.yaml
+    ## environment variables since grafana.ini settings do not override in Docker container
+    ## https://grafana.com/docs/grafana/latest/administration/configure-docker/#default-paths
+    env:
+      - name: GF_PATHS_DATA
+        value: /var/lib/grafana/pulsar/data
+      - name: GF_PATHS_PLUGINS
+        value: /var/lib/grafana/pulsar/plugin
+      # - name: GF_PATHS_LOGS
+      #   value: /var/lib/grafana/pulsar/logs
+      - name: GF_PATHS_PROVISIONING
+        value: /var/lib/grafana/pulsar_provisioning
+    securityContext:
+      # Grafana docker image user and groups: https://grafana.com/docs/grafana/latest/installation/docker/#migration-from-a-previous-version-of-the-docker-container-to-5-1-or-later
+      runAsUser: 472
+      runAsNonRoot: true
+      runAsGroup: 472
+      fsGroup: 472
+    mountPath: /var/lib/grafana/pulsar
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+        # storageClassName: ""
+        ## If the storage class is left undefined when using persistence
+        ## the default storage class for the cluster will be used.
+        ##
+        # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+      # provisioner: kubernetes.io/gce-pd
+
+  ## Grafana service
+  ## templates/grafana-service.yaml
+  ##
+  service:
+    # spec:
+    # type: clusterIP
+    annotations: {}
+  datasources:
+    loki: loki
+  admin:
+    user: pulsar
+    password: pulsar
+  ## Oauth2 for Azuread
+  ## Grafana Override configuration with environment variables.
+  ## see: https://grafana.com/docs/grafana/latest/administration/configuration/#override-configuration-with-environment-variables
+  azureAuthEnabled: false
+  azuread:
+    client_id: "AZURE-AD-SSO-CLIENT-ID"
+    client_secret: "AZURE-AD-SSO-CLIENT-SECRET"
+
+## Monitoring Stack: node_exporteer
+## templates/node-exporter.yaml
+##
+
+node_exporter:
+  component: node-exporter
+  annotations: {}
+  limits:
+    cpu: 10m
+    memory: 50Mi
+  requests:
+    cpu: 10m
+    memory: 50Mi
+
+alert_manager:
+  component: alert-manager
+  port: 9093
+  annotations: {}
+  replicaCount: 1
+  gracePeriod: 0
+  resources:
+    requests:
+      memory: 250Mi
+      cpu: 0.1
+  service:
+    # spec:
+    # clusterIP: None
+    annotations: {}
+  securityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+    runAsGroup: 65534
+    fsGroup: 65534
+  probe:
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  # alert manager config
+  config:
+    global:
+      resolve_timeout: 1m
+    route:
+      group_interval: 1m
+      repeat_interval: 10m
+      receiver: 'pagerduty-notifications'
+    receivers:
+      - name: 'pagerduty-notifications'
+        pagerduty_configs:
+          - service_key: "[PAGER DUTRY SERVICE KEY]"
+            send_resolved: true
+  # add alert rules below
+  rules:
+    groups:
+
+#############################################################
+### Monitoring Stack : Prometheus / Grafana
+#############################################################
+
+configmapReload:
+  prometheus:
+    ## If false, the configmap-reload container will not be deployed
+    ##
+    enabled: true
+    ## configmap-reload container name
+    ##
+    name: configmap-reload
+    ## configmap-reload container image
+    ##
+    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
+    image:
+      repository: jimmidyson/configmap-reload
+      tag: v0.3.0
+      pullPolicy: IfNotPresent
+
+    ## Additional configmap-reload container arguments
+    ##
+    extraArgs: {}
+    ## Additional configmap-reload volume directories
+    ##
+    extraVolumeDirs: []
+
+    ## Additional configmap-reload mounts
+    ##
+    extraConfigmapMounts: []
+      # - name: prometheus-alerts
+      #   mountPath: /etc/alerts.d
+      #   subPath: ""
+      #   configMap: prometheus-alerts
+    #   readOnly: true
+
+    ## configmap-reload resource requests and limits
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ##
+    resources: {}
+  alertmanager:
+    ## If false, the configmap-reload container will not be deployed
+    ##
+    enabled: true
+
+    ## configmap-reload container name
+    ##
+    name: configmap-reload
+
+    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
+    ## configmap-reload container image
+    ##
+    image:
+      repository: jimmidyson/configmap-reload
+      tag: v0.3.0
+      pullPolicy: IfNotPresent
+
+    ## Additional configmap-reload container arguments
+    ##
+    extraArgs: {}
+    ## Additional configmap-reload volume directories
+    ##
+    extraVolumeDirs: []
+
+    ## Additional configmap-reload mounts
+    ##
+    extraConfigmapMounts: []
+      # - name: prometheus-alerts
+      #   mountPath: /etc/alerts.d
+      #   subPath: ""
+      #   configMap: prometheus-alerts
+    #   readOnly: true
+
+    ## configmap-reload resource requests and limits
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ##
+    resources: {}
+
+## Monitoring Stack: Prometheus
+## templates/prometheus-deployment.yaml
+##
+prometheus:
+  component: prometheus
+  replicaCount: 1
+    # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  annotations: {}
+  tolerations: []
+  gracePeriod: 0
+  port: 9090
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 0.1
+  # Definition of the serviceAccount used to run brokers.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+    # specify to use a clusterRole, set to false to only allow in a single namespace
+    clusterRole: true
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+        # storageClassName: ""
+        ## If the storage class is left undefined when using persistence
+        ## the default storage class for the cluster will be used.
+        ##
+        # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+      # provisioner: kubernetes.io/gce-pd
+  args:
+    ## Prometheus data retention period (default if not specified is 15 days)
+    ##
+    retention: "15d"
+  scrapeInterval: 15s
+  securityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+    runAsGroup: 65534
+    fsGroup: 65534
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  customRelabelConfigs: []
+
+  ## Prometheus service
+  ## templates/prometheus-service.yaml
+  ##
+  service:
+    # expose the load balancer
+    # type: LoadBalancer
+    annotations: {}
+
+datadog:
+  component: datadog
+  namespace: pulsar
+  components:
+    zookeeper:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    bookkeeper:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    broker:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    proxy:
+      enabled: false
+      metrics: [
+          "\"_*\""
+      ]
+    vault:
+      enabled: true
+      auth:
+        enabled: false
+        token: ""
+      tags: {}
+    prometheus:
+      enabled: false
+
+## Monitoring Stack: Grafana
+## templates/grafana-statefulset.yaml
+##
+grafana:
+  component: grafana
+  grafana.ini:
+    paths:
+      data: /var/lib/grafana/pulsar/data
+      plugins: /var/lib/grafana/pulsar/plugins
+      provisioning: /var/lib/grafana/pulsar_provisioning
+    server:
+      domain: "{{ GRAFANA_DOMAIN }}"
+      serve_from_sub_path: "{{ GRAFANA_SERVE_FROM_SUB_PATH }}"
+      root_url: "{{ GRAFANA_ROOT_URL }}"
+    analytics:
+      check_for_updates: true
+    security:
+      admin_user: "{{ GRAFANA_ADMIN_USER }}"
+      admin_password: "{{ GRAFANA_ADMIN_PASSWORD }}"
+    auth.azuread:
+      name: Azure AD
+      enabled: false
+      allow_sign_up: true
+      client_id: ""
+      client_secret: ""
+      scopes: openid email profile
+      auth_url: ""
+      token_url: ""
+      allowed_domains: ""
+      allowed_groups: ""
+      role_attribute_strict: true
+    log:
+      mode: console
+    log.file:
+      level: info
+      format: text
+    grafana_com:
+      url: https://grafana.com
+  replicaCount: 1
+    # nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+  annotations: {}
+  tolerations: []
+  gracePeriod: 0
+  port: 3000
+  resources:
+    requests:
+      memory: 250Mi
+      cpu: 0.1
+  volumes:
+    # use a persistent volume or emptyDir
+    persistence: true
+    ## templates/grafana-statefulset.yaml
+    ## environment variables since grafana.ini settings do not override in Docker container
+    ## https://grafana.com/docs/grafana/latest/administration/configure-docker/#default-paths
+    env:
+      - name: GF_PATHS_DATA
+        value: /var/lib/grafana/pulsar/data
+      - name: GF_PATHS_PLUGINS
+        value: /var/lib/grafana/pulsar/plugin
+      # - name: GF_PATHS_LOGS
+      #   value: /var/lib/grafana/pulsar/logs
+      - name: GF_PATHS_PROVISIONING
+        value: /var/lib/grafana/pulsar_provisioning
+    securityContext:
+      # Grafana docker image user and groups: https://grafana.com/docs/grafana/latest/installation/docker/#migration-from-a-previous-version-of-the-docker-container-to-5-1-or-later
+      runAsUser: 472
+      runAsNonRoot: true
+      runAsGroup: 472
+      fsGroup: 472
+    mountPath: /var/lib/grafana/pulsar
+    data:
+      name: data
+      size: 10Gi
+      local_storage: true
+        # storageClassName: ""
+        ## If the storage class is left undefined when using persistence
+        ## the default storage class for the cluster will be used.
+        ##
+        # storageClass:
+        # type: pd-standard
+        # fsType: xfs
+      # provisioner: kubernetes.io/gce-pd
+
+  ## Grafana service
+  ## templates/grafana-service.yaml
+  ##
+  service:
+    # spec:
+    # type: clusterIP
+    annotations: {}
+  datasources:
+    loki: loki
+  admin:
+    user: pulsar
+    password: pulsar
+  ## Oauth2 for Azuread
+  ## Grafana Override configuration with environment variables.
+  ## see: https://grafana.com/docs/grafana/latest/administration/configuration/#override-configuration-with-environment-variables
+  azureAuthEnabled: false
+  azuread:
+    client_id: "AZURE-AD-SSO-CLIENT-ID"
+    client_secret: "AZURE-AD-SSO-CLIENT-SECRET"
+
+## Monitoring Stack: node_exporteer
+## templates/node-exporter.yaml
+##
+
+node_exporter:
+  component: node-exporter
+  annotations: {}
+  limits:
+    cpu: 10m
+    memory: 50Mi
+  requests:
+    cpu: 10m
+    memory: 50Mi
+
+alert_manager:
+  component: alert-manager
+  port: 9093
+  annotations: {}
+  replicaCount: 1
+  gracePeriod: 0
+  resources:
+    requests:
+      memory: 250Mi
+      cpu: 0.1
+  service:
+    # spec:
+    # clusterIP: None
+    annotations: {}
+  securityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+    runAsGroup: 65534
+    fsGroup: 65534
+  probe:
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  # alert manager config
+  config:
+    global:
+      resolve_timeout: 1m
+    route:
+      group_interval: 1m
+      repeat_interval: 10m
+      receiver: 'pagerduty-notifications'
+    receivers:
+      - name: 'pagerduty-notifications'
+        pagerduty_configs:
+          - service_key: "[PAGER DUTRY SERVICE KEY]"
+            send_resolved: true
+  # add alert rules below
+  rules:
+    groups:
