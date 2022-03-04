@@ -1080,6 +1080,9 @@ broker:
     enabled: true
     tls:
       enabled: false
+      # trustCertsEnabled controls the kop configuration item kopSslTruststoreLocation=/xxx/truststore.jks
+      # It will add this kop config if it's true
+      trustCertsEnabled: false
       # create a secret with keystore.jks and truststore.jks
       # certSecretName: "kop-secret"
       # same word for keystore and truststore
