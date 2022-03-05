@@ -21,7 +21,7 @@ initialize: true
 
 image:
   repository: streamnative/sn-platform-console
-  tag: "1.9"
+  tag: "1.10"
   pullPolicy: IfNotPresent
   hasCommand: false
 
@@ -123,6 +123,8 @@ configData:
   GOOGLE_REDIRECT_URI: ""
 
 login:
+  vault:
+    enabled: true
   sso: 
     google:
       enabled: false

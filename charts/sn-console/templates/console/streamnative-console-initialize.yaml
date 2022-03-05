@@ -48,9 +48,17 @@ spec:
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
           value: http://{{ template "streamnative_console.backend.service" . }}:7750
+        {{- if not .Values.login.vault.enabled }}
+        - name: SUPER_USER_NAME
+          value: admin
+        - name: SUPER_USER_PASSWORD
+          value: apachepulsar
+        {{- end }}
+        {{- if .Values.login.vault.enabled }}
         envFrom:
         - secretRef:
             name: {{ template "streamnative_console.vault-secret-key-name" . }}
+         {{- end }}
         volumeMounts:
         - name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init-configmap"
           mountPath: "/root/init_instance/"
