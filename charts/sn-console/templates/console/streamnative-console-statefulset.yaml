@@ -142,9 +142,17 @@ spec:
           - name: REDIRECT_PORT
             value: "{{ .Values.configData.REDIRECT_PORT }}"
           {{- end }}
+          {{- if not .Values.login.vault.enabled }}
+          - name: VAULT_ENABLED
+            value: "false"
+          {{ end }}
+          {{- if or (eq .Values.login.vault.enabled true) (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) }}
           envFrom:
+          {{- end }}
+          {{- if .Values.login.vault.enabled }}
           - secretRef:
               name: {{ template "streamnative_console.vault-secret-key-name" . }}
+          {{- end }}
           {{- if .Values.login.sso.google.enabled }}
           - secretRef:
               name: {{ .Values.login.sso.google.clientSecretRef }}
