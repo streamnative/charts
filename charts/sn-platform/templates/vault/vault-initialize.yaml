@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.components.vault }}
+{{- if .Values.initialize }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -30,6 +31,10 @@ spec:
   template:
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"
         image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"
@@ -75,4 +80,5 @@ spec:
       {{- include "pulsar.vault.createPulsarTokens.volumes" . | nindent 6 }}
       {{- include "pulsar.vault.initStreamNativeConsole.volumes" . | nindent 6 }}
       restartPolicy: Never
+{{- end }}
 {{- end }}

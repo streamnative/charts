@@ -146,16 +146,26 @@ Define proxy log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
 {{- end }}
+
+{{/*Define proxy pod name*/}}
+{{- define "pulsar.proxy.podName" -}}
+{{- if .Values.proxy.operator.enabled -}}
+{{- print "pulsar-proxy" -}}
+{{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",

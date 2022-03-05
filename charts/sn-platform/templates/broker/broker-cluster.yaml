@@ -129,7 +129,7 @@ spec:
           fieldRef:
             fieldPath: metadata.name
     - name: PULSAR_PREFIX_kafkaAdvertisedListeners
-      value: PLAINTEXT://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ .Values.namespace }}.svc.cluster.local:9092,SSL://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ .Values.namespace }}.svc.cluster.local:9093
+      value: PLAINTEXT://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ template "pulsar.namespace" . }}.svc.cluster.local:9092,SSL://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ template "pulsar.namespace" . }}.svc.cluster.local:9093
     {{- end }}
     # not support envFrom currently
     #envFrom:
@@ -171,6 +171,9 @@ spec:
 {{ toYaml .Values.broker.dnsNames | indent 2}}
   {{- end }}
   config:
+    {{- if .Values.pulsar_metadata.clusterName }}
+    clusterName: {{ .Values.pulsar_metadata.clusterName }}
+    {{- end }}
     {{- if .Values.broker.functionmesh.enabled }}
     function:
       enabled: true

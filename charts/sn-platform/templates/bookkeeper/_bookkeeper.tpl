@@ -170,14 +170,23 @@ Define bookkeeper log volumes
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
 {{- end }}
 
+{{/*Define bookkeeper pod name*/}}
+{{- define "pulsar.bookkeeper.podName" -}}
+{{- if .Values.bookkeeper.operator.enabled -}}
+{{- print "bookie" -}}
+{{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}
+{{- end -}}
+{{- end -}}
+
 {{/*Define bookkeeper datadog annotation*/}}
 {{- define  "pulsar.bookkeeper.datadog.annotation" -}}
 {{- if .Values.datadog.components.bookkeeper.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.bookkeeper.ports.http }}/metrics",

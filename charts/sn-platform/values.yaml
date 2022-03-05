@@ -1699,6 +1699,14 @@ datadog:
       metrics: [
         "\"_*\""
       ]
+    vault:
+      enabled: true
+      auth:
+        enabled: false
+        token: ""
+      tags: {}
+    prometheus:
+      enabled: false
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-statefulset.yaml
@@ -2141,6 +2149,8 @@ vault:
     created: true
     name: ""
   serviceType: "ClusterIP"
+  tolerations: []
+  nodeSelector: {}
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
@@ -2159,7 +2169,7 @@ vault:
     cluster_addr: "http://${.Env.POD_NAME}:8201"
     ui: true
     telemetry:
-      statsd_address: localhost:9125
+      statsd_address: ""
   resources:
     limits:
       memory: "512Mi"
