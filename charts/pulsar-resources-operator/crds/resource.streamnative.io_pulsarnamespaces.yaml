@@ -64,6 +64,15 @@ spec:
                 type: string
               backlogQuotaRetentionPolicy:
                 type: string
+              backlogQuotaType:
+                description: BacklogQuotaType controls the backlog by setting the
+                  type to destination_storage or message_age destination_storage limits
+                  backlog by size (in bytes). message_age limits backlog by time,
+                  that is, message timestamp (broker or publish timestamp)
+                enum:
+                - destination_storage
+                - message_age
+                type: string
               bundles:
                 format: int32
                 type: integer
