@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: '{{ include "pulsar-resources-operator.fullname" . }}-manager-rolebinding'
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: '{{ include "pulsar-resources-operator.clusterRoleManagerName" . }}'
+subjects:
+- kind: ServiceAccount
+  name : {{ include "pulsar-resources-operator.serviceAccountName" . }}
+  namespace: {{ include "pulsar-resources-operator.namespace" .}}

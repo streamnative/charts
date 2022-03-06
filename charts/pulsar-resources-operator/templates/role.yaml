@@ -1,0 +1,161 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: {{ include "pulsar-resources-operator.clusterRoleManagerName" . }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarconnections
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarconnections/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarconnections/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarnamespaces
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarnamespaces/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarnamespaces/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarpermissions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarpermissions/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsarpermissions/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsartenants
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsartenants/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsartenants/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsartopics
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsartopics/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - resource.streamnative.io
+  resources:
+  - pulsartopics/status
+  verbs:
+  - get
+  - patch
+  - update

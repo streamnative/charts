@@ -1,0 +1,20 @@
+{{ template "chart.header" . }}
+{{ template "chart.description" . }}
+
+{{ template "chart.versionBadge" . }}{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
+
+
+## Installing the Chart
+
+To install the chart with the release name `my-release`:
+
+```console
+$ helm repo add streamnative https://charts.streamnative.io
+$ helm -n <namespace> install my-release streamnative/{{ template "chart.name" . }}
+```
+
+{{ template "chart.requirementsSection" . }}
+
+Pulsar: `>= 2.9.0.x`
+
+{{ template "chart.valuesSection" . }}

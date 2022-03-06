@@ -1,0 +1,82 @@
+# Default values for pulsar-resources-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Specifies namespace for the release, it will override the `-n` parameter when it's not empty
+namespace: ""
+
+# -- The replicas of pod
+replicaCount: 1
+
+image:
+  # -- Specififies the registry of images, especially when user want to use a different image hub
+  registry: docker.cloudsmith.io
+  # -- The full repo name for image.
+  repository: streamnative/operators/pulsar-resources-operator
+  # -- Image pull policy for the container.
+  pullPolicy: IfNotPresent
+  # -- Image tag, it can override the image tag whose default is the chart appVersion.
+  tag: ""
+
+# -- Specifies image pull secrets for private registry, the format is `- name: gcr`
+imagePullSecrets: []
+# If you want to specify secrets, follow this format
+# - name: test
+
+# -- It will override the value of label `app.kubernetes.io/name` on pod
+nameOverride: ""
+
+# -- It will override the name of deployment
+fullnameOverride: ""
+
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# -- Add annotations for the deployment pod
+podAnnotations: {}
+
+# -- Add security context for pod
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# -- Add security context for container
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# -- Add resource limits and requests
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# -- Add NodeSelector for pod schedule
+nodeSelector: {}
+
+
+# -- Add tolerations
+tolerations: []
+
+# -- Add affinity for pod
+affinity: {}
+
+# -- The period seconds that pod will be termiated gracefully
+terminationGracePeriodSeconds: 10
