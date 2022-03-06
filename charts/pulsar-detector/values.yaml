@@ -1,0 +1,59 @@
+# Default values for pulsar-detector.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: "snpe4"
+cluster: "pulsar4-sn-platform"
+metadataPrefix: ""
+
+auth:
+  authentication:
+    enabled: true
+    brokerClientAuthenticationParameters: NmM3MGIwZTUtMDQ3My1jZDc1LTNmNDctMDUwNWM0NTFmOWVhOjkyNDllYTNhLTUyMjEtMDJkNS1iODY2LTFjYmUzNmQ1ZTYxNAo=
+
+components:
+  # pulsar detector
+  pulsar_detector: true
+
+image:
+  repository: streamnative/sn-platform
+  tag: "2.8.1.30"
+  pullPolicy: IfNotPresent
+
+component: pulsar-detector
+
+replicaCount: 1
+
+gracePeriod: 30
+port: 9000
+# nodeSelector:
+  # cloud.google.com/gke-nodepool: default-pool
+# tolerations: []
+# Definition of the serviceAccount used to run brokers.
+serviceAccount:
+  # Specifies whether to use a service account to run this component
+  use: true
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+  # Extra annotations for the serviceAccount definition. This can either be
+  # YAML or a YAML-formatted multi-line templated string map of the
+  # annotations to apply to the serviceAccount.
+  annotations: {}
+
+## Proxy service
+## templates/pulsar-detector-service.yaml
+##
+service:
+  # spec:
+  # clusterIP: None
+  annotations: {}
+
+## Pulsar detector PodDisruptionBudget
+## templates/pulsar-detector-pdb.yaml
+##
+pdb:
+  usePolicy: true
+  maxUnavailable: 1
