@@ -190,6 +190,7 @@ spec:
         enabled: true
         tls:
           enabled: {{ .Values.broker.kop.tls.enabled }}
+          trustCertsEnabled: {{ .Values.broker.kop.tls.trustCertsEnabled }}
     {{- if .Values.certs.public_issuer.enabled }}
           trustStoreEnabled: false
     {{- end }}
