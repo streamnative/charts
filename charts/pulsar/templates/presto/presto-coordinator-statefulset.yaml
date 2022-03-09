@@ -133,7 +133,7 @@ spec:
             {{ with .Values.presto.coordinator.commandOverride }}
             -{{- toYaml . | indent 12 }}
             {{- end }}
-            {{ else }}
+            {{- else }}
             - >-
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
@@ -142,7 +142,7 @@ spec:
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
-            {{ end }}
+            {{- end }}
           env:
           - name: POD_IP
             valueFrom:
