@@ -21,7 +21,7 @@
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if .Values.tls.enabled }}
 {{- if .Values.tls.proxy.enabled }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: "{{ .Values.certs.api_version }}"
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"

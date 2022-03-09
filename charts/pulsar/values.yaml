@@ -212,11 +212,11 @@ tls:
     duration: 2160h
     # 15d
     renewBefore: 360h
-    organization:
-      - pulsar
-    keySize: 4096
-    keyAlgorithm: rsa
-    keyEncoding: pkcs8
+    organizations: [pulsar]
+    privateKey:
+      size: 4096
+      algorithm: RSA
+      encoding: PKCS8
   # settings for generating certs for proxy
   proxy:
     enabled: false
@@ -306,6 +306,7 @@ certs:
     enabled: false
     component: public-cert-issuer
     type: acme
+  api_version: "cert-manager.io/v1"  
   issuers:
     selfsigning:
     acme:
