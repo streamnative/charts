@@ -1,0 +1,141 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# Flag to control whether to run initialize job
+initialize: false
+
+###
+### K8S Settings
+###
+
+## Namespace to deploy pulsar
+# NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
+#       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
+#       a higher control structure that is not part of the application.
+namespace: ""
+namespaceCreate: false
+
+###
+### Global Settings
+###
+
+## Pulsar Metadata Prefix
+##
+## By default, pulsar stores all the metadata at root path.
+## You can configure to have a prefix (e.g. "/my-pulsar-cluster").
+## If you do so, all the pulsar and bookkeeper metadata will
+## be stored under the provided path
+metadataPrefix: ""
+
+## Persistence
+##
+## If persistence is enabled, components that have state will
+## be deployed with PersistentVolumeClaims, otherwise, for test
+## purposes, they will be deployed with emptyDir
+##
+## This is a global setting that is applied to all components.
+## If you need to disable persistence for a component,
+## you can set the `volume.persistence` setting to `false` for
+## that component.
+volumes:
+  persistence: true
+  # configure the components to use local persistent volume
+  # the local provisioner should be installed prior to enable local persistent volume
+  local_storage: false
+
+## AntiAffinity
+##
+## Flag to enable and disable `AntiAffinity` for all components.
+## This is a global setting that is applied to all components.
+## If you need to disable AntiAffinity for a component, you can set
+## the `affinity.anti_affinity` settings to `false` for that component.
+affinity:
+  anti_affinity: true
+
+## Components
+##
+## Control what components of Apache Pulsar to deploy for the cluster
+components:
+  # vault
+  vault: true
+ 
+## Images
+##
+## Control what images to use for each component
+images:
+  vault:
+    repository: vault
+    tag: "1.7.0"
+    pullPolicy: "IfNotPresent"
+  vault_init:
+    repository: streamnative/pulsar_vault_init
+    tag: "v1.0.2"
+    
+monitoring:
+  # monitoring - datadog
+  datadog: false
+
+######################################################################
+# Below are settings for each component
+######################################################################
+
+## Common properties applied to pulsar components
+common:
+  extraInitContainers: []
+
+vault:
+  component: "vault"
+  serviceAccount:
+    created: true
+    name: ""
+  serviceType: "ClusterIP"
+  tolerations: []
+  nodeSelector: {}
+  volumeClaimTemplates: []
+  unsealConfig: {}
+  volumeMounts:
+  - name: vault-raft
+    mountPath: /vault/file
+    # use raft protocol for a vault cluster
+  config:
+    storage:
+      raft:
+        path: "/vault/file"
+    listener:
+      tcp:
+        tls_disable: true
+        address: "0.0.0.0:8200"
+    api_addr: "http://${.Env.POD_NAME}:8200"
+    cluster_addr: "http://${.Env.POD_NAME}:8201"
+    ui: true
+    telemetry:
+      statsd_address: ""
+  resources:
+    limits:
+      memory: "512Mi"
+      cpu: "200m"
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+  volume:
+    persistence: true
+    name: "vault-volume"
+    size: 10Gi
+    local_storage: true
+    # storageClassName: ""

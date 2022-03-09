@@ -1,0 +1,93 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+{{- if .Values.components.vault }}
+apiVersion: "vault.banzaicloud.com/v1alpha1"
+kind: "Vault"
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.vault.component }}
+spec:
+  size: 3
+  image: "{{ .Values.images.vault.repository }}:{{ .Values.images.vault.tag }}"
+  serviceAccount: {{ template "pulsar.vault.serviceAccount" . }}
+  serviceType: {{ .Values.vault.serviceType }}
+
+  statsdDisabled: true
+  
+  {{- if .Values.monitoring.datadog }}
+  vaultAnnotations:
+{{- include "pulsar.vault.datadog.annotation" . | nindent 4 }}
+  {{- end }}
+{{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
+
+  {{- if .Values.vault.tolerations }}
+  tolerations:
+{{ toYaml .Values.vault.tolerations | indent 4 }}
+  {{- end }}
+
+  {{- if .Values.vault.nodeSelector }}
+  nodeSelector:
+{{ toYaml .Values.vault.nodeSelector | indent 4 }}
+  {{- end }}
+
+  {{- if .Values.imagePullSecrets }}
+  vaultPodSpec:
+    imagePullSecrets:
+    - name: {{ .Values.imagePullSecrets }}
+  {{- end }}
+  
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.vault.volume.size }}
+      {{- include "pulsar.vault.storage.class" . | nindent 6 }}
+{{- else }}
+  volumes:
+  - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
+    emptyDir: {}
+  {{- end }}
+
+  volumeMounts:
+  - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
+    mountPath: /vault/file
+
+  unsealConfig:
+    kubernetes:
+      secretNamespace: {{ template "pulsar.namespace" . }}
+
+  {{- if .Values.vault.config }}
+  # A YAML representation of a final vault config file.
+  # See https://www.vaultproject.io/docs/configuration/ for more information.
+  config:
+  {{ toYaml .Values.vault.config | nindent 4 }}
+  {{- end }}
+
+  {{- if .Values.vault.resources }}
+  resources:
+    vault:
+{{ toYaml .Values.vault.resources | indent 6 }}
+  {{- end }}
+{{- end }}
