@@ -23,6 +23,13 @@ Define the pulsar zookeeper
 {{- end -}}
 
 {{/*
+Define the pulsar zookeeper plaintext connect
+*/}}
+{{- define "pulsar.zookeeper.connect.plaintext" -}}
+{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
+{{- end -}}
+
+{{/*
 Define the zookeeper hostname
 */}}
 {{- define "pulsar.zookeeper.hostname" -}}

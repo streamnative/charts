@@ -154,7 +154,11 @@ data:
     pulsar.broker-service-url=http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
     {{- end }}
     # URI of Zookeeper cluster
+    {{- if .Values.presto.worker.usePlaintextZooKeeper}}
+    pulsar.zookeeper-uri={{ template "pulsar.zookeeper.connect.plaintext" . }}
+    {{- else }}
     pulsar.zookeeper-uri={{ template "pulsar.zookeeper.connect" . }}
+    {{- end }}
     # minimum number of entries to read at a single time
     pulsar.max-entry-read-batch-size={{ .Values.presto.catalog.pulsar.maxEntryReadBatchSize }}
     # default number of splits to use per query
