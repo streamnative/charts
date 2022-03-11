@@ -1344,6 +1344,7 @@ toolset:
   autoRollDeployment: true
   # pulsarAdminUrlOverride:
   # pulsarServiceUrlOverride:
+  extraEnv: []
   configData:
     PULSAR_MEM: >
       -Xms64M

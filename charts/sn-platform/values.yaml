@@ -1511,6 +1511,7 @@ toolset:
   ##
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
+  extraEnv: []
   configData:
     PULSAR_MEM: >
       -Xms64M
