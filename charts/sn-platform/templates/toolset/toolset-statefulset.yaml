@@ -75,6 +75,9 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+{{- with .Values.toolset.extraEnv}}
+{{ toYaml . | indent 8 }}
+{{- end }}
         volumeMounts:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
@@ -97,6 +100,9 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+{{- with .Values.toolset.extraEnv}}
+{{ toYaml . | indent 8 }}
+{{- end }}
         volumeMounts:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
