@@ -9,8 +9,8 @@ if not username or not password:
     username = os.getenv("SUPER_USER_NAME")
     password = os.getenv("SUPER_USER_PASSWORD")
 loginData = {
-    "username": os.getenv("VAULT_SUPER_USER_NAME"),
-    "password": os.getenv("VAULT_SUPER_USER_PASSWORD"),
+    "username": username,
+    "password": password,
     "type":"pulsar-vault-userpass"
 }
 headers = {
