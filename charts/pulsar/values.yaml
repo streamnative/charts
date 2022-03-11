@@ -1496,6 +1496,7 @@ prometheus:
       initialDelaySeconds: 30
       periodSeconds: 10
   customRelabelConfigs: []
+  extraScrapeConfigs: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
