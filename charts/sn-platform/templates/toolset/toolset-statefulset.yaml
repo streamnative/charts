@@ -75,6 +75,7 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+        env:
 {{- with .Values.toolset.extraEnv}}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -100,6 +101,7 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+        env:
 {{- with .Values.toolset.extraEnv}}
 {{ toYaml . | indent 8 }}
 {{- end }}
