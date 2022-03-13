@@ -1,0 +1,16 @@
+on:
+  workflow_run:
+    workflows: [ Post commit - Publish Pulsar Helm Chart ]
+    types: [ completed ]
+
+jobs:
+  callback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Invoke workflow in another repo with inputs
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: post-release
+          repo: streamnative/workflows
+          token: ${{ secrets.SNBOT_TOKEN }}
+          inputs: '{"conclusion": "${{ github.event.workflow_run.conclusion }}", "html_url": "${{ github.event.workflow_run.html_url }}" }'

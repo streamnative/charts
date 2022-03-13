@@ -19,9 +19,8 @@
 
 name: Post commit - Publish Pulsar Helm Chart
 on:
-  push:
-    branches:
-      - master 
+  workflow_dispatch:
+
 jobs:
   lint-test:
     runs-on: ubuntu-latest
