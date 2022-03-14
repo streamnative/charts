@@ -37,6 +37,9 @@ spec:
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
   imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
   pod:
+    {{- if .Values.bookkeeper.serviceAccount.use }}
+    serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
+    {{- end }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.bookkeeper.component }}

@@ -79,7 +79,7 @@ components:
   # bookkeeper
   bookkeeper: true
   # bookkeeper - autorecovery
-  autorecovery: false
+  autorecovery: true
   # broker
   broker: true
   # functions
@@ -128,22 +128,22 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.8.1.30"
+        tag: "2.9.2.5"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.8.1.30"
+        tag: "2.9.2.5"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -152,36 +152,36 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
-      tag: "5.0.0"
+      tag: "7.0.1"
       pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -225,7 +225,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.5"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -751,6 +751,22 @@ zookeeper:
   resourcePolicy:
     keep: false
   labels: {}
+
+  # Definition of the serviceAccount used to run zookeeper.
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
+    # whether to create a cluster role
+    clusterRole: true
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -2368,3 +2384,11 @@ entities:
 #       - sinks
 #       - sources
 #       - packages
+
+istio:
+  enabled: false
+  labels: {}
+  gateway:
+    selector: {}
+    tls:
+      certSecretName: ""

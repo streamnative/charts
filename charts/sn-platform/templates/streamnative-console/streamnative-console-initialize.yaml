@@ -29,18 +29,10 @@ metadata:
     component: {{ .Values.streamnative_console.component }}
 spec:
   template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
-      initContainers:
-        # This init container will wait for broker to be ready before
-        # deploying the pulsar manager init job
-        - name: wait-broker-ready
-          image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
-          imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
-          command: ["sh", "-c"]
-          args:
-            - >
-              set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
-              echo "broker cluster is ready";
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
         image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
@@ -84,6 +76,7 @@ spec:
               python3 /root/init_instance/init_instance.py 2>/dev/null;
             done;
             echo "StreamNative Console is ready to use~";
+            curl -sf -XPOST http://127.0.0.1:15020/quitquitquit || true;
       restartPolicy: Never
       volumes:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"

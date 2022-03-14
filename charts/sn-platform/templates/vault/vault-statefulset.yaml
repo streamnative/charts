@@ -32,6 +32,9 @@ spec:
   serviceType: {{ .Values.vault.serviceType }}
 
   statsdDisabled: true
+
+  vaultLabels:
+  {{- include "pulsar.template.labels" . | nindent 4 }}
   
   {{- if .Values.monitoring.datadog }}
   vaultAnnotations:
@@ -77,6 +80,8 @@ spec:
   unsealConfig:
     kubernetes:
       secretNamespace: {{ template "pulsar.namespace" . }}
+  
+  istioEnabled: {{ .Values.istio.enabled }}
 
   {{- if .Values.vault.config }}
   # A YAML representation of a final vault config file.

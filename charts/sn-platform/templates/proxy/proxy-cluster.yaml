@@ -145,6 +145,10 @@ spec:
       gcOptions:
         - {{ .Values.proxy.configData.PULSAR_GC }}
       gcLoggingOptions: []
+  {{- if .Values.istio.enabled }}
+  istio:
+    enabled: true
+  {{- end }}
   config:
     {{- if .Values.pulsar_metadata.clusterName }}
     clusterName: {{ .Values.pulsar_metadata.clusterName }}

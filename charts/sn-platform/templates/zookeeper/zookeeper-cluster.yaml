@@ -36,6 +36,9 @@ spec:
   replicas: {{ .Values.zookeeper.replicaCount }}
   image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
   pod:
+    {{- if .Values.zookeeper.serviceAccount.use }}
+    serviceAccountName: {{ template "pulsar.zookeeper.serviceAccount" . }}
+    {{- end }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.zookeeper.component }}

@@ -380,3 +380,20 @@ Define gcs offload options mounts
 {{ .Values.broker.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+pulsar service domain
+*/}}
+{{- define "pulsar.broker_service_domain" -}}
+{{- if .Values.ingress.broker.enabled -}}
+  {{- if .Values.ingress.broker.external_domain }}
+{{- print .Values.ingress.broker.external_domain -}}
+  {{- else if .Values.domain.enabled -}}
+{{- printf "data.%s.%s" .Release.Name .Values.domain.suffix -}}
+  {{- else if .Values.broker.advertisedDomain -}}
+{{- print .Values.broker.advertisedDomain -}}
+  {{- else -}}
+{{- print "" -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
