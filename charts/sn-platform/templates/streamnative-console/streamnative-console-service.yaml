@@ -41,7 +41,11 @@ spec:
     - name: frontend
       port: {{ .Values.streamnative_console.service.ports.frontend }}
       protocol: TCP
-      targetPort: {{ .Values.streamnative_console.ports.frontend }}
+      targetPort: 9527
+    - name: backend
+      port: {{ .Values.streamnative_console.service.ports.backend }}
+      protocol: TCP
+      targetPort: 7750
   selector:
     app: {{ template "pulsar.name" . }}
     release: {{ .Release.Name }}

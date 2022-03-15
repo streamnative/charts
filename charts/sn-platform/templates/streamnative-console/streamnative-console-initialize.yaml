@@ -59,7 +59,7 @@ spec:
           value: {{ template "pulsar.broker.kop.service.url" .}}
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
-          value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
+          value: http://{{ template "pulsar.streamnative_console.service" . }}:{{ .Values.streamnative_console.service.ports.backend }}
         {{- if not .Values.auth.vault.enabled }}
         - name: SUPER_USER_NAME
           value: admin
