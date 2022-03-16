@@ -248,7 +248,7 @@ Define zookeeper gen-zk-conf volumes
     defaultMode: 0755
 {{- end }}
 
-{{/*Define broker service account*/}}
+{{/*Define zookeeper service account*/}}
 {{- define "pulsar.zookeeper.serviceAccount" -}}
 {{- if .Values.zookeeper.serviceAccount.create -}}
     {{- if .Values.zookeeper.serviceAccount.name -}}
