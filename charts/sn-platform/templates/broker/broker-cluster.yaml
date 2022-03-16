@@ -155,7 +155,7 @@ spec:
     gateway:
       {{- if .Values.istio.gateway.selector }}
       selector:
-{{ toYaml .Values.istio.gateway.selector | indent 8 }}
+{{- include "pulsar.istio.gateway.selector" . | indent 8 }}
       {{- end }}
       tls:
         certSecretName: {{ .Values.istio.gateway.tls.certSecretName }}

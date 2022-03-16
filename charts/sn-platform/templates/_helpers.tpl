@@ -100,14 +100,9 @@ Pulsar Cluster Name.
 Istio gateway selector
 */}}
 {{- define "pulsar.istio.gateway.selector" -}}
-app: {{ template "pulsar.name" . }}
-release: {{ .Release.Name }}
-cluster: {{ template "pulsar.fullname" . }}
-{{- if .Values.istio.enabled }}
-{{- if .Values.istio.labels }}
-{{ toYaml .Values.istio.labels }}
+{{- if .Values.istio.gateway.selector }}
+{{ toYaml .Values.istio.gateway.selector }}
 {{- else }}
-sidecar.istio.io/inject: "true"
-{{- end }}
+istio: ingressgateway
 {{- end }}
 {{- end }}
