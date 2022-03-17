@@ -58,6 +58,35 @@ spec:
 {{ toYaml .Values.pulsar_detector.tolerations | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.pulsar_detector.gracePeriod }}
+      {{- if not .Values.istio.enabled }}
+      initContainers:
+      # This init container will wait for zookeeper to be ready before
+      # deploying the bookies
+      - name: wait-zookeeper-ready
+        image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
+        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >-
+            until bin/pulsar zookeeper-shell -server {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
+              sleep 3;
+            done;
+      # This init container will wait for at least one broker to be ready before
+      # deploying the pulsar-detector
+      - name: wait-broker-ready
+        image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+        imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >-
+            set -e;
+            brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
+            until [ ${brokerServiceNumber} -ge 1 ]; do
+              echo "pulsar cluster {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 10 seconds ...";
+              sleep 10;
+              brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
+            done;
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
         image: "{{ .Values.images.pulsar_detector.repository }}:{{ .Values.images.pulsar_detector.tag }}"
