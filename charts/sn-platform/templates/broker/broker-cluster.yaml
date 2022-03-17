@@ -153,10 +153,8 @@ spec:
   istio:
     enabled: true
     gateway:
-      {{- if .Values.istio.gateway.selector }}
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
-      {{- end }}
       tls:
         certSecretName: {{ .Values.istio.gateway.tls.certSecretName }}
         mode: simple
@@ -177,8 +175,8 @@ spec:
           name: builtin-connectors
       type: FunctionMesh
     {{- end }}
-    advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
     {{- if .Values.istio.enabled }}
+    advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
     serviceURLGenerationPolicy: FQDN
     {{- end }}
     {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) }}
