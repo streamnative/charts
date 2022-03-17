@@ -41,7 +41,6 @@ data:
     -XX:+ExplicitGCInvokesConcurrent
     -XX:+HeapDumpOnOutOfMemoryError
     -XX:+ExitOnOutOfMemoryError
-    -Dpresto-temporarily-allow-java8=true
     -Djdk.attach.allowAttachSelf=true
   config.properties: |
     #

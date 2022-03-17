@@ -30,7 +30,6 @@ initialize: false
 #       a higher control structure that is not part of the application.
 namespace: ""
 namespaceCreate: false
-stackName: pulsar
 
 pulsar_metadata:
   userProvidedZookeepers:
@@ -77,9 +76,6 @@ affinity:
 components:
   # pulsar sql
   sql_worker: true
-
-vault:
-  component: "vault"
 
 ## Images
 ##
@@ -275,8 +271,8 @@ presto:
       https: 8443
     resources:
       requests:
-        memory: 4Gi
-        cpu: 2
+        memory: 1.5Gi
+        cpu: 1
     # nodeSelector:
       # cloud.google.com/gke-nodepool: default-pool
     probe:
@@ -305,7 +301,7 @@ presto:
         maxMemoryPerNode: "128MB"
         maxTotalMemoryPerNode: "256MB"
     jvm:
-      memory: 2G
+      memory: 1G
     log:
       presto:
         level: DEBUG
@@ -328,8 +324,8 @@ presto:
       http: 8081
     resources:
       requests:
-        memory: 4Gi
-        cpu: 2
+        memory: 1.5Gi
+        cpu: 1
     # nodeSelector:
       # cloud.google.com/gke-nodepool: default-pool
     probe:
@@ -354,7 +350,7 @@ presto:
         maxMemoryPerNode: "128MB"
         maxTotalMemoryPerNode: "256MB"
     jvm:
-      memory: 2G
+      memory: 1G
     log:
       presto:
         level: DEBUG

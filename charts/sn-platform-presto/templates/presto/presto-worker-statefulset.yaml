@@ -195,9 +195,9 @@ spec:
         {{- if eq .Values.auth.authentication.provider "jwt" }}
         - name: client-token
           secret:
-            secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
+            secretName: "{{ template "pulsar.vault-secret-key-name" . }}"
             items:
-              - key: TOKEN
+              - key: brokerClientAuthenticationParameters
                 path: client/token
         {{- end}}
         {{- end}}

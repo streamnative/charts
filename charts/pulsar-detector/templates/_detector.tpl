@@ -16,7 +16,7 @@
 Expand the name of the chart.
 */}}
 {{- define "pulsar-detector.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- default .Values.stackName .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*

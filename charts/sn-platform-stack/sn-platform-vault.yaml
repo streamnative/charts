@@ -18,7 +18,7 @@
 #
 
 # Flag to control whether to run initialize job
-initialize: false
+initialize: true
 
 ###
 ### K8S Settings
@@ -30,7 +30,6 @@ initialize: false
 #       a higher control structure that is not part of the application.
 namespace: ""
 namespaceCreate: false
-stackName: pulsar
 
 ###
 ### Global Settings

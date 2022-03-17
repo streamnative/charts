@@ -30,8 +30,6 @@ initialize: true
 #       a higher control structure that is not part of the application.
 namespace: ""
 namespaceCreate: false
-stackName: pulsar
-stackVersion: 1.0.0
 
 ###
 ### Global Settings
@@ -164,8 +162,8 @@ tls:
     organization:
       - pulsar
     keySize: 4096
-    keyAlgorithm: rsa
-    keyEncoding: pkcs8
+    keyAlgorithm: RSA
+    keyEncoding: PKCS8
   # settings for generating certs for proxy
   proxy:
     enabled: false
@@ -247,7 +245,7 @@ auth:
 ## for components within a Pulsar cluster
 certs:
   internal_issuer:
-    enabled: false
+    enabled: true
     component: internal-cert-issuer
     type: selfsigning
   public_issuer:
@@ -285,7 +283,7 @@ certs:
 
 ## Domain requested from External DNS
 domain:
-  enabled: false
+  enabled: true
   suffix: test.pulsar.example.local
 
 ## Ingresses for exposing Pulsar services
@@ -294,7 +292,7 @@ ingress:
   ##
   ## Ingresses for exposing pulsar service publicly
   proxy:
-    enabled: false
+    enabled: true
 
     ## When these conditions are satisfied
     ##   1. Values.ingress.proxy.type == LoadBalancer
@@ -311,7 +309,7 @@ ingress:
   ##
   ## Ingresses for exposing pulsar service publicly
   broker:
-    enabled: false
+    enabled: true
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
@@ -319,7 +317,7 @@ ingress:
   ##
   ## Ingresses for exposing presto service publicly
   presto:
-    enabled: false
+    enabled: true
     tls:
       enabled: true
     type: LoadBalancer
@@ -332,7 +330,7 @@ ingress:
   ##
   ## Ingresses for exposing monitoring/management services publicly
   controller:
-    enabled: false
+    enabled: true
     rbac: true
     component: nginx-ingress-controller
     replicaCount: 1
@@ -418,7 +416,7 @@ zookeeper:
       initialDelaySeconds: 10
       periodSeconds: 30
     startup:
-      enabled: false
+      enabled: true
       failureThreshold: 30
       initialDelaySeconds: 10
       periodSeconds: 30
@@ -447,7 +445,7 @@ zookeeper:
     # Add a flag here for backward compatibility. Ideally we should
     # use two disks for production workloads. This flag might be
     # removed in the future releases to stick to two-disks mode.
-    useSeparateDiskForTxlog: false
+    useSeparateDiskForTxlog: true
     data:
       name: data
       size: 50Gi
@@ -495,7 +493,7 @@ zookeeper:
   peerType: "participant"
   # reconfig settings
   reconfig:
-    enabled: false
+    enabled: true
     # The zookeeper servers to observe/join
     zkServers: []
   # Automtically Roll Deployments when configmap is changed
@@ -534,48 +532,6 @@ zookeeper:
       name: ""
       annotations: {}
       clusterRole: true
-    backup:
-      component: "backup"
-      enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.8.1.30"
-      pullPolicy: IfNotPresent
-      webServerPort: "8088"
-      backupInterval: "600"
-      bucket: "s3a://bucket"
-      backupPrefix: "pulsar-backup"
-      managedLedgerPath: "/managed-ledgers"
-      configData:
-        # extra opts for the java command
-        OPTS: ""
-      secrets:
-        use: false
-    #    aws:
-    #      secretName: "backup-aws-secret"
-    ## secret that stores AWS credentials. The secret should be created in the following
-    ## format.
-    ## ```
-    ## kubectl -n pulsar create secret generic \
-    ##   --from-literal=AWS_ACCESS_KEY_ID=[AWS ACCESS KEY] \
-    ##   --from-literal=AWS_SECRET_ACCESS_KEY=[AWS SECRET KEY] \
-    ##   [secret name]
-    ## ```
-    restore:
-      component: "restore"
-      enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.8.1.30"
-      pullPolicy: IfNotPresent
-      restorePoint: ""
-      restoreVersion: "1"
-      managedLedgerPath: "/managed-ledgers"
-      bucket: "s3a://bucket"
-      configData:
-        OPTS: ""
-      secrets:
-        use: false
 #        aws:
 #          secretName: "restore-aws-secret"
   ## Operator Controller
@@ -607,9 +563,9 @@ bookkeeper:
   # The replicaCount must be equal or greater than 3, the BookKeeper Operator  will set it to 3 if it is less than 3
   # The minimum number of bookies is three for self-verifying according to the docs
   # https://bookkeeper.apache.org/archives/docs/master/bookkeeperConfig.html
-  replicaCount: 4
-  autoscaling:
-    maxReplicas: 4
+  replicaCount: 3
+#  autoscaling:
+#    maxReplicas: 4
   ports:
     http: 8000
     bookie: 3181
@@ -627,7 +583,7 @@ bookkeeper:
       initialDelaySeconds: 10
       periodSeconds: 30
     startup:
-      enabled: false
+      enabled: true
       failureThreshold: 30
       initialDelaySeconds: 60
       periodSeconds: 30
@@ -746,11 +702,6 @@ bookkeeper:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
-      -Xlog:gc*
-      -Xlog:::time,level,tags
-      -Xlog:safepoint
-      -Xlog:gc+heap=trace
-      -verbosegc
       -Xlog:gc:/var/log/bookie-gc.log
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
@@ -859,7 +810,7 @@ kop:
     plaintext: 9092
     ssl: 9093
   auth:
-    enabled: false
+    enabled: true
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml
 ##
@@ -867,9 +818,9 @@ broker:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
-  replicaCount: 3
-  autoscaling:
-    maxReplicas: 3
+  replicaCount: 1
+#  autoscaling:
+#    maxReplicas: 3
   ports:
     http: 8080
     https: 8443
@@ -889,7 +840,7 @@ broker:
       initialDelaySeconds: 30
       periodSeconds: 10
     startup:
-      enabled: false
+      enabled: true
       failureThreshold: 30
       initialDelaySeconds: 60
       periodSeconds: 10
@@ -904,7 +855,7 @@ broker:
   securityContext: {}
   gracePeriod: 30
   # flag to advertise pod ip address
-  advertisedPodIP: false
+  advertisedPodIP: true
   # For exposing kop service for external access
   advertisedDomain: ""
   dnsNames:
@@ -1004,7 +955,7 @@ broker:
   service_account:
     annotations: {}
   offload:
-    enabled: false
+    enabled: true
     use: true
     managedLedgerOffloadDriver: aws-s3
     gcs:
@@ -1050,7 +1001,7 @@ toolset:
   component: toolset
   useProxy: false
   replicaCount: 1
-  # nodeSelector:
+    # nodeSelector:
   # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
   tolerations: []
@@ -1172,9 +1123,9 @@ proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
-  replicaCount: 3
-  autoscaling:
-    maxReplicas: 3
+  replicaCount: 1
+#  autoscaling:
+#    maxReplicas: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   probe:
@@ -1228,7 +1179,7 @@ proxy:
     annotations: {}
   websocket:
     component: websocket
-    enabled: false
+    enabled: true
     configData:
       PULSAR_MEM: >
         -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
@@ -1317,33 +1268,30 @@ datadog:
   namespace: pulsar
   components:
     zookeeper:
-      enabled: false
+      enabled: true
       metrics: [
         "\"_*\""
       ]
     bookkeeper:
-      enabled: false
+      enabled: true
       metrics: [
         "\"_*\""
       ]
     broker:
-      enabled: false
+      enabled: true
       metrics: [
         "\"_*\""
       ]
     proxy:
-      enabled: false
+      enabled: true
       metrics: [
         "\"_*\""
       ]
     vault:
       enabled: true
       auth:
-        enabled: false
+        enabled: true
         token: ""
       tags: {}
     prometheus:
-      enabled: false
-      
-vault:
-  component: "vault"
+      enabled: true

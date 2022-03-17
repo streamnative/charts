@@ -17,11 +17,11 @@
 # under the License.
 #
 
-apiVersion: v1
-appVersion: "1.2.34"
+apiVersion: v2
+appVersion: "2.0.0"
 description: StreamNative Platform Chart
 name: sn-platform
-version: 1.2.34
+version: 2.0.0
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/tree/master/charts/sn-platform
@@ -29,3 +29,7 @@ icon: https://streamnative.io/static/images/platform/sn-platform-header-element.
 maintainers:
 - name: StreamNative Support
   email: support@streamnative.io
+dependencies:
+- name: pulsar-common
+  version: 0.1.0
+  repository: file://../pulsar-common

@@ -1,0 +1,6 @@
+stackName: zxc-platform
+stackVersion: "1.0.0"
+fullnameOverride: "zxc-platform"
+
+vault:
+  component: "vault"

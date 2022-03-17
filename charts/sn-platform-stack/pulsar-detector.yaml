@@ -2,7 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-stackName:
 namespace: ""
 metadataPrefix: ""
 
@@ -16,6 +15,7 @@ components:
   pulsar_detector: true
 
 pulsar_metadata:
+  clusterName: ""
   
 image:
   repository: streamnative/sn-platform
@@ -44,10 +44,7 @@ serviceAccount:
   # YAML or a YAML-formatted multi-line templated string map of the
   # annotations to apply to the serviceAccount.
   annotations: {}
-
-vault:
-  component: "vault"
-
+  
 ## Proxy service
 ## templates/pulsar-detector-service.yaml
 ##

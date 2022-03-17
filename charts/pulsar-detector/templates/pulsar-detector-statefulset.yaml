@@ -66,7 +66,7 @@ spec:
         command: ["sh", "-c"]
         args:
           - >-
-            until bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeperServiceUrl" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ .Values.cluster }}; do
+            until bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeperServiceUrl" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
               echo "------------------------------";
               sleep 3;
             done;
@@ -81,12 +81,12 @@ spec:
             set -e;
             brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.broker.serviceName" . }} | grep Name | wc -l)";
             until [ ${brokerServiceNumber} -ge 1 ]; do
-              echo "pulsar cluster {{ .Values.cluster  }} isn't initialized yet ... check in 10 seconds ...";
+              echo "pulsar cluster {{ template "pulsar.fullname" .  }} isn't initialized yet ... check in 10 seconds ...";
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.broker.serviceName" . }} | grep Name | wc -l)";
             done;
       containers:
-      - name: "{{ .Values.cluster  }}-{{ .Values.component }}"
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.component }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command: ["sh", "-c"]
@@ -100,5 +100,8 @@ spec:
         env:
         {{- if .Values.auth.authentication.enabled }}
         - name: brokerClientAuthenticationParameters
-          value: {{ .Values.auth.authentication.brokerClientAuthenticationParameters }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "pulsar.vault-secret-key-name" . }}
+              key: brokerClientAuthenticationParameters
         {{- end }}

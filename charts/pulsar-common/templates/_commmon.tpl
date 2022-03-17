@@ -1,10 +1,28 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
+name of parent chart
+*/}}
+{{- define "chart.name" -}}
+{{- if or (eq .Values.images.broker.repository "streamnative/platform") (eq .Values.images.broker.repository "streamnative/platform-all") }}
+{{- print "sn-platform" -}}
+{{- else }}
+{{- print "pulsar" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+pulsar home
+*/}}
+{{- define "pulsar.home" -}}
+/{{ template "chart.name" . }}
+{{- end -}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "pulsar.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default "sn-platform" .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -20,10 +38,10 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "pulsar.fullname" -}}
-{{- if .Values.cluster -}}
-{{- .Values.cluster | trunc 63 | trimSuffix "-" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- $name := default .Values.stackName .Values.nameOverride -}}
 {{- if contains $name .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -36,7 +54,7 @@ If release name contains chart name it will be used as a full name.
 Create chart name and version as used by the chart label.
 */}}
 {{- define "pulsar.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Values.stackName .Values.stackVersion | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -105,6 +123,30 @@ http://{{ template "pulsar.fullname" . }}-broker:8080/
 {{- end -}}
 {{- end -}}
 
+{{/*
+Define the pulsar zookeeper
+*/}}
+{{- define "pulsar.zookeeper.service" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}
+{{- end }}
+
+{{/*
+Define the pulsar zookeeper
+*/}}
+{{- define "pulsar.zookeeper.connect" -}}
+{{$zk:=.Values.pulsar_metadata.userProvidedZookeepers}}
+{{- if and (not .Values.components.zookeeper) $zk }}
+{{- $zk -}}
+{{ else }}
+{{- if not (and .Values.tls.enabled .Values.tls.zookeeper.enabled) -}}
+{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
+{{- end -}}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
+{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.clientTls }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{/*Define pulsar broker service name*/}}
 {{- define "pulsar.broker.serviceName" -}}
 {{- if .Values.brokerServiceName -}}
@@ -113,3 +155,14 @@ http://{{ template "pulsar.fullname" . }}-broker:8080/
 {{ template "pulsar.fullname" . }}-broker
 {{- end -}}
 {{- end -}}
+
+{{/*
+Inject vault token values to pod through env variables
+*/}}
+{{- define "pulsar.vault-secret-key-name" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-secret-env-injection
+{{- end }}
+
+{{- define "pulsar.vault.url" -}}
+http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200
+{{- end }}

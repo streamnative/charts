@@ -17,19 +17,18 @@
 # under the License.
 #
 
-apiVersion: v2
-appVersion: "0.0.1"
-description: StreamNative Platform Chart
-name: sn-platform
-version: 0.0.1
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/charts/tree/master/charts/sn-platform
-icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
-dependencies:
-- name: pulsar-common
-  version: 0.1.0
-  repository: file://../pulsar-common
+{{- if .Values.components.toolset }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.toolset.component }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "pulsar.matchLabels" . | nindent 4 }}
+    component: {{ .Values.toolset.component }}
+{{- end }}
