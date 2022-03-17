@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if .Values.istio.enabled }}
+{{- if and .Values.ingress.control_center.enabled .Values.istio.enabled }}
 kind: VirtualService
 apiVersion: networking.istio.io/v1alpha3
 metadata:
