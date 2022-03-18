@@ -34,6 +34,6 @@ spec:
       number: 443
       protocol: HTTPS
     tls:
-      credentialName: {{ .Values.istio.gateway.tls.certSecretName }}
+      credentialName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
       mode: SIMPLE
 {{- end }}

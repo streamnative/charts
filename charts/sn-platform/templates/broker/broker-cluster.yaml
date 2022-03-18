@@ -156,7 +156,7 @@ spec:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
       tls:
-        certSecretName: {{ .Values.istio.gateway.tls.certSecretName }}
+        certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
         mode: simple
   {{- end }}
   {{- if .Values.broker.dnsNames }}
