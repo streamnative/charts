@@ -57,7 +57,7 @@ spec:
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-    {{- if .Values.broker.readPublicKeyFromFile }}
+    {{- if or .Values.broker.readPublicKeyFromFile .Values.broker.offload.gcs.secret }}
     secretRefs:
     {{- if .Values.broker.publicKeyPath }}
     - mountPath: {{ .Values.broker.publicKeyPath }}
@@ -69,6 +69,10 @@ spec:
       {{- else }}
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
       {{- end }}
+    {{- if .Values.broker.offload.gcs.secret }}
+    - mountPath: /pulsar/srvaccts/gcs.json
+      secretName: {{ .Values.broker.offload.gcs.secret }}
+    {{- end }}
     {{- end }}
     {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
     affinity:
@@ -122,6 +126,18 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
+    {{- end }}
+    {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.s3.secret }}
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.s3.secret }}
+          key: AWS_SECRET_ACCESS_KEY
     {{- end }}
     {{- if not ( and .Values.broker.kop.enabled .Values.broker.advertisedDomain ) }}
     - name: POD_NAME

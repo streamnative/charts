@@ -1182,6 +1182,14 @@ broker:
       gcsManagedLedgerOffloadBucket: "[YOUR BUCKET OF GCS]"
       gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
       gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      # secret that stores GCS credentials. The secret should be created in the following
+      # format.
+      # ```
+      # kubectl -n pulsar create secret generic \
+      #   --from-file=GCS_SERVICE_ACCOUNT_PATH \
+      #   [secret name]
+      # ```
+      # secret: [k8s secret that stores GCS SERVICE ACCOUNT]
     s3:
       enabled: false
       s3ManagedLedgerOffloadRegion: "[YOUR REGION OF S3]"
