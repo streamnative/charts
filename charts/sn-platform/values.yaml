@@ -1156,29 +1156,6 @@ broker:
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
-    ## If you want to enable aws s3 or google cloud storage offload, please remove the following comment
-    ## AWS s3 offload
-    # managedLedgerOffloadDriver: aws-s3
-    # s3ManagedLedgerOffloadRegion: "[YOUR REGION OF S3]"
-    # s3ManagedLedgerOffloadBucket: "[YOUR BUCKET OF S3]"
-    # s3ManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
-    # s3ManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
-    # s3ManagedLedgerOffloadServiceEndpoint: "http://s3.amazonaws.com"
-    ## Google cloud storage offload
-    # managedLedgerOffloadDriver: google-cloud-storage
-    # gcsManagedLedgerOffloadRegion: "[YOUR REGION OF GCS]"
-    # gcsManagedLedgerOffloadBucket: "[YOUR BUCKET OF GCS]"
-    # gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
-    # gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
-    ## secret that stores AWS credentials. The secret should be created in the following
-    ## format.
-    ## ```
-    ## kubectl -n pulsar create secret generic \
-    ##   --from-literal=AWS_ACCESS_KEY_ID=[AWS ACCESS KEY] \
-    ##   --from-literal=AWS_SECRET_ACCESS_KEY=[AWS SECRET KEY] \
-    ##   [secret name]
-    ## ```
-    # secret: [k8s secret that stores AWS credentials]
   ## Broker service
   ## templates/broker-service.yaml
   ##
@@ -1195,7 +1172,6 @@ broker:
   # deprecated: use `serviceAccount` section to configure service account.
   service_account:
     annotations: {}
-  # This configuration is deprecated, please configure it in the broker -> configData section
   offload:
     enabled: false
     use: true
