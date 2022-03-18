@@ -57,7 +57,7 @@ spec:
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-    {{- if or .Values.broker.readPublicKeyFromFile .Values.broker.offload.gcs.secret }}
+    {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) }}
     secretRefs:
     {{- if .Values.broker.publicKeyPath }}
     - mountPath: {{ .Values.broker.publicKeyPath }}
