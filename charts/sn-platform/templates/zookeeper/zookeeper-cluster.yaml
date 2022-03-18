@@ -143,6 +143,10 @@ spec:
       gcOptions:
         - {{ .Values.zookeeper.configData.PULSAR_GC }}
   {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
   persistence:
     data:
       accessModes:

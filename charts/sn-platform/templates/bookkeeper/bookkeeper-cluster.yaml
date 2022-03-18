@@ -114,6 +114,10 @@ spec:
       gcOptions:
         - {{ .Values.bookkeeper.configData.PULSAR_GC }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
   storage:
     journal:
       volumeClaimTemplate:
