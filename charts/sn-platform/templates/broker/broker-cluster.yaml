@@ -21,7 +21,7 @@
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarBroker
 metadata:
-  # no need to add component to name here as operator will add 
+  # no need to add component to name here as operator will add
   name: "{{ template "pulsar.fullname" . }}"
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
@@ -73,6 +73,9 @@ spec:
     {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
     affinity:
       podAntiAffinity:
+        {{ if .Values.broker.affinity.customRules }}
+{{ toYaml .Values.broker.affinity.customRules | indent 8 }}
+        {{ else }}
         {{ .Values.broker.affinity.type }}:
           {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -109,6 +112,7 @@ spec:
                       - {{ .Values.broker.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
+      {{ end }}
     {{- end }}
     vars:
     {{- if .Values.auth.authentication.enabled }}

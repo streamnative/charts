@@ -224,6 +224,11 @@ data:
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().
     pulsar.managed-ledger-num-scheduler-threads = {{ .Values.presto.catalog.pulsar.mlNumSchedulerThreads }}
+
+    {{- if .Values.presto.worker.config.extraConfig }}
+{{ .Values.presto.worker.config.extraConfig | indent 4 }}
+    {{- end }}
+
   health_check.sh: |
     #!/bin/bash
     curl --silent {{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(hostname)

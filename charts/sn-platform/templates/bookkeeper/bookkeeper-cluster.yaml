@@ -55,6 +55,9 @@ spec:
     {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
     affinity:
       podAntiAffinity:
+        {{ if .Values.bookkeeper.affinity.customRules }}
+{{ toYaml .Values.bookkeeper.affinity.customRules | indent 8 }}
+        {{ else }}
         {{ .Values.bookkeeper.affinity.type }}:
           {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -91,6 +94,7 @@ spec:
                       - {{ .Values.bookkeeper.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
+      {{ end }}
     {{- end }}
     {{- if .Values.bookkeeper.resources }}
     resources:
@@ -113,6 +117,17 @@ spec:
         - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
       gcOptions:
         - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+    {{- if .Values.bookkeeper.operator.adopt_existing }}
+    volumes:
+    {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+      emptyDir: {}
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+      emptyDir: {}
+    {{- end }}
+    {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
+    {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
+    {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
@@ -155,7 +170,9 @@ spec:
     journalMaxBackups: "0"
     {{- if .Values.bookkeeper.operator.adopt_existing }}
     # if adopting existing bk cluster then also keep existing ledger/journal dir setting
+    journalDirectories: "/pulsar/data/bookkeeper/journal"
     PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
+    ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
     PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
     {{- end }}
     BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
@@ -291,6 +308,34 @@ spec:
       {{ .Values.bookkeeper.operator.updatePolicy }}
       {{- else }}
         - all
+      {{- end }}
+      {{- if .Values.bookkeeper.operator.adopt_existing }}
+      {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
+      volumeClaimTemplates:
+      - metadata:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: {{ .Values.bookkeeper.volumes.journal.size }}
+          {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 10 }}
+      - metadata:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
+          {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 10 }}
+      {{- end }}
+      volumeMounts:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+        mountPath: /pulsar/data/bookkeeper/journal
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+        mountPath: /pulsar/data/bookkeeper/ledgers
+      {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
+      {{- include "pulsar.bookkeeper.log.volumeMounts" . | nindent 6 }}
       {{- end }}
     autoRecoveryStatefulSet:
       metadata:
