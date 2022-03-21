@@ -2393,4 +2393,4 @@ istio:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
     tls:
-      certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE"
+      certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE]"
