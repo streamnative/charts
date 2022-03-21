@@ -169,15 +169,11 @@ spec:
       gcOptions:
         - {{ .Values.broker.configData.PULSAR_GC }}
       gcLoggingOptions: []
-<<<<<<< HEAD
-  {{- if .Values.istio.enabled }}
-=======
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
-  {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
->>>>>>> master
+  {{- if .Values.istio.enabled }}
   istio:
     enabled: true
     gateway:
