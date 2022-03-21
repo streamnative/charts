@@ -129,6 +129,10 @@ spec:
     {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
     {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
   storage:
     journal:
       volumeClaimTemplate:
