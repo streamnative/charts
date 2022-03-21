@@ -35,6 +35,12 @@ namespaceCreate: false
 ### Global Settings
 ###
 
+global:
+  ## Reference to one or more secrets to be used when pulling images
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  imagePullSecrets: []
+  ## - name: image-pull-secret
+
 ## Pulsar Metadata Prefix
 ##
 ## By default, pulsar stores all the metadata at root path.
@@ -594,6 +600,8 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
+  advanced:
+    staticServerList: []
   securityContext: {}
   tolerations: []
   gracePeriod: 30
@@ -1198,6 +1206,14 @@ broker:
       gcsManagedLedgerOffloadBucket: "[YOUR BUCKET OF GCS]"
       gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
       gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      # secret that stores GCS credentials. The secret should be created in the following
+      # format.
+      # ```
+      # kubectl -n pulsar create secret generic \
+      #   --from-file=GCS_SERVICE_ACCOUNT_PATH \
+      #   [secret name]
+      # ```
+      # secret: [k8s secret that stores GCS SERVICE ACCOUNT]
     s3:
       enabled: false
       s3ManagedLedgerOffloadRegion: "[YOUR REGION OF S3]"
@@ -1533,6 +1549,7 @@ toolset:
   ##
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
+  extraEnv: []
   configData:
     PULSAR_MEM: >
       -Xms64M
@@ -1634,6 +1651,12 @@ prometheus:
       memory: 256Mi
       cpu: 0.1
   # Definition of the serviceAccount used to run brokers.
+  affinity:
+    anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: preferredDuringSchedulingIgnoredDuringExecution
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
@@ -2202,6 +2225,10 @@ vault:
     size: 10Gi
     local_storage: true
     # storageClassName: ""
+
+# Support the addition of arbitrary resources to be deployed
+# This is simply an array of raw manifests
+extraResources: []
 
 custom_metric_server:
   component: "custom-metric-server"
