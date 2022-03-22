@@ -20,7 +20,7 @@
 apiVersion: v2
 appVersion: "0.0.11"
 description: StreamNative Platform Chart
-name: sn-platform
+name: sn-platform-presto
 version: 0.0.1
 home: https://streamnative.io
 sources:

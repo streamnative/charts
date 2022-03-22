@@ -30,6 +30,9 @@ initialize: true
 #       a higher control structure that is not part of the application.
 namespace: ""
 namespaceCreate: false
+stackName: sn-platform
+stackVersion: "2.0.0"
+fullnameOverride: "sn-platform"
 
 ###
 ### Global Settings
@@ -1295,3 +1298,6 @@ datadog:
       tags: {}
     prometheus:
       enabled: true
+
+vault:
+  component: "vault"

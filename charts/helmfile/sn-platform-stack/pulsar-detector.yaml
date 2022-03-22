@@ -4,6 +4,9 @@
 
 namespace: ""
 metadataPrefix: ""
+stackName: sn-platform
+stackVersion: "2.0.0"
+fullnameOverride: "sn-platform"
 
 auth:
   authentication:
@@ -59,3 +62,6 @@ service:
 pdb:
   usePolicy: true
   maxUnavailable: 1
+
+vault:
+  component: "vault"

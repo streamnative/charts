@@ -30,6 +30,9 @@ initialize: false
 #       a higher control structure that is not part of the application.
 namespace: ""
 namespaceCreate: false
+stackName: sn-platform
+stackVersion: "2.0.0"
+fullnameOverride: "sn-platform"
 
 pulsar_metadata:
   userProvidedZookeepers:
@@ -375,3 +378,6 @@ presto:
   service:
     spec:
       clusterIP: None
+
+vault:
+  component: "vault"

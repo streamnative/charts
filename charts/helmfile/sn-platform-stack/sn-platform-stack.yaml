@@ -5,31 +5,31 @@ helmDefaults:
 releases:
   - name: core
     namespace: helm-test
-    chart: ../sn-platform
+    chart: ../../sn-platform
     values:
       - "./sn-platform-core.yaml"
       - "./commons.yaml"
   - name: vault
     namespace: helm-test
-    chart: ../sn-platform-vault
+    chart: ../../sn-platform-vault
     values:
       - "./sn-platform-vault.yaml"
       - "./commons.yaml"
   - name: pulsar-detector
     namespace: helm-test
-    chart: ../pulsar-detector
+    chart: ../../pulsar-detector
     values:
       - "./pulsar-detector.yaml"
       - "./commons.yaml"
   - name: sn-console
     namespace: helm-test
-    chart: ../sn-console
+    chart: ../../sn-console
     values:
       - "./sn-console.yaml"
       - "./commons.yaml"
   - name: pulsar-sql
     namespace: helm-test
-    chart: ../sn-platform-presto
+    chart: ../../sn-platform-presto
     values:
       - "./sn-platform-presto.yaml"
       - "./commons.yaml"

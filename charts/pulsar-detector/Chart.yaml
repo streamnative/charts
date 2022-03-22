@@ -1,11 +1,12 @@
 apiVersion: v2
 name: pulsar-detector
 description: A Pulsar Detector Helm chart for Kubernetes
+type: application
+version: 0.0.1
+appVersion: "0.0.1"
 
 dependencies:
 - name: pulsar-common
   version: 0.1.0
   repository: file://../pulsar-common
-type: application
-version: 0.0.1
-appVersion: "0.0.1"
+

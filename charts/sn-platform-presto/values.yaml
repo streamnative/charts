@@ -46,22 +46,6 @@ pulsar_metadata:
 ## be stored under the provided path
 metadataPrefix: ""
 
-## Persistence
-##
-## If persistence is enabled, components that have state will
-## be deployed with PersistentVolumeClaims, otherwise, for test
-## purposes, they will be deployed with emptyDir
-##
-## This is a global setting that is applied to all components.
-## If you need to disable persistence for a component,
-## you can set the `volume.persistence` setting to `false` for
-## that component.
-volumes:
-  persistence: true
-  # configure the components to use local persistent volume
-  # the local provisioner should be installed prior to enable local persistent volume
-  local_storage: false
-
 ## AntiAffinity
 ##
 ## Flag to enable and disable `AntiAffinity` for all components.
