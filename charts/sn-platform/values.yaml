@@ -1183,8 +1183,8 @@ broker:
   offload:
     enabled: false
     use: true
-    managedLedgerMinLedgerRolloverTimeMinutes: "2"
-    managedLedgerMaxEntriesPerLedger: "5000"
+    managedLedgerMinLedgerRolloverTimeMinutes: "10"
+    managedLedgerMaxEntriesPerLedger: "50000"
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
