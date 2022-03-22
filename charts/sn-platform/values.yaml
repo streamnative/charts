@@ -1221,6 +1221,7 @@ broker:
       managedLedgerOffloadBucket: "[YOUR BLOB CONTAINER]"
       managedLedgerOffloadMaxBlockSizeInBytes: "67108864"
       managedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      managedLedgerOffloadServiceEndpoint: "https://your-container.blob.core.windows.net"
       # secret that stores azure credentials. The secret should be created in the following
       # format.
       # ```
