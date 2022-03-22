@@ -483,6 +483,8 @@ ingress:
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+    # Set external domain of the broker
+    # external_domain: your.external.broker.domain
   ## templates/presto-service-ingress.yaml
   ##
   ## Ingresses for exposing presto service publicly
@@ -1117,10 +1119,6 @@ broker:
   aop:
     enabled: false
     proxyEnabled: false
-  istio:
-    gateway:
-      selector:
-        istio: "ingressgateway"
   functionmesh:
     enabled: true
   resources:
