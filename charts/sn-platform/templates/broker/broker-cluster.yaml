@@ -143,6 +143,18 @@ spec:
           name: {{ .Values.broker.offload.s3.secret }}
           key: AWS_SECRET_ACCESS_KEY
     {{- end }}
+    {{- if and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret }}
+    - name: AZURE_STORAGE_ACCOUNT
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.azureblob.secret }}
+          key: AZURE_STORAGE_ACCOUNT
+    - name: AZURE_STORAGE_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.azureblob.secret }}
+          key: AZURE_STORAGE_ACCESS_KEY
+    {{- end }}
     {{- if not ( and .Values.broker.kop.enabled .Values.broker.advertisedDomain ) }}
     - name: POD_NAME
       valueFrom:
@@ -299,7 +311,8 @@ spec:
       ## Offloading settings
       {{- if .Values.broker.offload.enabled }}
       offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
-
+      managedLedgerMinLedgerRolloverTimeMinutes: "{{ .Values.broker.offload.managedLedgerMinLedgerRolloverTimeMinutes }}"
+      managedLedgerMaxEntriesPerLedger: "{{ .Values.broker.offload.managedLedgerMaxEntriesPerLedger }}"
       {{- if .Values.broker.offload.use }}
       managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
       {{- end }}
@@ -321,6 +334,13 @@ spec:
       s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
       s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
       {{- end }}
+      {{- if .Values.broker.offload.azureblob.enabled }}
+      # azureblob configuration from https://pulsar.apache.org/docs/en/tiered-storage-azure/
+      PULSAR_PREFIX_managedLedgerOffloadBucket: {{ .Values.broker.offload.azureblob.managedLedgerOffloadBucket }}
+      PULSAR_PREFIX_managedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadMaxBlockSizeInBytes }}"
+      PULSAR_PREFIX_managedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadReadBufferSizeInBytes }}"
+      PULSAR_PREFIX_managedLedgerOffloadServiceEndpoint: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadServiceEndpoint }}"
+      {{- end}}
       {{- end }}
   {{- if .Values.zookeeper.customTools.restore.enable }}
   initJobPod:
