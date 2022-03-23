@@ -1197,6 +1197,8 @@ broker:
   offload:
     enabled: false
     use: true
+    managedLedgerMinLedgerRolloverTimeMinutes: "10"
+    managedLedgerMaxEntriesPerLedger: "50000"
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
@@ -1228,6 +1230,21 @@ broker:
       #   [secret name]
       # ```
       # secret: [k8s secret that stores AWS credentials]
+    azureblob:
+      enabled: false
+      managedLedgerOffloadBucket: "[YOUR BLOB CONTAINER]"
+      managedLedgerOffloadMaxBlockSizeInBytes: "67108864"
+      managedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      managedLedgerOffloadServiceEndpoint: "https://your-container.blob.core.windows.net"
+      # secret that stores azure credentials. The secret should be created in the following
+      # format.
+      # ```
+      # kubectl -n pulsar create secret generic \
+      #   --from-literal=AZURE_STORAGE_ACCOUNT=[AZURE STORAGE ACCOUNT] \
+      #   --from-literal=AZURE_STORAGE_ACCESS_KEY=[AZURE STORAGE ACCESS KEY] \
+      #   [secret name]
+      # ```
+      # secret: [k8s secret that stores azure credentials]
    ## Operator Controller
   ## templates/broker-cluster.yaml
   operator:
