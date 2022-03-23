@@ -55,10 +55,6 @@ data:
   tlsCertRefreshCheckDurationSec: "300"
   brokerClientTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
   {{- end }}
-  {{- if not (and .Values.tls.enabled .Values.tls.broker.enabled) }}
-  brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }}
-  brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}
-  {{- end }}
 
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
