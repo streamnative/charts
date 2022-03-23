@@ -255,6 +255,7 @@ spec:
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  {{- if or .Values.zookeeper.advanced.staticServerList .Values.zookeeper.advanced.customStartupCommand }}
   advancedOptions:
     {{- if .Values.zookeeper.advanced.staticServerList }}
     staticServerList:
@@ -265,4 +266,5 @@ spec:
     customStartupCommand:
 {{ toYaml .Values.zookeeper.advanced.customStartupCommand | indent 6 }}
     {{- end }}
+  {{- end }}
 {{- end }}
