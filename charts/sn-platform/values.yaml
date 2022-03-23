@@ -1330,7 +1330,7 @@ functions:
 pulsar_detector:
   component: pulsar-detector
   replicaCount: 1
-
+  annotations: {}
   gracePeriod: 30
   port: 9000
   # nodeSelector:
@@ -2177,6 +2177,7 @@ vault:
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}
+  annotations: {}
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
