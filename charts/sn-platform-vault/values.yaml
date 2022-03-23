@@ -30,44 +30,12 @@ initialize: false
 #       a higher control structure that is not part of the application.
 namespace: ""
 namespaceCreate: false
-stackName: pulsar
+stackName: sn-platform
+stackVersion: "0.0.1"
 
 ###
 ### Global Settings
 ###
-
-## Pulsar Metadata Prefix
-##
-## By default, pulsar stores all the metadata at root path.
-## You can configure to have a prefix (e.g. "/my-pulsar-cluster").
-## If you do so, all the pulsar and bookkeeper metadata will
-## be stored under the provided path
-metadataPrefix: ""
-
-## Persistence
-##
-## If persistence is enabled, components that have state will
-## be deployed with PersistentVolumeClaims, otherwise, for test
-## purposes, they will be deployed with emptyDir
-##
-## This is a global setting that is applied to all components.
-## If you need to disable persistence for a component,
-## you can set the `volume.persistence` setting to `false` for
-## that component.
-volumes:
-  persistence: true
-  # configure the components to use local persistent volume
-  # the local provisioner should be installed prior to enable local persistent volume
-  local_storage: false
-
-## AntiAffinity
-##
-## Flag to enable and disable `AntiAffinity` for all components.
-## This is a global setting that is applied to all components.
-## If you need to disable AntiAffinity for a component, you can set
-## the `affinity.anti_affinity` settings to `false` for that component.
-affinity:
-  anti_affinity: true
 
 ## Components
 ##
@@ -153,8 +121,8 @@ vault:
       memory: "256Mi"
       cpu: "100m"
   volume:
-    persistence: true
-    name: "vault-volume"
+    persistence: false
+    name: "volume"
     size: 10Gi
-    local_storage: true
-    # storageClassName: ""
+    local_storage: false
+    storageClassName: "standard"
