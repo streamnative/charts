@@ -118,6 +118,9 @@ spec:
                     - {{ .Values.zookeeper.component }}
             topologyKey: "kubernetes.io/hostname"
           {{ else }}
+          {{- with .Values.zookeeper.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
           - weight: 100
             podAffinityTerm:
               labelSelector:

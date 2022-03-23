@@ -602,6 +602,17 @@ zookeeper:
     #       operator: In
     #       values:
     #       - zookeeper
+    # -- setup podAffinity for customized podAntiAffinity rules when type is preferredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - weight: 100
+    #   podAffinityTerm:
+    #     labelSelector:
+    #       matchExpressions:
+    #       - key: "component"
+    #         operator: In
+    #         values:
+    #         - zookeeper
+    #     topologyKey: "topology.kubernetes.io/zone"
 
 
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
@@ -833,6 +844,17 @@ bookkeeper:
     #       operator: In
     #       values:
     #       - bookkeeper
+    # -- setup podAffinity for customized podAntiAffinity rules when type is preferredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - weight: 100
+    #   podAffinityTerm:
+    #     labelSelector:
+    #       matchExpressions:
+    #       - key: "component"
+    #         operator: In
+    #         values:
+    #         - bookkeeper
+    #     topologyKey: "topology.kubernetes.io/zone"
 
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
     nodeAffinity: false
@@ -1118,6 +1140,17 @@ broker:
     #       operator: In
     #       values:
     #       - broker
+    # -- setup podAffinity for customized podAntiAffinity rules when type is preferredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - weight: 100
+    #   podAffinityTerm:
+    #     labelSelector:
+    #       matchExpressions:
+    #       - key: "component"
+    #         operator: In
+    #         values:
+    #         - broker
+    #     topologyKey: "topology.kubernetes.io/zone"
 
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
     nodeAffinity: false
@@ -1449,6 +1482,17 @@ proxy:
     #       operator: In
     #       values:
     #       - proxy
+    # -- setup podAffinity for customized podAntiAffinity rules when type is preferredDuringSchedulingIgnoredDuringExecution
+    # podAffinityTerms:
+    # - weight: 100
+    #   podAffinityTerm:
+    #     labelSelector:
+    #       matchExpressions:
+    #       - key: "component"
+    #         operator: In
+    #         values:
+    #         - proxy
+    #     topologyKey: "topology.kubernetes.io/zone"
 
     # -- setup nodeAffinity to assign the pods to specific nodes. use the original k8s nodeAffinity field  nodeSelectorTerms for flexibility
     nodeAffinity: false

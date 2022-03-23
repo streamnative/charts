@@ -99,6 +99,9 @@ spec:
                     - {{ .Values.proxy.component }}
             topologyKey: "kubernetes.io/hostname"
           {{ else }}
+          {{- with .Values.proxy.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
           - weight: 100
             podAffinityTerm:
               labelSelector:

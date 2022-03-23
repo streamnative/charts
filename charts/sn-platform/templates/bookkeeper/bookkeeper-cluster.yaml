@@ -85,6 +85,9 @@ spec:
                     - {{ .Values.bookkeeper.component }}
             topologyKey: "kubernetes.io/hostname"
           {{ else }}
+          {{- with .Values.bookkeeper.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
           - weight: 100
             podAffinityTerm:
               labelSelector:

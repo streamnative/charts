@@ -103,6 +103,9 @@ spec:
                     - {{ .Values.broker.component }}
             topologyKey: "kubernetes.io/hostname"
           {{ else }}
+          {{- with .Values.broker.affinity.podAffinityTerms }}
+            {{- toYaml . | nindent 10}}
+          {{- end }}
           - weight: 100
             podAffinityTerm:
               labelSelector:
