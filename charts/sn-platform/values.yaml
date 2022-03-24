@@ -250,38 +250,6 @@ images:
       repository: gcr.io/google_containers/pause
       tag: "0.3.0"
       pullPolicy: IfNotPresent
-  functionnmesh:
-    repository: streamnative/function-mesh
-    tag: v0.1.6
-    pullPolicy: IfNotPresent
-  pulsar_operator:
-    repository: streamnative/pulsar-operator
-    tag: v0.8.15
-    pullPolicy: IfNotPresent
-  bookkeeper_operator:
-    repository: streamnative/bookkeeper-operator
-    tag: v0.8.15
-    pullPolicy: IfNotPresent
-  zookeeper_operator:
-    repository: streamnative/zookeeper-operator
-    tag: v0.8.15
-    pullPolicy: IfNotPresent
-  cert_manager_controller:
-    repository: quay.io/jetstack/cert-manager-controller
-    tag: v1.3.1
-    pullPolicy: IfNotPresent
-  cert_manager_cainjector:
-    repository: quay.io/jetstack/cert-manager-cainjector
-    tag: v1.3.1
-    pullPolicy: IfNotPresent
-  cert_manager_webhook:
-    repository: quay.io/jetstack/cert-manager-webhook
-    tag: v1.3.1
-    pullPolicy: IfNotPresent
-  vault_operator:
-    repository: ghcr.io/banzaicloud/vault-operator
-    tag: v1.3.0
-    pullPolicy: IfNotPresent
 
 ## TLS
 ## templates/tls-certs.yaml
