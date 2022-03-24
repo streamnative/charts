@@ -29,6 +29,9 @@ metadata:
     component: "{{ .Values.bookkeeper.component }}-init"
 spec:
   template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
       containers:
@@ -59,6 +62,7 @@ spec:
            echo "Start init public key to secret";
            publicKey=$(wget -qO- http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200/v1/identity/oidc/.well-known/keys | base64 | tr -d \\n);
            kubectl patch secret {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key --type='json' -p='[{"op":"replace","path":"/data/publicKey","value":"'$publicKey'"}]' -n {{ template "pulsar.namespace" . }};
+           echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
         env:
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}

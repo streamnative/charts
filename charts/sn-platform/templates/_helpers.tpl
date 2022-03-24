@@ -68,6 +68,13 @@ Create the template labels.
 app: {{ template "pulsar.name" . }}
 release: {{ .Release.Name }}
 cluster: {{ template "pulsar.fullname" . }}
+{{- if .Values.istio.enabled }}
+{{- if .Values.istio.labels }}
+{{ toYaml .Values.istio.labels }}
+{{- else }}
+sidecar.istio.io/inject: "true"
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -86,5 +93,16 @@ Pulsar Cluster Name.
 {{- .Values.pulsar_metadata.clusterName }}
 {{- else }}
 {{- template "pulsar.fullname" . }}
+{{- end }}
+{{- end }}
+
+{{/*
+Istio gateway selector
+*/}}
+{{- define "pulsar.istio.gateway.selector" -}}
+{{- if .Values.istio.gateway.selector }}
+{{ toYaml .Values.istio.gateway.selector }}
+{{- else }}
+istio: ingressgateway
 {{- end }}
 {{- end }}

@@ -38,13 +38,12 @@ spec:
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
   pod:
+    {{- if .Values.broker.serviceAccount.use }}
     serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
+    {{- end }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.broker.component }}
-      {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
-      sidecar.istio.io/inject: "true"
-      {{- end }}
 {{- with .Values.broker.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
@@ -155,14 +154,6 @@ spec:
           name: {{ .Values.broker.offload.azureblob.secret }}
           key: AZURE_STORAGE_ACCESS_KEY
     {{- end }}
-    {{- if not ( and .Values.broker.kop.enabled .Values.broker.advertisedDomain ) }}
-    - name: POD_NAME
-      valueFrom:
-          fieldRef:
-            fieldPath: metadata.name
-    - name: PULSAR_PREFIX_kafkaAdvertisedListeners
-      value: PLAINTEXT://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ template "pulsar.namespace" . }}.svc.cluster.local:9092,SSL://$(POD_NAME).{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ template "pulsar.namespace" . }}.svc.cluster.local:9093
-    {{- end }}
     # not support envFrom currently
     #envFrom:
     #- secretRef:
@@ -194,13 +185,15 @@ spec:
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
-  {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
+  {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
   istio:
     enabled: true
     gateway:
-      create: true
       selector:
-        istio: {{ quote .Values.broker.istio.gateway.selector.istio }}
+{{- include "pulsar.istio.gateway.selector" . | indent 8 }}
+      tls:
+        certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
+        mode: simple
   {{- end }}
   {{- if .Values.broker.dnsNames }}
   dnsNames:
@@ -218,12 +211,16 @@ spec:
           name: builtin-connectors
       type: FunctionMesh
     {{- end }}
-    advertisedDomain: {{ quote .Values.broker.advertisedDomain }}
+    {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
+    advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
+    serviceURLGenerationPolicy: FQDN
+    {{- end }}
     {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) }}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
         enabled: true
+    {{- if .Values.broker.kop.tls.enabled }}
         tls:
           enabled: {{ .Values.broker.kop.tls.enabled }}
           trustCertsEnabled: {{ .Values.broker.kop.tls.trustCertsEnabled }}
@@ -243,6 +240,7 @@ spec:
           passwordSecretRef:
             name: cert-jks-passwd
             key: password
+    {{- end }}
     {{- end }}
     {{- end }}
     {{- if or .Values.broker.aop.enabled .Values.components.aop }}

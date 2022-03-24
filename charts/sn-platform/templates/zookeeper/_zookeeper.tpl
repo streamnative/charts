@@ -247,3 +247,16 @@ Define zookeeper gen-zk-conf volumes
     name: "{{ template "pulsar.fullname" . }}-genzkconf-configmap"
     defaultMode: 0755
 {{- end }}
+
+{{/*Define zookeeper service account*/}}
+{{- define "pulsar.zookeeper.serviceAccount" -}}
+{{- if .Values.zookeeper.serviceAccount.create -}}
+    {{- if .Values.zookeeper.serviceAccount.name -}}
+{{ .Values.zookeeper.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.zookeeper.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
