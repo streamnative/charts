@@ -39,9 +39,11 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.ingress.controller.component }}
+{{- if .Values.prometheus.scrape.ingress_controller}}
       annotations:
         prometheus.io/port: "10254"
         prometheus.io/scrape: "true"
+{{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:

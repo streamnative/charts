@@ -46,6 +46,7 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
+{{- if or .Values.prometheus.scrape.zookeeper .Values.monitoring.datadog .Values.zookeeper.autoRollDeployment .Values.zookeeper.annotations }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 8 }}
@@ -53,8 +54,13 @@ spec:
         {{- if .Values.zookeeper.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/zookeeper/zookeeper-configmap.yaml") . | sha256sum }}
         {{- end }}
+{{- if .Values.prometheus.scrape.zookeeper }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.zookeeper.ports.metrics  }}"
+{{- end }}
 {{- with .Values.zookeeper.annotations }}
 {{ toYaml . | indent 8 }}
+{{- end }}
 {{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}

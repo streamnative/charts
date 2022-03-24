@@ -44,14 +44,18 @@ spec:
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+{{- if or .Values.prometheus.scrape.proxy .Values.monitoring.datadog .Values.proxy.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.proxy.datadog.annotation" . | nindent 6 }}
       {{- end }}
+{{- if .Values.prometheus.scrape.proxy }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.proxy.ports.http }}"
+{{- end }}
 {{- with .Values.proxy.annotations }}
 {{ toYaml . | indent 6 }}
+{{- end }}
 {{- end }}
     {{- if .Values.proxy.readPublicKeyFromFile }}
     secretRefs:
@@ -118,6 +122,11 @@ spec:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: PULSAR_PREFIX_OIDCTokenAudienceID
     - name: brokerClientAuthenticationParameters
+      valueFrom:
+          secretKeyRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
+            key: brokerClientAuthenticationParameters
+    - name: PROXY_TOKEN
       valueFrom:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}

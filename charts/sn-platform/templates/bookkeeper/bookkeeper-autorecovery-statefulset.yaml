@@ -46,15 +46,19 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.autorecovery.component }}
+{{- if or .Values.prometheus.scrape.autorecovery .Values.autorecovery.autoRollDeployment .Values.autorecovery.annotations }}        
       annotations:
+{{- if .Values.prometheus.scrape.autorecovery}}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
+{{- end}}
         {{- if .Values.autorecovery.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/bookkeeper/bookkeeper-autorecovery-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+{{- end }}    
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:

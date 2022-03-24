@@ -597,9 +597,7 @@ zookeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
-  annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8000"
+  annotations: {}
   advanced:
     staticServerList: []
   securityContext: {}
@@ -1624,7 +1622,16 @@ configmapReload:
 prometheus:
   component: prometheus
   replicaCount: 1
-  # nodeSelector:
+  scrape:
+    autorecovery: true
+    bookkeeper: true
+    broker: true
+    function_worker: true
+    ingress_controller: true
+    node_exporter: true
+    proxy: true
+    zookeeper: true
+    # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
   tolerations: []

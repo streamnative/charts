@@ -45,17 +45,21 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.bookkeeper.component }}
+{{- if or .Values.prometheus.scrape.bookkeeper .Values.bookkeeper.autoRollDeployment .Values.monitoring.datadog .Values.bookkeeper.annotations }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.bookkeeper.datadog.annotation" . | nindent 8 }}
         {{- end }}
+{{- if .Values.prometheus.scrape.bookkeeper }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
+{{- end }}
         {{- if .Values.bookkeeper.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/bookkeeper/bookkeeper-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.bookkeeper.annotations }}
 {{ toYaml . | indent 8 }}
+{{- end }}
 {{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}

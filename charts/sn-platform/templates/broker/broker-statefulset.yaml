@@ -45,18 +45,22 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.broker.component }}
+{{- if or .Values.prometheus.scrape.broker .Values.monitoring.datadog .Values.broker.autoRollDeployment .Values.broker.annotations }}        
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.broker.datadog.annotation" . | nindent 8 }}
         {{- end }}
+{{- if .Values.prometheus.scrape.broker }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.broker.ports.http }}"
+{{- end }}
         {{- if .Values.broker.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/broker/broker-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+{{- end }}    
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
