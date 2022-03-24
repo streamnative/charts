@@ -120,6 +120,10 @@ spec:
         - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
       gcOptions:
         - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
     {{- if .Values.bookkeeper.operator.adopt_existing }}
     volumes:
     {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
@@ -132,10 +136,6 @@ spec:
     {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
     {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
-    {{- if .Values.global.imagePullSecrets }}
-    imagePullSecrets:
-{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
-    {{- end }}
   storage:
     journal:
       volumeClaimTemplate:
