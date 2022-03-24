@@ -31,6 +31,7 @@ GITHUB_TOKEN=${GITHUB_TOKEN:-"UNSET"}
 PUBLISH_CHARTS=${PUBLISH_CHARTS:-"false"}
 GITUSER=${GITUSER:-"UNSET"}
 GITEMAIL=${GITEMAIL:-"UNSET"}
+CHART="$1"
 
 # hack/common.sh need this variable to be set
 PULSAR_CHART_HOME=${CHARTS_HOME}
@@ -49,16 +50,11 @@ function release::ensure_dir() {
     mkdir -p ${dir}
 }
 
-function release::find_changed_charts() {
-    local charts_dir=$1
-    echo $(git diff --find-renames --name-only "$latest_tag_rev" -- ${charts_dir} | cut -d '/' -f 2 | uniq)
-}
 
 function release::package_chart() {
-    local chart=$1
-    echo "Packaging chart '$chart'..."
-    helm dependency update ${CHARTS_HOME}/charts/$chart
-    helm package ${CHARTS_HOME}/charts/$chart --destination ${CHARTS_PKGS}
+    echo "Packaging chart '${CHART}'..."
+    helm dependency update ${CHARTS_HOME}/charts/${CHART}
+    helm package ${CHARTS_HOME}/charts/${CHART} --destination ${CHARTS_PKGS}
 }
 
 function release::upload_packages() {
@@ -88,32 +84,12 @@ function release::publish_charts() {
 # hack::ensure_cr
 docker pull quay.io/helmpack/chart-releaser:v${CR_VERSION}
 
-git::fetch_tags
-
-latest_tag=$(git::find_latest_tag)
-echo "Latest tag: $latest_tag"
-
-latest_tag_rev=$(git::get_revision "$latest_tag")
-echo "$latest_tag_rev $latest_tag (latest tag)"
-
-head_rev=$(git::get_revision HEAD)
-echo "$head_rev HEAD"
-
-if [[ "$latest_tag_rev" == "$head_rev" ]]; then
-    echo "Do nothing. Exiting ..."
-    exit
-fi
-
 release::ensure_dir ${CHARTS_PKGS}
 release::ensure_dir ${CHARTS_INDEX}
 
-for chart in $(release::find_changed_charts charts); do
-    release::package_chart ${chart}
-done
+release::package_chart
 
 release::upload_packages
 release::update_chart_index
 
-if [[ "x${PUBLISH_CHARTS}" == "xtrue" ]]; then
-    release::publish_charts
-fi
+release::publish_charts
