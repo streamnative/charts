@@ -19,25 +19,51 @@
 
 name: Post commit - Publish Pulsar Helm Chart
 on:
-  push:
-    branches:
-      - master 
+  workflow_dispatch:
+    inputs:
+      chart:
+        description: name of chart
+        required: true
+        type: choice
+        options:
+          - function-mesh-operator
+          - image-puller
+          - local-storage-provisioner
+          - pulsar
+          - pulsar-operator
+          - sn-console
+          - sn-platform
+      branch:
+        description: version of base branch (such as 1.2)
+        required: true
+      release:
+        description: version of release branch (such as 1.2.1)
+        required: true
+
 jobs:
-  lint-test:
+  release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          ref: branch-${{ github.event.inputs.chart }}-${{ github.event.inputs.branch }}
+
+      - name: Upgrade chart to release version
+        run: sed -ri 's/version:\ [0-9]+\.[0-9]+\.[0-9]+/version:\ ${{ github.event.inputs.release }}/' charts/${{ github.event.inputs.chart }}/Chart.yaml
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: release-${{ github.event.inputs.chart }}-${{ github.event.inputs.release }}
+          title: Bump ${{ github.event.inputs.chart }} chart version to ${{ github.event.inputs.release }}
 
       - name: Install chart
         env:
           GITHUB_TOKEN: ${{ secrets.SNBOT_TOKEN }}
           SNBOT_USER: ${{ secrets.SNBOT_USER }}
           CHARTS_REPO: ${{ secrets.CHARTS_REPO }}
-          PUBLISH_CHARTS: ${{ secrets.PUBLISH_CHARTS }}
           GITUSER: ${{ secrets.GITUSER }}
           GITEMAIL: ${{ secrets.GITEMAIL }}
         run: |
-          .ci/release.sh
+          .ci/release.sh ${{ github.event.inputs.chart }}
