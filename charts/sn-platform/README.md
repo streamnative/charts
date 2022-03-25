@@ -182,6 +182,15 @@ monitoring:
   loki: false
   datadog: false
 ```
+3. Disable the authentication for proxy metrics in the release which you diabled the monitoring components. Add `PULSAR_PREFIX_authenticateMetricsEndpoint: "false"` to `proxy.configData`
+```yaml
+proxy:
+  ...
+  configData:
+    ...
+    PULSAR_PREFIX_authenticateMetricsEndpoint: "false"
+    ...
+```
 
 Follow the steps in [Deploy Pulsar clusters](#deploy-pulsar-clusters) to install each pulsar cluster
 
