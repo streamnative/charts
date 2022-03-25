@@ -1182,7 +1182,7 @@ broker:
     annotations: {}
   offload:
     enabled: false
-    # Mark this flag as deprecated and remove it in the future
+    # Mark this flag as deprecated and remove it in the future, it is recommended to use the enabled flag to decide whether to enabled or disabled offload
     use: true
     managedLedgerMinLedgerRolloverTimeMinutes: "10"
     managedLedgerMaxEntriesPerLedger: "50000"
