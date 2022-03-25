@@ -149,6 +149,10 @@ spec:
         - {{ .Values.zookeeper.configData.PULSAR_MEM }}
       gcOptions:
         - {{ .Values.zookeeper.configData.PULSAR_GC }}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
     {{- if .Values.zookeeper.operator.adopt_existing }}
     volumes:
     {{- include "pulsar.zookeeper.data.volumes" . | nindent 4 }}
@@ -162,10 +166,6 @@ spec:
     {{- end }}
     {{- end }}
   {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
-    {{- if .Values.global.imagePullSecrets }}
-    imagePullSecrets:
-{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
-    {{- end }}
   persistence:
     data:
       accessModes:
