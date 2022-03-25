@@ -1182,6 +1182,7 @@ broker:
     annotations: {}
   offload:
     enabled: false
+    # Mark this flag as deprecated and remove it in the future
     use: true
     managedLedgerMinLedgerRolloverTimeMinutes: "10"
     managedLedgerMaxEntriesPerLedger: "50000"
