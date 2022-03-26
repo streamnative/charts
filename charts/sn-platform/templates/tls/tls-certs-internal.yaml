@@ -39,9 +39,10 @@ spec:
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
   isCA: false
-  #keySize: {{ .Values.tls.common.keySize }}
-  #keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  #keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.keySize }}
+    algorithm: {{ .Values.tls.common.keyAlgorithm }}
+    encoding: {{ .Values.tls.common.keyEncoding }}
   usages:
     - server auth
     - client auth
@@ -85,9 +86,10 @@ spec:
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.keySize }}
+    algorithm: {{ .Values.tls.common.keyAlgorithm }}
+    encoding: {{ .Values.tls.common.keyEncoding }}
   usages:
     - server auth
     - client auth
@@ -124,9 +126,10 @@ spec:
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.keySize }}
+    algorithm: {{ .Values.tls.common.keyAlgorithm }}
+    encoding: {{ .Values.tls.common.keyEncoding }}
   usages:
     - server auth
     - client auth
@@ -162,9 +165,10 @@ spec:
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.keySize }}
+    algorithm: {{ .Values.tls.common.keyAlgorithm }}
+    encoding: {{ .Values.tls.common.keyEncoding }}
   usages:
     - server auth
     - client auth
@@ -197,9 +201,10 @@ spec:
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.keySize }}
+    algorithm: {{ .Values.tls.common.keyAlgorithm }}
+    encoding: {{ .Values.tls.common.keyEncoding }}
   usages:
     - server auth
     - client auth
@@ -235,9 +240,10 @@ spec:
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.keySize }}
+    algorithm: {{ .Values.tls.common.keyAlgorithm }}
+    encoding: {{ .Values.tls.common.keyEncoding }}
   usages:
     - server auth
     - client auth
@@ -274,9 +280,10 @@ spec:
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.keySize }}
+    algorithm: {{ .Values.tls.common.keyAlgorithm }}
+    encoding: {{ .Values.tls.common.keyEncoding }}
   usages:
     - server auth
     - client auth
