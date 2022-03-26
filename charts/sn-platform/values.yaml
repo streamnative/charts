@@ -304,7 +304,7 @@ tls:
     cert_name: tls-presto
   streamnative_console:
     enabled: false
-    cert_name: tls-streamnative_console
+    cert_name: tls-streamnative-console
 
 # Enable or disable broker authentication and authorization.
 auth:
