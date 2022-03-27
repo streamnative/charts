@@ -2170,6 +2170,8 @@ presto:
 
 vault:
   component: "vault"
+  # -- size indicates the number of vault pod
+  size: 3
   serviceAccount:
     created: true
     name: ""
