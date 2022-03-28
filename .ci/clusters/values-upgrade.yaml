@@ -30,10 +30,10 @@ images:
     hasCommand: false
 
 zookeeper:
-  replicaCount: 1
+  replicaCount: 2
   volumes:
     data:
-      size: 20Gi
+      size: 10Gi
 
 bookkeeper:
   replicaCount: 1
