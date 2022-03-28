@@ -41,9 +41,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.functions.component }}
-{{- if or .Values.prometheus.scrape.function_worker .Values.functions.autoRollDeployment .Values.functions.annotations }}
+{{- if or (and .Values.prometheus.scrape.function_worker .Values.prometheus.scrape.enabled) .Values.functions.autoRollDeployment .Values.functions.annotations }}
       annotations:
-{{- if .Values.prometheus.scrape.function_worker }}
+{{- if (and .Values.prometheus.scrape.function_worker .Values.prometheus.scrape.enabled) }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.functions.ports.http }}"
 {{- end }}

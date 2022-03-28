@@ -42,12 +42,12 @@ spec:
 {{- with .Values.zookeeper.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-{{- if or .Values.prometheus.scrape.zookeeper .Values.monitoring.datadog .Values.zookeeper.annotations }}
+{{- if or (and .Values.prometheus.scrape.zookeeper .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.zookeeper.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 6 }}
       {{- end }}
-{{- if .Values.prometheus.scrape.zookeeper }}
+{{- if (and .Values.prometheus.scrape.zookeeper .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.zookeeper.ports.metrics  }}"
 {{- end }}

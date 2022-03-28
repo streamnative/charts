@@ -40,9 +40,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.node_exporter.component }}
-{{- if or .Values.prometheus.scrape.node_exporter .Values.node_exporter.annotations }}
+{{- if or (and .Values.prometheus.scrape.node_exporter .Values.prometheus.scrape.enabled) .Values.node_exporter.annotations }}
       annotations:
-{{- if .Values.prometheus.scrape.node_exporter }}
+{{- if (and .Values.prometheus.scrape.node_exporter .Values.prometheus.scrape.enabled) }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "9100"
 {{- end}}

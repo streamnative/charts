@@ -45,12 +45,12 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.bookkeeper.component }}
-{{- if or .Values.prometheus.scrape.bookkeeper .Values.bookkeeper.autoRollDeployment .Values.monitoring.datadog .Values.bookkeeper.annotations }}
+{{- if or (and .Values.prometheus.scrape.bookkeeper .Values.prometheus.scrape.enabled) .Values.bookkeeper.autoRollDeployment .Values.monitoring.datadog .Values.bookkeeper.annotations }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.bookkeeper.datadog.annotation" . | nindent 8 }}
         {{- end }}
-{{- if .Values.prometheus.scrape.bookkeeper }}
+{{- if (and .Values.prometheus.scrape.bookkeeper .Values.prometheus.scrape.enabled) }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
 {{- end }}

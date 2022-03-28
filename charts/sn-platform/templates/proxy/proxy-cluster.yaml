@@ -44,12 +44,12 @@ spec:
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-{{- if or .Values.prometheus.scrape.proxy .Values.monitoring.datadog .Values.proxy.annotations }}
+{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.proxy.datadog.annotation" . | nindent 6 }}
       {{- end }}
-{{- if .Values.prometheus.scrape.proxy }}
+{{- if (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.proxy.ports.http }}"
 {{- end }}

@@ -39,7 +39,7 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.ingress.controller.component }}
-{{- if .Values.prometheus.scrape.ingress_controller}}
+{{- if and .Values.prometheus.scrape.ingress_controller .Values.prometheus.scrape.enabled }}
       annotations:
         prometheus.io/port: "10254"
         prometheus.io/scrape: "true"

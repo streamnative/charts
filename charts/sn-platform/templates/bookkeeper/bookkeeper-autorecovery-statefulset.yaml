@@ -46,9 +46,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.autorecovery.component }}
-{{- if or .Values.prometheus.scrape.autorecovery .Values.autorecovery.autoRollDeployment .Values.autorecovery.annotations }}        
+{{- if or (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) .Values.autorecovery.autoRollDeployment .Values.autorecovery.annotations }}        
       annotations:
-{{- if .Values.prometheus.scrape.autorecovery}}
+{{- if (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
 {{- end}}
