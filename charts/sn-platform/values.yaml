@@ -264,11 +264,13 @@ tls:
     duration: 2160h
     # 15d
     renewBefore: 360h
-    organization:
+    subject:
+      organizations:
       - pulsar
-    keySize: 4096
-    keyAlgorithm: rsa
-    keyEncoding: pkcs8
+    privateKey:
+      size: 4096
+      algorithm: RSA
+      encoding: PKCS8
   # settings for generating certs for proxy
   proxy:
     enabled: false
@@ -304,7 +306,7 @@ tls:
     cert_name: tls-presto
   streamnative_console:
     enabled: false
-    cert_name: tls-streamnative_console
+    cert_name: tls-streamnative-console
 
 # Enable or disable broker authentication and authorization.
 auth:

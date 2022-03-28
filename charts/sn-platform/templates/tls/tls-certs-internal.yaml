@@ -33,15 +33,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  #organization:
-#{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
   isCA: false
-  #keySize: {{ .Values.tls.common.keySize }}
-  #keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  #keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -79,15 +81,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -118,15 +122,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.bookie.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -156,15 +162,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.autorecovery.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -191,15 +199,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -229,15 +239,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.streamnative_console.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -268,15 +280,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
