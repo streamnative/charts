@@ -36,11 +36,13 @@ spec:
   vaultLabels:
   {{- include "pulsar.template.labels" . | nindent 4 }}
   
-  {{- if .Values.monitoring.datadog }}
+  {{- if or .Values.monitoring.datadog .Values.vault.annotations }}
   vaultAnnotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 4 }}
+{{- end }}
 {{- include "pulsar.vault.datadog.annotation" . | nindent 4 }}
-  {{- end }}
-{{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
+{{- end }}
 
   {{- if .Values.vault.tolerations }}
   tolerations:
@@ -58,6 +60,7 @@ spec:
     - name: {{ .Values.imagePullSecrets }}
   {{- end }}
   
+{{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
   volumeClaimTemplates:
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
@@ -72,11 +75,10 @@ spec:
   - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
     emptyDir: {}
   {{- end }}
-
+{{- end }}
   volumeMounts:
-  - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
-    mountPath: /vault/file
-
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
+      mountPath: /vault/file
   unsealConfig:
     kubernetes:
       secretNamespace: {{ template "pulsar.namespace" . }}
@@ -94,5 +96,5 @@ spec:
   resources:
     vault:
 {{ toYaml .Values.vault.resources | indent 6 }}
-  {{- end }}
 {{- end }}
+

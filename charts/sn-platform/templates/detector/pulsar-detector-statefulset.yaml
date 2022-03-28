@@ -41,6 +41,10 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.pulsar_detector.component }}
+{{- if .Values.pulsar_detector.annotations }}  
+      annotations:
+{{ toYaml .Values.pulsar_detector.annotations | indent 8 }}
+{{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
