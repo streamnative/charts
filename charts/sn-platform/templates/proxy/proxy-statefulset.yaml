@@ -45,17 +45,21 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.proxy.component }}
+{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.autoRollDeployment .Values.proxy.annotations }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.proxy.datadog.annotation" . | nindent 8 }}
         {{- end }}
+{{- if (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.proxy.ports.http }}"
+{{- end }}
         {{- if .Values.proxy.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/proxy/proxy-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.proxy.annotations }}
 {{ toYaml . | indent 8 }}
+{{- end }}
 {{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}

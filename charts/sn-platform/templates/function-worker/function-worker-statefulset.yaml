@@ -41,15 +41,19 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.functions.component }}
+{{- if or (and .Values.prometheus.scrape.function_worker .Values.prometheus.scrape.enabled) .Values.functions.autoRollDeployment .Values.functions.annotations }}
       annotations:
+{{- if (and .Values.prometheus.scrape.function_worker .Values.prometheus.scrape.enabled) }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.functions.ports.http }}"
+{{- end }}
         {{- if .Values.functions.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/broker/function-worker-configfile-configmap.yaml") . | sha256sum }}
     {{- end }}
 {{- with .Values.functions.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+{{- end }}    
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:

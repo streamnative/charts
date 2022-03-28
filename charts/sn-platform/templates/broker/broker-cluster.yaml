@@ -47,14 +47,18 @@ spec:
 {{- with .Values.broker.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+{{- if or (and .Values.prometheus.scrape.broker .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.broker.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.broker.datadog.annotation" . | nindent 6 }}
       {{- end }}
+{{- if (and .Values.prometheus.scrape.broker .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.broker.ports.http }}"
+{{- end }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
+{{- end }}
 {{- end }}
     {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) }}
     secretRefs:

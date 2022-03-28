@@ -46,14 +46,18 @@ spec:
 {{- with .Values.bookkeeper.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+{{- if or .Values.monitoring.datadog (and .Values.prometheus.scrape.bookkeeper .Values.prometheus.scrape.enabled) .Values.bookkeeper.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.bookkeeper.datadog.annotation" . | nindent 6 }}
       {{- end }}
+{{- if (and .Values.prometheus.scrape.bookkeeper .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
+{{- end }}
 {{- with .Values.bookkeeper.annotations }}
 {{ toYaml . | indent 6 }}
+{{- end }}
 {{- end }}
     {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
     affinity:
@@ -214,12 +218,16 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.autorecovery.component }}
+{{- if or (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) .Values.autorecovery.annotations }}
       annotations:
+{{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}        
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
+{{- end }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+{{- end }}      
       {{- if .Values.autorecovery.securityContext }}
       securityContext: {{ .Values.autorecovery.securityContext }}
       {{- end }}
