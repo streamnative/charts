@@ -250,9 +250,10 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- end }}
-      {{- if .Values.ingress.proxy.portOverride }}
+      {{- if .Values.ingress.proxy.httpPortOverride }}
       ports:
-        port: {{ .Values.ingress.proxy.portOverride }}
+      - port: {{ .Values.ingress.proxy.httpPortOverride }}
+        name: "http"
       {{- end }}
       {{- if ne .Values.ingress.proxy.type "LoadBalancer" }}
       type: {{ .Values.ingress.proxy.type }}
