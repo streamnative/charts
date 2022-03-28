@@ -430,8 +430,8 @@ ingress:
   ##
   ## Ingresses for exposing pulsar service publicly
   proxy:
-    enabled: false
-
+    enabled: true
+    portOverride: ""
     ## When these conditions are satisfied
     ##   1. Values.ingress.proxy.type == LoadBalancer
     ##   2. Values.tls.enabled == false and Values.tls.proxy.enabled == false
