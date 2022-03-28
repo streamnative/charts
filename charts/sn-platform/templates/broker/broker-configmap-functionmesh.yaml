@@ -21,7 +21,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "builtin-connectors"
+  name: {{ .Release.Name }}-{{ include "pulsar.builtinConnectorName" . }}
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}

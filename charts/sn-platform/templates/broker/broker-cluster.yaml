@@ -208,7 +208,7 @@ spec:
       enabled: true
       mesh:
         builtinConnectorsRef:
-          name: builtin-connectors
+          name: {{ include "pulsar.functionMeshBuiltinConnectors" . }}
       type: FunctionMesh
     {{- end }}
     {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}

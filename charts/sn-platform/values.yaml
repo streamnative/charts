@@ -1089,6 +1089,8 @@ broker:
     proxyEnabled: false
   functionmesh:
     enabled: true
+    # -- builtinConnectors specifies the configmap of connectors for broker, default is '<releaseName>-builtin-connectors'
+    # builtinConnectors: "xxx-builtin-connectors"
   resources:
     requests:
       memory: "512Mi"
