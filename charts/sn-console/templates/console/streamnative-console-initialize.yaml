@@ -58,7 +58,7 @@ spec:
         envFrom:
         - secretRef:
             name: {{ template "streamnative_console.vault-secret-key-name" . }}
-         {{- end }}
+        {{- end }}
         volumeMounts:
         - name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init-configmap"
           mountPath: "/root/init_instance/"
