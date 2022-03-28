@@ -397,3 +397,14 @@ pulsar service domain
   {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Get the name of builtin connector for function mesh
+*/}}
+{{- define "pulsar.builtinConnectorsConfigMapName" -}}
+{{- if .Values.broker.functionmesh.builtinConnectors -}}
+{{- printf "%s" .Values.broker.functionmesh.builtinConnectors -}}
+{{- else -}}
+{{- printf "%s-builtin-connectors" .Release.Name -}}
+{{- end -}}
+{{- end -}}
