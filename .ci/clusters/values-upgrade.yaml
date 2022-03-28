@@ -33,7 +33,7 @@ zookeeper:
   replicaCount: 1
   volumes:
     data:
-      size: 10Gi
+      size: 20Gi
 
 bookkeeper:
   replicaCount: 1
