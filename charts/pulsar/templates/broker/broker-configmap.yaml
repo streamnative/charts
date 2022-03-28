@@ -46,10 +46,7 @@ data:
   ## Offloading settings
   {{- if .Values.broker.offload.enabled }}
   offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
-
-  {{- if .Values.broker.offload.use }}
   managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
-  {{- end }}
 
   {{- if .Values.broker.offload.gcs.enabled }}
   # gcs

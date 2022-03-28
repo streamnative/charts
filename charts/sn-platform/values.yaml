@@ -1166,7 +1166,6 @@ broker:
     annotations: {}
   offload:
     enabled: false
-    use: true
     managedLedgerMinLedgerRolloverTimeMinutes: "10"
     managedLedgerMaxEntriesPerLedger: "50000"
     managedLedgerOffloadDriver: aws-s3
