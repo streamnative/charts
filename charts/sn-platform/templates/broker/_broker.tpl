@@ -409,7 +409,7 @@ Default name of builtin connectors
 {{/*
 Get the name of builtin connector for function mesh
 */}}
-{{- define "pulsar.functionMeshBuiltinConnectors" -}}
+{{- define "pulsar.builtinConnectorsConfigMapName" -}}
 {{- if .Values.broker.functionmesh.builtinConnectors -}}
 {{- printf "%s" .Values.broker.functionmesh.builtinConnectors -}}
 {{- else -}}
