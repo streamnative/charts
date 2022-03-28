@@ -35,9 +35,11 @@ spec:
   
   {{- if or .Values.monitoring.datadog .Values.vault.annotations }}
   vaultAnnotations:
+{{- if .Values.vault.annotations }}    
 {{ toYaml .Values.vault.annotations | indent 4 }}
+{{- end }}
 {{- include "pulsar.vault.datadog.annotation" . | nindent 4 }}
-  {{- end }}
+{{- end }}
 
   {{- if .Values.vault.tolerations }}
   tolerations:
