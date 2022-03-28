@@ -171,7 +171,7 @@ To deploy a Pulsar cluster, follow these steps.
 ### Deploy multiple pulsar clusters in one k8s cluster
 
 #### Requirements
-1. Release name should be unique in k8s cluster scope, and install each release in different namespace
+1. Release name should be unique in k8s cluster scope
 2. Only one release installs the monitoring components, others should disable them. If you want to deploy the monitoring for each release, you must disable `node_exporter` at least.
 ```yaml
 monitoring:
