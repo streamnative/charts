@@ -264,11 +264,13 @@ tls:
     duration: 2160h
     # 15d
     renewBefore: 360h
-    organization:
+    subject:
+      organizations:
       - pulsar
-    keySize: 4096
-    keyAlgorithm: RSA
-    keyEncoding: PKCS8
+    privateKey:
+      size: 4096
+      algorithm: RSA
+      encoding: PKCS8
   # settings for generating certs for proxy
   proxy:
     enabled: false
