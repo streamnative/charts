@@ -75,7 +75,6 @@ spec:
   - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
     emptyDir: {}
   {{- end }}
-{{- end }}
   volumeMounts:
     - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
       mountPath: /vault/file
@@ -98,3 +97,4 @@ spec:
 {{ toYaml .Values.vault.resources | indent 6 }}
 {{- end }}
 
+{{- end }}
