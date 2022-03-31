@@ -70,12 +70,12 @@ spec:
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
       {{- end }}
     {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
     affinity:
-      podAntiAffinity:
-        {{ if .Values.proxy.affinity.customRules }}
+      {{- if .Values.proxy.affinity.customRules }}
 {{ toYaml .Values.proxy.affinity.customRules | indent 8 }}
-        {{ else }}
+      {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
+      podAntiAffinity: 
         {{ .Values.proxy.affinity.type }}:
           {{ if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -112,7 +112,6 @@ spec:
                       - {{ .Values.proxy.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
-        {{ end }}
     {{- end }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
