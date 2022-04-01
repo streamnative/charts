@@ -240,8 +240,8 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       affinity:
-        {{- if .Values.bookkeeper.affinity.customRules }}
-{{ toYaml .Values.bookkeeper.affinity.customRules | indent 8 }}
+        {{- if .Values.autorecovery.affinity.customRules }}
+{{ toYaml .Values.autorecovery.affinity.customRules | indent 8 }}
         {{- end }}
         {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
         podAntiAffinity:
