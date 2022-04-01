@@ -80,12 +80,12 @@ spec:
 {{- with .Values.broker.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
     affinity:
+      {{- if .Values.broker.affinity.customRules }}
+{{ toYaml .Values.broker.affinity.customRules | indent 6 }}
+      {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
       podAntiAffinity:
-        {{ if .Values.broker.affinity.customRules }}
-{{ toYaml .Values.broker.affinity.customRules | indent 8 }}
-        {{ else }}
         {{ .Values.broker.affinity.type }}:
           {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -123,7 +123,6 @@ spec:
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
       {{ end }}
-    {{- end }}
     vars:
     {{- if .Values.auth.authentication.enabled }}
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
