@@ -123,6 +123,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
       {{ end }}
+    {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
     vars:
     {{- if .Values.auth.authentication.enabled }}
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
@@ -159,6 +160,7 @@ spec:
         secretKeyRef:
           name: {{ .Values.broker.offload.azureblob.secret }}
           key: AZURE_STORAGE_ACCESS_KEY
+    {{- end }}
     {{- end }}
 {{- with .Values.broker.extraEnv}}
 {{ toYaml . | indent 4 }}
