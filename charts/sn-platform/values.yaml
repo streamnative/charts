@@ -1095,6 +1095,13 @@ broker:
   extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
+  # extra environment variable to define for the containers
+  extraEnv: []
+  # extra secrets to mount for the pods
+  # extraSecretRefs:
+  # - mountPath: /path/to/mount
+  #   secretName: "[secret name]"
+  extraSecretRefs: []
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1406,6 +1413,13 @@ proxy:
   extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
+  # extra environment variable to define for the containers
+  extraEnv: []
+  # extra secrets to mount for the pods
+  # extraSecretRefs:
+  # - mountPath: /path/to/mount
+  #   secretName: "[secret name]"
+  extraSecretRefs: []
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
     # Specifies whether to use a service account to run this component
