@@ -43,3 +43,9 @@ occasionally troubles do surface outside of our control. We've collected
 tips and tricks for troubleshooting common issues. Please examine these first before raising an [issue](https://github.com/streamnative/charts/issues/new/choose), and feel free to add to them by raising a [Pull Request](https://github.com/streamnative/charts/compare)!
 
 
+## Release Process
+
+- Open https://github.com/streamnative/charts/actions/workflows/release.yml
+- Click the `Run workflow` button which is in the right side
+- Choose the name of chart you want to release, input its base branch version and release version
+- Click `Run workflow`
