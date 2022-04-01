@@ -59,12 +59,12 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
     affinity:
+      {{- if .Values.bookkeeper.affinity.customRules }}
+{{ toYaml .Values.bookkeeper.affinity.customRules | indent 6 }}
+      {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
       podAntiAffinity:
-        {{ if .Values.bookkeeper.affinity.customRules }}
-{{ toYaml .Values.bookkeeper.affinity.customRules | indent 8 }}
-        {{ else }}
         {{ .Values.bookkeeper.affinity.type }}:
           {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -101,8 +101,7 @@ spec:
                       - {{ .Values.bookkeeper.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
-      {{ end }}
-    {{- end }}
+      {{- end }}
     {{- if .Values.bookkeeper.resources }}
     resources:
 {{ toYaml .Values.bookkeeper.resources | indent 6 }}
@@ -240,8 +239,11 @@ spec:
 {{ toYaml .Values.autorecovery.tolerations | indent 8 }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
-      {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
       affinity:
+        {{- if .Values.autorecovery.affinity.customRules }}
+{{ toYaml .Values.autorecovery.affinity.customRules | indent 8 }}
+        {{- end }}
+        {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
         podAntiAffinity:
           {{ .Values.autorecovery.affinity.type }}:
             {{ if eq .Values.autorecovery.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
@@ -279,7 +281,7 @@ spec:
                         - {{ .Values.autorecovery.component }}
                 topologyKey: "kubernetes.io/hostname"
             {{ end }}
-      {{- end }}
+        {{- end }}
       {{- if .Values.autorecovery.resources }}
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
