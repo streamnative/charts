@@ -83,6 +83,9 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
+{{- with .Values.toolset.extraVolumeMounts }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       {{- if .Values.components.kop }}
       - name: "kafka"
         image: "{{ .Values.images.toolset.kafka.repository }}:{{ .Values.images.toolset.kafka.tag }}"
@@ -109,10 +112,16 @@ spec:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.kafka.conf.volumeMounts" . | nindent 8 }}
+{{- with .Values.toolset.extraVolumeMounts }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       {{- end }}
       volumes:
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.token.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.log.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.kafka.conf.volumes" . | nindent 6 }}
+{{- with .Values.toolset.extraVolumes }}
+{{ toYaml . | indent 6 }}
+{{- end }}
 {{- end }}
