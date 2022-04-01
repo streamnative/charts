@@ -72,7 +72,7 @@ spec:
     {{- end }}
     affinity:
       {{- if .Values.proxy.affinity.customRules }}
-{{ toYaml .Values.proxy.affinity.customRules | indent 8 }}
+{{ toYaml .Values.proxy.affinity.customRules | indent 6 }}
       {{- end }}
       {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
       podAntiAffinity: 

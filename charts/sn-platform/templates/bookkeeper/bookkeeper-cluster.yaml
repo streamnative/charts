@@ -241,6 +241,9 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
       affinity:
+        {{- if .Values.bookkeeper.affinity.customRules }}
+{{ toYaml .Values.bookkeeper.affinity.customRules | indent 8 }}
+        {{- end }}
         podAntiAffinity:
           {{ .Values.autorecovery.affinity.type }}:
             {{ if eq .Values.autorecovery.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}

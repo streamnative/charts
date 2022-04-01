@@ -94,9 +94,9 @@ spec:
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
     {{- end }}
-    affinity:d
+    affinity:
       {{- if .Values.zookeeper.affinity.customRules }}
-{{ toYaml .Values.zookeeper.affinity.customRules | indent 8 }}
+{{ toYaml .Values.zookeeper.affinity.customRules | indent 6 }}
       {{- end }}
       {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity }}
       podAntiAffinity:
