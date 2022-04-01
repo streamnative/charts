@@ -112,7 +112,7 @@ spec:
                       - {{ .Values.proxy.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
-    {{- end }}
+      {{- end }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
