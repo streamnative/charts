@@ -60,8 +60,8 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-    {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) }}
     secretRefs:
+    {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) }}
     {{- if .Values.broker.publicKeyPath }}
     - mountPath: {{ .Values.broker.publicKeyPath }}
     {{- else }}
@@ -77,6 +77,9 @@ spec:
       secretName: {{ .Values.broker.offload.gcs.secret }}
     {{- end }}
     {{- end }}
+{{- with .Values.broker.extraSecretRefs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
     {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
     affinity:
       podAntiAffinity:
@@ -160,6 +163,9 @@ spec:
           key: AZURE_STORAGE_ACCESS_KEY
     {{- end }}
     {{- end }}
+{{- with .Values.broker.extraEnv}}
+{{ toYaml . | indent 4 }}
+{{- end }}
     # not support envFrom currently
     #envFrom:
     #- secretRef:
