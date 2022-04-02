@@ -70,7 +70,7 @@ function release::update_chart_index() {
 function release::publish_charts() {
     git config user.email "${GITEMAIL}"
     git config user.name "${GITUSER}"
-
+    git pull
     git checkout gh-pages
     cp --force ${CHARTS_INDEX}/index.yaml index.yaml
     git add index.yaml
