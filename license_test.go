@@ -66,8 +66,9 @@ var otherCheck = regexp.MustCompile(`#
 `)
 
 var skip = map[string]bool{
-	"charts/function-mesh-operator/crds": true,
-	"charts/pulsar-operator/crds": true,
+	"charts/function-mesh-operator/crds":    true,
+	"charts/pulsar-operator/crds":           true,
+	"charts/pulsar-resources-operator/crds": true,
 }
 
 func TestLicense(t *testing.T) {
