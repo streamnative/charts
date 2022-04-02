@@ -66,4 +66,4 @@ jobs:
           GITUSER: ${{ secrets.GITUSER }}
           GITEMAIL: ${{ secrets.GITEMAIL }}
         run: |
-          .ci/release.sh ${{ github.event.inputs.chart }} release-${{ github.event.inputs.chart }}-${{ github.event.inputs.release }}
+          .ci/release.sh ${{ github.event.inputs.chart }}
