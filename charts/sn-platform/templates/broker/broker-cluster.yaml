@@ -60,8 +60,8 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
+{{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
     secretRefs:
-    {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) }}
     {{- if .Values.broker.publicKeyPath }}
     - mountPath: {{ .Values.broker.publicKeyPath }}
     {{- else }}
@@ -76,9 +76,9 @@ spec:
     - mountPath: /pulsar/srvaccts/gcs.json
       secretName: {{ .Values.broker.offload.gcs.secret }}
     {{- end }}
-    {{- end }}
 {{- with .Values.broker.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
+{{- end }}
 {{- end }}
     affinity:
       {{- if .Values.broker.affinity.customRules }}
