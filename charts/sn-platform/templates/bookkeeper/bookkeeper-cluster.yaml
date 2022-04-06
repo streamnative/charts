@@ -141,6 +141,8 @@ spec:
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
+      numVolumes: {{ .Values.bookeeper.volumes.journal.numVolumes }}
+      numDirsPerVolume: {{ .Values.bookeeper.volumes.journal.numDirsPerVolume }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
@@ -149,6 +151,8 @@ spec:
             storage: {{ .Values.bookkeeper.volumes.journal.size }}
         {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 8 }}
     ledger:
+      numVolumes: {{ .Values.bookeeper.volumes.ledger.numVolumes }}
+      numDirsPerVolume: {{ .Values.bookeeper.volumes.ledger.numDirsPerVolume }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
