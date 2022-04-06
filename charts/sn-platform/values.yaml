@@ -877,6 +877,10 @@ bookkeeper:
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
+    BOOKIE_EXTRA_OPTS: >
+      -Dio.netty.leakDetectionLevel=disabled
+      -Dio.netty.recycler.maxCapacity.default=1000
+      -Dio.netty.recycler.linkCapacity=1024
     # we use `bin/pulsar` for starting bookie daemons
     PULSAR_MEM: >
       -Xms128m
