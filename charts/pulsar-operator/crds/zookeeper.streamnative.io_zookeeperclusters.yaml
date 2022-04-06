@@ -1,3 +1,4 @@
+
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -797,6 +798,8 @@ spec:
                       additionalProperties:
                         type: string
                       type: object
+                    debug:
+                      type: boolean
                     imagePullSecrets:
                       items:
                         properties:
@@ -1188,6 +1191,18 @@ spec:
                             x-kubernetes-int-or-string: true
                           type: object
                       type: object
+                    secretRefs:
+                      items:
+                        properties:
+                          mountPath:
+                            type: string
+                          secretName:
+                            type: string
+                        required:
+                          - mountPath
+                          - secretName
+                        type: object
+                      type: array
                     securityContext:
                       properties:
                         fsGroup:
