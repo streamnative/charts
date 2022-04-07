@@ -37,6 +37,8 @@ for i in ${components[@]}; do
     docker pull $repository:$tag
 done
 
+mkdir -p $sn_platform_tag
+cd $sn_platform_tag
 # docker save -o $sn_platform_tag.tar $image_list
 # test
 docker save -o $sn_platform_tag.tar jimmidyson/configmap-reload:v0.3.0
