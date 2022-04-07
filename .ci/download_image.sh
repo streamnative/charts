@@ -35,7 +35,7 @@ if [[ $sn_platform_tag =~ $regexp ]]; then
         repository=$(cat values.yaml | yq .images.$i.repository)
         tag=$(cat values.yaml | yq .images.$i.tag)
         echo "Downloading docker image: $repository:$tag"
-        image_list=image_list" $repository:$tag"
+        image_list=$image_list" $repository:$tag"
         docker pull $repository:$tag
     done
 
