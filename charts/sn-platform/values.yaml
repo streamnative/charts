@@ -271,10 +271,12 @@ tls:
       size: 4096
       algorithm: RSA
       encoding: PKCS8
+    caSecretName:
   # settings for generating certs for proxy
   proxy:
     enabled: false
     cert_name: tls-proxy
+    certSecretName:
     untrustedCa: true
   # settings for generating certs for proxy
   pulsar_detector:
@@ -284,6 +286,7 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+    certSecretName:
   functions:
     enabled: false
     cert_name: tls-function

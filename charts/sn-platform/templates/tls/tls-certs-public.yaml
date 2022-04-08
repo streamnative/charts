@@ -27,7 +27,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   # Secret names are always required.
-  secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+  secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   #commonName: {{ template "pulsar.service_domain" . }}
   dnsNames:
     #- {{ template "pulsar.service_domain" . }}

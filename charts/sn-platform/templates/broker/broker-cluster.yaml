@@ -241,7 +241,7 @@ spec:
     {{- if .Values.broker.kop.tls.certSecretName }}
           certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
     {{ else }}
-          certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
     {{- end }}
     {{- if .Values.broker.kop.tls.passwordSecretRef }}
           passwordSecretRef:

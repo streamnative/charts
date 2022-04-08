@@ -30,7 +30,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   # Secret names are always required.
-  secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+  secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   subject:

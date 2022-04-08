@@ -241,7 +241,7 @@ spec:
   {{ if .Values.proxy.tlsSecretName }}
   certSecretName: {{ .Values.proxy.tlsSecretName }}
   {{ else }}
-  certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+  certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   {{- end }}
   {{- end }}
   apiObjects:
