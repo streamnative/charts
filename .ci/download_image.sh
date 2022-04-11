@@ -41,9 +41,9 @@ if [[ $sn_platform_tag =~ $regexp ]]; then
 
     mkdir -p $sn_platform_tag
     cd $sn_platform_tag
-    docker save -o $sn_platform_tag.tar $image_list
+    # docker save -o $sn_platform_tag.tar $image_list
     # test
-    # docker save -o $sn_platform_tag.tar jimmidyson/configmap-reload:v0.3.0
+    docker save -o $sn_platform_tag.tar jimmidyson/configmap-reload:v0.3.0
 else
     echo "Please use the correct version number format => sn-platform-x.x.x"
     echo "Currently only sn-platform images are supported for upload"
