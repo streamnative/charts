@@ -43,4 +43,4 @@ jobs:
         ALI_ACCESS_KEY_ID: ${{ secrets.ALI_ACCESS_KEY_ID }}
         ALI_SECRET_ACCESS_KEY: ${{ secrets.ALI_SECRET_ACCESS_KEY }}
     - name: Upload the file to the chosen OSS bucket
-      run: ./ossutil64 --config-file .ossutilconfig cp ${{ github.workspace }}/sn-platform-1.3.1 oss://${ALI_OSS_BUCKET}/sn-products -r -f
+      run: ./ossutil64 --config-file .ossutilconfig cp ${{ github.workspace }}/sn-platform-1.3.1 oss://sn-products/sn-products -r -f
