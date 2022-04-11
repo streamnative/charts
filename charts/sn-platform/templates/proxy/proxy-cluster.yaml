@@ -57,7 +57,7 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-    {{- if .Values.proxy.readPublicKeyFromFile }}
+{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
     secretRefs:
     {{- if .Values.proxy.publicKeyPath }}
     - mountPath: {{ .Values.proxy.publicKeyPath }}
@@ -69,9 +69,9 @@ spec:
       {{- else }}
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
       {{- end }}
-    {{- end }}
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
+{{- end }}
 {{- end }}
     affinity:
       {{- if .Values.proxy.affinity.customRules }}
