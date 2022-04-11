@@ -40,6 +40,7 @@ if [[ $sn_platform_tag =~ $regexp ]]; then
         image_list=$image_list" $repository:$tag"
         docker pull $repository:$tag
     done
+    echo ${image_list}
 
     uniq_image_list=($(echo ${image_list[*]} | sed 's/ /\n/g'|sort| uniq))
     for j in ${uniq_image_list[@]}; do
