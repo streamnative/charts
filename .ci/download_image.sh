@@ -44,7 +44,7 @@ if [[ $sn_platform_tag =~ $regexp ]]; then
 
     uniq_image_list=($(echo ${image_list[*]} | sed 's/ /\n/g'|sort| uniq))
     for j in ${uniq_image_list[@]}; do
-        image=$(echo ${j} | sed 's/:/-/g');
+        image=$(echo ${j} | sed 's/:/-/g;s/\//-/g');
         docker save -o ${image}.tar ${j}
     done
     # test
