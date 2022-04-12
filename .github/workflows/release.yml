@@ -68,3 +68,35 @@ jobs:
         run: |
           .ci/release.sh ${{ github.event.inputs.chart }} release-${{ github.event.inputs.chart }}-${{ github.event.inputs.release }}
 
+      # Upload all images to aws s3 and ali oss
+      - name: Setup environments
+        run: |
+          sudo apt update
+          sudo snap install yq
+
+      - name: Download and package all image for sn platform
+        run: |
+          .ci/download_image.sh ${{ github.event.inputs.chart }}-${{ github.event.inputs.release }}
+
+      - uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'us-east-1'   # optional: defaults to us-east-1
+          SOURCE_DIR: ${{ github.event.inputs.chart }}-${{ github.event.inputs.release }} 
+          DEST_DIR: ${{ github.event.inputs.chart }}-${{ github.event.inputs.release }}
+
+      - name: Install Alibaba Cloud OSSUTIL
+        run: wget http://gosspublic.alicdn.com/ossutil/1.6.10/ossutil64 && chmod +x ossutil64
+      - name: Configure Alibaba Cloud OSSUTIL
+        run: ./ossutil64 config -i ${ALI_ACCESS_KEY_ID} -k ${ALI_SECRET_ACCESS_KEY} -e ${ALI_OSS_ENDPOINT} -c .ossutilconfig
+        env:
+          ALI_OSS_ENDPOINT: ${{ secrets.ALI_OSS_ENDPOINT }}
+          ALI_ACCESS_KEY_ID: ${{ secrets.ALI_ACCESS_KEY_ID }}
+          ALI_SECRET_ACCESS_KEY: ${{ secrets.ALI_SECRET_ACCESS_KEY }}
+      - name: Upload the file to the chosen OSS bucket
+        run: ./ossutil64 --config-file .ossutilconfig cp ${{ github.workspace }}/${{ github.event.inputs.chart }}-${{ github.event.inputs.release }} oss://${{ secrets.ALI_OSS_BUCKET }}/sn-products/${{ github.event.inputs.chart }}-${{ github.event.inputs.release }} -r -f
+

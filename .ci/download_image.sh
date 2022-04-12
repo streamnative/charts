@@ -25,7 +25,15 @@ components=(
     custom_metric_server
     pulsar_metadata
     configmapReload
-    external_dns)
+    external_dns
+    functionnmesh
+    pulsar_operator
+    bookkeeper_operator
+    zookeeper_operator
+    cert_manager_controller
+    cert_manager_cainjector
+    cert_manager_webhook
+    vault_operator)
 sn_platform_tag=$1
 regexp="^sn-platform-([0-9]{1,3})\.([0-9]{0,3})\.([0-9]{0,3})$"
 mkdir -p $sn_platform_tag
