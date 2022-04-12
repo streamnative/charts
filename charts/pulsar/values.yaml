@@ -217,10 +217,12 @@ tls:
     keySize: 4096
     keyAlgorithm: rsa
     keyEncoding: pkcs8
+    caSecretName:
   # settings for generating certs for proxy
   proxy:
     enabled: false
     cert_name: tls-proxy
+    certSecretName:
     untrustedCa: true
   # settings for generating certs for proxy
   pulsar_detector:
@@ -230,11 +232,13 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+    certSecretName:
   brokerClient:
     enabled: false
   functions:
     enabled: false
     cert_name: tls-function
+    certSecretName:
   # settings for generating certs for kop
   kop:
     enabled: false
@@ -245,22 +249,28 @@ tls:
   bookie:
     enabled: false
     cert_name: tls-bookie
+    certSecretName:
   # settings for generating certs for zookeeper
   zookeeper:
     enabled: false
     cert_name: tls-zookeeper
+    certSecretName:
   # settings for generating certs for recovery
   autorecovery:
     cert_name: tls-recovery
+    certSecretName:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
+    certSecretName:
   pulsar_manager:
     enabled: false
     cert_name: tls-pulsar-manager
+    certSecretName:
   presto:
     enabled: false
     cert_name: tls-presto
+    certSecretName:
 
 # Enable or disable broker authentication and authorization.
 auth:

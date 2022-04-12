@@ -108,7 +108,7 @@ Define proxy certs volumes
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -116,7 +116,7 @@ Define proxy certs volumes
   {{- end }}
 - name: proxy-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+    secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -126,7 +126,7 @@ Define proxy certs volumes
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
 - name: broker-ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -284,5 +284,16 @@ https://{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}:{{ 
     {{- end -}}
 {{- else -}}
 {{ .Values.proxy.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Proxy TLS certificate secret name
+*/}}
+{{- define "pulsar.proxy.tls.secret.name" -}}
+{{- if .Values.tls.proxy.certSecretName -}}
+{{- .Values.tls.proxy.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}
 {{- end -}}
 {{- end -}}
