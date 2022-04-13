@@ -186,6 +186,11 @@ spec:
               name: ca
               readOnly: true
             {{- end}}
+            {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
+            - name: presto-certs
+              mountPath: "/pulsar/certs/presto"
+              readOnly: true
+            {{- end}}
           ports:
             - name: http
               containerPort: {{ .Values.presto.worker.ports.http }}
@@ -204,11 +209,21 @@ spec:
         {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
         - name: ca
           secret:
-            secretName: "{{ .Release.Name }}-ca-tls"
+            secretName: "{{ template "pulsar.tls.ca.secret.name" . }} "
             items:
               - key: ca.crt
                 path: ca.crt
         {{- end}}
+        {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
+        - name: presto-certs
+          secret:
+            secretName: "{{ template "pulsar.presto.tls.secret.name" . }}"
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+        {{- end }}
         - name: config-volume
           configMap:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}"

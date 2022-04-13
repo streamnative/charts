@@ -138,6 +138,10 @@ spec:
     {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
     {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
     {{- end }}
+    {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+    volumes:
+    {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
+    {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
@@ -353,6 +357,10 @@ spec:
         mountPath: /pulsar/data/bookkeeper/ledgers
       {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
       {{- include "pulsar.bookkeeper.log.volumeMounts" . | nindent 6 }}
+      {{- end }}
+      {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+      volumeMounts:
+      {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
       {{- end }}
     autoRecoveryStatefulSet:
       metadata:

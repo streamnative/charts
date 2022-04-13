@@ -73,6 +73,10 @@ spec:
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+    {{- if .Values.tls.proxy.enabled }}
+    volumes:
+    {{- include "pulsar.proxy.certs.volumes" . | nindent 4 }}
+    {{- end }}
     affinity:
       {{- if .Values.proxy.affinity.customRules }}
 {{ toYaml .Values.proxy.affinity.customRules | indent 6 }}
@@ -245,6 +249,11 @@ spec:
   {{- end }}
   {{- end }}
   apiObjects:
+    {{- if .Values.tls.proxy.enabled }}
+    statefulSet:
+      volumeMounts:
+    {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 6 }}
+    {{- end }}
     externalService:
   {{- if .Values.ingress.proxy.enabled }}
       metadata:
@@ -268,7 +277,6 @@ spec:
       exposeSSLPort: true 
       {{- end }}
       {{- end }}
-
   {{- else }}
       {}
   {{- end }}

@@ -314,4 +314,3 @@ Define Proxy TLS certificate secret name
 {{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}
 {{- end -}}
 {{- end -}}
-

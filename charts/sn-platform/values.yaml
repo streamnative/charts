@@ -290,23 +290,29 @@ tls:
   functions:
     enabled: false
     cert_name: tls-function
+    certSecretName:
   # settings for generating certs for bookies
   bookie:
     enabled: false
     cert_name: tls-bookie
+    certSecretName:
   # settings for generating certs for zookeeper
   zookeeper:
     enabled: false
     cert_name: tls-zookeeper
+    certSecretName:
   # settings for generating certs for recovery
   autorecovery:
     cert_name: tls-recovery
+    certSecretName:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
+    certSecretName:
   presto:
     enabled: false
     cert_name: tls-presto
+    certSecretName:
   streamnative_console:
     enabled: false
     cert_name: tls-streamnative-console
