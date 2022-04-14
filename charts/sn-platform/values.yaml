@@ -2191,6 +2191,7 @@ presto:
 
 vault:
   component: "vault"
+  update: false
   serviceAccount:
     created: true
     name: ""
