@@ -77,6 +77,8 @@ spec:
           value: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}
+        - name: VAULT_TTL
+          value: {{ .Values.vault.ttl | default "12h" }}
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
