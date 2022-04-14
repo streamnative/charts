@@ -2194,6 +2194,8 @@ vault:
   serviceAccount:
     created: true
     name: ""
+  # time to live for service-account and user
+  ttl: 12h
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}
