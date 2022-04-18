@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.components.vault }}
+{{- if .Values.vault.oidcToken.update }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -29,7 +30,6 @@ metadata:
   annotations:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": hook-succeeded
 spec:
   template:
     metadata:
@@ -85,6 +85,7 @@ spec:
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}
         - name: VAULT_TTL
-          value: {{ .Values.vault.ttl | default "12h" }}
+          value: {{ .Values.vault.oidcToken.ttl | default "12h" }}
       restartPolicy: Never
+{{- end }}
 {{- end }}
