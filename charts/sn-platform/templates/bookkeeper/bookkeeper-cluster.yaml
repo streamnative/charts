@@ -158,35 +158,31 @@ spec:
         {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 8 }}
     reclaimPolicy: Delete
   {{- end }}
-  {{- if .Values.bookkeeper.custom }}
   config:
     custom:
-{{ toYaml .Values.bookkeeper.custom | indent 6 }}
-  {{- end }}
-  conf:
-{{ toYaml .Values.bookkeeper.configData | indent 4 }}
-    zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
-    # enable bookkeeper http server
-    httpServerEnabled: "true"
-    httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
-    # config the stats provider
-    statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
-    # use hostname as the bookie id
-    useHostNameAsBookieID: "true"
-    {{- if .Values.components.autorecovery }}
-    # disable auto recovery on bookies since we will start AutoRecovery in separated pods
-    autoRecoveryDaemonEnabled: "false"
-    {{- end }}
-    # Do not retain journal files as it increase the disk utilization
-    journalMaxBackups: "0"
-    {{- if .Values.bookkeeper.operator.adopt_existing }}
-    # if adopting existing bk cluster then also keep existing ledger/journal dir setting
-    journalDirectories: "/pulsar/data/bookkeeper/journal"
-    PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
-    ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
-    PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
-    {{- end }}
-    BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
+{{ toYaml .Values.bookkeeper.configData | indent 6 }}
+      zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+      # enable bookkeeper http server
+      httpServerEnabled: "true"
+      httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
+      # config the stats provider
+      statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
+      # use hostname as the bookie id
+      useHostNameAsBookieID: "true"
+      {{- if .Values.components.autorecovery }}
+      # disable auto recovery on bookies since we will start AutoRecovery in separated pods
+      autoRecoveryDaemonEnabled: "false"
+      {{- end }}
+      # Do not retain journal files as it increase the disk utilization
+      journalMaxBackups: "0"
+      {{- if .Values.bookkeeper.operator.adopt_existing }}
+      # if adopting existing bk cluster then also keep existing ledger/journal dir setting
+      journalDirectories: "/pulsar/data/bookkeeper/journal"
+      PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
+      ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+      PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+      {{- end }}
+      BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
 {{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 4 }}
   autoRecovery:
