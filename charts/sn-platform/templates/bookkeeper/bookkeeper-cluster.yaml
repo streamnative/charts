@@ -164,6 +164,7 @@ spec:
 {{ toYaml .Values.bookkeeper.custom | indent 6 }}
   {{- end }}
   conf:
+{{ toYaml .Values.bookkeeper.configData | indent 4 }}
     zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
     # enable bookkeeper http server
     httpServerEnabled: "true"
