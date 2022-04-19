@@ -283,7 +283,7 @@ images:
     tag: v1.3.1
     pullPolicy: IfNotPresent
   vault_operator:
-    repository: ghcr.io/banzaicloud/vault-operator
+    repository: banzaicloud/vault-operator
     tag: v1.3.0
     pullPolicy: IfNotPresent
 ## TLS
