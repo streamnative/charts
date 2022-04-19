@@ -825,6 +825,9 @@ bookkeeper:
     # use a persistent volume or emptyDir
     persistence: true
     journal:
+      # It determines the directory of journal data
+      numVolumes: 1
+      numDirsPerVolume: 1
       name: journal
       size: 10Gi
       local_storage: true
@@ -847,6 +850,9 @@ bookkeeper:
       name: ledgers
       size: 50Gi
       local_storage: true
+      # It determines the directory of ledgers data
+      numVolumes: 1
+      numDirsPerVolume: 1
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
