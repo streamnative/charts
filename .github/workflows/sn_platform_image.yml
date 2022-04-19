@@ -23,8 +23,8 @@ jobs:
         sudo snap install yq
 
     - name: Download and package all image for sn platform
-      run: | # .ci/download_image.sh sn-platform-1.4.0-rc2
-        .ci/download_image.sh sn-platform-1.4.0-rc2
+      run: | # .ci/download_image.sh sn-platform-1.4.0-rc3
+        .ci/download_image.sh sn-platform-1.4.0-rc3
 
     - uses: jakejarvis/s3-sync-action@master
       with:
@@ -34,8 +34,8 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: 'us-east-1'   # optional: defaults to us-east-1
-        SOURCE_DIR: sn-platform-1.4.0-rc2
-        DEST_DIR: sn-platform-1.4.0-rc2
+        SOURCE_DIR: sn-platform-1.4.0-rc3
+        DEST_DIR: sn-platform-1.4.0-rc3
 
     - name: Install Alibaba Cloud OSSUTIL
       run: wget http://gosspublic.alicdn.com/ossutil/1.7.10/ossutil64 && chmod +x ossutil64
@@ -46,4 +46,4 @@ jobs:
         ALI_ACCESS_KEY_ID: ${{ secrets.ALI_ACCESS_KEY_ID }}
         ALI_SECRET_ACCESS_KEY: ${{ secrets.ALI_SECRET_ACCESS_KEY }}
     - name: Upload the file to the chosen OSS bucket
-      run: ./ossutil64 --config-file .ossutilconfig cp ${{ github.workspace }}/sn-platform-1.4.0-rc2 oss://${{ secrets.ALI_OSS_BUCKET }}/sn-products/sn-platform-1.4.0-rc2 -r -f
+      run: ./ossutil64 --config-file .ossutilconfig cp ${{ github.workspace }}/sn-platform-1.4.0-rc3 oss://${{ secrets.ALI_OSS_BUCKET }}/sn-products/sn-platform-1.4.0-rc3 -r -f
