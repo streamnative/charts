@@ -52,7 +52,7 @@ for i in ${components[@]}; do
 done
 
 uniq_image_list=($(echo ${image_list[*]} | sed 's/ /\n/g'|sort| uniq))
-echo ${uniq_image}
+echo ${uniq_image_list}
 for j in ${uniq_image_list[@]}; do
     image=$(echo ${j} | sed 's/:/-/g;s/\//-/g');
     docker save -o ${image}.tar ${j}
