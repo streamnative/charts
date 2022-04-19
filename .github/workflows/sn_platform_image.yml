@@ -2,9 +2,12 @@
 name: Trigger Upload Image to aws s3 and oss
 
 on:
-  repository_dispatch:
-    types:
-      - upload-image-to-s3-and-oss
+  pull_request:
+    branches:
+      - '*'
+  # repository_dispatch:
+  #   types:
+  #     - upload-image-to-s3-and-oss
 
 jobs:
   deploy:
