@@ -50,9 +50,9 @@ for i in ${components[@]}; do
     image_list=$image_list" $repository:$tag"
     docker pull $repository:$tag
 done
-echo ${image_list}
 
 uniq_image_list=($(echo ${image_list[*]} | sed 's/ /\n/g'|sort| uniq))
+echo ${uniq_image}
 for j in ${uniq_image_list[@]}; do
     image=$(echo ${j} | sed 's/:/-/g;s/\//-/g');
     docker save -o ${image}.tar ${j}

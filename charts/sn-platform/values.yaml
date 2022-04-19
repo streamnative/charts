@@ -259,15 +259,15 @@ images:
     tag: v0.1.6
     pullPolicy: IfNotPresent
   pulsar_operator:
-    repository: streamnative/pulsar-operator
+    repository: docker.cloudsmith.io/streamnative/operators/pulsar-operator
     tag: v0.9.4
     pullPolicy: IfNotPresent
   bookkeeper_operator:
-    repository: streamnative/bookkeeper-operator
+    repository: docker.cloudsmith.io/streamnative/operators/pulsar-operator
     tag: v0.9.4
     pullPolicy: IfNotPresent
   zookeeper_operator:
-    repository: streamnative/zookeeper-operator
+    repository: docker.cloudsmith.io/streamnative/operators/pulsar-operator
     tag: v0.9.4
     pullPolicy: IfNotPresent
   cert_manager_controller:
