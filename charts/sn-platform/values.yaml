@@ -284,7 +284,7 @@ images:
     pullPolicy: IfNotPresent
   vault_operator:
     repository: banzaicloud/vault-operator
-    tag: 1.3.0
+    tag: "1.3.0"
     pullPolicy: IfNotPresent
 ## TLS
 ## templates/tls-certs.yaml
