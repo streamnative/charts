@@ -56,6 +56,7 @@ uniq_image_list=($(echo ${image_list[*]} | sed 's/ /\n/g'|sort| uniq))
 for j in ${uniq_image_list[@]}; do
     image=$(echo ${j} | sed 's/:/-/g;s/\//-/g');
     docker save -o ${image}.tar ${j}
+    echo https://downloads-streamnative-cloud.oss-cn-beijing.aliyuncs.com/sn-products/$sn_platform_tag/${image}.tar
 done
     # test
     # docker save -o $sn_platform_tag.tar jimmidyson/configmap-reload:v0.3.0
