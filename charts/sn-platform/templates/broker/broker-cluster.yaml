@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy PulsarBroker only when `components.broker and operator.enabled` is true
-{{- if and .Values.components.broker .Values.broker.operator.enabled }}
+{{- if .Values.components.broker }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarBroker
 metadata:
@@ -60,7 +60,7 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-    {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) }}
+{{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
     secretRefs:
     {{- if .Values.broker.publicKeyPath }}
     - mountPath: {{ .Values.broker.publicKeyPath }}
@@ -76,13 +76,16 @@ spec:
     - mountPath: /pulsar/srvaccts/gcs.json
       secretName: {{ .Values.broker.offload.gcs.secret }}
     {{- end }}
-    {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
+{{- with .Values.broker.extraSecretRefs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
     affinity:
+      {{- if .Values.broker.affinity.customRules }}
+{{ toYaml .Values.broker.affinity.customRules | indent 6 }}
+      {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
       podAntiAffinity:
-        {{ if .Values.broker.affinity.customRules }}
-{{ toYaml .Values.broker.affinity.customRules | indent 8 }}
-        {{ else }}
         {{ .Values.broker.affinity.type }}:
           {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -119,8 +122,8 @@ spec:
                       - {{ .Values.broker.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
-      {{ end }}
-    {{- end }}
+      {{- end }}
+    {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
     vars:
     {{- if .Values.auth.authentication.enabled }}
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
@@ -158,6 +161,10 @@ spec:
           name: {{ .Values.broker.offload.azureblob.secret }}
           key: AZURE_STORAGE_ACCESS_KEY
     {{- end }}
+    {{- end }}
+{{- with .Values.broker.extraEnv}}
+{{ toYaml . | indent 4 }}
+{{- end }}
     # not support envFrom currently
     #envFrom:
     #- secretRef:

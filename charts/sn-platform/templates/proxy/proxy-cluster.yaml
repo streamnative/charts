@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy PulsarProxy only when `components.proxy and operator.enabled` is true
-{{- if and .Values.components.proxy .Values.proxy.operator.enabled }}
+{{- if .Values.components.proxy }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarProxy
 metadata:
@@ -57,7 +57,7 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-    {{- if .Values.proxy.readPublicKeyFromFile }}
+{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
     secretRefs:
     {{- if .Values.proxy.publicKeyPath }}
     - mountPath: {{ .Values.proxy.publicKeyPath }}
@@ -69,13 +69,16 @@ spec:
       {{- else }}
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
       {{- end }}
-    {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
+{{- with .Values.proxy.extraSecretRefs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
     affinity:
-      podAntiAffinity:
-        {{ if .Values.proxy.affinity.customRules }}
-{{ toYaml .Values.proxy.affinity.customRules | indent 8 }}
-        {{ else }}
+      {{- if .Values.proxy.affinity.customRules }}
+{{ toYaml .Values.proxy.affinity.customRules | indent 6 }}
+      {{- end }}
+      {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
+      podAntiAffinity: 
         {{ .Values.proxy.affinity.type }}:
           {{ if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           - labelSelector:
@@ -112,8 +115,7 @@ spec:
                       - {{ .Values.proxy.component }}
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
-        {{ end }}
-    {{- end }}
+      {{- end }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
@@ -132,6 +134,9 @@ spec:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
     {{- end }}
+{{- with .Values.proxy.extraEnv}}
+{{ toYaml . | indent 4 }}
+{{- end }}
     #envFrom:
     #- secretRef:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}
@@ -263,11 +268,13 @@ spec:
       exposeSSLPort: true 
       {{- end }}
       {{- end }}
-
   {{- else }}
       {}
   {{- end }}
   {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
+  {{- if .Values.proxy.websocket.enabled }}
+  webSocketServiceEnabled: true
+  {{- end }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
     {{- if .Values.proxy.autoscaling.minReplicas }}

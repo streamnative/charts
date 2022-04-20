@@ -26,8 +26,9 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.vault.component }}
 spec:
-  size: 3
+  size: {{ .Values.vault.replicaCount | default 3 }}
   image: "{{ .Values.images.vault.repository }}:{{ .Values.images.vault.tag }}"
+  bankVaultsImage: "{{ .Values.images.bank_vaults.repository }}:{{ .Values.images.bank_vaults.tag }}"
   serviceAccount: {{ template "pulsar.vault.serviceAccount" . }}
   serviceType: {{ .Values.vault.serviceType }}
 
@@ -59,7 +60,21 @@ spec:
     imagePullSecrets:
     - name: {{ .Values.imagePullSecrets }}
   {{- end }}
-  
+  {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe }}
+  vaultContainerSpec:
+    {{- if .Values.vault.config.bankVaults.probe.readinessProbe }}
+    readinessProbe:
+{{ toYaml .Values.vault.config.bankVaults.probe.readinessProbe | indent 6 }}
+    {{- end }}
+    {{- if .Values.vault.config.bankVaults.probe.startupProbe }}
+    startupProbe:
+{{ toYaml .Values.vault.config.bankVaults.probe.startupProbe | indent 6 }}
+    {{- end }}
+    {{- if .Values.vault.config.bankVaults.probe.livenessProbe }}
+    livenessProbe:
+{{ toYaml .Values.vault.config.bankVaults.probe.livenessProbe | indent 6 }}
+    {{- end }}
+  {{- end }}
 {{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
   volumeClaimTemplates:
   - metadata:

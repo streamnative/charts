@@ -224,11 +224,7 @@ Define function worker config volume
 
 {{/*Define broker pod name*/}}
 {{- define "pulsar.broker.podName" -}}
-{{- if .Values.broker.operator.enabled -}}
 {{- print "pulsar-broker" -}}
-{{- else -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}
-{{- end -}}
 {{- end -}}
 
 {{/*Define broker datadog annotation*/}}

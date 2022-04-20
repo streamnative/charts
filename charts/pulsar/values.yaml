@@ -157,7 +157,7 @@ images:
     tag: 2.8.0.8
     pullPolicy: IfNotPresent
   pulsar_detector:
-    repository: streamnative/sn-pulsar
+    repository: streamnative/sn-platform
     tag: 2.8.0.8
     pullPolicy: IfNotPresent
   functions:

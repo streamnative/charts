@@ -149,11 +149,7 @@ Define proxy log volumes
 
 {{/*Define proxy pod name*/}}
 {{- define "pulsar.proxy.podName" -}}
-{{- if .Values.proxy.operator.enabled -}}
 {{- print "pulsar-proxy" -}}
-{{- else -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}
-{{- end -}}
 {{- end -}}
 
 {{/*
