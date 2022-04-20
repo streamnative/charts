@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy PulsarProxy only when `components.proxy and operator.enabled` is true
-{{- if and .Values.components.proxy .Values.proxy.operator.enabled }}
+{{- if .Values.components.proxy }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarProxy
 metadata:
@@ -268,11 +268,13 @@ spec:
       exposeSSLPort: true 
       {{- end }}
       {{- end }}
-
   {{- else }}
       {}
   {{- end }}
   {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
+  {{- if .Values.proxy.websocket.enabled }}
+  webSocketServiceEnabled: true
+  {{- end }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
     {{- if .Values.proxy.autoscaling.minReplicas }}
