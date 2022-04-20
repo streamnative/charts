@@ -2201,6 +2201,8 @@ presto:
 
 vault:
   component: "vault"
+  # -- replicaCount indicates the number of vault pod
+  replicaCount: 3
   serviceAccount:
     created: true
     name: ""

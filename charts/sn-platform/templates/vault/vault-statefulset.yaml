@@ -26,7 +26,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.vault.component }}
 spec:
-  size: 3
+  size: {{ .Values.vault.replicaCount | default 3 }}
   image: "{{ .Values.images.vault.repository }}:{{ .Values.images.vault.tag }}"
   bankVaultsImage: "{{ .Values.images.bank_vaults.repository }}:{{ .Values.images.bank_vaults.tag }}"
   serviceAccount: {{ template "pulsar.vault.serviceAccount" . }}
