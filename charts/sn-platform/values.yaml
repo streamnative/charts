@@ -218,6 +218,10 @@ images:
     repository: vault
     tag: "1.7.0"
     pullPolicy: "IfNotPresent"
+  bank_vaults:
+    repository: ghcr.io/banzaicloud/bank-vaults
+    tag: "1.15.2"
+    pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
     tag: "v1.0.2"
@@ -2223,6 +2227,16 @@ vault:
     ui: true
     telemetry:
       statsd_address: ""
+    bankVaults:
+      probe:
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: "/v1/sys/init"
+            port: "api-port"
+            scheme: "HTTP"
+        startupProbe: {}
+        livenessProbe: {}
   resources:
     limits:
       memory: "512Mi"
