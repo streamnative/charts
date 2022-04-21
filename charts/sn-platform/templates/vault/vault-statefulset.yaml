@@ -62,6 +62,7 @@ spec:
   {{- end }}
   {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe }}
   vaultContainerSpec:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-vault-container-spec"
     {{- if .Values.vault.config.bankVaults.probe.readinessProbe }}
     readinessProbe:
 {{ toYaml .Values.vault.config.bankVaults.probe.readinessProbe | indent 6 }}
