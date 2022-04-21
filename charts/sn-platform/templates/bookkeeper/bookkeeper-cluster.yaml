@@ -160,10 +160,11 @@ spec:
   {{- end }}
   config:
     custom:
-{{- if .Values.bookkeeper.custom }}
-{{ toYaml .Values.bookkeeper.custom | indent 6 }}
-{{- else }}
-{{ toYaml .Values.bookkeeper.configData | indent 6 }}
+{{- with .Values.bookkeeper.custom }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.bookkeeper.configData }}
+{{ toYaml . | indent 6 }}
 {{- end }}
       zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
       # enable bookkeeper http server
@@ -289,7 +290,9 @@ spec:
       {{- include "pulsar.jvm.options" .Values.autorecovery | nindent 6 }}
     conf:
       {{- include "pulsar.bookkeeper.config.common" . | nindent 6 }}
-{{ toYaml .Values.autorecovery.configData | indent 6 }}
+{{- with .Values.autorecovery.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
 {{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
   {{- if and .Values.components.autoscaling .Values.bookkeeper.autoscaling.maxReplicas }}
   autoScalingPolicy:

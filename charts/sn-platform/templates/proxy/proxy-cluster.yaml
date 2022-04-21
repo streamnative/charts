@@ -168,7 +168,9 @@ spec:
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
-{{ toYaml .Values.proxy.configData | indent 6 }}
+{{- with .Values.proxy.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"

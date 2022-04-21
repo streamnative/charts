@@ -259,7 +259,9 @@ spec:
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
-{{ toYaml .Values.broker.configData | indent 6 }}
+{{- with .Values.broker.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"

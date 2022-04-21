@@ -1357,6 +1357,7 @@ proxy:
       -XX:+PerfDisableSharedMem
     extraOptions: []
     gcLoggingOptions: []
+  configData: {}
   ## Proxy service
   ## templates/proxy-service.yaml
   ##
