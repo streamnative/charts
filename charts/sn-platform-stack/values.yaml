@@ -23,6 +23,22 @@ sn-console:
   broker:
     webServiceUrl: http://localhost:8080
     # kopServiceUrl: localhost:9093
+  streamnative_console:
+    configData:
+      # *required*: the organization name to show in the SN console
+      DEFAULT_ORGANIZATION: "streamnative"
+      # *required*: the instance name to display for the Pulsar clusters in SN console
+      INSTANCE_NAME: "pulsar"
+      GLOBAL_RESOURCE_READ_ONLY: false
+    login:
+      sso:
+        google:
+          enabled: false
+        azure:
+          enabled: false
+        okta:
+          enabled: false
+
   # vault
   vault:
     # vault service url
