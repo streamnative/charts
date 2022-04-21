@@ -242,11 +242,7 @@ spec:
   issuerRef:
     name: ""
   {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  {{ if .Values.proxy.tlsSecretName }}
-  certSecretName: {{ .Values.proxy.tlsSecretName }}
-  {{ else }}
   certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
-  {{- end }}
   {{- end }}
   apiObjects:
     {{- if .Values.tls.proxy.enabled }}
