@@ -911,12 +911,6 @@ autorecovery:
     # limits:
     #   memory: "256Mi"
     #   cpu: "0.2"
-  extraInitContainers: []
-  ## Bookkeeper auto-recovery configmap
-  ## templates/autorecovery-configmap.yaml
-  ##
-  # Automtically Roll Deployments when configmap is changed
-  autoRollDeployment: true
   jvm:
     memoryOptions:
     - -Xms64m -Xmx64m
