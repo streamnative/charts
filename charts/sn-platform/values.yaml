@@ -865,7 +865,7 @@ bookkeeper:
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
       -verbosegc
-      -Xlog:gc:/var/log/bookie-gc.log    
+      -Xlog:gc:/var/log/bookie-gc.log
     extraOptions: []
   custom: {}
   configData: {}
@@ -1062,7 +1062,7 @@ broker:
         -XX:+DisableExplicitGC
         -XX:-ResizePLAB
         -XX:+ExitOnOutOfMemoryError
-        -XX:+PerfDisableSharedMem        
+        -XX:+PerfDisableSharedMem
     extraOptions: []
   configData:
     # @deprecated:
