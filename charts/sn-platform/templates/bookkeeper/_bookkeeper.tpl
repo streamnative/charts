@@ -172,11 +172,7 @@ Define bookkeeper log volumes
 
 {{/*Define bookkeeper pod name*/}}
 {{- define "pulsar.bookkeeper.podName" -}}
-{{- if .Values.bookkeeper.operator.enabled -}}
 {{- print "bookie" -}}
-{{- else -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}
-{{- end -}}
 {{- end -}}
 
 {{/*Define bookkeeper datadog annotation*/}}

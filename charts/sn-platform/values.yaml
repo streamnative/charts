@@ -203,7 +203,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "1.10"
+    tag: "1.11"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -217,6 +217,10 @@ images:
   vault:
     repository: vault
     tag: "1.7.0"
+    pullPolicy: "IfNotPresent"
+  bank_vaults:
+    repository: ghcr.io/banzaicloud/bank-vaults
+    tag: "1.15.2"
     pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
@@ -671,12 +675,6 @@ zookeeper:
   service:
     annotations:
       service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  ## Zookeeper PodDisruptionBudget
-  ## templates/zookeeper-pdb.yaml
-  ##
-  pdb:
-    usePolicy: true
-    maxUnavailable: 1
   customTools:
     serviceAccount:
       use: true
@@ -689,7 +687,7 @@ zookeeper:
       enable: false
       # Deprecated, this configuration repository and tag has been moved to the images section
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.8.1.30"
+      tag: "2.9.2.9"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
@@ -716,7 +714,7 @@ zookeeper:
       enable: false
       # Deprecated, this configuration repository and tag has been moved to the images section
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.8.1.30"
+      tag: "2.9.2.9"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
@@ -731,14 +729,12 @@ zookeeper:
   ## Operator Controller
   ## templates/zookeeper-cluster.yaml
   operator:
-    enabled: true
     adopt_existing: false
     updatePolicy: []
   ## Retention Policy
   resourcePolicy:
     keep: false
   labels: {}
-
   # Definition of the serviceAccount used to run zookeeper.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -762,19 +758,10 @@ bookkeeper:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
-  ## BookKeeper Cluster Initialize
-  ## templates/bookkeeper-cluster-initialize.yaml
-  metadata:
-    ## Set the resources used for running `bin/bookkeeper shell initnewcluster`
-    ##
-    resources:
-      # requests:
-        # memory: 4Gi
-        # cpu: 2
   # The replicaCount must be equal or greater than 3, the BookKeeper Operator  will set it to 3 if it is less than 3
   # The minimum number of bookies is three for self-verifying according to the docs
   # https://bookkeeper.apache.org/archives/docs/master/bookkeeperConfig.html
-  replicaCount: 4
+  replicaCount: 3
   autoscaling:
     maxReplicas: 4
   ports:
@@ -782,22 +769,6 @@ bookkeeper:
     bookie: 3181
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  probe:
-    liveness:
-      enabled: true
-      failureThreshold: 60
-      initialDelaySeconds: 10
-      periodSeconds: 30
-    readiness:
-      enabled: true
-      failureThreshold: 60
-      initialDelaySeconds: 10
-      periodSeconds: 30
-    startup:
-      enabled: false
-      failureThreshold: 30
-      initialDelaySeconds: 60
-      periodSeconds: 30
   affinity:
     anti_affinity: true
     # Set the anti affinity type. Valid values:
@@ -834,6 +805,9 @@ bookkeeper:
     # use a persistent volume or emptyDir
     persistence: true
     journal:
+      # It determines the directory of journal data
+      numVolumes: 1
+      numDirsPerVolume: 1
       name: journal
       size: 10Gi
       local_storage: true
@@ -856,6 +830,9 @@ bookkeeper:
       name: ledgers
       size: 50Gi
       local_storage: true
+      # It determines the directory of ledgers data
+      numVolumes: 1
+      numDirsPerVolume: 1
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -871,14 +848,6 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
-  extraInitContainers: []
-  ## Bookkeeper configmap
-  ## templates/bookkeeper-configmap.yaml
-  ##
-  # Automtically Roll Deployments when configmap is changed
-  autoRollDeployment: true
-  placementPolicy:
-    rackAware: true
   custom: {}
   configData:
     # `BOOKIE_MEM` is used for `bookie shell`
@@ -891,7 +860,6 @@ bookkeeper:
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
-
     # Note: The following Java8 vm options are deprecated in Java11, and the latter is the replacement
     # https://docs.oracle.com/javase/9/tools/java.htm#GUID-BE93ABDC-999C-4CB5-A88B-1994AAAC74D5__CONVERTGCLOGGINGFLAGSTOXLOG-A5046BD1
     # -XX:+PrintGCDetails ==> -Xlog:gc*
@@ -915,22 +883,9 @@ bookkeeper:
       -XX:+PerfDisableSharedMem
       -verbosegc
       -Xlog:gc:/var/log/bookie-gc.log
-  ## Bookkeeper Service
-  ## templates/bookkeeper-service.yaml
-  ##
-  service:
-    annotations:
-      publishNotReadyAddresses: "true"
-  ## Bookkeeper PodDisruptionBudget
-  ## templates/bookkeeper-pdb.yaml
-  ##
-  pdb:
-    usePolicy: true
-    maxUnavailable: 1
   ## Operator Controller
   ## templates/bookkeeper-cluster.yaml
   operator:
-    enabled: true
     adopt_existing: false
     updatePolicy: >
       - finalizers
@@ -970,19 +925,12 @@ autorecovery:
     # limits:
     #   memory: "256Mi"
     #   cpu: "0.2"
-  extraInitContainers: []
-  ## Bookkeeper auto-recovery configmap
-  ## templates/autorecovery-configmap.yaml
-  ##
-  # Automtically Roll Deployments when configmap is changed
-  autoRollDeployment: true
   configData:
     BOOKIE_MEM: >
       -Xms64m -Xmx64m
   ## Operator Controller
   ## templates/bookkeeper-cluster.yaml
   operator:
-    enabled: true
     adopt_existing: false
     updatePolicy: []
   ## Retention Policy
@@ -1003,7 +951,7 @@ pulsar_metadata:
     # tag: 2.5.0
     # Deprecated, this configuration repository and tag has been moved to the images section
     repository: streamnative/sn-platform
-    tag: "2.8.1.30"
+    tag: "2.9.2.9"
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -1032,7 +980,7 @@ broker:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
-  replicaCount: 3
+  replicaCount: 1
   autoscaling:
     maxReplicas: 3
   ports:
@@ -1042,22 +990,6 @@ broker:
     pulsarssl: 6651
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  probe:
-    liveness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    readiness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    startup:
-      enabled: false
-      failureThreshold: 30
-      initialDelaySeconds: 60
-      periodSeconds: 10
   affinity:
     anti_affinity: true
     # Set the anti affinity type. Valid values:
@@ -1068,8 +1000,6 @@ broker:
   tolerations: []
   securityContext: {}
   gracePeriod: 30
-  # flag to advertise pod ip address
-  advertisedPodIP: false
   # For exposing kop service for external access
   advertisedDomain: ""
   dnsNames:
@@ -1101,9 +1031,6 @@ broker:
     # limits:
     #   memory: "2Gi"
     #   cpu: "0.8"
-  extraInitContainers: []
-  extraVolumes: []
-  extraVolumeMounts: []
   # extra environment variable to define for the containers
   extraEnv: []
   # extra secrets to mount for the pods
@@ -1126,11 +1053,6 @@ broker:
     annotations: {}
     # whether to create a cluster role
     clusterRole: true
-  ## Broker configmap
-  ## templates/broker-configmap.yaml
-  ##
-  # Automtically Roll Deployments when configmap is changed
-  autoRollDeployment: true
   configData:
     PULSAR_MEM: >
       -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
@@ -1158,17 +1080,6 @@ broker:
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
-  ## Broker service
-  ## templates/broker-service.yaml
-  ##
-  service:
-    annotations: {}
-  ## Broker PodDisruptionBudget
-  ## templates/broker-pdb.yaml
-  ##
-  pdb:
-    usePolicy: true
-    maxUnavailable: 1
   ### Broker service account
   ## templates/broker-service-account.yaml
   # deprecated: use `serviceAccount` section to configure service account.
@@ -1227,7 +1138,6 @@ broker:
    ## Operator Controller
   ## templates/broker-cluster.yaml
   operator:
-    enabled: true
     adopt_existing: false
     updatePolicy: >
       - finalizers
@@ -1367,41 +1277,22 @@ pulsar_detector:
     # spec:
     # clusterIP: None
     annotations: {}
-
   ## Pulsar detector PodDisruptionBudget
   ## templates/pulsar-detector-pdb.yaml
   ##
   pdb:
     usePolicy: true
     maxUnavailable: 1
-## Pulsar: Proxy Cluster
-## templates/proxy-statefulset.yaml
-##
+
 proxy:
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
-  replicaCount: 3
+  replicaCount: 1
   autoscaling:
     maxReplicas: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  probe:
-    liveness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    readiness:
-      enabled: true
-      failureThreshold: 10
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    startup:
-      enabled: false
-      failureThreshold: 30
-      initialDelaySeconds: 60
-      periodSeconds: 10
   affinity:
     anti_affinity: true
     # Set the anti affinity type. Valid values:
@@ -1419,9 +1310,6 @@ proxy:
     # limits:
     #   memory: "512Mi"
     #   cpu: "0.8"
-  extraInitContainers: []
-  extraVolumes: []
-  extraVolumeMounts: []
   # extra environment variable to define for the containers
   extraEnv: []
   # extra secrets to mount for the pods
@@ -1445,31 +1333,6 @@ proxy:
   websocket:
     component: websocket
     enabled: false
-    configData:
-      PULSAR_MEM: >
-        -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
-      PULSAR_GC: >
-        -XX:+UseG1GC
-        -XX:MaxGCPauseMillis=10
-        -Dio.netty.leakDetectionLevel=disabled
-        -Dio.netty.recycler.linkCapacity=1024
-        -XX:+ParallelRefProcEnabled
-        -XX:+UnlockExperimentalVMOptions
-        -XX:+AggressiveOpts
-        -XX:+DoEscapeAnalysis
-        -XX:ParallelGCThreads=4
-        -XX:ConcGCThreads=4
-        -XX:G1NewSizePercent=50
-        -XX:+DisableExplicitGC
-        -XX:-ResizePLAB
-        -XX:+ExitOnOutOfMemoryError
-        -XX:+PerfDisableSharedMem
-  ## Proxy configmap
-  ## templates/proxy-configmap.yaml
-  ##
-  # Automtically Roll Deployments when configmap is changed
-  autoRollDeployment: true
-  # Config proxy to point to an existing broker clusters
   brokerServiceURL: ""
   brokerWebServiceURL: ""
   brokerServiceURLTLS: ""
@@ -1503,20 +1366,9 @@ proxy:
     pulsarssl: 6651
     websocket: 9090
     websockettls: 9443
-  service:
-    annotations: {}
-    type: ClusterIP
-    extraSpec: {}
-  ## Proxy PodDisruptionBudget
-  ## templates/proxy-pdb.yaml
-  ##
-  pdb:
-    usePolicy: true
-    maxUnavailable: 1
   ## Operator Controller
   ## templates/broker-cluster.yaml
   operator:
-    enabled: true
     adopt_existing: false
     updatePolicy: >
       - finalizers
@@ -1721,7 +1573,6 @@ prometheus:
       initialDelaySeconds: 30
       periodSeconds: 10
   customRelabelConfigs: []
-
   ## Prometheus service
   ## templates/prometheus-service.yaml
   ##
@@ -2200,6 +2051,8 @@ presto:
 
 vault:
   component: "vault"
+  # -- replicaCount indicates the number of vault pod
+  replicaCount: 3
   serviceAccount:
     created: true
     name: ""
@@ -2226,6 +2079,16 @@ vault:
     ui: true
     telemetry:
       statsd_address: ""
+    bankVaults:
+      probe:
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: "/v1/sys/init"
+            port: "api-port"
+            scheme: "HTTP"
+        startupProbe: {}
+        livenessProbe: {}
   resources:
     limits:
       memory: "512Mi"

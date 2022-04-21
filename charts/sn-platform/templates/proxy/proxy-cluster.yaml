@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy PulsarProxy only when `components.proxy and operator.enabled` is true
-{{- if and .Values.components.proxy .Values.proxy.operator.enabled }}
+{{- if .Values.components.proxy }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarProxy
 metadata:
@@ -57,8 +57,8 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
+{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
     secretRefs:
-    {{- if .Values.proxy.readPublicKeyFromFile }}
     {{- if .Values.proxy.publicKeyPath }}
     - mountPath: {{ .Values.proxy.publicKeyPath }}
     {{- else }}
@@ -69,9 +69,9 @@ spec:
       {{- else }}
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
       {{- end }}
-    {{- end }}
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
+{{- end }}
 {{- end }}
     {{- if .Values.tls.proxy.enabled }}
     volumes:
@@ -281,6 +281,9 @@ spec:
       {}
   {{- end }}
   {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
+  {{- if .Values.proxy.websocket.enabled }}
+  webSocketServiceEnabled: true
+  {{- end }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
     {{- if .Values.proxy.autoscaling.minReplicas }}
