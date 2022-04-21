@@ -144,6 +144,10 @@ spec:
     {{- if .Values.zookeeper.securityContext }}
     securityContext: {{ .Values.zookeeper.securityContext }}
     {{- end }}
+    {{- if .Values.zookeeper.nodeSelector }}
+    nodeSelector:
+{{ toYaml .Values.zookeeper.nodeSelector | indent 6 }}
+    {{- end }}
     {{- if .Values.zookeeper.tolerations }}
     tolerations:
 {{ toYaml .Values.zookeeper.tolerations | indent 6 }}
