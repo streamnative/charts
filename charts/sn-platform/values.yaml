@@ -663,6 +663,7 @@ zookeeper:
       -XX:+PerfDisableSharedMem
       -Dzookeeper.forceSync=no
     extraOptions: []
+    gcLoggingOptions: []
   configData: {}
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
@@ -867,6 +868,7 @@ bookkeeper:
       -verbosegc
       -Xlog:gc:/var/log/bookie-gc.log
     extraOptions: []
+    gcLoggingOptions: []
   custom: {}
   configData: {}
   ## Operator Controller
@@ -916,6 +918,7 @@ autorecovery:
     - -Xms64m -Xmx64m
     gcOptions: []
     extraOptions: []
+    gcLoggingOptions: []
   configData: {}
   ## Operator Controller
   ## templates/bookkeeper-cluster.yaml
@@ -1064,6 +1067,7 @@ broker:
         -XX:+ExitOnOutOfMemoryError
         -XX:+PerfDisableSharedMem
     extraOptions: []
+    gcLoggingOptions: []
   configData:
     # @deprecated:
     # 1. You can use a service account to assume an IAM role to access S3 bucket
@@ -1352,6 +1356,7 @@ proxy:
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
     extraOptions: []
+    gcLoggingOptions: []
   ## Proxy service
   ## templates/proxy-service.yaml
   ##

@@ -132,4 +132,8 @@ jvmOptions:
   {{- with .jvm.extraOptions }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
+  gcLoggingOptions:
+  {{- with .jvm.gcLoggingOptions }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
 {{- end }}
