@@ -102,11 +102,7 @@ Define zookeeper log volumes
 
 {{/*Define zookeeper pod name*/}}
 {{- define "pulsar.zookeeper.podName" -}}
-{{- if .Values.zookeeper.operator.enabled -}}
 {{- print "zookeeper" -}}
-{{- else -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}
-{{- end -}}
 {{- end -}}
 
 {{/*Define zookeeper datadog annotation*/}}

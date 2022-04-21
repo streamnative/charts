@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy BookKeeperCluster only when `components.bookkeeper and operator.enabled` is true
-{{- if and .Values.components.bookkeeper .Values.bookkeeper.operator.enabled }}
+{{- if .Values.components.bookkeeper }}
 apiVersion: bookkeeper.streamnative.io/v1alpha1
 kind: BookKeeperCluster
 metadata:
@@ -137,6 +137,8 @@ spec:
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
+      numVolumes: {{ .Values.bookkeeper.volumes.journal.numVolumes | default 1 }}
+      numDirsPerVolume: {{ .Values.bookkeeper.volumes.journal.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
@@ -145,6 +147,8 @@ spec:
             storage: {{ .Values.bookkeeper.volumes.journal.size }}
         {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 8 }}
     ledger:
+      numVolumes: {{ .Values.bookkeeper.volumes.ledgers.numVolumes | default 1 }}
+      numDirsPerVolume: {{ .Values.bookkeeper.volumes.ledgers.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
@@ -154,12 +158,13 @@ spec:
         {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 8 }}
     reclaimPolicy: Delete
   {{- end }}
-  {{- if .Values.bookkeeper.custom }}
   config:
     custom:
+{{- if .Values.bookkeeper.custom }}
 {{ toYaml .Values.bookkeeper.custom | indent 6 }}
-  {{- end }}
-  conf:
+{{- else }}
+{{ toYaml .Values.bookkeeper.configData | indent 6 }}
+{{- end }}
       zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
       # enable bookkeeper http server
       httpServerEnabled: "true"
@@ -181,8 +186,8 @@ spec:
       ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
       PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
       {{- end }}
-{{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
-{{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 4 }}
+{{- include "pulsar.bookkeeper.config.tls" . | nindent 6 }}
+{{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 6 }}
   autoRecovery:
     {{- if and .Values.components.autoscaling .Values.autorecovery.autoscaling.maxReplicas }}
     autoScalingPolicy:
@@ -203,7 +208,7 @@ spec:
 {{- end }}
       {{- end }}
     {{- end }}
-    {{- if and .Values.components.autorecovery .Values.autorecovery.operator.enabled }}
+    {{- if .Values.components.autorecovery }}
     replicas: {{ .Values.autorecovery.replicaCount }}
     {{- else }}
     replicas: 0
