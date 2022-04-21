@@ -106,3 +106,30 @@ Istio gateway selector
 istio: ingressgateway
 {{- end }}
 {{- end }}
+
+{{/*
+JVM Options
+*/}}
+{{- define "pulsar.jvm.options" -}}
+jvmOptions:
+  memoryOptions:
+  {{- if .configData.PULSAR_MEM }}
+  - {{ .configData.PULSAR_MEM | quote }}
+  {{- else }}
+  {{- with .jvm.memoryOptions }}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  gcOptions:
+  {{- if .configData.PULSAR_GC }}
+  - {{ .configData.PULSAR_GC | quote }}
+  {{- else }}
+  {{- with .jvm.gcOptions }}
+  {{ toYaml . | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  extraOptions:
+  {{- with .jvm.extraOptions }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}

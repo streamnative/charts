@@ -156,13 +156,7 @@ spec:
 {{ toYaml .Values.proxy.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
-    jvmOptions:
-      extraOptions: []
-      memoryOptions:
-        - {{ .Values.proxy.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.proxy.configData.PULSAR_GC }}
-      gcLoggingOptions: []
+    {{- include "pulsar.jvm.options" .Values.proxy | nindent 4 }}
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
@@ -174,7 +168,9 @@ spec:
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
-{{ toYaml .Values.proxy.configData | indent 6 }}
+      {{- with .Values.configData }}
+{{ toYaml . | indent 6 }}
+      {{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
