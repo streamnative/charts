@@ -117,7 +117,7 @@ jvmOptions:
   - {{ .configData.PULSAR_MEM | quote }}
   {{- else }}
   {{- with .jvm.memoryOptions }}
-  {{ toYaml . | nindent 2 }}
+  {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
   gcOptions:
@@ -125,7 +125,7 @@ jvmOptions:
   - {{ .configData.PULSAR_GC | quote }}
   {{- else }}
   {{- with .jvm.gcOptions }}
-  {{ toYaml . | nindent 2 }}
+  {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
   {{- with .jvm.extraOptions }}
