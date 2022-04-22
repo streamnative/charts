@@ -1013,6 +1013,15 @@ broker:
   aop:
     enabled: false
     proxyEnabled: false
+  mop:
+    # -- enable mop
+    enabled: false
+    # -- enable proxy
+    proxyEnabled: false
+    # -- enable token authentication
+    authenticationEnabled: false
+    # -- enable authorization
+    authorizationEnabled: false
   functionmesh:
     enabled: true
   resources:
