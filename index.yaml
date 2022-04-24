@@ -905,7 +905,7 @@ entries:
     version: 0.1.0
   pulsar-operator:
   - apiVersion: v1
-    appVersion: 0.9.4
+    appVersion: 0.10.0
     created: "2022-04-24T08:00:18.101666299Z"
     description: Apache Pulsar Operators Helm chart for Kubernetes
     digest: a9a1914e367356b777871fcfc16e7472f006b97a6f5cf8aab1956a7b32b3c99f
