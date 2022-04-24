@@ -1,0 +1,62 @@
+suite: test deployment
+templates:
+  - deployment.yaml
+tests:
+  - it: should pass all default settings
+    asserts:
+      - isAPIVersion:
+          of: apps/v1
+      - isKind:
+          of: Deployment
+      - matchRegex:
+          path: metadata.name
+          pattern: -pulsar-resources-operator$
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+          path: spec.template.spec.containers[1].image
+          value: docker.cloudsmith.io/streamnative/operators/pulsar-resources-operator:v0.0.1
+          path: spec.template.spec.containers[1].imagePullPolicy
+          value: IfNotPresent
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 5m 
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 64Mi
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 500m 
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 128Mi
+      - isNull:
+          path: spec.template.spec.containers[1].resources.requests
+          path: spec.template.spec.containers[1].resources.limits
+
+  - it: should update the image version successfully
+    set:
+      image.tag: v0.0.2
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[1].image
+          value: docker.cloudsmith.io/streamnative/operators/pulsar-resources-operator:v0.0.2
+
+  - it: should update the replicas successfully
+    set:
+      replicaCount: 2
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 2
+
+  - it: should update the resources requests successfully
+    set:
+      resources.requests.cpu: 10m
+      resources.requests.memory: 128Mi
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[1].resources.requests.cpu
+          value: 10m 
+          path: spec.template.spec.containers[1].resources.requests.memory
+          value: 128Mi

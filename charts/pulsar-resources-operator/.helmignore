@@ -21,3 +21,6 @@
 .idea/
 *.tmproj
 .vscode/
+
+# unittest files
+tests
