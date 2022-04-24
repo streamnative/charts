@@ -108,6 +108,17 @@ istio: ingressgateway
 {{- end }}
 
 {{/*
+Define TLS CA secret name
+*/}}
+{{- define "pulsar.tls.ca.secret.name" -}}
+{{- if .Values.tls.common.caSecretName -}}
+{{- .Values.tls.common.caSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-ca-tls
+{{- end -}}
+{{- end -}}
+
+{{/*
 JVM Options
 */}}
 {{- define "pulsar.jvm.options" -}}

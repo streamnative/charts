@@ -170,6 +170,10 @@ spec:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
     {{- end }}
     {{- end }}
+    {{- if and (not .Values.zookeeper.operator.adopt_existing) .Values.tls.zookeeper.enabled }}
+    volumes:
+      {{- include "pulsar.zookeeper.certs.volumes" . | nindent 4 }}
+    {{- end }}
   {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   persistence:
     data:
@@ -259,6 +263,10 @@ spec:
       {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 6 }}
       {{- include "pulsar.zookeeper.genzkconf.volumeMounts" . | nindent 6 }}
       {{- end }}
+      {{- if and (not .Values.zookeeper.operator.adopt_existing) .Values.tls.zookeeper.enabled }}
+      volumeMounts:
+      {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 6 }}
+    {{- end }}
     configMap:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"

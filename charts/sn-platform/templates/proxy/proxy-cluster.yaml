@@ -73,6 +73,10 @@ spec:
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
+    {{- if .Values.tls.proxy.enabled }}
+    volumes:
+    {{- include "pulsar.proxy.certs.volumes" . | nindent 4 }}
+    {{- end }}
     affinity:
       {{- if .Values.proxy.affinity.customRules }}
 {{ toYaml .Values.proxy.affinity.customRules | indent 6 }}
@@ -234,13 +238,14 @@ spec:
   issuerRef:
     name: ""
   {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  {{ if .Values.proxy.tlsSecretName }}
-  certSecretName: {{ .Values.proxy.tlsSecretName }}
-  {{ else }}
-  certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  {{- end }}
+  certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   {{- end }}
   apiObjects:
+    {{- if .Values.tls.proxy.enabled }}
+    statefulSet:
+      volumeMounts:
+    {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 6 }}
+    {{- end }}
     externalService:
   {{- if .Values.ingress.proxy.enabled }}
       metadata:

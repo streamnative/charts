@@ -80,6 +80,10 @@ spec:
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
+    {{- if .Values.tls.broker.enabled }}
+    volumes:
+    {{- include "pulsar.broker.certs.volumes" . | nindent 4 }}
+    {{- end }}
     affinity:
       {{- if .Values.broker.affinity.customRules }}
 {{ toYaml .Values.broker.affinity.customRules | indent 6 }}
@@ -235,7 +239,7 @@ spec:
     {{- if .Values.broker.kop.tls.certSecretName }}
           certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
     {{ else }}
-          certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
     {{- end }}
     {{- if .Values.broker.kop.tls.passwordSecretRef }}
           passwordSecretRef:
@@ -398,5 +402,11 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
     {{- end }}
+  {{- end }}
+  {{- if .Values.tls.broker.enabled }}
+  apiObjects:
+    statefulSet:
+      volumeMounts:
+      {{- include "pulsar.broker.certs.volumeMounts" . | nindent 6 }}
   {{- end }}
 {{- end }}
