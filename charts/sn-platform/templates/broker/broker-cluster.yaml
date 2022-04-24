@@ -189,13 +189,7 @@ spec:
 {{ toYaml .Values.broker.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
-    jvmOptions:
-      extraOptions: []
-      memoryOptions:
-        - {{ .Values.broker.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.broker.configData.PULSAR_GC }}
-      gcLoggingOptions: []
+    {{- include "pulsar.jvm.options" .Values.broker | nindent 4 }}
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
@@ -230,7 +224,7 @@ spec:
     advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
     serviceURLGenerationPolicy: FQDN
     {{- end }}
-    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) }}
+    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) .Values.broker.mop.enabled}}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
@@ -265,11 +259,27 @@ spec:
         proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
         {{- end }}
     {{- end }}
+    {{- if .Values.broker.mop.enabled }}
+      mop:
+        enabled: true
+        {{- if .Values.broker.mop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.mop.proxyEnabled }}
+        {{- end }}
+        {{- if .Values.broker.mop.authenticationEnabled }}
+        authenticationEnabled: {{ .Values.broker.mop.authenticationEnabled }}
+        {{- end }}
+        {{- if .Values.broker.mop.authorizationEnabled }}
+        authorizationEnabled: {{ .Values.broker.mop.authorizationEnabled }}
+        {{- end }}
+    {{- end }}
+
     {{- end }}
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
-{{ toYaml .Values.broker.configData | indent 6 }}
+{{- with .Values.broker.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"

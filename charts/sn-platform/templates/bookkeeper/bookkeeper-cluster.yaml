@@ -118,11 +118,7 @@ spec:
 {{ toYaml .Values.bookkeeper.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.bookkeeper.gracePeriod }}
-    jvmOptions:
-      memoryOptions:
-        - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+    {{- include "pulsar.jvm.options" .Values.bookkeeper | nindent 4 }}
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
@@ -168,10 +164,11 @@ spec:
   {{- end }}
   config:
     custom:
-{{- if .Values.bookkeeper.custom }}
-{{ toYaml .Values.bookkeeper.custom | indent 6 }}
-{{- else }}
-{{ toYaml .Values.bookkeeper.configData | indent 6 }}
+{{- with .Values.bookkeeper.custom }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.bookkeeper.configData }}
+{{ toYaml . | indent 6 }}
 {{- end }}
       zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
       # enable bookkeeper http server
@@ -194,7 +191,6 @@ spec:
       ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
       PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
       {{- end }}
-      BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 6 }}
 {{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 6 }}
   autoRecovery:
@@ -295,9 +291,12 @@ spec:
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
       {{- end }}
+      {{- include "pulsar.jvm.options" .Values.autorecovery | nindent 6 }}
     conf:
       {{- include "pulsar.bookkeeper.config.common" . | nindent 6 }}
-{{ toYaml .Values.autorecovery.configData | indent 6 }}
+{{- with .Values.autorecovery.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
 {{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
   {{- if and .Values.components.autoscaling .Values.bookkeeper.autoscaling.maxReplicas }}
   autoScalingPolicy:

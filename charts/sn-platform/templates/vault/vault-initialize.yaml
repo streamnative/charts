@@ -26,7 +26,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: "{{ .Values.bookkeeper.component }}-init"
+    component: "{{ .Values.vault.component }}-init"
 spec:
   template:
     metadata:

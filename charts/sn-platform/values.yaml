@@ -672,10 +672,12 @@ zookeeper:
     zkServers: []
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
-  configData:
-    PULSAR_MEM: >
+  jvm:
+    memoryOptions:
+    - >
       -Xms64m -Xmx128m
-    PULSAR_GC: >
+    gcOptions:
+    - >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -Dcom.sun.management.jmxremote
@@ -687,6 +689,9 @@ zookeeper:
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
       -Dzookeeper.forceSync=no
+    extraOptions: []
+    gcLoggingOptions: []
+  configData: {}
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
   ##
@@ -866,26 +871,14 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
-  custom: {}
-  configData:
-    # `BOOKIE_MEM` is used for `bookie shell`
-    BOOKIE_MEM: >
+  jvm:
+    memoryOptions:
+    - >
       -Xms128m
       -Xmx256m
       -XX:MaxDirectMemorySize=256m
-    # we use `bin/pulsar` for starting bookie daemons
-    PULSAR_MEM: >
-      -Xms128m
-      -Xmx256m
-      -XX:MaxDirectMemorySize=256m
-    # Note: The following Java8 vm options are deprecated in Java11, and the latter is the replacement
-    # https://docs.oracle.com/javase/9/tools/java.htm#GUID-BE93ABDC-999C-4CB5-A88B-1994AAAC74D5__CONVERTGCLOGGINGFLAGSTOXLOG-A5046BD1
-    # -XX:+PrintGCDetails ==> -Xlog:gc*
-    # -XX:+PrintGCTimeStamps ==> -Xlog:::time,level,tags
-    # -XX:+PrintGCApplicationStoppedTime ==> -Xlog:safepoint
-    # -XX:+PrintHeapAtGC ==> -Xlog:gc+heap=trace
-    # -Xloggc:/var/log/bookie-gc.log  ==> -Xlog:gc:/var/log/bookie-gc.log
-    PULSAR_GC: >
+    gcOptions:
+    - >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -XX:+ParallelRefProcEnabled
@@ -901,6 +894,10 @@ bookkeeper:
       -XX:+PerfDisableSharedMem
       -verbosegc
       -Xlog:gc:/var/log/bookie-gc.log
+    extraOptions: []
+    gcLoggingOptions: []
+  custom: {}
+  configData: {}
   ## Operator Controller
   ## templates/bookkeeper-cluster.yaml
   operator:
@@ -943,9 +940,13 @@ autorecovery:
     # limits:
     #   memory: "256Mi"
     #   cpu: "0.2"
-  configData:
-    BOOKIE_MEM: >
-      -Xms64m -Xmx64m
+  jvm:
+    memoryOptions:
+    - -Xms64m -Xmx64m
+    gcOptions: []
+    extraOptions: []
+    gcLoggingOptions: []
+  configData: {}
   ## Operator Controller
   ## templates/bookkeeper-cluster.yaml
   operator:
@@ -1040,6 +1041,15 @@ broker:
   aop:
     enabled: false
     proxyEnabled: false
+  mop:
+    # -- enable mop
+    enabled: false
+    # -- enable proxy
+    proxyEnabled: false
+    # -- enable token authentication
+    authenticationEnabled: false
+    # -- enable authorization
+    authorizationEnabled: false
   functionmesh:
     enabled: true
   resources:
@@ -1071,25 +1081,30 @@ broker:
     annotations: {}
     # whether to create a cluster role
     clusterRole: true
+  jvm:
+    memoryOptions:
+      - >
+        -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+    gcOptions:
+      - >
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=10
+        -Dio.netty.leakDetectionLevel=disabled
+        -Dio.netty.recycler.linkCapacity=1024
+        -XX:+ParallelRefProcEnabled
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+AggressiveOpts
+        -XX:+DoEscapeAnalysis
+        -XX:ParallelGCThreads=4
+        -XX:ConcGCThreads=4
+        -XX:G1NewSizePercent=50
+        -XX:+DisableExplicitGC
+        -XX:-ResizePLAB
+        -XX:+ExitOnOutOfMemoryError
+        -XX:+PerfDisableSharedMem
+    extraOptions: []
+    gcLoggingOptions: []
   configData:
-    PULSAR_MEM: >
-      -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
-    PULSAR_GC: >
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      -Dio.netty.leakDetectionLevel=disabled
-      -Dio.netty.recycler.linkCapacity=1024
-      -XX:+ParallelRefProcEnabled
-      -XX:+UnlockExperimentalVMOptions
-      -XX:+AggressiveOpts
-      -XX:+DoEscapeAnalysis
-      -XX:ParallelGCThreads=4
-      -XX:ConcGCThreads=4
-      -XX:G1NewSizePercent=50
-      -XX:+DisableExplicitGC
-      -XX:-ResizePLAB
-      -XX:+ExitOnOutOfMemoryError
-      -XX:+PerfDisableSharedMem
     # @deprecated:
     # 1. You can use a service account to assume an IAM role to access S3 bucket
     # 2. You can use a k8s secret to reference AWS credentials. See `offload.s3.secret`
@@ -1355,10 +1370,12 @@ proxy:
   brokerWebServiceURL: ""
   brokerServiceURLTLS: ""
   brokerWebServiceURLTLS: ""
-  configData:
-    PULSAR_MEM: >
+  jvm:
+    memoryOptions:
+    - >
       -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
-    PULSAR_GC: >
+    gcOptions:
+    - >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -Dio.netty.leakDetectionLevel=disabled
@@ -1374,6 +1391,9 @@ proxy:
       -XX:-ResizePLAB
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
+    extraOptions: []
+    gcLoggingOptions: []
+  configData: {}
   ## Proxy service
   ## templates/proxy-service.yaml
   ##

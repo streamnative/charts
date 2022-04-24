@@ -107,7 +107,6 @@ istio: ingressgateway
 {{- end }}
 {{- end }}
 
-
 {{/*
 Define TLS CA secret name
 */}}
@@ -118,3 +117,34 @@ Define TLS CA secret name
 {{ .Release.Name }}-ca-tls
 {{- end -}}
 {{- end -}}
+
+{{/*
+JVM Options
+*/}}
+{{- define "pulsar.jvm.options" -}}
+jvmOptions:
+  memoryOptions:
+  {{- if .configData.PULSAR_MEM }}
+  - {{ .configData.PULSAR_MEM | quote }}
+  {{- else }}
+  {{- with .jvm.memoryOptions }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  gcOptions:
+  {{- if .configData.PULSAR_GC }}
+  - {{ .configData.PULSAR_GC | quote }}
+  {{- else }}
+  {{- with .jvm.gcOptions }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  {{- with .jvm.extraOptions }}
+  extraOptions:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .jvm.gcLoggingOptions }}
+  gcLoggingOptions:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}

@@ -144,16 +144,16 @@ spec:
     {{- if .Values.zookeeper.securityContext }}
     securityContext: {{ .Values.zookeeper.securityContext }}
     {{- end }}
+    {{- if .Values.zookeeper.nodeSelector }}
+    nodeSelector:
+{{ toYaml .Values.zookeeper.nodeSelector | indent 6 }}
+    {{- end }}
     {{- if .Values.zookeeper.tolerations }}
     tolerations:
 {{ toYaml .Values.zookeeper.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
-    jvmOptions:
-      memoryOptions:
-        - {{ .Values.zookeeper.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.zookeeper.configData.PULSAR_GC }}
+    {{- include "pulsar.jvm.options" .Values.zookeeper | nindent 4 }}
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
@@ -234,7 +234,9 @@ spec:
       PULSAR_PREFIX_quorumListenOnAllIPs: "true"
       {{- end }}
       PULSAR_PREFIX_peerType: {{ .Values.zookeeper.peerType }}
-{{ toYaml .Values.zookeeper.configData | indent 6 }}
+{{- with .Values.zookeeper.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       # Include log configuration file, If you want to configure the log level and other configuration
       # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
 {{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 6 }}
