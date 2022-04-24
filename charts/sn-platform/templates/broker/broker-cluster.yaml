@@ -185,13 +185,7 @@ spec:
 {{ toYaml .Values.broker.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
-    jvmOptions:
-      extraOptions: []
-      memoryOptions:
-        - {{ .Values.broker.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.broker.configData.PULSAR_GC }}
-      gcLoggingOptions: []
+    {{- include "pulsar.jvm.options" .Values.broker | nindent 4 }}
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
@@ -279,7 +273,9 @@ spec:
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
-{{ toYaml .Values.broker.configData | indent 6 }}
+{{- with .Values.broker.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
