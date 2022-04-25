@@ -168,6 +168,18 @@ images:
     repository: streamnative/sn-pulsar
     tag: 2.9.2.12
     pullPolicy: IfNotPresent
+  function_runner_java:
+    repository: streamnative/pulsar-functions-java-runner
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_go:
+    repository: streamnative/pulsar-functions-go-runner
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_python:
+    repository: streamnative/pulsar-functions-python-runner
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/pulsar-all
@@ -1062,6 +1074,9 @@ broker:
       ioSeqfileCompressBlocksize: "1000000"
       ioSeqFileCompressionType: "BLOCK"
       ioMapIndexInteval: "128"
+  packagesManagement:
+    storageProvider: "org.apache.pulsar.packages.management.storage.bookkeeper.BookKeeperPackagesStorageProvider"
+    ledgerRootPath: "/ledgers"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
