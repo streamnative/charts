@@ -84,6 +84,19 @@ data:
       changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
       submittingInsidePod: true
       installUserCodeDependencies: true
+  {{- if .Values.functions.functionMesh }}
+  functionsWorkerServiceNarPackage: "/pulsar/lib/mesh-worker-service.nar"
+  functionsWorkerServiceCustomConfigs:
+    extraDependenciesDir: "/pulsar/lib"
+    functionEnabled: "true"
+    sinkEnabled: "true"
+    sourceEnabled: "true"
+    uploadEnabled: "true"
+    functionRunnerImages:
+      GO: "streamnative/pulsar-functions-go-runner:2.9.2.9"
+      JAVA: "streamnative/pulsar-functions-java-runner:2.9.2.9"
+      PYTHON: "streamnative/pulsar-functions-python-runner:2.9.2.9"
+  {{- end }}
 {{- with .Values.functions.functionRuntimeFactoryConfigs }}
 {{ toYaml . | indent 6 }}
 {{- end }}

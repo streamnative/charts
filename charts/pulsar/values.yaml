@@ -1069,6 +1069,8 @@ broker:
 functions:
   component: functions-worker
   useDedicatedRunner: false
+  functionMesh: false
+  functionMeshName: "function-mesh"
   replicaCount: 1
   functionState: false
   enableCustomizerRuntime: false

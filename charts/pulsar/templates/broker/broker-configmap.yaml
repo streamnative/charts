@@ -78,6 +78,14 @@ data:
   functionsWorkerEnabled: "false"
   {{- end }}
 
+  {{- if and .Values.components.functions .Values.functions.functionMesh }}
+  # enable package service for function mesh
+  enablePackagesManagement: "true"
+  packagesManagementStorageProvider: org.apache.pulsar.packages.management.storage.bookkeeper.BookKeeperPackagesStorageProvider
+  packagesReplicas: "1"
+  packagesManagementLedgerRootPath: "/ledgers"
+  {{- end}}
+
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.broker.ports.http }}"
   {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
