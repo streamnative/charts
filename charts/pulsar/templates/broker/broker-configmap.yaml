@@ -78,6 +78,14 @@ data:
   functionsWorkerEnabled: "false"
   {{- end }}
 
+  {{- if and .Values.components.functions .Values.functions.functionMesh }}
+  # enable package service for function mesh
+  enablePackagesManagement: "true"
+  packagesManagementStorageProvider: "{{ .Values.broker.packagesManagement.storageProvider }}"
+  packagesReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
+  packagesManagementLedgerRootPath: "{{ .Values.broker.packagesManagement.ledgerRootPath }}"
+  {{- end}}
+
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.broker.ports.http }}"
   {{- if or (not .Values.tls.enabled) (not .Values.tls.broker.enabled) }}
