@@ -22,7 +22,7 @@ Define pulsar_manager tls certs volumes
 {{- if and .Values.tls.enabled (or .Values.tls.pulsar_manager.enabled .Values.tls.broker.enabled) }}
 - name: pulsar-manager-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.pulsar_manager.cert_name }}"
+    secretName: "{{ template "pulsar.pulsar_manager.tls.secret.name" . }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -30,7 +30,7 @@ Define pulsar_manager tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
     - key: ca.crt
       path: ca.crt
@@ -149,3 +149,14 @@ storageClassName: "{{ .Values.pulsar_manager.volumes.data.storageClassName }}"
   {{- end -}}
 {{- end }}
 {{- end }}
+
+{{/*
+Define Pulsar manager TLS certificate secret name
+*/}}
+{{- define "pulsar.pulsar_manager.tls.secret.name" -}}
+{{- if .Values.tls.pulsar_manager.certSecretName -}}
+{{- .Values.tls.pulsar_manager.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.pulsar_manager.cert_name }}
+{{- end -}}
+{{- end -}}
