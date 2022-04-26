@@ -111,7 +111,7 @@ Define proxy certs volumes
   {{- end }}
   {{- end }}
 - name: proxy-certs
-  secret: 
+  secret:
     secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
     items:
       - key: tls.crt
@@ -157,6 +157,7 @@ Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
+{{- if not .Values.datadog.components.proxy.nativeCheck }}
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
@@ -182,6 +183,30 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       ]
     }
   ]
+{{- else }}
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
+  ["pulsar"]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
+  [
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      "enable_health_service_check": true,
+      "timeout": 300,
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "jwt" }}
+      "extra_headers": {
+          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
+      },
+{{- end }}
+{{- end }}
+      "tags": [
+        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+      ]
+    }
+  ]
+{{- end }}
 {{- end }}
 {{- end }}
 
