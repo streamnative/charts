@@ -112,7 +112,7 @@ Define proxy certs volumes
   {{- end }}
 - name: proxy-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+    secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -146,16 +146,22 @@ Define proxy log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
 {{- end }}
+
+{{/*Define proxy pod name*/}}
+{{- define "pulsar.proxy.podName" -}}
+{{- print "pulsar-proxy" -}}
+{{- end -}}
 {{/*
 Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.check_names: |
+{{- if not .Values.datadog.components.proxy.nativeCheck }}
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
@@ -176,6 +182,30 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }
       ]
     }
   ]
+{{- else }}
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
+  ["pulsar"]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
+  [
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      "enable_health_service_check": true,
+      "timeout": 300,
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "jwt" }}
+      "extra_headers": {
+          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
+      },
+{{- end }}
+{{- end }}
+      "tags": [
+        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+      ]
+    }
+  ]
+{{- end }}
 {{- end }}
 {{- end }}
 

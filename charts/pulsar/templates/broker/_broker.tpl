@@ -216,6 +216,7 @@ Define function worker config volume
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
+{{- if not .Values.datadog.components.broker.nativeCheck }}
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.init_configs: |
@@ -301,6 +302,23 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
       ]
     }
   ]
+{{- else }}
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.check_names: |
+  ["pulsar"]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.instances: |
+  [
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
+      "enable_health_service_check": true,
+      "timeout": 300,
+      "tags": [
+        "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+      ]
+    }
+  ]
+{{- end }}
 {{- end }}
 {{- end }}
 

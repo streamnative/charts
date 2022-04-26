@@ -1,5 +1,5 @@
 {{/*
-Define the pulsar brroker service
+Define the pulsar broker service
 */}}
 {{- define "pulsar.broker.service" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}
@@ -222,14 +222,19 @@ Define function worker config volume
 {{- end }}
 {{- end }}
 
+{{/*Define broker pod name*/}}
+{{- define "pulsar.broker.podName" -}}
+{{- print "pulsar-broker" -}}
+{{- end -}}
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.check_names: |
+{{- if not .Values.datadog.components.broker.nativeCheck }}
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
@@ -310,6 +315,23 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
       ]
     }
   ]
+{{- else }}
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.check_names: |
+  ["pulsar"]
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
+  [
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
+      "enable_health_service_check": true,
+      "timeout": 300,
+      "tags": [
+        "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+      ]
+    }
+  ]
+{{- end }}
 {{- end }}
 {{- end }}
 
