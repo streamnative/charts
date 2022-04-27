@@ -210,7 +210,7 @@ spec:
       storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
       {{- end -}}
     {{- end }}
-    reclaimPolicy: Delete
+    reclaimPolicy: {{ .Values.zookeeper.volumes.reclaimPolicy | default "Delete" }}
   {{- end }}
   config:
     serverCnxnFactory: {{ .Values.zookeeper.serverCnxnFactory }}
