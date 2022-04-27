@@ -17,26 +17,23 @@
 # under the License.
 #
 
-# deploy zookeeper only when `components.zookeeper` is true
-{{- if and .Values.components.zookeeper (not .Values.zookeeper.operator.enabled) }}
-{{- if .Values.zookeeper.pdb.usePolicy }}
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
+{{- if and .Values.ingress.control_center.enabled .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  name: "{{ template "pulsar.fullname" . }}-control-center"
   namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.zookeeper.component }}
-  annotations:
-    {{- if .Values.zookeeper.resourcePolicy.keep }}
-    "helm.sh/resource-policy": keep
-    {{- end }}
 spec:
   selector:
-    matchLabels:
-      {{- include "pulsar.matchLabels" . | nindent 6 }}
-      component: {{ .Values.zookeeper.component }}
-  maxUnavailable: {{ .Values.zookeeper.pdb.maxUnavailable }}
-{{- end }}
+{{ toYaml .Values.istio.gateway.selector | indent 4 }}
+  servers:
+  - hosts:
+    - {{ template "pulsar.control_center_domain" . }}
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      credentialName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
+      mode: SIMPLE
 {{- end }}

@@ -41,6 +41,10 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.pulsar_detector.component }}
+{{- if .Values.pulsar_detector.annotations }}  
+      annotations:
+{{ toYaml .Values.pulsar_detector.annotations | indent 8 }}
+{{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -49,7 +53,16 @@ spec:
     {{- if .Values.pulsar_detector.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
     {{- end }}
+    {{- if .Values.pulsar_detector.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.pulsar_detector.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.pulsar_detector.tolerations }}
+      tolerations:
+{{ toYaml .Values.pulsar_detector.tolerations | indent 8 }}
+    {{- end }}
       terminationGracePeriodSeconds: {{ .Values.pulsar_detector.gracePeriod }}
+      {{- if not .Values.istio.enabled }}
       initContainers:
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
@@ -77,6 +90,7 @@ spec:
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
         image: "{{ .Values.images.pulsar_detector.repository }}:{{ .Values.images.pulsar_detector.tag }}"
@@ -84,7 +98,7 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          bin/pulsar-detector -service-url {{ template "pulsar.detector.serviceUrl" . }} -webservice-url {{ template "pulsar.detector.webServiceUrl" . }} {{- if .Values.auth.authentication.enabled }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }} ;
+          bin/pulsar-detector -service-url {{ template "pulsar.detector.serviceUrl" . }} -webservice-url {{ template "pulsar.detector.webServiceUrl" . }} {{- if .Values.auth.authentication.enabled }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }} {{- if .Values.pulsar_detector.extraArgs }} {{.Values.pulsar_detector.extraArgs }} {{- end }};
         ports:
         # prometheus needs to access /metrics endpoint
         - name: server

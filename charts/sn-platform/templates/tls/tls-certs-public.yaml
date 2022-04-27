@@ -43,12 +43,18 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+  {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+  {{- if .Values.broker.kop.tls.enabled }}
+  {{- if not .Values.broker.kop.tls.passwordSecretRef }}
   keystores:
     jks:
       create: true
       passwordSecretRef:
         name: cert-jks-passwd
         key: password
+  {{- end }}
+  {{- end }}
+  {{- end }}
 ---
 {{- end }}
 {{- end }}

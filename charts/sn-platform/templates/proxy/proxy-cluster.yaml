@@ -17,11 +17,11 @@
 # under the License.
 #
 # deploy PulsarProxy only when `components.proxy and operator.enabled` is true
-{{- if and .Values.components.proxy .Values.proxy.operator.enabled }}
+{{- if .Values.components.proxy }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarProxy
 metadata:
-  # no need to append component name to pod name here as operator will add 
+  # no need to append component name to pod name here as operator will add
   name: "{{ template "pulsar.fullname" . }}"
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
@@ -44,16 +44,20 @@ spec:
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.proxy.datadog.annotation" . | nindent 6 }}
       {{- end }}
+{{- if (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.proxy.ports.http }}"
+{{- end }}
 {{- with .Values.proxy.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-    {{- if .Values.proxy.readPublicKeyFromFile }}
+{{- end }}
+{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
     secretRefs:
     {{- if .Values.proxy.publicKeyPath }}
     - mountPath: {{ .Values.proxy.publicKeyPath }}
@@ -65,19 +69,20 @@ spec:
       {{- else }}
       secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
       {{- end }}
+{{- with .Values.proxy.extraSecretRefs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
+    {{- if .Values.tls.proxy.enabled }}
+    volumes:
+    {{- include "pulsar.proxy.certs.volumes" . | nindent 4 }}
     {{- end }}
-    {{- if or .Values.affinity.anti_affinity .Values.affinity.nodeAffinity }}
     affinity:
-      {{- if and .Values.affinity.nodeAffinity .Values.proxy.affinity.nodeAffinity }}
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-          {{- with .Values.proxy.affinity.nodeSelectorTerms }}
-            {{- toYaml . | nindent 10}}
-          {{- end }}
+      {{- if .Values.proxy.affinity.customRules }}
+{{ toYaml .Values.proxy.affinity.customRules | indent 6 }}
       {{- end }}
       {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
-      podAntiAffinity:
+      podAntiAffinity: 
         {{ .Values.proxy.affinity.type }}:
           {{- if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
           {{- with .Values.proxy.affinity.podAffinityTerms }}
@@ -121,7 +126,6 @@ spec:
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
       {{- end }}
-    {{- end }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
@@ -134,7 +138,15 @@ spec:
           secretKeyRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
             key: brokerClientAuthenticationParameters
+    - name: PROXY_TOKEN
+      valueFrom:
+          secretKeyRef:
+            name: {{ template "pulsar.vault-secret-key-name" . }}
+            key: brokerClientAuthenticationParameters
     {{- end }}
+{{- with .Values.proxy.extraEnv}}
+{{ toYaml . | indent 4 }}
+{{- end }}
     #envFrom:
     #- secretRef:
     #    name: {{ template "pulsar.vault-secret-key-name" . }}
@@ -154,18 +166,21 @@ spec:
 {{ toYaml .Values.proxy.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
-    jvmOptions:
-      extraOptions: []
-      memoryOptions:
-        - {{ .Values.proxy.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.proxy.configData.PULSAR_GC }}
-      gcLoggingOptions: []
+    {{- include "pulsar.jvm.options" .Values.proxy | nindent 4 }}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
   config:
+    {{- if .Values.pulsar_metadata.clusterName }}
+    clusterName: {{ .Values.pulsar_metadata.clusterName }}
+    {{- end }}
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
-{{ toYaml .Values.proxy.configData | indent 6 }}
+{{- with .Values.proxy.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
@@ -229,13 +244,14 @@ spec:
   issuerRef:
     name: ""
   {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  {{ if .Values.proxy.tlsSecretName }}
-  certSecretName: {{ .Values.proxy.tlsSecretName }}
-  {{ else }}
-  certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  {{- end }}
+  certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   {{- end }}
   apiObjects:
+    {{- if .Values.tls.proxy.enabled }}
+    statefulSet:
+      volumeMounts:
+    {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 6 }}
+    {{- end }}
     externalService:
   {{- if .Values.ingress.proxy.enabled }}
       metadata:
@@ -246,6 +262,11 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- end }}
+      {{- if .Values.ingress.proxy.httpPortOverride }}
+      ports:
+      - port: {{ .Values.ingress.proxy.httpPortOverride }}
+        name: "http"
+      {{- end }}
       {{- if ne .Values.ingress.proxy.type "LoadBalancer" }}
       type: {{ .Values.ingress.proxy.type }}
       {{ else }}
@@ -254,11 +275,13 @@ spec:
       exposeSSLPort: true 
       {{- end }}
       {{- end }}
-
   {{- else }}
       {}
   {{- end }}
   {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
+  {{- if .Values.proxy.websocket.enabled }}
+  webSocketServiceEnabled: true
+  {{- end }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
     {{- if .Values.proxy.autoscaling.minReplicas }}

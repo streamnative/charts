@@ -44,6 +44,6 @@ if [[ "x${FUNCTION}" == "xtrue" ]]; then
     ci::test_pulsar_function
 fi
 
-if [[ "x${UPGRADE}" == "xtrue" ]]; then
-    ci::upgrade_pulsar_chart  ${CHARTS_HOME}/${VALUES_FILE}
-fi
+# if [[ "x${UPGRADE}" == "xtrue" ]]; then
+#     ci::upgrade_pulsar_chart  ${CHARTS_HOME}/${VALUES_FILE}
+# fi

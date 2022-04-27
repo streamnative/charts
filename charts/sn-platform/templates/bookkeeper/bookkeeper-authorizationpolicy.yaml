@@ -17,32 +17,23 @@
 # under the License.
 #
 
-{{- if and .Values.components.bookkeeper (not .Values.bookkeeper.operator.enabled) }}
-apiVersion: v1
-kind: Service
+{{- if and .Values.components.bookkeeper .Values.istio.enabled }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.bookkeeper.component }}
-  annotations:
-    {{- if .Values.bookkeeper.resourcePolicy.keep }}
-    "helm.sh/resource-policy": keep
-    {{- end }}
-{{ toYaml .Values.bookkeeper.service.annotations | indent 4 }}
 spec:
-  ports:
-  - name: bookie
-    port: {{ .Values.bookkeeper.ports.bookie }}
-  - name: http
-    port: {{ .Values.bookkeeper.ports.http }}
-  clusterIP: None
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "3181"
+        - "8000"
+  action: ALLOW
   selector:
-    {{- include "pulsar.matchLabels" . | nindent 4 }}
-    component: {{ .Values.bookkeeper.component }}
-  # bookkeeper uses statefulset for getting stable bookie identifier.
-  # it is okay to publish endpoints that are not ready because bookkeeper client
-  # already has the ability to handle bookie failures.
-  publishNotReadyAddresses: true
+    matchLabels:
+      cloud.streamnative.io/app: pulsar
+      cloud.streamnative.io/component: bookie
+      cloud.streamnative.io/cluster: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
 {{- end }}

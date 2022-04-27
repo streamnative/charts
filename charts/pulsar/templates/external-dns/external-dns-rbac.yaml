@@ -48,9 +48,11 @@ rules:
 - apiGroups: [""]
   resources: ["nodes"]
   verbs: ["list"]
+{{- if .Values.external_dns.istioEnabled }}
 - apiGroups: ["networking.istio.io"]
   resources: ["gateways", "virtualservices"]
   verbs: ["get","watch","list"]
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

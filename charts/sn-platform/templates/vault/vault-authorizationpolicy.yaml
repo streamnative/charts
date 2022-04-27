@@ -17,22 +17,22 @@
 # under the License.
 #
 
-{{- if and .Values.components.autorecovery (not .Values.autorecovery.operator.enabled) }}
-apiVersion: v1
-kind: ConfigMap
+{{- if and .Values.components.vault .Values.istio.enabled }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}"
   namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.autorecovery.component }}
-  annotations:
-    {{- if .Values.bookkeeper.resourcePolicy.keep }}
-    "helm.sh/resource-policy": keep
-    {{- end }}
-data:
-  # common config
-  {{- include "pulsar.bookkeeper.config.common" . | nindent 2 }}
-{{ toYaml .Values.autorecovery.configData | indent 2 }}
-{{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 2 }}
+spec:
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "8200"
+        - "8201"
+        - "9091"
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: vault
+      vault_cr: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}"
 {{- end }}

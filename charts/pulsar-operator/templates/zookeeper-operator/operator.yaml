@@ -39,6 +39,10 @@ spec:
         component: {{ .Values.zookeeper.component }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 6}}
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
         image: {{template "zookeeper.image" . }}

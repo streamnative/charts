@@ -16,12 +16,12 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if and .Values.components.broker .Values.broker.operator.enabled .Values.broker.functionmesh.enabled}}
+{{- if and .Values.components.broker .Values.broker.functionmesh.enabled}}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "builtin-connectors"
+  name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}

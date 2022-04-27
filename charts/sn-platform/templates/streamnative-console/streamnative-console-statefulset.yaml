@@ -62,6 +62,7 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.streamnative_console.gracePeriod }}
 
+      {{- if not .Values.istio.enabled }}
       initContainers:
       # This init container will wait for broker to be ready before
       # deploying the pulsar manager
@@ -73,6 +74,7 @@ spec:
           - >
             set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
             echo "broker cluster is ready";
+      {{- end }}
       containers:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
@@ -156,8 +158,14 @@ spec:
           - name: REDIRECT_PORT
             value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
           {{- end }}
-          {{- if .Values.components.vault }}
+          {{- if not .Values.auth.vault.enabled }}
+          - name: VAULT_ENABLED
+            value: "false"
+          {{ end }}
+          {{- if or (eq .Values.auth.vault.enabled true) (eq .Values.streamnative_console.login.sso.google.enabled true) (eq .Values.streamnative_console.login.sso.azure.enabled true) (eq .Values.streamnative_console.login.sso.okta.enabled true) }}
           envFrom:
+          {{- end }}
+          {{- if .Values.auth.vault.enabled }}
           - secretRef:
               name: {{ template "pulsar.vault-secret-key-name" . }}
           {{- end }}

@@ -59,7 +59,7 @@ spec:
         - {{ template "pulsar.control_center_domain" . }}
 {{- if and .Values.tls.enabled .Values.ingress.control_center.tls.enabled }}
 # Use the same cert for proxy which is wildcard type
-      secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+      secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
 {{- end }}
 
   {{- end }}
@@ -128,11 +128,18 @@ spec:
             {{- end }}
           {{- else }}
           - path: /
+            {{- if $isIngressAPIStable }}
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: default
                 port: 
                   number: 80
+            {{- else }}
+            backend:
+              serviceName: default
+              servicePort: 80
+            {{- end }}
           {{- end }}
       {{- if .Values.ingress.control_center.external_domain }}
       host: {{ template "pulsar.control_center_domain" . }}

@@ -89,7 +89,7 @@ spec:
                       operator: In
                       values:
                       - {{ .Release.Name }}
-                    - key: "component"
+                    - key: "component" 
                       operator: In
                       values:
                       - {{ .Values.presto.coordinator.component }}
@@ -129,6 +129,11 @@ spec:
           {{- end }}
           command: ["sh", "-c"]
           args:
+            {{ if .Values.presto.coordinator.commandOverride }}
+            {{ with .Values.presto.coordinator.commandOverride }}
+            -{{- toYaml . | indent 12 }}
+            {{- end }}
+            {{- else }}
             - >-
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
@@ -137,6 +142,7 @@ spec:
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
+            {{- end }}
           env:
           - name: POD_IP
             valueFrom:
@@ -202,6 +208,16 @@ spec:
               name: ca
               readOnly: true
             {{- end}}
+            {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
+            - name: presto-certs
+              mountPath: "/pulsar/certs/presto"
+              readOnly: true
+            {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled) }}
+            - name: keytool
+              mountPath: "/pulsar/keytool/keytool.sh"
+              subPath: keytool.sh
+            {{- end}}
+            {{- end}}
           ports:
 {{- if .Values.tls.presto.enabled }}
             - name: https
@@ -230,6 +246,22 @@ spec:
             items:
               - key: ca.crt
                 path: ca.crt
+        {{- end}}
+        {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
+        - name: presto-certs
+          secret:
+            secretName: "{{ .Release.Name }}-{{ .Values.tls.presto.cert_name }}"
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+        {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled) }}
+        - name: keytool
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
+            defaultMode: 0755
+        {{- end}}
         {{- end}}
         - name: config-volume
           configMap:

@@ -90,7 +90,7 @@ data:
     {{- end }}
     {{- if .Values.auth.authorization.enabled }}
     authorizationEnabled: "true"
-    authorizationProvider: org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider
+    authorizationProvider: {{ .Values.functions.authorizationProvider }}
     superUserRoles:
       - {{ .Values.auth.superUsers.broker }}
       - {{ .Values.auth.superUsers.proxy }}

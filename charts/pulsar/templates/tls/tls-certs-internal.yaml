@@ -37,7 +37,11 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
+  {{- if .Values.tls.proxy.commonNameOverride }}
+  commonName: "{{ .Values.tls.proxy.commonNameOverride }}"
+  {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+  {{- end }}
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -62,6 +66,44 @@ spec:
 {{- end }}
 {{- end }}
 
+{{- if or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled }}
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.presto.cert_name }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  # Secret names are always required.
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.presto.cert_name }}"
+  duration: "{{ .Values.tls.common.duration }}"
+  renewBefore: "{{ .Values.tls.common.renewBefore }}"
+  organization:
+  {{ toYaml .Values.tls.common.organization | indent 2 }}
+  isCA: false
+  keySize: {{ .Values.tls.common.keySize }}
+  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
+  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  usages:
+    - server auth
+    - client auth
+  # At least one of a DNS Name, USI SAN, or IP address is required.
+  dnsNames:
+    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.presto.coordinator.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.presto.coordinator.component }}"
+    -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}"
+  # Issuer references are always required.
+  issuerRef:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: Issuer
+    # This is optional since cert-manager will default to this value however
+    # if you are using an external issuer, change this to that issuer group.
+    group: cert-manager.io
+---
+{{- end }}
+
 {{- if or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
@@ -77,7 +119,11 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
+  {{- if .Values.tls.broker.commonNameOverride }}
+  commonName: "{{ .Values.tls.broker.commonNameOverride }}"
+  {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+  {{- end }}
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -116,7 +162,11 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
+  {{- if .Values.tls.bookkeeper.commonNameOverride }}
+  commonName: "{{ .Values.tls.bookkeeper.commonNameOverride }}"
+  {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+  {{- end }}
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -154,7 +204,11 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
+  {{- if .Values.tls.autorecovery.commonNameOverride }}
+  commonName: "{{ .Values.tls.autorecovery.commonNameOverride }}"
+  {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  {{- end }}
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -189,7 +243,11 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
+  {{- if .Values.tls.zookeeper.commonNameOverride }}
+  commonName: "{{ .Values.tls.zookeeper.commonNameOverride }}"
+  {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+  {{- end }}
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -227,7 +285,11 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
+  {{- if .Values.tls.pulsar_manager.commonNameOverride }}
+  commonName: "{{ .Values.tls.pulsar_manager.commonNameOverride }}"
+  {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
+  {{- end }}
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
@@ -266,7 +328,11 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 2 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
+  {{- if .Values.tls.toolset.commonNameOverride }}
+  commonName: "{{ .Values.tls.toolset.commonNameOverride }}"
+  {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+  {{- end }}
   isCA: false
   keySize: {{ .Values.tls.common.keySize }}
   keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}

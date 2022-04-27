@@ -80,7 +80,7 @@ Define bookie tls certs volumes
 {{- if and .Values.tls.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
 - name: bookie-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.bookie.cert_name }}"
+    secretName: "{{ template "pulsar.bookie.tls.secret.name" . }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -88,7 +88,7 @@ Define bookie tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
     - key: ca.crt
       path: ca.crt
@@ -170,14 +170,19 @@ Define bookkeeper log volumes
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
 {{- end }}
 
+{{/*Define bookkeeper pod name*/}}
+{{- define "pulsar.bookkeeper.podName" -}}
+{{- print "bookie" -}}
+{{- end -}}
+
 {{/*Define bookkeeper datadog annotation*/}}
 {{- define  "pulsar.bookkeeper.datadog.annotation" -}}
 {{- if .Values.datadog.components.bookkeeper.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.bookkeeper.ports.http }}/metrics",
@@ -224,5 +229,16 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.compon
     {{- end -}}
 {{- else -}}
 {{ .Values.bookkeeper.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Bookie TLS certificate secret name
+*/}}
+{{- define "pulsar.bookie.tls.secret.name" -}}
+{{- if .Values.tls.bookie.certSecretName -}}
+{{- .Values.tls.bookie.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.bookie.cert_name }}
 {{- end -}}
 {{- end -}}

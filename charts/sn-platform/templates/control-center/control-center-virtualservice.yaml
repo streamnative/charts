@@ -17,15 +17,25 @@
 # under the License.
 #
 
-apiVersion: v1
-appVersion: "1.10"
-description: StreamNative Console Chart
-name: sn-console
-version: 1.10
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/charts/tree/master/charts/sn-console
-icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+{{- if and .Values.ingress.control_center.enabled .Values.istio.enabled }}
+kind: VirtualService
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-control-center"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  hosts:
+    - {{ template "pulsar.control_center_domain" . }}
+  gateways:
+    - "{{ template "pulsar.fullname" . }}-control-center"
+  http:
+    - match:
+        - port: 443
+        - uri:
+            prefix: "/"
+      route:
+        - destination:
+            host: "{{ template "pulsar.streamnative_console.service" . }}"
+            port:
+              number: 9527
+{{- end }}

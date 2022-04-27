@@ -241,6 +241,10 @@ data:
     # default is Runtime.getRuntime().availableProcessors().
     pulsar.managed-ledger-num-scheduler-threads = {{ .Values.presto.catalog.pulsar.mlNumSchedulerThreads }}
 
+    {{- if .Values.presto.coordinator.config.extraConfig }}
+{{ .Values.presto.coordinator.config.extraConfig | indent 4 }}
+    {{- end }}
+
 {{- if or .Values.presto.security.authentication.jwt.enabled .Values.presto.security.authentication.password.enabled }}
   rules.json:
 {{ toYaml .Values.presto.security.rules | indent 2 }}

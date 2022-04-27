@@ -104,15 +104,15 @@ Define proxy certs volumes
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
   {{- end }}
   {{- end }}
 - name: proxy-certs
-  secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+  secret: 
+    secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -122,7 +122,7 @@ Define proxy certs volumes
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
 - name: broker-ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -146,16 +146,22 @@ Define proxy log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
 {{- end }}
+
+{{/*Define proxy pod name*/}}
+{{- define "pulsar.proxy.podName" -}}
+{{- print "pulsar-proxy" -}}
+{{- end -}}
+
 {{/*
 Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
@@ -291,5 +297,16 @@ https://{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}:{{ 
     {{- end -}}
 {{- else -}}
 {{ .Values.proxy.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Proxy TLS certificate secret name
+*/}}
+{{- define "pulsar.proxy.tls.secret.name" -}}
+{{- if .Values.tls.proxy.certSecretName -}}
+{{- .Values.tls.proxy.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}
 {{- end -}}
 {{- end -}}

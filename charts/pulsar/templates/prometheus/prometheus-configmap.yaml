@@ -32,6 +32,9 @@ data:
   prometheus.yml: |
     global:
       scrape_interval: {{ .Values.prometheus.scrapeInterval }}
+      {{- if .Values.prometheus.scrapeTimeout }}
+      scrape_timeout: {{ .Values.prometheus.scrapeTimeout }}
+      {{- end }}
 {{- if .Values.monitoring.alert_manager }}
     rule_files:
       - 'rules.yml'

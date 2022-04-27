@@ -68,6 +68,13 @@ Create the template labels.
 app: {{ template "pulsar.name" . }}
 release: {{ .Release.Name }}
 cluster: {{ template "pulsar.fullname" . }}
+{{- if .Values.istio.enabled }}
+{{- if .Values.istio.labels }}
+{{ toYaml .Values.istio.labels }}
+{{- else }}
+sidecar.istio.io/inject: "true"
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -87,4 +94,57 @@ Pulsar Cluster Name.
 {{- else }}
 {{- template "pulsar.fullname" . }}
 {{- end }}
+{{- end }}
+
+{{/*
+Istio gateway selector
+*/}}
+{{- define "pulsar.istio.gateway.selector" -}}
+{{- if .Values.istio.gateway.selector }}
+{{ toYaml .Values.istio.gateway.selector }}
+{{- else }}
+istio: ingressgateway
+{{- end }}
+{{- end }}
+
+{{/*
+Define TLS CA secret name
+*/}}
+{{- define "pulsar.tls.ca.secret.name" -}}
+{{- if .Values.tls.common.caSecretName -}}
+{{- .Values.tls.common.caSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-ca-tls
+{{- end -}}
+{{- end -}}
+
+{{/*
+JVM Options
+*/}}
+{{- define "pulsar.jvm.options" -}}
+jvmOptions:
+  memoryOptions:
+  {{- if .configData.PULSAR_MEM }}
+  - {{ .configData.PULSAR_MEM | quote }}
+  {{- else }}
+  {{- with .jvm.memoryOptions }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  gcOptions:
+  {{- if .configData.PULSAR_GC }}
+  - {{ .configData.PULSAR_GC | quote }}
+  {{- else }}
+  {{- with .jvm.gcOptions }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- end }}
+  {{- with .jvm.extraOptions }}
+  extraOptions:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  {{- with .jvm.gcLoggingOptions }}
+  gcLoggingOptions:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
 {{- end }}

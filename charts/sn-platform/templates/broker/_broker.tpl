@@ -106,7 +106,7 @@ Define broker tls certs volumes
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
 - name: broker-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}"
+    secretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -114,7 +114,7 @@ Define broker tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
     - key: ca.crt
       path: ca.crt
@@ -222,14 +222,19 @@ Define function worker config volume
 {{- end }}
 {{- end }}
 
+{{/*Define broker pod name*/}}
+{{- define "pulsar.broker.podName" -}}
+{{- print "pulsar-broker" -}}
+{{- end -}}
+
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
@@ -369,5 +374,44 @@ Define gcs offload options mounts
     {{- end -}}
 {{- else -}}
 {{ .Values.broker.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+pulsar service domain
+*/}}
+{{- define "pulsar.broker_service_domain" -}}
+{{- if .Values.ingress.broker.enabled -}}
+  {{- if .Values.ingress.broker.external_domain }}
+{{- print .Values.ingress.broker.external_domain -}}
+  {{- else if .Values.domain.enabled -}}
+{{- printf "data.%s.%s" .Release.Name .Values.domain.suffix -}}
+  {{- else if .Values.broker.advertisedDomain -}}
+{{- print .Values.broker.advertisedDomain -}}
+  {{- else -}}
+{{- print "" -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get the name of builtin connector for function mesh
+*/}}
+{{- define "pulsar.builtinConnectorsConfigMapName" -}}
+{{- if .Values.broker.functionmesh.builtinConnectors -}}
+{{- printf "%s" .Values.broker.functionmesh.builtinConnectors -}}
+{{- else -}}
+{{- printf "%s-builtin-connectors" .Release.Name -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Broker TLS certificate secret name
+*/}}
+{{- define "pulsar.broker.tls.secret.name" -}}
+{{- if .Values.tls.broker.certSecretName -}}
+{{- .Values.tls.broker.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}
 {{- end -}}
 {{- end -}}

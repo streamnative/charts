@@ -167,7 +167,64 @@ To deploy a Pulsar cluster, follow these steps.
     ```
     helm upgrade -f /path/to/pulsar/file.yaml $RELEASE_NAME $PULSAR_CHART
     ```
-   
+
+### Deploy multiple pulsar clusters in one k8s cluster
+
+#### Requirements
+1. Release name should be unique in k8s cluster scope
+2. Only one release installs the monitoring components, others should disable them. If you want to deploy the monitoring for each release, you must disable `node_exporter` at least.
+```yaml
+monitoring:
+  prometheus: false
+  grafana: false
+  node_exporter: false
+  alert_manager: false
+  loki: false
+  datadog: false
+```
+3. Disable the authentication for proxy metrics in the release which you diabled the monitoring components. Add `PULSAR_PREFIX_authenticateMetricsEndpoint: "false"` to `proxy.configData`
+```yaml
+proxy:
+  ...
+  configData:
+    ...
+    PULSAR_PREFIX_authenticateMetricsEndpoint: "false"
+    ...
+```
+
+Follow the steps in [Deploy Pulsar clusters](#deploy-pulsar-clusters) to install each pulsar cluster
+
+
+## Advanced configuration
+    
+#### Terminate tls traffic at LB and forward to Pulsar proxy
+
+To enable tls and terminate tls traffic at load balancer then forward to Pulsar proxy plaintext port:
+Take AWS for example:
+Update value file for tls:
+```yaml
+ingress:
+    proxy:
+        tls:
+          enabled: true
+
+tls:
+  enabled: false
+  proxy:
+    enabled: false
+```
+
+Update service annotation to add certificate info:
+```yaml
+ingress:
+    proxy:
+      enabled: true
+      annotations:
+        "service.beta.kubernetes.io/aws-load-balancer-ssl-cert": pulsarProxyCert.certificateArn
+```
+
+Then the AWS NLB should be configured to accept traffic on tls port, terminate tls traffic and forward to Pulsar proxy plaintext ports.
+
 ## Deploy Function Worker
 
 To deploy function worker service, we can update the value.yaml to enable function worker by
