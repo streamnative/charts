@@ -63,7 +63,6 @@ data:
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
-  forwardAuthorizationCredentials: "true"
   {{- if .Values.auth.authorization.enabled }}
   # disable authorization on proxy and forward authorization credentials to broker
   authorizationEnabled: "false"
