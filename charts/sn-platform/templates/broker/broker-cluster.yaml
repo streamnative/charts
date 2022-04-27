@@ -218,6 +218,10 @@ spec:
       mesh:
         builtinConnectorsRef:
           name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
+        functionEnabled: true
+        sinkEnabled: true
+        sourceEnabled: true
+        uploadEnabled: true
       type: FunctionMesh
     {{- end }}
     {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
@@ -281,6 +285,12 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+      {{- if and .Values.components.functions .Values.broker.functionmesh.enabled }}
+      # enable package service for function mesh
+      packagesManagementStorageProvider: "{{ .Values.broker.packagesManagement.storageProvider }}"
+      packagesReplicas: "{{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}"
+      packagesManagementLedgerRootPath: "{{ .Values.broker.packagesManagement.ledgerRootPath }}"
+      {{- end}}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"

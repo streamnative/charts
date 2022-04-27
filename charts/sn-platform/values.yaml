@@ -1052,6 +1052,9 @@ broker:
     authorizationEnabled: false
   functionmesh:
     enabled: true
+  packagesManagement:
+    storageProvider: "org.apache.pulsar.packages.management.storage.bookkeeper.BookKeeperPackagesStorageProvider"
+    ledgerRootPath: "/ledgers"
   resources:
     requests:
       memory: "512Mi"
