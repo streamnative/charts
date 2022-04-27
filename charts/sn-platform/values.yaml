@@ -616,7 +616,7 @@ zookeeper:
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
-    # specify the reclaimPolicy for the persistent volume of zookeeper, 
+    # specify the reclaimPolicy for the persistent volume of zookeeper,
     # valid values are: Delete, Retain
     # ref: https://github.com/streamnative/pulsar-operators/blob/ae150ffaba558b77fc3cc22645417b4110bf49d2/zookeeper-operator/api/v1alpha1/zookeepercluster_types.go#L329
     reclaimPolicy: "Delete"
@@ -831,7 +831,7 @@ bookkeeper:
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
-    # specify the reclaimPolicy for the persistent volume of bookie data, 
+    # specify the reclaimPolicy for the persistent volume of bookie data,
     # valid values are: Delete, Retain
     # ref: https://github.com/streamnative/pulsar-operators/blob/ae150ffaba558b77fc3cc22645417b4110bf49d2/bookkeeper-operator/api/v1alpha1/bookkeepercluster_types.go#L293
     reclaimPolicy: "Delete"
