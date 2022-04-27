@@ -160,7 +160,7 @@ spec:
           requests:
             storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
         {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 8 }}
-    reclaimPolicy: Delete
+    reclaimPolicy: {{ .Values.bookkeeper.volumes.reclaimPolicy | default "Delete" }}
   {{- end }}
   config:
     custom:

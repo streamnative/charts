@@ -616,6 +616,9 @@ zookeeper:
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
+    # specify the reclaimPolicy for the persistent volume of zookeeper,
+    # valid values are: Delete, Retain
+    reclaimPolicy: "Delete"
     # Add a flag here for backward compatibility. Ideally we should
     # use two disks for production workloads. This flag might be
     # removed in the future releases to stick to two-disks mode.
@@ -827,6 +830,9 @@ bookkeeper:
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
+    # specify the reclaimPolicy for the persistent volume of bookie data,
+    # valid values are: Delete, Retain
+    reclaimPolicy: "Delete"
     journal:
       # It determines the directory of journal data
       numVolumes: 1
