@@ -616,6 +616,10 @@ zookeeper:
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
+    # specify the reclaimPolicy for the persistent volume of zookeeper, 
+    # valid values are: Delete, Retain
+    # ref: https://github.com/streamnative/pulsar-operators/blob/ae150ffaba558b77fc3cc22645417b4110bf49d2/zookeeper-operator/api/v1alpha1/zookeepercluster_types.go#L329
+    reclaimPolicy: "Delete"
     # Add a flag here for backward compatibility. Ideally we should
     # use two disks for production workloads. This flag might be
     # removed in the future releases to stick to two-disks mode.
