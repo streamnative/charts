@@ -2195,8 +2195,6 @@ vault:
     created: true
     name: ""
   oidcToken:
-    # when update is true, the helm hooks vault-update will exec
-    update: false
     # time to live for service-account and user
     ttl: 12h
   serviceType: "ClusterIP"
