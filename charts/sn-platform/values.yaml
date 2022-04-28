@@ -2125,6 +2125,14 @@ vault:
     bankVaults:
       probe:
         readinessProbe: {}
+        #  Note: To use readinessProbe, you can uncomment below configs
+        #  If you want to use readinessProbe with Istio enabled, you have to chagne port from "api-port" to "http-api-port"
+        #
+        #  failureThreshold: 2
+        #  httpGet:
+        #    path: "/v1/sys/init"
+        #    port: "api-port"
+        #    scheme: "HTTP"
         startupProbe: {}
         livenessProbe: {}
   resources:
