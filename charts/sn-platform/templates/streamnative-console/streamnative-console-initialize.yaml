@@ -87,11 +87,6 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-            echo "service url: "$STREAMNATIVE_CONSOLE_BACKEND_URL;
-            echo "username: "$VAULT_SUPER_USER_NAME;
-            echo "password: "$VAULT_SUPER_USER_PASSWORD;
-            ls -l /root/init_instance/;
-
             python3 /root/init_instance/init_instance.py 2>/dev/null;
             until [ $? -eq 0 ]; do
               echo "streamnative console is not ready now! wait another 10s~";
