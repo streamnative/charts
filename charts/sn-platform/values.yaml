@@ -2124,12 +2124,7 @@ vault:
       statsd_address: ""
     bankVaults:
       probe:
-        readinessProbe:
-          failureThreshold: 2
-          httpGet:
-            path: "/v1/sys/init"
-            port: "api-port"
-            scheme: "HTTP"
+        readinessProbe: {}
         startupProbe: {}
         livenessProbe: {}
   resources:
