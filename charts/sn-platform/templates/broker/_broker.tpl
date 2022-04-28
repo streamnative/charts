@@ -106,7 +106,7 @@ Define broker tls certs volumes
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
 - name: broker-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}"
+    secretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -114,7 +114,7 @@ Define broker tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
     - key: ca.crt
       path: ca.crt
@@ -224,11 +224,7 @@ Define function worker config volume
 
 {{/*Define broker pod name*/}}
 {{- define "pulsar.broker.podName" -}}
-{{- if .Values.broker.operator.enabled -}}
 {{- print "pulsar-broker" -}}
-{{- else -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}
-{{- end -}}
 {{- end -}}
 
 {{/*Define broker datadog annotation*/}}
@@ -406,5 +402,16 @@ Get the name of builtin connector for function mesh
 {{- printf "%s" .Values.broker.functionmesh.builtinConnectors -}}
 {{- else -}}
 {{- printf "%s-builtin-connectors" .Release.Name -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Broker TLS certificate secret name
+*/}}
+{{- define "pulsar.broker.tls.secret.name" -}}
+{{- if .Values.tls.broker.certSecretName -}}
+{{- .Values.tls.broker.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}
 {{- end -}}
 {{- end -}}

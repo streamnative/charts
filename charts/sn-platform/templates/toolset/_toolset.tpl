@@ -98,7 +98,7 @@ Define toolset tls certs volumes
 {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled) }}
 - name: toolset-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}"
+    secretName: "{{ template "pulsar.toolset.tls.secret.name" . }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -106,7 +106,7 @@ Define toolset tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
     - key: ca.crt
       path: ca.crt
@@ -127,7 +127,7 @@ Define toolset tls certs volumes
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -188,3 +188,14 @@ image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
 imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define toolset TLS certificate secret name
+*/}}
+{{- define "pulsar.toolset.tls.secret.name" -}}
+{{- if .Values.tls.toolset.certSecretName -}}
+{{- .Values.tls.toolset.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}
+{{- end -}}
+{{- end -}}

@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy BookKeeperCluster only when `components.bookkeeper and operator.enabled` is true
-{{- if and .Values.components.bookkeeper .Values.bookkeeper.operator.enabled }}
+{{- if .Values.components.bookkeeper }}
 apiVersion: bookkeeper.streamnative.io/v1alpha1
 kind: BookKeeperCluster
 metadata:
@@ -118,11 +118,7 @@ spec:
 {{ toYaml .Values.bookkeeper.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.bookkeeper.gracePeriod }}
-    jvmOptions:
-      memoryOptions:
-        - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+    {{- include "pulsar.jvm.options" .Values.bookkeeper | nindent 4 }}
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
@@ -138,9 +134,15 @@ spec:
     {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
     {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
     {{- end }}
+    {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+    volumes:
+    {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
+    {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
+      numVolumes: {{ .Values.bookkeeper.volumes.journal.numVolumes | default 1 }}
+      numDirsPerVolume: {{ .Values.bookkeeper.volumes.journal.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
@@ -149,6 +151,8 @@ spec:
             storage: {{ .Values.bookkeeper.volumes.journal.size }}
         {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 8 }}
     ledger:
+      numVolumes: {{ .Values.bookkeeper.volumes.ledgers.numVolumes | default 1 }}
+      numDirsPerVolume: {{ .Values.bookkeeper.volumes.ledgers.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
@@ -156,38 +160,39 @@ spec:
           requests:
             storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
         {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 8 }}
-    reclaimPolicy: Delete
+    reclaimPolicy: {{ .Values.bookkeeper.volumes.reclaimPolicy | default "Delete" }}
   {{- end }}
-  {{- if .Values.bookkeeper.custom }}
   config:
     custom:
-{{ toYaml .Values.bookkeeper.custom | indent 6 }}
-  {{- end }}
-  conf:
-    zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
-    # enable bookkeeper http server
-    httpServerEnabled: "true"
-    httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
-    # config the stats provider
-    statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
-    # use hostname as the bookie id
-    useHostNameAsBookieID: "true"
-    {{- if .Values.components.autorecovery }}
-    # disable auto recovery on bookies since we will start AutoRecovery in separated pods
-    autoRecoveryDaemonEnabled: "false"
-    {{- end }}
-    # Do not retain journal files as it increase the disk utilization
-    journalMaxBackups: "0"
-    {{- if .Values.bookkeeper.operator.adopt_existing }}
-    # if adopting existing bk cluster then also keep existing ledger/journal dir setting
-    journalDirectories: "/pulsar/data/bookkeeper/journal"
-    PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
-    ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
-    PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
-    {{- end }}
-    BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
-{{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
-{{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 4 }}
+{{- with .Values.bookkeeper.custom }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.bookkeeper.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+      zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+      # enable bookkeeper http server
+      httpServerEnabled: "true"
+      httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
+      # config the stats provider
+      statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
+      # use hostname as the bookie id
+      useHostNameAsBookieID: "true"
+      {{- if .Values.components.autorecovery }}
+      # disable auto recovery on bookies since we will start AutoRecovery in separated pods
+      autoRecoveryDaemonEnabled: "false"
+      {{- end }}
+      # Do not retain journal files as it increase the disk utilization
+      journalMaxBackups: "0"
+      {{- if .Values.bookkeeper.operator.adopt_existing }}
+      # if adopting existing bk cluster then also keep existing ledger/journal dir setting
+      journalDirectories: "/pulsar/data/bookkeeper/journal"
+      PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
+      ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+      PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+      {{- end }}
+{{- include "pulsar.bookkeeper.config.tls" . | nindent 6 }}
+{{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 6 }}
   autoRecovery:
     {{- if and .Values.components.autoscaling .Values.autorecovery.autoscaling.maxReplicas }}
     autoScalingPolicy:
@@ -208,7 +213,7 @@ spec:
 {{- end }}
       {{- end }}
     {{- end }}
-    {{- if and .Values.components.autorecovery .Values.autorecovery.operator.enabled }}
+    {{- if .Values.components.autorecovery }}
     replicas: {{ .Values.autorecovery.replicaCount }}
     {{- else }}
     replicas: 0
@@ -286,9 +291,12 @@ spec:
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
       {{- end }}
+      {{- include "pulsar.jvm.options" .Values.autorecovery | nindent 6 }}
     conf:
       {{- include "pulsar.bookkeeper.config.common" . | nindent 6 }}
-{{ toYaml .Values.autorecovery.configData | indent 6 }}
+{{- with .Values.autorecovery.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
 {{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
   {{- if and .Values.components.autoscaling .Values.bookkeeper.autoscaling.maxReplicas }}
   autoScalingPolicy:
@@ -353,6 +361,10 @@ spec:
         mountPath: /pulsar/data/bookkeeper/ledgers
       {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
       {{- include "pulsar.bookkeeper.log.volumeMounts" . | nindent 6 }}
+      {{- end }}
+      {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+      volumeMounts:
+      {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
       {{- end }}
     autoRecoveryStatefulSet:
       metadata:

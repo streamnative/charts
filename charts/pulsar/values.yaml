@@ -129,49 +129,61 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.7.2.8
+  #   tag: 2.9.2.12
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: 2.8.0.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_java:
+    repository: streamnative/pulsar-functions-java-runner
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_go:
+    repository: streamnative/pulsar-functions-go-runner
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_python:
+    repository: streamnative/pulsar-functions-python-runner
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.7.0.4
+  #   tag: 2.9.2.12
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -217,10 +229,12 @@ tls:
     keySize: 4096
     keyAlgorithm: rsa
     keyEncoding: pkcs8
+    caSecretName:
   # settings for generating certs for proxy
   proxy:
     enabled: false
     cert_name: tls-proxy
+    certSecretName:
     untrustedCa: true
   # settings for generating certs for proxy
   pulsar_detector:
@@ -230,11 +244,13 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+    certSecretName:
   brokerClient:
     enabled: false
   functions:
     enabled: false
     cert_name: tls-function
+    certSecretName:
   # settings for generating certs for kop
   kop:
     enabled: false
@@ -245,22 +261,28 @@ tls:
   bookie:
     enabled: false
     cert_name: tls-bookie
+    certSecretName:
   # settings for generating certs for zookeeper
   zookeeper:
     enabled: false
     cert_name: tls-zookeeper
+    certSecretName:
   # settings for generating certs for recovery
   autorecovery:
     cert_name: tls-recovery
+    certSecretName:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
+    certSecretName:
   pulsar_manager:
     enabled: false
     cert_name: tls-pulsar-manager
+    certSecretName:
   presto:
     enabled: false
     cert_name: tls-presto
+    certSecretName:
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -624,7 +646,7 @@ zookeeper:
       component: "backup"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-2"
+      tag: "2.9.2.12"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
@@ -650,7 +672,7 @@ zookeeper:
       component: "restore"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-2"
+      tag: "2.9.2.12"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
@@ -870,7 +892,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -1062,6 +1084,9 @@ broker:
       ioSeqfileCompressBlocksize: "1000000"
       ioSeqFileCompressionType: "BLOCK"
       ioMapIndexInteval: "128"
+  packagesManagement:
+    storageProvider: "org.apache.pulsar.packages.management.storage.bookkeeper.BookKeeperPackagesStorageProvider"
+    ledgerRootPath: "/ledgers"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1069,6 +1094,8 @@ broker:
 functions:
   component: functions-worker
   useDedicatedRunner: false
+  functionMesh: false
+  functionMeshName: "function-mesh"
   replicaCount: 1
   functionState: false
   enableCustomizerRuntime: false

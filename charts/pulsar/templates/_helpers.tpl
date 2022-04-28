@@ -88,3 +88,14 @@ Pulsar Cluster Name.
 {{- template "pulsar.fullname" . }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define TLS CA secret name
+*/}}
+{{- define "pulsar.tls.ca.secret.name" -}}
+{{- if .Values.tls.common.caSecretName -}}
+{{- .Values.tls.common.caSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-ca-tls
+{{- end -}}
+{{- end -}}

@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy PulsarProxy only when `components.proxy and operator.enabled` is true
-{{- if and .Values.components.proxy .Values.proxy.operator.enabled }}
+{{- if .Values.components.proxy }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarProxy
 metadata:
@@ -73,6 +73,10 @@ spec:
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
+    {{- if .Values.tls.proxy.enabled }}
+    volumes:
+    {{- include "pulsar.proxy.certs.volumes" . | nindent 4 }}
+    {{- end }}
     affinity:
       {{- if .Values.proxy.affinity.customRules }}
 {{ toYaml .Values.proxy.affinity.customRules | indent 6 }}
@@ -156,13 +160,7 @@ spec:
 {{ toYaml .Values.proxy.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
-    jvmOptions:
-      extraOptions: []
-      memoryOptions:
-        - {{ .Values.proxy.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.proxy.configData.PULSAR_GC }}
-      gcLoggingOptions: []
+    {{- include "pulsar.jvm.options" .Values.proxy | nindent 4 }}
     {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
@@ -174,7 +172,9 @@ spec:
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
-{{ toYaml .Values.proxy.configData | indent 6 }}
+{{- with .Values.proxy.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
@@ -238,13 +238,14 @@ spec:
   issuerRef:
     name: ""
   {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  {{ if .Values.proxy.tlsSecretName }}
-  certSecretName: {{ .Values.proxy.tlsSecretName }}
-  {{ else }}
-  certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  {{- end }}
+  certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   {{- end }}
   apiObjects:
+    {{- if .Values.tls.proxy.enabled }}
+    statefulSet:
+      volumeMounts:
+    {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 6 }}
+    {{- end }}
     externalService:
   {{- if .Values.ingress.proxy.enabled }}
       metadata:
@@ -268,11 +269,13 @@ spec:
       exposeSSLPort: true 
       {{- end }}
       {{- end }}
-
   {{- else }}
       {}
   {{- end }}
   {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
+  {{- if .Values.proxy.websocket.enabled }}
+  webSocketServiceEnabled: true
+  {{- end }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
     {{- if .Values.proxy.autoscaling.minReplicas }}

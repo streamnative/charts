@@ -62,7 +62,7 @@ Define zookeeper certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: zookeeper-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}"
+    secretName: "{{ template "pulsar.zookeeper.tls.secret.name" . }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -70,7 +70,7 @@ Define zookeeper certs volumes
         path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -102,11 +102,7 @@ Define zookeeper log volumes
 
 {{/*Define zookeeper pod name*/}}
 {{- define "pulsar.zookeeper.podName" -}}
-{{- if .Values.zookeeper.operator.enabled -}}
 {{- print "zookeeper" -}}
-{{- else -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}
-{{- end -}}
 {{- end -}}
 
 {{/*Define zookeeper datadog annotation*/}}
@@ -258,5 +254,16 @@ Define zookeeper gen-zk-conf volumes
     {{- end -}}
 {{- else -}}
 {{ .Values.zookeeper.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define ZooKeeper TLS certificate secret name
+*/}}
+{{- define "pulsar.zookeeper.tls.secret.name" -}}
+{{- if .Values.tls.zookeeper.certSecretName -}}
+{{- .Values.tls.zookeeper.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}
 {{- end -}}
 {{- end -}}

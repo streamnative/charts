@@ -76,7 +76,7 @@ Define function tls certs volumes
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
 - name: function-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.functions.cert_name }}"
+    secretName: "{{ template "pulsar.function.tls.secret.name" . }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -84,7 +84,7 @@ Define function tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
     - key: ca.crt
       path: ca.crt
@@ -150,3 +150,14 @@ Define function token volumes
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define Function worker TLS certificate secret name
+*/}}
+{{- define "pulsar.function.tls.secret.name" -}}
+{{- if .Values.tls.functions.certSecretName -}}
+{{- .Values.tls.functions.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.functions.cert_name }}
+{{- end -}}
+{{- end -}}

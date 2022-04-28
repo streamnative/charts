@@ -26,10 +26,13 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: "{{ .Values.vault.component }}-init"
+<<<<<<< HEAD
   annotations:
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-weight": "-5"
     "helm.sh/hook-delete-policy": before-hook-creation #hook-succeeded
+=======
+>>>>>>> origin/master
 spec:
   template:
     metadata:
