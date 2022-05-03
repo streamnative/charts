@@ -220,7 +220,7 @@ spec:
         {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
         - name: ca
           secret:
-            secretName: "{{ .Release.Name }}-ca-tls"
+            secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
             items:
               - key: ca.crt
                 path: ca.crt
@@ -228,7 +228,7 @@ spec:
         {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
         - name: presto-certs
           secret:
-            secretName: "{{ .Release.Name }}-{{ .Values.tls.presto.cert_name }}"
+            secretName: "{{ template "pulsar.presto.tls.secret.name" . }}"
             items:
               - key: tls.crt
                 path: tls.crt
