@@ -33,7 +33,7 @@ spec:
         - "8080"
         - "9092"
         - "9094"
-        - "5684"
+        - "5682"
   action: ALLOW
   selector:
     matchLabels:
