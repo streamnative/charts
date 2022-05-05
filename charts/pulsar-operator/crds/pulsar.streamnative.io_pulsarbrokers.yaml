@@ -801,6 +801,8 @@ spec:
                     type: string
                   transactionEnabled:
                     type: boolean
+                  usePodIPAsAdvertisedAddress:
+                    type: boolean
                 type: object
               configs:
                 additionalProperties:

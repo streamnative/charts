@@ -1187,6 +1187,7 @@ broker:
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
+  usePodIPAsAdvertisedAddress: false
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1423,6 +1424,7 @@ proxy:
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
+  usePodIPAsAdvertisedAddress: false
 
 ## Pulsar ToolSet
 ## templates/toolset-deployment.yaml

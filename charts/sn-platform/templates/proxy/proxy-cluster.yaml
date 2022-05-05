@@ -169,6 +169,7 @@ spec:
     {{- if .Values.pulsar_metadata.clusterName }}
     clusterName: {{ .Values.pulsar_metadata.clusterName }}
     {{- end }}
+    usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:

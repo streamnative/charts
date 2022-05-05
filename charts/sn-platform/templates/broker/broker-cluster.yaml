@@ -224,6 +224,7 @@ spec:
     advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
     serviceURLGenerationPolicy: FQDN
     {{- end }}
+    usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
     {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) .Values.broker.mop.enabled}}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
