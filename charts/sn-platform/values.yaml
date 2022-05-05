@@ -1908,6 +1908,7 @@ streamnative_console:
     GOOGLE_CLIENT_SECRET: ""
     GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
     GOOGLE_REDIRECT_URI: ""
+    GRAFANA_AUTH_PROXY: false
 
   login:
     sso:
