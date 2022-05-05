@@ -19,7 +19,7 @@
 
 {{- if .Values.components.pulsar_detector }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
   namespace: {{ template "pulsar.namespace" . }}
@@ -27,15 +27,11 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.pulsar_detector.component }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
   replicas: {{ .Values.pulsar_detector.replicaCount }}
   selector:
     matchLabels:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.pulsar_detector.component }}
-  updateStrategy:
-    type: RollingUpdate
-  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
