@@ -241,7 +241,7 @@ spec:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
         env:
-{{- with .Values.pulsar.extraEnv}}
+{{- with .Values.proxy.extraEnv}}
 {{ toYaml . | indent 8 }}
 {{- end }}
         volumeMounts:
