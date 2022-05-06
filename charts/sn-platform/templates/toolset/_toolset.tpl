@@ -220,25 +220,6 @@ http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Valu
 {{- end -}}
 
 {{/*
-Define the toolset broker service url
-*/}}
-{{- define "toolset.broker.service.url" -}}
-{{- if not .Values.toolset.useProxy -}}
-{{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
-pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsarssl }}
-{{- else -}}
-pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }}
-{{- end -}}
-{{- else -}}
-{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
-pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsarssl }}
-{{- else -}}
-pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsar }}
-{{- end -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Define pulsarctl config volume mount
 */}}
 {{- define "pulsar.toolset.pulsarctl.conf.volumeMounts" -}}
