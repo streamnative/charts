@@ -52,6 +52,30 @@ spec:
                   properties:
                     autoRecoveryConfigMap:
                       properties:
+                        managed:
+                          type: boolean
+                        metadata:
+                          properties:
+                            annotations:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            name:
+                              type: string
+                          type: object
+                        updatePolicy:
+                          items:
+                            type: string
+                          type: array
+                      type: object
+                    autoRecoveryHPA:
+                      properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -72,6 +96,8 @@ spec:
                       type: object
                     autoRecoveryHeadlessService:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -92,6 +118,8 @@ spec:
                       type: object
                     autoRecoveryStatefulSet:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -266,6 +294,8 @@ spec:
                       type: object
                     bookieStatefulSet:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -440,6 +470,8 @@ spec:
                       type: object
                     clientService:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -460,6 +492,8 @@ spec:
                       type: object
                     configMap:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -480,6 +514,30 @@ spec:
                       type: object
                     headlessService:
                       properties:
+                        managed:
+                          type: boolean
+                        metadata:
+                          properties:
+                            annotations:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            labels:
+                              additionalProperties:
+                                type: string
+                              type: object
+                            name:
+                              type: string
+                          type: object
+                        updatePolicy:
+                          items:
+                            type: string
+                          type: array
+                      type: object
+                    hpa:
+                      properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -500,6 +558,8 @@ spec:
                       type: object
                     pdb:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
