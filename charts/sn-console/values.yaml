@@ -21,7 +21,7 @@ initialize: true
 
 image:
   repository: streamnative/sn-platform-console
-  tag: "1.11"
+  tag: "1.12-rc11"
   pullPolicy: IfNotPresent
   hasCommand: false
 
@@ -66,7 +66,6 @@ volumes:
   data:
     name: data
     size: 10Gi
-    # local_storage: true
     # storageClassName: ""
     ## If the storage class is left undefined when using persistence
     ## the default storage class for the cluster will be used.
@@ -121,10 +120,26 @@ configData:
   GOOGLE_CLIENT_SECRET: ""
   GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
   GOOGLE_REDIRECT_URI: ""
+  DEFAULT_ENVIRONMENT_NAME: "pulsar"
+  DEFAULT_ENVIRONMENT_SERVICE_URL: ""
+  BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
 
 login:
   vault:
     enabled: true
+  pulsarJwt:
+    enabled: false
+    config:
+      AUTHENTICATION_CUSTOM_CLAIM: sub
+      # The secret should contain both `TOKEN`
+      SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: ""
+      # AUTH_METHOD_CUSTOM_CLAIM: sub
+      # USERNAME_CLAIM: sub
+      JWT_BROKER_TOKEN_MODE: SECRET
+      # The secret should contain both `PUBLICKEY`, `PRIVATEKEY`
+      JWT_BROKER_PUBLIC_PRIVATE_KEY: ""
+      # The secret should contain both `SECRETKEY`
+      JWT_BROKER_SECRET_KEY: ""
   sso: 
     google:
       enabled: false
