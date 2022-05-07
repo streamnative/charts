@@ -192,6 +192,12 @@ rules:
   - apiGroups:
       - pulsar.streamnative.io
     resources:
+      - pulsarbrokers/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
       - pulsarproxies
     verbs:
       - create
@@ -208,6 +214,12 @@ rules:
     verbs:
       - get
       - patch
+      - update
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarproxies/finalizers
+    verbs:
       - update
   - apiGroups:
       - rbac.authorization.k8s.io
