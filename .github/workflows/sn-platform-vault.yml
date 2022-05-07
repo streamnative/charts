@@ -17,26 +17,35 @@
 # under the License.
 #
 
-apiVersion: v2
-name: sn-platform-stack
-description: StreamNative Platform Stack
-type: application
-version: 0.1.0
-appVersion: "2.9"
-home: https://streamnative.io
-sources:
-  - https://github.com/streamnative/charts/tree/master/charts/sn-platform-stack
-icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
-maintainers:
-  - name: StreamNative Support
-    email: support@streamnative.io
-dependencies: 
-  - name: sn-platform
-    version: "1.4.0"
-    repository: file://../sn-platform
-  - name: sn-console
-    version: "1.9.0"
-    repository: https://charts.streamnative.io
-  - name: sn-platform-vault
-    version: "0.1.0"
-    repository: file://../sn-platform-vault
+name: Precommit - SN-Platform-Stack Helm Chart (Basic Template)
+on:
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'charts/sn-platform-vault/**'
+      - '.github/workflows/**'
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Fetch history
+        run: git fetch --prune --unshallow
+
+      - name: Lint chart
+        id: lint
+        uses: helm/chart-testing-action@v1.0.0
+        with:
+          command: lint
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        id: install
+
+      - name: Basic templating
+        run: |
+          helm dependency update charts/sn-platform-vault
+          helm template pulsar charts/sn-platform-vault

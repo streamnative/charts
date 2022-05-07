@@ -17,12 +17,21 @@
 # under the License.
 #
 
+stackName: ""
+
 sn-console:
   initialize: false
   # broker related settings. configure how streamnative console should access Pulsar brokers.
   broker:
     webServiceUrl: http://localhost:8080
     # kopServiceUrl: localhost:9093
+    auth:
+      authentication:
+        vault:
+          secretKeyRef: ""
+  volumes:
+    data:
+      storageClassName: ""
   streamnative_console:
     configData:
       # *required*: the organization name to show in the SN console
@@ -38,7 +47,6 @@ sn-console:
           enabled: false
         okta:
           enabled: false
-
   # vault
   vault:
     # vault service url
@@ -60,3 +68,13 @@ sn-platform:
   components:
     # streamnative console
     streamnative_console: false
+    vault: false
+      
+sn-platform-vault:
+  stackName: ""
+  fullnameOverride: ""
+  images:
+    broker:
+      repository: streamnative/sn-platform
+      tag: "2.8.1.30"
+      pullPolicy: IfNotPresent

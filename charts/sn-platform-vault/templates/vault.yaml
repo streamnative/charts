@@ -1,0 +1,104 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+apiVersion: vault.banzaicloud.com/v1alpha1
+kind: Vault
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.vault.component }}
+spec:
+  size: {{ .Values.vault.replicaCount | default 3 }}
+  image: "{{ .Values.images.vault.repository }}:{{ .Values.images.vault.tag }}"
+  bankVaultsImage: "{{ .Values.images.bank_vaults.repository }}:{{ .Values.images.bank_vaults.tag }}"
+  serviceAccount: {{ template "vault.serviceAccount" . }}
+  serviceType: {{ .Values.vault.serviceType }}
+  statsdDisabled: true
+  vaultLabels:
+  {{- include "pulsar.template.labels" . | nindent 4 }}
+  {{- if or .Values.monitoring.datadog .Values.vault.annotations }}
+  vaultAnnotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 4 }}
+{{- end }}
+{{- include "vault.datadog.annotation" . | nindent 4 }}
+{{- end }}
+  {{- if .Values.vault.tolerations }}
+  tolerations:
+{{ toYaml .Values.vault.tolerations | indent 4 }}
+  {{- end }}
+  {{- if .Values.vault.nodeSelector }}
+  nodeSelector:
+{{ toYaml .Values.vault.nodeSelector | indent 4 }}
+  {{- end }}
+  {{- if .Values.global.imagePullSecrets }}
+  vaultPodSpec:
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+  {{- end }}
+  {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe }}
+  vaultContainerSpec:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-vault"
+    {{- if .Values.vault.config.bankVaults.probe.readinessProbe }}
+    readinessProbe:
+{{ toYaml .Values.vault.config.bankVaults.probe.readinessProbe | indent 6 }}
+    {{- end }}
+    {{- if .Values.vault.config.bankVaults.probe.startupProbe }}
+    startupProbe:
+{{ toYaml .Values.vault.config.bankVaults.probe.startupProbe | indent 6 }}
+    {{- end }}
+    {{- if .Values.vault.config.bankVaults.probe.livenessProbe }}
+    livenessProbe:
+{{ toYaml .Values.vault.config.bankVaults.probe.livenessProbe | indent 6 }}
+    {{- end }}
+  {{- end }}
+{{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.vault.volume.size }}
+      {{- include "vault.storage.class" . | nindent 6 }}
+{{- else }}
+  volumes:
+  - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
+    emptyDir: {}
+  {{- end }}
+  volumeMounts:
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
+      mountPath: /vault/file
+  unsealConfig:
+    kubernetes:
+      secretNamespace: {{ template "pulsar.namespace" . }}
+  istioEnabled: {{ .Values.istio.enabled }}
+  {{- if .Values.vault.config }}
+  # A YAML representation of a final vault config file.
+  # See https://www.vaultproject.io/docs/configuration/ for more information.
+  config:
+  {{ toYaml .Values.vault.config | nindent 4 }}
+  {{- end }}
+  {{- if .Values.vault.resources }}
+  resources:
+    vault:
+{{ toYaml .Values.vault.resources | indent 6 }}
+{{- end }}
