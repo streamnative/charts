@@ -170,8 +170,9 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.broker.securityContext }}
-    securityContext: {{ .Values.broker.securityContext }}
+    {{- with .Values.broker.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.broker.nodeSelector }}
     nodeSelector:

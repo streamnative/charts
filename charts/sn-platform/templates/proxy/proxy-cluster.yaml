@@ -141,8 +141,9 @@ spec:
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.proxy.securityContext }}
-    securityContext: {{ .Values.proxy.securityContext }}
+    {{- with .Values.proxy.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.proxy.nodeSelector }}
     nodeSelector:
