@@ -88,6 +88,8 @@ spec:
                   properties:
                     clientService:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -108,6 +110,8 @@ spec:
                       type: object
                     configMap:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -128,6 +132,8 @@ spec:
                       type: object
                     headlessService:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -148,6 +154,8 @@ spec:
                       type: object
                     pdb:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
@@ -168,6 +176,8 @@ spec:
                       type: object
                     statefulSet:
                       properties:
+                        managed:
+                          type: boolean
                         metadata:
                           properties:
                             annotations:
