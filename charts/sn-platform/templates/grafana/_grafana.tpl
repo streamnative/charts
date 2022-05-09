@@ -1,26 +1,3 @@
-{{/* Grafana Domain */}}
-{{- define "pulsar.grafana_domain" -}}
-{{- if .Values.ingress.grafana.enabled -}}
-    {{- if .Values.ingress.grafana.external_domain }}
-{{- printf "%s" .Values.ingress.grafana.external_domain -}}
-    {{- else -}}
-{{- printf "grafana.%s.%s" .Release.Name .Values.domain.suffix -}}
-    {{- end -}}
-{{- else -}}
-{{- print "" -}}
-{{- end -}}
-{{- end -}}
-
-{{/* Grafana Service name */}}
-{{- define "pulsar.grafana.service" -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}
-{{- end }}
-
-{{/* Grafana Service dns hostname */}}
-{{- define "pulsar.grafana.hostname" -}}
-{{ template "pulsar.grafana.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
-{{- end -}}
-
 {{/* Grafana volumes storage class */}}
 {{- define "pulsar.grafana.volumes.pvc.name" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}

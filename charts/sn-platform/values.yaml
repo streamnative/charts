@@ -531,10 +531,6 @@ ingress:
     tls:
       enabled: false
     annotations: {}
-  grafana:
-    enabled: true
-    # external_domain: your.external.grafana.domain
-    # external_domain_scheme: https://
 
 imagePuller:
   component: image-puller
