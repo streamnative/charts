@@ -19,7 +19,7 @@
 {{- if .Values.components.sql_worker }}
 {{- if gt (int .Values.presto.worker.replicaCount) 0 }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ template "presto.worker" . }}
   namespace: {{ template "pulsar.namespace" . }}
