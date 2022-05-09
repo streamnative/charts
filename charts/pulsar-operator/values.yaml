@@ -24,6 +24,11 @@
 namespace: ""
 namespaceCreate: false
 
+## Namespace to watch resources 
+# -- Namespace that the controller watches to reconcile pulsar objects. 
+# If it's empty, the controller watches for pulsar objects across all namespaces.
+watchNamespace: ""
+
 ## Components
 ##
 ## Control what components of Apache Pulsar Operators

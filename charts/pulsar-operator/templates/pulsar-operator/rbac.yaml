@@ -730,4 +730,357 @@ roleRef:
   kind: Role
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
   apiGroup: rbac.authorization.k8s.io
-  {{- end }}
+{{- if .Values.watchNamespace }}
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  namespace: {{ .Values.watchNamespace }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    components: {{ .Values.pulsar.component }}
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - compute.functionmesh.io
+    resources:
+      - '*'
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - networking.istio.io
+    resources:
+      - '*'
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - policy
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarbrokers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarbrokers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarproxies
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarproxies/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - rolebindings
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarconnections
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarconnections/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarnamespaces
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarnamespaces/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsartenants
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsartenants/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsartopics
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsartopics/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarpermissions
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - pulsar.streamnative.io
+    resources:
+      - pulsarpermissions/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - autoscaling
+    resources:
+      - horizontalpodautoscalers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - security.istio.io
+    resources:
+      - '*'
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  namespace: {{ .Values.watchNamespace }}
+subjects:
+  - kind: ServiceAccount
+    name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
+    namespace: {{ template "pulsar.namespace" . }}
+roleRef:
+  kind: Role
+  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}
