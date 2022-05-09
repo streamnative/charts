@@ -27,11 +27,15 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.presto.worker.component }}
 spec:
+  serviceName: {{ template "presto.worker.service" . }}
   replicas: {{ .Values.presto.worker.replicaCount }}
   selector:
     matchLabels:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.presto.worker.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
