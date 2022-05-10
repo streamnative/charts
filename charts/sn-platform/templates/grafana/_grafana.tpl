@@ -1,3 +1,8 @@
+{{/* Grafana Service name */}}
+{{- define "pulsar.grafana.service" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}
+{{- end }}
+
 {{/* Grafana volumes storage class */}}
 {{- define "pulsar.grafana.volumes.pvc.name" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}

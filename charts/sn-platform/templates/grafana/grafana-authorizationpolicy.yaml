@@ -17,36 +17,22 @@
 # under the License.
 #
 
-{{- if .Values.monitoring.grafana }}
-apiVersion: v1
-kind: Service
+{{- if and .Values.monitoring.grafana .Values.istio.enabled }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
 metadata:
-  name: {{ template "pulsar.grafana.service" .}}
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
   namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.grafana.component }}
-  annotations:
-{{- with .Values.grafana.service.annotations }}
-{{ toYaml . | indent 4 }}
-{{- end }}
 spec:
-{{- if .Values.grafana.service.spec }}
-{{- with .Values.grafana.service.spec }}
-{{ toYaml . | indent 2 }}
-{{- end }}
-{{- else }}
-  clusterIP: None
-{{- end }}
-  ports:
-    - name: server
-      port: {{ .Values.grafana.port }}
-      protocol: TCP
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "{{ .Values.grafana.port }}"
+  action: ALLOW
   selector:
-    {{- include "pulsar.matchLabels" . | nindent 4 }}
-    component: {{ .Values.grafana.component }}
-{{- if .Values.grafana.service.loadBalancerSourceRanges }}
-  loadBalancerSourceRanges:
-{{ toYaml .Values.grafana.service.loadBalancerSourceRanges | indent 4 }}
-{{- end }}
+    matchLabels:
+      app: {{ template "pulsar.name" . }}
+      release: {{ .Release.Name }}
+      component: {{ .Values.grafana.component }}
 {{- end }}

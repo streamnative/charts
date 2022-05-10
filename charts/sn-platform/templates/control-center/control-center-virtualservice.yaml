@@ -29,8 +29,19 @@ spec:
   gateways:
     - "{{ template "pulsar.fullname" . }}-control-center"
   http:
+    {{- if and .Values.monitoring.grafana .Values.ingress.control_center.endpoints.grafana }}
     - match:
-        - port: 443
+        - uri:
+            prefix: "{{ template "pulsar.control_center_path.grafana" . }}"
+      rewrite:
+        uri: "{{ template "pulsar.control_center_path.grafana" . }}"
+      route:
+        - destination:
+            host: {{ template "pulsar.grafana.service" . }}
+            port:
+              number: {{ .Values.grafana.port }}
+    {{- end }}
+    - match:
         - uri:
             prefix: "/"
       route:
