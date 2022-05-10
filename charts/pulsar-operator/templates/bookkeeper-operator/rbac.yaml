@@ -268,6 +268,12 @@ rules:
       - patch
       - update
   - apiGroups:
+      - bookkeeper.streamnative.io
+    resources:
+      - bookkeeperclusters/finalizers
+    verbs:
+      - update
+  - apiGroups:
       - ""
     resources:
       - configmaps
