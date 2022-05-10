@@ -106,8 +106,9 @@ spec:
     resources:
 {{ toYaml .Values.bookkeeper.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.bookkeeper.securityContext }}
-    securityContext: {{ .Values.bookkeeper.securityContext }}
+    {{- with .Values.bookkeeper.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.bookkeeper.nodeSelector }}
     nodeSelector:
@@ -232,8 +233,9 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
 {{- end }}      
-      {{- if .Values.autorecovery.securityContext }}
-      securityContext: {{ .Values.autorecovery.securityContext }}
+      {{- with .Values.autorecovery.securityContext }}
+      securityContext:
+{{ toYaml . | indent 8 }}
       {{- end }}
       {{- if .Values.autorecovery.nodeSelector }}
       nodeSelector:
@@ -290,6 +292,9 @@ spec:
       {{- if .Values.autorecovery.resources }}
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
+      {{- end }}
+      {{- if .Values.bookkeeper.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
       {{- end }}
       {{- include "pulsar.jvm.options" .Values.autorecovery | nindent 6 }}
     conf:

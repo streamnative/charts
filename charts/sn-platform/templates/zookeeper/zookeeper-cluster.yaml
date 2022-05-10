@@ -141,8 +141,9 @@ spec:
     resources:
 {{ toYaml .Values.zookeeper.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.zookeeper.securityContext }}
-    securityContext: {{ .Values.zookeeper.securityContext }}
+    {{- with .Values.zookeeper.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.zookeeper.nodeSelector }}
     nodeSelector:
