@@ -67,6 +67,11 @@ data:
             - {{ .Values.namespace }}
 {{- end }}
       relabel_configs:
+{{- if .Values.istio.enabled }}
+      - source_labels: [__meta_kubernetes_pod_label_cloud_streamnative_io_app]
+        action: keep
+        regex: pulsar
+{{- end }}
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
         regex: true
@@ -96,7 +101,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if eq .Values.prometheus.serviceAccount.clusterRole true }}
+{{- if and (eq .Values.prometheus.serviceAccount.clusterRole true) (ne .Values.istio.enabled true) }}
     - job_name: 'kubernetes-nodes'
       scheme: https
       kubernetes_sd_configs:
