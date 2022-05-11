@@ -66,6 +66,14 @@ data:
           names:
             - {{ .Values.namespace }}
 {{- end }}
+{{- if .Values.istio.enabled }}
+      scheme: https
+      tls_config:
+        ca_file: /etc/prom-certs/root-cert.pem
+        cert_file: /etc/prom-certs/cert-chain.pem
+        key_file: /etc/prom-certs/key.pem
+        insecure_skip_verify: true
+{{- end }}
       relabel_configs:
 {{- if .Values.istio.enabled }}
       - source_labels: [__meta_kubernetes_pod_label_cloud_streamnative_io_app]
