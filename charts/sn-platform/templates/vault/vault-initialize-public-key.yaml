@@ -67,5 +67,9 @@ spec:
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}
       restartPolicy: Never
+      {{- with .Values.vault.securityContext }}
+      securityContext:
+      {{ toYaml . | indent 2 }}
+      {{- end }}
 {{- end }}
 {{- end }}

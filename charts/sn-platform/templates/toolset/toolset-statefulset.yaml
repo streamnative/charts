@@ -130,4 +130,8 @@ spec:
 {{- with .Values.toolset.extraVolumes }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+      {{- with .Values.toolset.securityContext }}
+      securityContext:
+      {{ toYaml . | indent 2 }}
+      {{- end }}
 {{- end }}

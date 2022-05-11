@@ -99,5 +99,9 @@ spec:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
           configMap:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+      {{- with .Values.streamnative_console.securityContext }}
+      securityContext:
+      {{ toYaml . | indent 2 }}
+      {{- end }}
 {{- end }}
 

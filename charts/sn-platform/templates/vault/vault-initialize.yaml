@@ -100,4 +100,8 @@ spec:
       {{- include "pulsar.vault.createPulsarTokens.volumes" . | nindent 6 }}
       {{- include "pulsar.vault.initStreamNativeConsole.volumes" . | nindent 6 }}
       restartPolicy: Never
+      {{- with .Values.vault.securityContext }}
+      securityContext:
+      {{ toYaml . | indent 2 }}
+      {{- end }}
 {{- end }}

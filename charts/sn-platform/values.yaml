@@ -1455,6 +1455,7 @@ toolset:
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
+  securityContext: {}
 
 #############################################################
 ### Monitoring Stack : Prometheus / Grafana
@@ -1874,6 +1875,7 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+  securityContext: {}
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml
@@ -2155,6 +2157,7 @@ vault:
     size: 10Gi
     local_storage: true
     # storageClassName: ""
+  securityContext: {}
 
 # Support the addition of arbitrary resources to be deployed
 # This is simply an array of raw manifests
