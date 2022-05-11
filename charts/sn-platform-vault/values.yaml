@@ -17,9 +17,6 @@
 # under the License.
 #
 
-# Flag to control whether to run initialize job
-initialize: false
-
 ## Namespace to deploy pulsar
 # NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
 #       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as

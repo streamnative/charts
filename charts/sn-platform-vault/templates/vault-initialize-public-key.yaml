@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if .Values.initialize }}
+
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -24,6 +24,10 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation
 spec:
   template:
     metadata:
@@ -64,4 +68,3 @@ spec:
         - name: VAULT_ADDR
           value: {{ template "vault.url" . }}
       restartPolicy: Never
-{{- end }}
