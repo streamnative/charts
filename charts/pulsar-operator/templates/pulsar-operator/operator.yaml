@@ -60,6 +60,10 @@ spec:
           value: "{{ .Values.pulsar.workers }}"
         - name: WATCH_CERT_MANAGER_CRDS
           value: "{{ .Values.pulsar.watchCertManagerCRDs }}"
+        {{- if not .Values.pulsar.serviceAccount.clusterRole }}
+        - name: FUNCTION_ROLE_TYPE
+          value: "Role"
+        {{- end}}
         {{- if .Values.pulsar.resources }}
         resources:
 {{ toYaml .Values.pulsar.resources | indent 10 }}

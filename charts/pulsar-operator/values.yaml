@@ -84,6 +84,9 @@ zookeeper:
   serviceAccount:
     create: true
     name: zookeeper-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
@@ -116,6 +119,9 @@ bookkeeper:
   serviceAccount:
     create: true
     name: bookkeeper-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
@@ -150,6 +156,9 @@ pulsar:
   serviceAccount:
     create: true
     name: pulsar-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
