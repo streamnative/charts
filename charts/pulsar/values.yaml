@@ -356,7 +356,8 @@ certs:
     ca_ref:
       secretName: "[SECRET STORES lets encrypt CA]"
       keyName: "[KEY IN THE SECRET STORES let encrypt CA]"
-
+  ca:
+    annotations: {}
 ## External DNS
 ## templates/external-dns.yaml
 ## templates/external-dns-rbac.yaml
