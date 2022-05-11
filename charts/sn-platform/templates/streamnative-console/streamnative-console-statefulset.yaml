@@ -203,9 +203,8 @@ spec:
           claimName: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
       {{- end }}
       {{- end }}
-      {{- with .Values.streamnative_console.securityContext }}
-      securityContext:
-      {{ toYaml . | indent 2 }}
+      {{- if .Values.streamnative_console.securityContext }}
+      securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
       {{- end }}
 
   {{- if or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName }}
