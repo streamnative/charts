@@ -18,7 +18,6 @@
 #
 
 {{- if .Values.components.streamnative_console }}
-{{- if .Values.initialize }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -29,6 +28,4 @@ metadata:
     component: {{ .Values.streamnative_console.component }}
 data:
 {{ (.Files.Glob "conf/streamnative_console/*").AsConfig | indent 2 }}
-{{- end }}
-
 {{- end }}
