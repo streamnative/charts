@@ -17,6 +17,14 @@
 # under the License.
 #
 
-# Based on the defult values, disable the vault
+# Based on the defult values, disable the vault component and auth
 components:
   vault: false
+
+auth:
+  authentication:
+    enabled: false
+  authorization:
+    enabled: false
+  vault:
+    enabled: false
