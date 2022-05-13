@@ -95,6 +95,9 @@ spec:
             echo "StreamNative Console is ready to use~";
             curl -sf -XPOST http://127.0.0.1:15020/quitquitquit || true;
       restartPolicy: Never
+      {{- if .Values.streamnative_console.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
+      {{- end }}
       volumes:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
           configMap:
