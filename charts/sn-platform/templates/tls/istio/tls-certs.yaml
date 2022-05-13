@@ -21,10 +21,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "{{ .Values.istio.gateway.tls.certSecretName }}"
+  name: "{{ template "istio.credentialName" . }}"
   namespace: {{ template "istio.namespace" . }}
 spec:
-  secretName: "{{ .Values.istio.gateway.tls.certSecretName }}"
+  secretName: "{{ template "istio.credentialName" . }}"
   duration: 2160h # 90d
   renewBefore: 360h # 15d
   isCA: false
@@ -39,7 +39,7 @@ spec:
   - "*.{{ .Values.domain.suffix }}"
   issuerRef:
 {{- if .Values.certs.istio_internal_issuer.enabled }}  
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}"
 {{- end }}
 {{- if .Values.certs.istio_public_issuer.enabled }}  
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
