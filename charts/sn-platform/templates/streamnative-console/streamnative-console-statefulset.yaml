@@ -191,11 +191,6 @@ spec:
           - name: streamnative-console-data
             mountPath: /data
 
-          securityContext:
-            capabilities:
-              add:
-              - SETUID
-
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
       - name: streamnative-console-data
