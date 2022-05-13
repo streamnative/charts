@@ -1887,7 +1887,7 @@ streamnative_console:
     annotations: {}
     ports:
       frontend: 9527
-      backend: 7750  
+      backend: 7750
 
   serviceAccount:
     # Specifies whether to use a service account to run this component
