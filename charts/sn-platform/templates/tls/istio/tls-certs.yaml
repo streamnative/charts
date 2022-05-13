@@ -1,0 +1,32 @@
+{{- if .Values.istio.enabled }}
+{{- if or .Values.certs.istio_internal_issuer.enabled .Values.certs.istio_public_issuer.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ .Values.istio.gateway.tls.certSecretName }}"
+  namespace: {{ template "istio.namespace" . }}
+spec:
+  secretName: "{{ .Values.istio.gateway.tls.certSecretName }}"
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+  - "*.{{ .Values.domain.suffix }}"
+  issuerRef:
+{{- if .Values.certs.istio_internal_issuer.enabled }}  
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
+{{- end }}
+{{- if .Values.certs.istio_public_issuer.enabled }}  
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
+{{- end }}
+    kind: Issuer
+    group: cert-manager.io
+{{- end }}
+{{- end }}
