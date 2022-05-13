@@ -236,3 +236,16 @@ Define toolset pulsarctl config volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
 {{- end }}
+
+{{/*Define service account*/}}
+{{- define "pulsar.toolset.serviceAccount" -}}
+{{- if .Values.toolset.serviceAccount.create -}}
+    {{- if .Values.toolset.serviceAccount.name -}}
+{{ .Values.toolset.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.toolset.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
