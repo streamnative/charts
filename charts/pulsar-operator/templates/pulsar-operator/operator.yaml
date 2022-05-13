@@ -49,7 +49,9 @@ spec:
         args:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election
-        - --watch-namespace={{ .Values.watchNamespace }}
+        {{- if or .Values.watchNamespace (not .Values.pulsar.serviceAccount.clusterRole)}}
+        - --watch-namespace={{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+        {{- end }}
         command:
         - /manager
         ports:
