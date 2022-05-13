@@ -90,3 +90,16 @@ storageClassName: "{{ .Values.streamnative_console.volumes.data.storageClassName
   {{- end -}}
 {{- end }}
 {{- end }}
+
+{{/*Define service account*/}}
+{{- define "pulsar.streamnative_console.serviceAccount" -}}
+{{- if .Values.streamnative_console.serviceAccount.create -}}
+    {{- if .Values.streamnative_console.serviceAccount.name -}}
+{{ .Values.streamnative_console.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.streamnative_console.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
