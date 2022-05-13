@@ -133,4 +133,7 @@ spec:
       {{- if .Values.toolset.securityContext }}
       securityContext: {{- toYaml .Values.toolset.securityContext | nindent 8 }}
       {{- end }}
+      {{- if .Values.toolset.serviceAccount.use }}
+      serviceAccountName: {{ include "pulsar.toolset.serviceAccount" . }}
+      {{- end }}
 {{- end }}
