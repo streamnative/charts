@@ -402,7 +402,7 @@ certs:
     enabled: false
     component: istio-internal-cert-issuer
     type: selfsigning
-    
+
   istio_public_issuer:
     enabled: false
     component: istio-public-cert-issuer
