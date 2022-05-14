@@ -59,6 +59,10 @@ data:
   brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }}
   brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}
   {{- end }}
+  # proxy websocketservice
+  {{- if .Values.proxy.websocket.enabled }}
+  webSocketServiceEnabled: "true"
+  {{- end }}
 
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
