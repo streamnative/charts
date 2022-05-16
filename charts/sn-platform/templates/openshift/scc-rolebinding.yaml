@@ -1,0 +1,24 @@
+{{- if and .Values.openshift.enabled .Values.openshift.ssc.enabled -}}
+{{- $sas := list (include "pulsar.vault.serviceAccount" .) -}}
+{{- $sas = append $sas (include "pulsar.zookeeper.serviceAccount" .) -}}
+{{- $sas = append $sas (include "pulsar.bookkeeper.serviceAccount" .) -}}
+{{- $sas = append $sas (include "pulsar.broker.serviceAccount" .) -}}
+{{- $sas = append $sas (include "pulsar.proxy.serviceAccount" .) -}}
+{{- $sas = append $sas (include "pulsar.streamnative_console.serviceAccount" .) -}}
+{{- $sas = append $sas (include "pulsar.toolset.serviceAccount" .) -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "pulsar.openshift.scc.name" .}}
+  namespace: {{ include "pulsar.namespace" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "pulsar.openshift.scc.name" . }}
+subjects:
+    {{- range $sas }}
+  - kind: ServiceAccount
+    name: {{ . }}
+    namespace: {{ include "pulsar.namespace" $ }}
+    {{- end -}}
+{{- end -}}

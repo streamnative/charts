@@ -1,0 +1,16 @@
+{{- if and .Values.openshift.enabled .Values.openshift.ssc.enabled -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "pulsar.openshift.scc.name" . }}
+  namespace: {{ include "pulsar.namespace" . }}
+rules:
+  - verbs:
+      - use
+    apiGroups:
+      - security.openshift.io
+    resources:
+      - securitycontextconstraints
+    resourceNames:
+      - {{ include "pulsar.openshift.scc.name" . }}
+{{- end -}}
