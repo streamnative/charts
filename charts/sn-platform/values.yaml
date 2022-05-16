@@ -2363,10 +2363,6 @@ istio:
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
+    rootNamespace: ""
     tls:
-      # use existing secret
       certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE]"
-      # use cert-manager to generate secret, only take effect if certSecretName is empty,
-      # also need to config certs.istio_internal_issuer/certs.istio_public_issuer
-      cert_name: "[ISTIO CERT NAME]"
-      cert_namespace: "[ISTIO ROOT NAMESPACE]"
