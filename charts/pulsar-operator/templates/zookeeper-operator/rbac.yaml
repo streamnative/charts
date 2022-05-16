@@ -128,6 +128,12 @@ rules:
     verbs:
       - update
   - apiGroups:
+      - zookeeper.streamnative.io
+    resources:
+      - zookeeperclusters/finalizers
+    verbs:
+      - update
+  - apiGroups:
       - authentication.k8s.io
     resources:
       - tokenreviews

@@ -19,7 +19,7 @@
 
 {{- if .Values.monitoring.alert_manager }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
   namespace: {{ template "pulsar.namespace" . }}
@@ -27,15 +27,11 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.alert_manager.component }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}"
   replicas: {{ .Values.alert_manager.replicaCount }}
   selector:
     matchLabels:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.alert_manager.component }}
-  updateStrategy:
-    type: RollingUpdate
-  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
