@@ -44,11 +44,11 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-           kubectl delete secret {{ template "pulsar.vault-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }} && kubectl delete secret {{ template "pulsar.console-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }};
+           kubectl delete secret {{ template "pulsar.vault-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }} && kubectl delete secret {{ template "console-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }};
            until [ $? -eq 0 ]; do
               echo "Clear vault resource not ready now, wait another 5s~";
               sleep 5;
-              kubectl delete secret {{ template "pulsar.vault-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }} && kubectl delete secret {{ template "pulsar.console-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }};
+              kubectl delete secret {{ template "pulsar.vault-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }} && kubectl delete secret {{ template "console-secret-key-name" . }} --ignore-not-found=true -n {{ template "pulsar.namespace" . }};
            done;
            echo "Clear vault resource is ready~";
            echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
