@@ -2363,6 +2363,7 @@ istio:
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
-    rootNamespace: ""
+    # default namespace for gateway is `istio-system`
+    namespace: ""
     tls:
       certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE]"
