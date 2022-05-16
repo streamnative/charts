@@ -24,7 +24,7 @@
 {{- $sas = append $sas (include "pulsar.broker.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.proxy.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.streamnative_console.serviceAccount" .) -}}
-{{- $sas = append $sas (include "pulsar.toolset.serviceAccount" .) -}}
+{{- $sas = append $sas (include "pulsar.toolset.serviceAccount" .) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
