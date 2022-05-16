@@ -168,6 +168,8 @@ To deploy a Pulsar cluster, follow these steps.
     helm upgrade -f /path/to/pulsar/file.yaml $RELEASE_NAME $PULSAR_CHART
     ```
 
+    The hooks `streamnative-console-initialize` and `vault-initialize` are idempotent, it will exec every time when you exec `helm upgrade`, if you don't want them to repeat, please add param `--no-hooks` in your command
+
 ### Deploy multiple pulsar clusters in one k8s cluster
 
 #### Requirements
