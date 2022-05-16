@@ -22,7 +22,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ .Values.istio.gateway.tls.certSecretName }}"
-  namespace: {{ template "istio.namespace" . }}
+  namespace: {{ template "istio.gateway.namespace" . }}
 spec:
   secretName: "{{ .Values.istio.gateway.tls.certSecretName }}"
   duration: 2160h # 90d
@@ -37,11 +37,20 @@ spec:
     - client auth
   dnsNames:
   - "*.{{ .Values.domain.suffix }}"
+{{- if and .Values.components.broker .Values.ingress.broker.external_domain }}
+{{- if ne (hasSuffix (include "domain.suffix" .) .Values.ingress.broker.external_domain) true }}
+  - "{{ .Values.ingress.broker.external_domain }}"
+{{- end }}
+{{- end }}
+{{- if and .Values.components.broker .Values.ingress.control_center.external_domain }}
+{{- if ne (hasSuffix (include "domain.suffix" .) .Values.ingress.control_center.external_domain) true }}
+  - "{{ .Values.ingress.control_center.external_domain }}"
+{{- end }}
+{{- end }}
   issuerRef:
 {{- if .Values.certs.istio_internal_issuer.enabled }}  
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
-{{- end }}
-{{- if .Values.certs.istio_public_issuer.enabled }}  
+{{- else if .Values.certs.istio_public_issuer.enabled }}  
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
 {{- end }}
     kind: Issuer
