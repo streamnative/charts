@@ -37,18 +37,11 @@ spec:
     - client auth
   dnsNames:
   - "*.{{ .Values.domain.suffix }}"
-{{- if and .Values.components.broker .Values.ingress.broker.external_domain }}
-{{- if ne (hasSuffix (include "domain.suffix" .) .Values.ingress.broker.external_domain) true }}
-  - "{{ .Values.ingress.broker.external_domain }}"
-{{- end }}
-{{- end }}
-{{- if and .Values.components.broker .Values.ingress.control_center.external_domain }}
-{{- if ne (hasSuffix (include "domain.suffix" .) .Values.ingress.control_center.external_domain) true }}
-  - "{{ .Values.ingress.control_center.external_domain }}"
-{{- end }}
-{{- end }}
+  # NOTE: Since PulsarBroker generate Pod DNSName based on advertisedDomain(domain of Broker),
+  # there's a limit that broker.external_domain and control_center.external_domain must be 
+  # coverd by the *.{{ .Values.domain.suffix }} if they are defined.
   issuerRef:
-{{- if .Values.certs.istio_internal_issuer.enabled }}  
+{{- if .Values.certs.istio_internal_issuer.enabled }} 
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
 {{- else if .Values.certs.istio_public_issuer.enabled }}  
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
