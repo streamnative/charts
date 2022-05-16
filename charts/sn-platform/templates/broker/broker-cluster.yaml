@@ -213,6 +213,10 @@ spec:
       mesh:
         builtinConnectorsRef:
           name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
+        functionEnabled: true
+        sinkEnabled: true
+        sourceEnabled: true
+        uploadEnabled: true
       type: FunctionMesh
     {{- end }}
     {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
