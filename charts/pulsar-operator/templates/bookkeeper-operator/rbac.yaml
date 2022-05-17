@@ -16,23 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
----
-{{- if and .Values.components.bookkeeper .Values.bookkeeper.serviceAccount.create }}
-kind: ServiceAccount
-apiVersion: v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.serviceAccount.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.bookkeeper.component }}
-{{- end }}
-{{- if and .Values.components.bookkeeper .Values.bookkeeper.rbac.clusterrole.create }}
----
-kind: ClusterRole
+
+{{- if .Values.components.bookkeeper }}
+kind: {{ template "pulsar.bookkeeperRoleKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
+  {{- if not .Values.bookkeeper.serviceAccount.clusterRole }}
+  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" . ) }}
+  {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     components: {{ .Values.bookkeeper.component }}
@@ -80,6 +72,12 @@ rules:
     verbs:
       - get
       - patch
+      - update
+  - apiGroups:
+      - bookkeeper.streamnative.io
+    resources:
+      - bookkeeperclusters/finalizers
+    verbs:
       - update
   - apiGroups:
       - bookkeeper.streamnative.io
@@ -199,203 +197,19 @@ rules:
       - update
       - watch
 ---
-kind: ClusterRoleBinding
+kind: {{ template "pulsar.bookkeeperRoleBindingKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
+  name: {{ template "pulsar.bookkeeperRoleBindingName" . }}
+  {{- if not .Values.bookkeeper.serviceAccount.clusterRole }}
+  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+  {{- end }}
 subjects:
 - kind: ServiceAccount
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.serviceAccount.name }}'
   namespace: {{ template "pulsar.namespace" . }}
 roleRef:
-  kind: ClusterRole
+  kind: {{ template "pulsar.bookkeeperRoleKind" . }}
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
   apiGroup: rbac.authorization.k8s.io
 {{- end }}
-{{- if and .Values.components.bookkeeper .Values.bookkeeper.rbac.role.create }}
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.bookkeeper.component }}
-rules:
-  - apiGroups:
-      - apps
-    resources:
-      - statefulsets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - batch
-    resources:
-      - jobs
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - bookkeeper.streamnative.io
-    resources:
-      - bookkeeperclusters
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - bookkeeper.streamnative.io
-    resources:
-      - bookkeeperclusters/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - bookkeeper.streamnative.io
-    resources:
-      - bookkeeperclusters/finalizers
-    verbs:
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - nodes
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - persistentvolumeclaims
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - services
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - policy
-    resources:
-      - poddisruptionbudgets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - storage.k8s.io
-    resources:
-      - storageclasses
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - authentication.k8s.io
-    resources:
-      - tokenreviews
-    verbs:
-      - create
-  - apiGroups:
-      - authorization.k8s.io
-    resources:
-      - subjectaccessreviews
-    verbs:
-      - create
-  - apiGroups:
-      - ""
-    resources:
-      - events
-    verbs:
-      - create
-      - patch
-  - apiGroups:
-      - autoscaling
-    resources:
-      - horizontalpodautoscalers
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-subjects:
-  - kind: ServiceAccount
-    name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.serviceAccount.name }}'
-    namespace: {{ template "pulsar.namespace" . }}
-roleRef:
-  kind: Role
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
-  apiGroup: rbac.authorization.k8s.io
-  {{- end }}
