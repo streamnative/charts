@@ -1,3 +1,3 @@
 {{- define "pulsar.openshift.scc.name" -}}
-{{ template "pulsar.fullname" . }}-openshift-scc
+{{ template "pulsar.namespace" . }}-{{ template "pulsar.fullname" . }}-openshift-scc
 {{- end -}}
