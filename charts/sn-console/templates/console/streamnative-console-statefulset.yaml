@@ -153,7 +153,7 @@ spec:
             value: {{ .Values.configData.GRAFANA_TARGET_URL | default "http://localhost:3000" }}
           - name: GRAFANA_SERVLET_PATH
             value: {{ .Values.configData.GRAFANA_SERVLET_PATH | default "/grafana/*" }}
-          {{ end }}
+          {{- end }}
           {{- if or (eq .Values.login.vault.enabled true) (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) }}
           envFrom:
           {{- end }}

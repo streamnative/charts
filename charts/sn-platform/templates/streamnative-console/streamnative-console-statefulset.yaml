@@ -169,7 +169,7 @@ spec:
             value: {{ .Values.streamnative_console.configData.GRAFANA_TARGET_URL | default (printf "http://%s-%s:3000" (include "pulsar.fullname" .) .Values.grafana.component) }}
           - name: GRAFANA_SERVLET_PATH
             value: {{ .Values.streamnative_console.configData.GRAFANA_SERVLET_PATH | default "/grafana/*" }}
-          {{ end }}
+          {{- end }}
           {{- if or (eq .Values.auth.vault.enabled true) (eq .Values.streamnative_console.login.sso.google.enabled true) (eq .Values.streamnative_console.login.sso.azure.enabled true) (eq .Values.streamnative_console.login.sso.okta.enabled true) }}
           envFrom:
           {{- end }}
