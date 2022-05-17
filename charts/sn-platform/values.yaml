@@ -379,6 +379,14 @@ auth:
     # brokerClientAuthenticationParameters: ""
     authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
     authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
+
+# Support deploy on OpenShift
+openshift:
+  enabled: false
+  # SecurityContextConstrains is enabled by default
+  ssc:
+    enabled: true
+
 ######################################################################
 # External dependencies
 ######################################################################
