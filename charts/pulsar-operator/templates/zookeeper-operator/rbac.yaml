@@ -16,22 +16,15 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if and .Values.components.zookeeper .Values.zookeeper.serviceAccount.create }}
-kind: ServiceAccount
-apiVersion: v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-  {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.zookeeper.component }}
-{{- end }}
-{{- if and .Values.components.zookeeper .Values.zookeeper.rbac.clusterrole.create }}
----
-kind: ClusterRole
+
+{{- if and .Values.components.zookeeper }}
+kind: {{ template "pulsar.zookeeperRoleKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
+  {{- if not .Values.zookeeper.serviceAccount.clusterRole }}
+  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" . ) }}
+  {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     components: {{ .Values.zookeeper.component }}
@@ -129,6 +122,18 @@ rules:
       - patch
       - update
   - apiGroups:
+      - zookeeper.streamnative.io
+    resources:
+      - zookeeperclusters/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - zookeeper.streamnative.io
+    resources:
+      - zookeeperclusters/finalizers
+    verbs:
+      - update
+  - apiGroups:
       - authentication.k8s.io
     resources:
       - tokenreviews
@@ -160,165 +165,19 @@ rules:
       - update
       - watch
 ---
-kind: ClusterRoleBinding
+kind: {{ template "pulsar.zookeeperRoleBindingKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
+  name: {{ template "pulsar.zookeeperRoleBindingName" . }}
+  {{- if not .Values.zookeeper.serviceAccount.cluserRole }}
+  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" . ) }}
+  {{- end }}
 subjects:
 - kind: ServiceAccount
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
   namespace: {{ template "pulsar.namespace" . }}
 roleRef:
-  kind: ClusterRole
+  kind: {{ template "pulsar.zookeeperRoleKind" . }}
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
   apiGroup: rbac.authorization.k8s.io
 {{- end }}
-{{- if and .Values.components.zookeeper .Values.zookeeper.rbac.role.create }}
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.zookeeper.component }}
-rules:
-  - apiGroups:
-      - apps
-    resources:
-      - statefulsets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - persistentvolumeclaims
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - services
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - policy
-    resources:
-      - poddisruptionbudgets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - zookeeper.streamnative.io
-    resources:
-      - zookeeperclusters
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - zookeeper.streamnative.io
-    resources:
-      - zookeeperclusters/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - authentication.k8s.io
-    resources:
-      - tokenreviews
-    verbs:
-      - create
-  - apiGroups:
-      - authorization.k8s.io
-    resources:
-      - subjectaccessreviews
-    verbs:
-      - create
-  - apiGroups:
-      - ""
-    resources:
-      - events
-    verbs:
-      - create
-      - patch
-  - apiGroups:
-      - autoscaling
-    resources:
-      - horizontalpodautoscalers
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-subjects:
-  - kind: ServiceAccount
-    name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
-    namespace: {{ template "pulsar.namespace" . }}
-roleRef:
-  kind: Role
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.rbac.name }}'
-  apiGroup: rbac.authorization.k8s.io
-  {{- end }}

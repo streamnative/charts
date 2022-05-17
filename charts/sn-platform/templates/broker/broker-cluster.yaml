@@ -55,6 +55,7 @@ spec:
 {{- if (and .Values.prometheus.scrape.broker .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.broker.ports.http }}"
+      prometheus.io/path: "/metrics/"
 {{- end }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
@@ -62,16 +63,9 @@ spec:
 {{- end }}
 {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
     secretRefs:
-    {{- if .Values.broker.publicKeyPath }}
-    - mountPath: {{ .Values.broker.publicKeyPath }}
-    {{- else }}
-    - mountPath: /pulsar/vault/v1/identity/oidc/.well-known/keys
-    {{- end }}
-      {{- if .Values.broker.publicKeySecret }}
-      secretName: {{ .Values.broker.publicKeySecret }}
-      {{- else }}
-      secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
-      {{- end }}
+    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
+      {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
+      secretName: {{ default $defaultSecretName .Values.proxy.publicKeySecret }}
     {{- if .Values.broker.offload.gcs.secret }}
     - mountPath: /pulsar/srvaccts/gcs.json
       secretName: {{ .Values.broker.offload.gcs.secret }}
@@ -177,8 +171,9 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.broker.securityContext }}
-    securityContext: {{ .Values.broker.securityContext }}
+    {{- with .Values.broker.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.broker.nodeSelector }}
     nodeSelector:
@@ -218,6 +213,10 @@ spec:
       mesh:
         builtinConnectorsRef:
           name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
+        functionEnabled: true
+        sinkEnabled: true
+        sourceEnabled: true
+        uploadEnabled: true
       type: FunctionMesh
     {{- end }}
     {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}

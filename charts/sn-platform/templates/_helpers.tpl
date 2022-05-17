@@ -131,11 +131,12 @@ jvmOptions:
   {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
-  gcOptions:
   {{- if .configData.PULSAR_GC }}
+  gcOptions:
   - {{ .configData.PULSAR_GC | quote }}
   {{- else }}
   {{- with .jvm.gcOptions }}
+  gcOptions:
   {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}

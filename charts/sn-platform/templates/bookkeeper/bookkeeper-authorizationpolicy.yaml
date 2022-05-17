@@ -36,4 +36,25 @@ spec:
       cloud.streamnative.io/app: pulsar
       cloud.streamnative.io/component: bookie
       cloud.streamnative.io/cluster: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+{{- if .Values.components.autorecovery }}
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "{{ .Values.autorecovery.ports.http }}"
+  action: ALLOW
+  selector:
+    matchLabels:
+      cloud.streamnative.io/app: pulsar
+      cloud.streamnative.io/component: bookkeeper-auto-recovery
+      cloud.streamnative.io/cluster: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+---
+{{- end }}
 {{- end }}
