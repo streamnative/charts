@@ -17,11 +17,15 @@
 # under the License.
 #
 
-{{- if .Values.initialize }}
 {{- if .Values.components.streamnative_console }}
 apiVersion: batch/v1
 kind: Job
 metadata:
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation #hook-succeeded
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
@@ -91,9 +95,15 @@ spec:
             echo "StreamNative Console is ready to use~";
             curl -sf -XPOST http://127.0.0.1:15020/quitquitquit || true;
       restartPolicy: Never
+      {{- if .Values.streamnative_console.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
+      {{- end }}
       volumes:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
           configMap:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+      {{- if .Values.streamnative_console.securityContext }}
+      securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
+      {{- end }}
 {{- end }}
-{{- end }}
+
