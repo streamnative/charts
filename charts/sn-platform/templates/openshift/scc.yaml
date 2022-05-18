@@ -36,8 +36,7 @@ allowedCapabilities:
 defaultAddCapabilities: null
 fsGroup:
   type: RunAsAny
-groups:
-  - system:authenticated
+groups: []
 priority: null
 readOnlyRootFilesystem: false
 requiredDropCapabilities: null
