@@ -88,6 +88,7 @@ data:
     functionsWorkerServiceNarPackage: "/pulsar/lib/mesh-worker-service.nar"
     functionsWorkerServiceCustomConfigs: |
       jobNamespace: "{{ .Values.functions.jobNamespace }}"
+      defaultServiceAccountName: "{{ .Values.functions.functionMeshServiceAccount }}"
       extraDependenciesDir: "/pulsar/lib"
       functionEnabled: "true"
       sinkEnabled: "true"
