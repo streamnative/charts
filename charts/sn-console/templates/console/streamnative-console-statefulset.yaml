@@ -146,6 +146,14 @@ spec:
           - name: VAULT_ENABLED
             value: "false"
           {{ end }}
+          {{- if .Values.configData.GRAFANA_AUTH_PROXY }}
+          - name: GRAFANA_AUTH_PROXY_USER
+            value: {{ .Values.configData.GRAFANA_AUTH_PROXY_USER | default "pulsar" }}
+          - name: GRAFANA_TARGET_URL
+            value: {{ .Values.configData.GRAFANA_TARGET_URL | default "http://localhost:3000" }}
+          - name: GRAFANA_SERVLET_PATH
+            value: {{ .Values.configData.GRAFANA_SERVLET_PATH | default "/grafana/*" }}
+          {{- end }}
           {{- if and .Values.configData.DEFAULT_ENVIRONMENT_NAME .Values.configData.DEFAULT_ENVIRONMENT_SERVICE_URL }}
           - name: DEFAULT_ENVIRONMENT_NAME
             value: {{ .Values.configData.DEFAULT_ENVIRONMENT_NAME }}
