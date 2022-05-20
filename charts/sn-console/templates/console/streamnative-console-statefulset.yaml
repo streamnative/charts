@@ -146,7 +146,6 @@ spec:
           - name: VAULT_ENABLED
             value: "false"
           {{ end }}
-<<<<<<< HEAD
           {{- if .Values.configData.GRAFANA_AUTH_PROXY }}
           - name: GRAFANA_AUTH_PROXY_USER
             value: {{ .Values.configData.GRAFANA_AUTH_PROXY_USER | default "pulsar" }}
