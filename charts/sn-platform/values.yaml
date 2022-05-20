@@ -405,6 +405,17 @@ certs:
     enabled: false
     component: public-cert-issuer
     type: acme
+
+  istio_internal_issuer:
+    enabled: false
+    component: istio-internal-cert-issuer
+    type: selfsigning
+
+  istio_public_issuer:
+    enabled: false
+    component: istio-public-cert-issuer
+    type: acme
+
   issuers:
     selfsigning:
     acme:
@@ -2387,5 +2398,7 @@ istio:
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
+    # default namespace for gateway is `istio-system`
+    namespace: ""
     tls:
       certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE]"
