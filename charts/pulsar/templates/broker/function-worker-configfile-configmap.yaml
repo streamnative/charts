@@ -31,7 +31,7 @@ data:
   functions_worker.yml: |
     {{- if .Values.functions.config }}
 {{ toYaml .Values.functions.config | indent 4 }}
-    {{- end }} 
+    {{- end }}
     {{- if or .Values.functions.useDedicatedRunner .Values.functions.addWorkerPort }}
     {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
     # `tlsEnabled` and `workerPortTls` are required to set to true in order to make HTTPS work for functions REST api
@@ -84,20 +84,21 @@ data:
       changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
       submittingInsidePod: true
       installUserCodeDependencies: true
-  {{- if .Values.functions.functionMesh }}
-  functionsWorkerServiceNarPackage: "/pulsar/lib/mesh-worker-service.nar"
-  functionsWorkerServiceCustomConfigs: |
-    jobNamespace: "{{ .Values.functions.jobNamespace }}"
-    extraDependenciesDir: "/pulsar/lib"
-    functionEnabled: "true"
-    sinkEnabled: "true"
-    sourceEnabled: "true"
-    uploadEnabled: "true"
-    functionRunnerImages:
-      GO: "{{ .Values.images.function_runner_go.repository }}:{{ .Values.images.function_runner_go.tag }}"
-      JAVA: "{{ .Values.images.function_runner_java.repository }}:{{ .Values.images.function_runner_java.tag }}"
-      PYTHON: "{{ .Values.images.function_runner_python.repository }}:{{ .Values.images.function_runner_python.tag }}"
-  {{- end }}
+    {{- if .Values.functions.functionMesh }}
+    functionsWorkerServiceNarPackage: "/pulsar/lib/mesh-worker-service.nar"
+    functionsWorkerServiceCustomConfigs: |
+      jobNamespace: "{{ .Values.functions.jobNamespace }}"
+      defaultServiceAccountName: "{{ .Values.functions.functionMeshServiceAccount }}"
+      extraDependenciesDir: "/pulsar/lib"
+      functionEnabled: "true"
+      sinkEnabled: "true"
+      sourceEnabled: "true"
+      uploadEnabled: "true"
+      functionRunnerImages:
+        GO: "{{ .Values.images.function_runner_go.repository }}:{{ .Values.images.function_runner_go.tag }}"
+        JAVA: "{{ .Values.images.function_runner_java.repository }}:{{ .Values.images.function_runner_java.tag }}"
+        PYTHON: "{{ .Values.images.function_runner_python.repository }}:{{ .Values.images.function_runner_python.tag }}"
+    {{- end }}
 {{- with .Values.functions.functionRuntimeFactoryConfigs }}
 {{ toYaml . | indent 6 }}
 {{- end }}
