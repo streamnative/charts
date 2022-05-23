@@ -213,6 +213,28 @@ Define function worker config volume
 {{- end }}
 {{- end }}
 
+{{/*
+Define built-in connector config volume mount
+*/}}
+{{- define "pulsar.function.builtinconnectors.volumeMounts" -}}
+{{- if .Values.functions.builtinConnectorConfigmap }}
+- name: "builtin-connectors"
+  mountPath: "{{ template "pulsar.home" . }}/conf/connectors.yaml"
+  subPath: connectors.yaml
+{{- end }}
+{{- end }}
+
+{{/*
+Define built-in connector config volume
+*/}}
+{{- define "pulsar.function.builtinconnectors.volumes" -}}
+{{- if .Values.functions.builtinConnectorConfigmap }}
+- name: "builtin-connectors"
+  configMap:
+    name: "{{ .Values.functions.builtinConnectorConfigmap }}"
+{{- end }}
+{{- end }}
+
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
