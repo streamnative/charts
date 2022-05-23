@@ -183,6 +183,30 @@ Define zookeeper data volumes
 {{- end }}
 {{- end }}
 
+{{- define "pulsar.zookeeper.data.storage.class" -}}
+{{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
+storageClassName: "local-storage"
+{{- else }}
+  {{- if  .Values.zookeeper.volumes.data.storageClass }}
+storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+  {{- else if .Values.zookeeper.volumes.data.storageClassName }}
+storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
+  {{- end -}}
+{{- end }}
+{{- end }}
+
+{{- define "pulsar.zookeeper.datalog.storage.class" -}}
+{{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
+storageClassName: "local-storage"
+{{- else }}
+  {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
+storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
+  {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
+storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
+  {{- end -}}
+{{- end }}
+{{- end }}
+
 {{/*
 Define zookeeper data volumes
 */}}
