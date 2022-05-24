@@ -16,216 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 #
----
-{{- if and .Values.components.pulsar .Values.pulsar.serviceAccount.create }}
-kind: ServiceAccount
-apiVersion: v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.pulsar.component }}
-{{- end }}
-{{- if and .Values.components.pulsar .Values.pulsar.rbac.clusterrole.create }}
----
-kind: ClusterRole
+
+{{- if .Values.components.pulsar }}
+kind: {{ template "pulsar.operatorRoleKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  name: '{{ include "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  {{- if not .Values.pulsar.serviceAccount.clusterRole }}
+  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" . ) }}
+  {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     components: {{ .Values.pulsar.component }}
 rules:
-  - apiGroups:
-      - apps
-    resources:
-      - deployments
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - apps
-    resources:
-      - statefulsets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - batch
-    resources:
-      - jobs
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - cert-manager.io
-    resources:
-      - certificates
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - compute.functionmesh.io
-    resources:
-      - '*'
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - services
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - networking.istio.io
-    resources:
-      - '*'
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - policy
-    resources:
-      - poddisruptionbudgets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarbrokers
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarbrokers/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarproxies
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarproxies/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - rolebindings
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsarconnections
-    verbs:
+- apiGroups:
+    - apps
+  resources:
+    - deployments
+  verbs:
     - create
     - delete
     - get
@@ -233,19 +41,11 @@ rules:
     - patch
     - update
     - watch
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsarconnections/status
-    verbs:
-    - get
-    - patch
-    - update
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsarnamespaces
-    verbs:
+- apiGroups:
+    - apps
+  resources:
+    - statefulsets
+  verbs:
     - create
     - delete
     - get
@@ -253,19 +53,11 @@ rules:
     - patch
     - update
     - watch
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsarnamespaces/status
-    verbs:
-    - get
-    - patch
-    - update
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsartenants
-    verbs:
+- apiGroups:
+    - batch
+  resources:
+    - jobs
+  verbs:
     - create
     - delete
     - get
@@ -273,19 +65,11 @@ rules:
     - patch
     - update
     - watch
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsartenants/status
-    verbs:
-    - get
-    - patch
-    - update
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsartopics
-    verbs:
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates
+  verbs:
     - create
     - delete
     - get
@@ -293,70 +77,11 @@ rules:
     - patch
     - update
     - watch
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsartopics/status
-    verbs:
-    - get
-    - patch
-    - update
-  - apiGroups:
-      - authentication.k8s.io
-    resources:
-      - tokenreviews
-    verbs:
-      - create
-  - apiGroups:
-      - authorization.k8s.io
-    resources:
-      - subjectaccessreviews
-    verbs:
-      - create
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsarpermissions
-    verbs:
-    - create
-    - delete
-    - get
-    - list
-    - patch
-    - update
-    - watch
-  - apiGroups:
-    - pulsar.streamnative.io
-    resources:
-    - pulsarpermissions/status
-    verbs:
-    - get
-    - patch
-    - update
-  - apiGroups:
-    - ""
-    resources:
-    - events
-    verbs:
-    - create
-    - patch
-  - apiGroups:
-    - autoscaling
-    resources:
-    - horizontalpodautoscalers
-    verbs:
-    - create
-    - delete
-    - get
-    - list
-    - patch
-    - update
-    - watch
-  - apiGroups:
-    - security.istio.io
-    resources:
+- apiGroups:
+    - compute.functionmesh.io
+  resources:
     - '*'
-    verbs:
+  verbs:
     - create
     - delete
     - get
@@ -364,370 +89,305 @@ rules:
     - patch
     - update
     - watch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - secrets
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - services
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - networking.istio.io
+  resources:
+    - '*'
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - policy
+  resources:
+    - poddisruptionbudgets
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - pulsar.streamnative.io
+  resources:
+    - pulsarbrokers
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - pulsar.streamnative.io
+  resources:
+    - pulsarbrokers/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - pulsar.streamnative.io
+  resources:
+    - pulsarbrokers/finalizers
+  verbs:
+    - update
+- apiGroups:
+    - pulsar.streamnative.io
+  resources:
+    - pulsarproxies
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - pulsar.streamnative.io
+  resources:
+    - pulsarproxies/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - pulsar.streamnative.io
+  resources:
+    - pulsarproxies/finalizers
+  verbs:
+    - update
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - rolebindings
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsarconnections
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsarconnections/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsarnamespaces
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsarnamespaces/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsartenants
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsartenants/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsartopics
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsartopics/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+    - authentication.k8s.io
+  resources:
+    - tokenreviews
+  verbs:
+    - create
+- apiGroups:
+    - authorization.k8s.io
+  resources:
+    - subjectaccessreviews
+  verbs:
+    - create
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsarpermissions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - pulsar.streamnative.io
+  resources:
+  - pulsarpermissions/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - security.istio.io
+  resources:
+  - '*'
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods/finalizers
+  verbs:
+  - update
 ---
-kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
+kind: {{ template "pulsar.operatorRoleBindingKind" . }}
 metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  name: {{ template "pulsar.operatorRoleBindingName" . }}
+  {{- if not .Values.pulsar.serviceAccount.cluserRole }}
+  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+  {{- end }}
 subjects:
 - kind: ServiceAccount
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
+  name: '{{ include "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
+  namespace: {{ include "pulsar.namespace" . }}
 roleRef:
-  kind: ClusterRole
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  kind: {{ template "pulsar.operatorRoleKind" . }}
+  name: '{{ include "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
   apiGroup: rbac.authorization.k8s.io
 {{- end }}
-{{- if and .Values.components.pulsar .Values.pulsar.rbac.role.create }}
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.pulsar.component }}
-rules:
-  - apiGroups:
-      - apps
-    resources:
-      - deployments
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - apps
-    resources:
-      - statefulsets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - batch
-    resources:
-      - jobs
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - cert-manager.io
-    resources:
-      - certificates
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - compute.functionmesh.io
-    resources:
-      - '*'
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - configmaps
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - pods
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - ""
-    resources:
-      - services
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - networking.istio.io
-    resources:
-      - '*'
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - policy
-    resources:
-      - poddisruptionbudgets
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarbrokers
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarbrokers/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarproxies
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarproxies/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - rolebindings
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarconnections
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarconnections/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarnamespaces
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarnamespaces/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsartenants
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsartenants/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsartopics
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsartopics/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - authentication.k8s.io
-    resources:
-      - tokenreviews
-    verbs:
-      - create
-  - apiGroups:
-      - authorization.k8s.io
-    resources:
-      - subjectaccessreviews
-    verbs:
-      - create
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarpermissions
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - pulsar.streamnative.io
-    resources:
-      - pulsarpermissions/status
-    verbs:
-      - get
-      - patch
-      - update
-  - apiGroups:
-      - ""
-    resources:
-      - events
-    verbs:
-      - create
-      - patch
-  - apiGroups:
-      - autoscaling
-    resources:
-      - horizontalpodautoscalers
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-  - apiGroups:
-      - security.istio.io
-    resources:
-      - '*'
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
-subjects:
-  - kind: ServiceAccount
-    name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
-    namespace: {{ template "pulsar.namespace" . }}
-roleRef:
-  kind: Role
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
-  apiGroup: rbac.authorization.k8s.io
-  {{- end }}

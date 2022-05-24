@@ -24,6 +24,11 @@
 namespace: ""
 namespaceCreate: false
 
+## Namespace to watch resources
+# -- Namespace that the controller watches to reconcile pulsar objects.
+# If it's empty, the controller watches for pulsar objects across all namespaces.
+watchNamespace: ""
+
 ## Components
 ##
 ## Control what components of Apache Pulsar Operators
@@ -40,7 +45,7 @@ components:
 ## Control what images to use for each component
 images:
   registry: "docker.cloudsmith.io"
-  tag: "v0.10.0"
+  tag: "v0.11.0"
 
   zookeeper:
     registry: ""
@@ -79,6 +84,9 @@ zookeeper:
   serviceAccount:
     create: true
     name: zookeeper-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
@@ -111,6 +119,9 @@ bookkeeper:
   serviceAccount:
     create: true
     name: bookkeeper-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
@@ -145,6 +156,9 @@ pulsar:
   serviceAccount:
     create: true
     name: pulsar-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false

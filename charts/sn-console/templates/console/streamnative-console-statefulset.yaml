@@ -146,7 +146,59 @@ spec:
           - name: VAULT_ENABLED
             value: "false"
           {{ end }}
-          {{- if or (eq .Values.login.vault.enabled true) (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) }}
+          {{- if .Values.configData.GRAFANA_AUTH_PROXY }}
+          - name: GRAFANA_AUTH_PROXY_USER
+            value: {{ .Values.configData.GRAFANA_AUTH_PROXY_USER | default "pulsar" }}
+          - name: GRAFANA_TARGET_URL
+            value: {{ .Values.configData.GRAFANA_TARGET_URL | default "http://localhost:3000" }}
+          - name: GRAFANA_SERVLET_PATH
+            value: {{ .Values.configData.GRAFANA_SERVLET_PATH | default "/grafana/*" }}
+          {{- end }}
+          {{- if and .Values.configData.DEFAULT_ENVIRONMENT_NAME .Values.configData.DEFAULT_ENVIRONMENT_SERVICE_URL }}
+          - name: DEFAULT_ENVIRONMENT_NAME
+            value: {{ .Values.configData.DEFAULT_ENVIRONMENT_NAME }}
+          - name: DEFAULT_ENVIRONMENT_SERVICE_URL
+            value: {{ .Values.configData.DEFAULT_ENVIRONMENT_SERVICE_URL }}
+          {{- end }}
+          {{- if and .Values.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
+          - name: BACKEND_DEFAULT_SUPER_USER_ROLE
+            value: {{ .Values.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
+          {{- end }}
+          {{- if .Values.login.pulsarJwt.enabled }}
+          - name: AUTHENTICATION_NAME
+            value: "pulsar-jwt"
+          - name: AUTHENTICATION_PROVIDER
+            value: org.apache.pulsar.manager.authentication.PulsarJWTAuthenticationProvider
+          - name: AUTHENTICATION_CUSTOM_CLAIM
+            value: {{ .Values.login.pulsarJwt.config.AUTHENTICATION_CUSTOM_CLAIM | default "sub" }}
+          - name: SERVICE_ACCOUNT_NAME
+            value: jwt
+          - name: SERVICE_ACCOUNT_PROVIDER
+            value: org.apache.pulsar.manager.serviceAccount.JWTProvider
+          - name: AUTH_METHOD_NAME
+            value: pulsar-jwt
+          - name: AUTH_METHOD_PROVIDER
+            value: org.apache.pulsar.manager.authMethod.PulsarJWTAuthMethodProvider
+          - name: AUTH_METHOD_CUSTOM_CLAIM
+            value: {{ .Values.login.pulsarJwt.config.AUTHENTICATION_CUSTOM_CLAIM | default "sub" }}
+          - name: USERNAME_CLAIM
+            value: {{ .Values.login.pulsarJwt.config.USERNAME_CLAIM | default "sub" }}
+          {{- if eq .Values.login.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "PRIVATE" }}
+          - name: JWT_BROKER_TOKEN_MODE
+            value: PRIVATE
+          - name: JWT_BROKER_PUBLIC_KEY_PATH
+            value: /pulsar-manager/keys/token/public.key
+          - name: JWT_BROKER_PRIVATE_KEY_PATH
+            value: /pulsar-manager/keys/token/private.key
+          {{- end }}
+          {{- if eq .Values.login.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "SECRET" }}
+          - name: JWT_BROKER_TOKEN_MODE
+            value: SECRET
+          - name: JWT_BROKER_SECRET_KEY_PATH
+            value: /pulsar-manager/keys/token/secret.key
+          {{- end }}
+          {{- end }}
+          {{- if or (eq .Values.login.vault.enabled true) (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) (eq .Values.login.pulsarJwt.enabled true) }}
           envFrom:
           {{- end }}
           {{- if .Values.login.vault.enabled }}
@@ -165,6 +217,10 @@ spec:
           - secretRef:
               name: {{ .Values.login.sso.okta.clientSecretRef }}
           {{- end }}
+          {{- if .Values.login.pulsarJwt.enabled }}
+          - secretRef:
+              name: {{ .Values.login.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
+          {{- end }}
           
           ports:
           - name: frontend
@@ -175,6 +231,11 @@ spec:
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data
+          {{- if .Values.login.pulsarJwt.enabled }}
+          - mountPath: /pulsar-manager/keys
+            name: token-keys
+            readOnly: true
+          {{- end }}
 
       volumes:
       {{- if not .Values.volumes.persistence }}
@@ -187,6 +248,24 @@ spec:
         persistentVolumeClaim:
           claimName: "{{ template "streamnative_console.data.pvc.name" . }}"
       {{- end }}
+      {{- end }}
+      {{- if .Values.login.pulsarJwt.enabled }}
+      - name: token-keys
+        secret:
+          defaultMode: 420
+          items:
+          {{- if eq .Values.login.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "PRIVATE" }}
+          - key: PUBLICKEY
+            path: token/public.key
+          - key: PRIVATEKEY
+            path: token/private.key
+          secretName: {{ .Values.login.pulsarJwt.config.JWT_BROKER_PUBLIC_PRIVATE_KEY }}
+          {{- end }}
+          {{- if eq .Values.login.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "SECRET" }}
+          - key: SECRETKEY
+            path: token/secret.key
+          secretName: {{ .Values.login.pulsarJwt.config.JWT_BROKER_SECRET_KEY }}
+          {{- end }}
       {{- end }}
 
   {{- if or .Values.volumes.data.storageClass .Values.volumes.data.storageClassName }}

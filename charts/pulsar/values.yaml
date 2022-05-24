@@ -1096,6 +1096,8 @@ functions:
   useDedicatedRunner: false
   functionMesh: false
   functionMeshName: "function-mesh"
+  functionMeshServiceAccount: "default"
+  builtinConnectorConfigmap: ""
   replicaCount: 1
   functionState: false
   enableCustomizerRuntime: false

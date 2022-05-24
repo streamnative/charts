@@ -66,7 +66,20 @@ data:
           names:
             - {{ .Values.namespace }}
 {{- end }}
+{{- if .Values.istio.enabled }}
+      scheme: https
+      tls_config:
+        ca_file: /etc/prom-certs/root-cert.pem
+        cert_file: /etc/prom-certs/cert-chain.pem
+        key_file: /etc/prom-certs/key.pem
+        insecure_skip_verify: true
+{{- end }}
       relabel_configs:
+{{- if .Values.istio.enabled }}
+      - source_labels: [__meta_kubernetes_pod_label_cloud_streamnative_io_app]
+        action: keep
+        regex: pulsar
+{{- end }}
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
         regex: true
@@ -96,7 +109,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if eq .Values.prometheus.serviceAccount.clusterRole true }}
+{{- if and (eq .Values.prometheus.serviceAccount.clusterRole true) (ne .Values.istio.enabled true) }}
     - job_name: 'kubernetes-nodes'
       scheme: https
       kubernetes_sd_configs:

@@ -38,6 +38,9 @@ spec:
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
   imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
   pod:
+    {{- if .Values.proxy.serviceAccount.use }}
+    serviceAccountName: {{ include "pulsar.proxy.serviceAccount" . }}
+    {{- end }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.proxy.component }}
@@ -141,8 +144,9 @@ spec:
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.proxy.securityContext }}
-    securityContext: {{ .Values.proxy.securityContext }}
+    {{- with .Values.proxy.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.proxy.nodeSelector }}
     nodeSelector:

@@ -55,6 +55,7 @@ spec:
 {{- if (and .Values.prometheus.scrape.broker .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.broker.ports.http }}"
+      prometheus.io/path: "/metrics/"
 {{- end }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
@@ -73,9 +74,12 @@ spec:
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
-    {{- if .Values.tls.broker.enabled }}
+    {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumes }}
     volumes:
     {{- include "pulsar.broker.certs.volumes" . | nindent 4 }}
+{{- with .Values.broker.extraVolumes }}
+{{ toYaml . | indent 4 }}
+{{- end }}
     {{- end }}
     affinity:
       {{- if .Values.broker.affinity.customRules }}
@@ -170,8 +174,9 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.broker.securityContext }}
-    securityContext: {{ .Values.broker.securityContext }}
+    {{- with .Values.broker.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.broker.nodeSelector }}
     nodeSelector:
@@ -211,6 +216,10 @@ spec:
       mesh:
         builtinConnectorsRef:
           name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
+        functionEnabled: true
+        sinkEnabled: true
+        sourceEnabled: true
+        uploadEnabled: true
       type: FunctionMesh
     {{- end }}
     {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
@@ -397,10 +406,13 @@ spec:
 {{- end }}
     {{- end }}
   {{- end }}
-  {{- if .Values.tls.broker.enabled }}
+  {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
   apiObjects:
     statefulSet:
       volumeMounts:
       {{- include "pulsar.broker.certs.volumeMounts" . | nindent 6 }}
+{{- with .Values.broker.extraVolumeMounts }}
+{{ toYaml . | indent 6 }}
+{{- end }}
   {{- end }}
 {{- end }}

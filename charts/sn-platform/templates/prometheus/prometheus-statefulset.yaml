@@ -42,6 +42,16 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.prometheus.component }}
       annotations:
+        {{- if .Values.istio.enabled }}
+        # ref: https://istio.io/latest/docs/ops/integrations/prometheus/#tls-settings
+        traffic.sidecar.istio.io/includeOutboundIPRanges: ""  # do not intercept any outbound traffic
+        # configure an env variable `OUTPUT_CERTS` to write certificates to the given folder
+        proxy.istio.io/config: |  
+          proxyMetadata:
+            OUTPUT_CERTS: /etc/istio-output-certs
+        # mount the shared volume at sidecar proxy
+        sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
+        {{- end }}
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.prometheus.datadog.annotation" . | nindent 8 }}
         {{- end }}
@@ -188,11 +198,20 @@ spec:
           mountPath: /etc/config
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
           mountPath: /prometheus
+        {{- if .Values.istio.enabled }}
+        - name: istio-certs
+          mountPath: /etc/prom-certs/
+        {{- end }}
         {{- include "pulsar.prometheus.token.volumeMounts" . | nindent 8 }}
       volumes:
       - name: config-volume
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
+      {{- if .Values.istio.enabled }}
+      - emptyDir:
+          medium: Memory
+        name: istio-certs
+      {{- end }}
     {{- range .Values.configmapReload.prometheus.extraConfigmapMounts }}
       - name: {{ $.Values.configmapReload.prometheus.name }}-{{ .name }}
         configMap:

@@ -32,6 +32,7 @@ spec:
         - "9990"
         - "2888"
         - "3888"
+        - "{{ .Values.zookeeper.ports.metrics  }}"
   action: ALLOW
   selector:
     matchLabels:

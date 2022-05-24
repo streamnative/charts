@@ -134,22 +134,22 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.9"
+        tag: "2.9.2.17"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.9"
+        tag: "2.9.2.17"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
@@ -158,32 +158,32 @@ images:
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
@@ -203,7 +203,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "1.11"
+    tag: "v1.12.0"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -235,7 +235,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -379,6 +379,14 @@ auth:
     # brokerClientAuthenticationParameters: ""
     authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
     authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
+
+# Support deploy on OpenShift
+openshift:
+  enabled: false
+  # SecurityContextConstrains is enabled by default
+  ssc:
+    enabled: true
+
 ######################################################################
 # External dependencies
 ######################################################################
@@ -397,6 +405,17 @@ certs:
     enabled: false
     component: public-cert-issuer
     type: acme
+
+  istio_internal_issuer:
+    enabled: false
+    component: istio-internal-cert-issuer
+    type: selfsigning
+
+  istio_public_issuer:
+    enabled: false
+    component: istio-public-cert-issuer
+    type: acme
+
   issuers:
     selfsigning:
     acme:
@@ -713,7 +732,7 @@ zookeeper:
       enable: false
       # Deprecated, this configuration repository and tag has been moved to the images section
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.9"
+      tag: "2.9.2.17"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
@@ -740,7 +759,7 @@ zookeeper:
       enable: false
       # Deprecated, this configuration repository and tag has been moved to the images section
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.9"
+      tag: "2.9.2.17"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
@@ -976,7 +995,7 @@ pulsar_metadata:
     # tag: 2.5.0
     # Deprecated, this configuration repository and tag has been moved to the images section
     repository: streamnative/sn-platform
-    tag: "2.9.2.9"
+    tag: "2.9.2.17"
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -1072,6 +1091,16 @@ broker:
   # - mountPath: /path/to/mount
   #   secretName: "[secret name]"
   extraSecretRefs: []
+  # extra volumes to mount to broker pod, need to mount it in .Value.broker.
+  extraVolumes:
+#  - name: my-extra-volume
+#    configMap:
+#      name: additional-config
+#      defaultMode: 511
+  # extra volumes to mount to broker pod, need to mount it in .Value.broker.
+  extraVolumeMounts:
+#  - name: my-extra-volume
+#    mountPath: /pulsar/conf/custom
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1455,6 +1484,19 @@ toolset:
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
+  securityContext: {}
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
 
 #############################################################
 ### Monitoring Stack : Prometheus / Grafana
@@ -1874,6 +1916,7 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+  securityContext: {}
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml
@@ -1886,6 +1929,19 @@ streamnative_console:
     ports:
       frontend: 9527
       backend: 7750
+
+  serviceAccount:
+    # Specifies whether to use a service account to run this component
+    use: true
+    # Specifies whether a service account should be created
+    create: true
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+    # Extra annotations for the serviceAccount definition. This can either be
+    # YAML or a YAML-formatted multi-line templated string map of the
+    # annotations to apply to the serviceAccount.
+    annotations: {}
 
   ## cloud console configmap
   ## templates/streamnative-console-configmap.yaml
@@ -1908,6 +1964,8 @@ streamnative_console:
     GOOGLE_CLIENT_SECRET: ""
     GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
     GOOGLE_REDIRECT_URI: ""
+    GRAFANA_AUTH_PROXY: false
+    GRAFANA_AUTH_PROXY_USER: ""
 
   login:
     sso:
@@ -2103,6 +2161,9 @@ vault:
   serviceAccount:
     created: true
     name: ""
+  oidcToken:
+    # time to live for service-account and user
+    ttl: 12h
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}
@@ -2152,6 +2213,7 @@ vault:
     size: 10Gi
     local_storage: true
     # storageClassName: ""
+  securityContext: {}
 
 # Support the addition of arbitrary resources to be deployed
 # This is simply an array of raw manifests
@@ -2346,5 +2408,7 @@ istio:
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
+    # default namespace for gateway is `istio-system`
+    namespace: ""
     tls:
       certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE]"
