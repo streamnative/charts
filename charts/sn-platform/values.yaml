@@ -353,7 +353,7 @@ auth:
       enabled: false
       trustCertsEnabled: false
       certSecretName: "broker-tls-ca"
-      certSecretKey: "ca.pem"  
+      certSecretKey: "ca.pem"
   authorization:
     enabled: true
   superUsers:
