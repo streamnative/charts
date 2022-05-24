@@ -195,8 +195,8 @@ storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
 {{- end }}
 {{- end }}
 
-{{- define "pulsar.zookeeper.datalog.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
+{{- define "pulsar.zookeeper.dataLog.storage.class" -}}
+{{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.dataLog.local_storage }}
 storageClassName: "local-storage"
 {{- else }}
   {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}

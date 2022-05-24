@@ -194,7 +194,7 @@ spec:
           {{- else }}
           storage: "0"
           {{- end }}
-{{- include "pulsar.zookeeper.datalog.storage.class" . | nindent 6 }}
+{{- include "pulsar.zookeeper.dataLog.storage.class" . | nindent 6 }}
     reclaimPolicy: {{ .Values.zookeeper.volumes.reclaimPolicy | default "Delete" }}
   {{- end }}
   config:
