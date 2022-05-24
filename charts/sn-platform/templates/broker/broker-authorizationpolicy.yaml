@@ -31,6 +31,9 @@ spec:
         - "6650"
         - "6652"
         - "8080"
+        {{- if ne .Values.istio.gateway.tls.mode "SIMPLE" }}
+        - "8443"
+        {{- end }}
         - "9092"
         - "9094"
         - "5682"
