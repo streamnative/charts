@@ -1095,7 +1095,7 @@ broker:
   extraVolumes:
 #  - name: my-extra-volume
 #    configMap:
-#      name: zookeeper-a-zk-dynamic
+#      name: additional-config
 #      defaultMode: 511
   # extra volumes to mount to broker pod, need to mount it in .Value.broker.
   extraVolumeMounts:
