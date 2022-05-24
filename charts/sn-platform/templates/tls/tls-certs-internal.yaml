@@ -103,8 +103,12 @@ spec:
     - client auth
   # At least one of a DNS Name, USI SAN, or IP address is required.
   dnsNames:
+  {{- if and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") }}
+    - "*.{{ .Values.domain.suffix }}"
+  {{- else }}
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+  {{- end }}
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
@@ -114,6 +118,21 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+  {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+  {{- if .Values.broker.kop.tls.enabled }}
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+  {{- if .Values.broker.kop.tls.passwordSecretRef }}
+        name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+        key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
+  {{ else }}
+        name: cert-jks-passwd
+        key: password
+  {{- end }}
+  {{- end }}
+  {{- end }}
 ---
 {{- end }}
 

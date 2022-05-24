@@ -199,8 +199,12 @@ spec:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
       tls:
+      {{- if eq .Values.istio.gateway.tls.mode "SIMPLE" }}
         certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
-        mode: simple
+        mode: "simple"
+      {{- else }}
+        mode: "passthrough"
+      {{- end }}
   {{- end }}
   {{- if .Values.broker.dnsNames }}
   dnsNames:
@@ -226,7 +230,7 @@ spec:
     advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
     serviceURLGenerationPolicy: FQDN
     {{- end }}
-    usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
+    # usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
     {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) .Values.broker.mop.enabled}}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
@@ -240,9 +244,11 @@ spec:
           trustStoreEnabled: false
     {{- end }}
     {{- if .Values.broker.kop.tls.certSecretName }}
-          certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
-    {{ else }}
-          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
+          certSecretName: "{{ .Values.broker.kop.tls.certSecretName }}"
+    {{- else if .Values.istio.enabled }}
+          certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    {{- else }}
+          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}
     {{- end }}
     {{- if .Values.broker.kop.tls.passwordSecretRef }}
           passwordSecretRef:
@@ -280,6 +286,14 @@ spec:
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
+      {{- if .Values.tls.broker.enabled }}
+      PULSAR_PREFIX_tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
+      PULSAR_PREFIX_tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
+      PULSAR_PREFIX_tlsAllowInsecureConnection: "true"
+      {{- if not .Values.certs.public_issuer.enabled }}
+      PULSAR_PREFIX_tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+      {{- end }}
+      {{- end }}
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}

@@ -19,6 +19,37 @@
 
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if .Values.tls.enabled }}
+{{- if and .Values.tls.broker.enabled (and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH")) }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}"
+  duration: "{{ .Values.tls.common.duration }}"
+  renewBefore: "{{ .Values.tls.common.renewBefore }}"
+  isCA: false
+  dnsNames:
+    - "*.{{ .Values.domain.suffix }}"
+  issuerRef:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
+    kind: Issuer
+    group: cert-manager.io
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+  {{- if .Values.broker.kop.tls.passwordSecretRef }}
+        name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+        key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
+  {{ else }}
+        name: cert-jks-passwd
+        key: password
+  {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end }}
 {{- if .Values.tls.proxy.enabled }}
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
