@@ -1663,10 +1663,7 @@ prometheus:
       initialDelaySeconds: 30
       periodSeconds: 10
   customRelabelConfigs: []
-<<<<<<< HEAD
-=======
   extraScrapeConfigs: []
->>>>>>> 202288a (Add support for additional scrape rules in prom (#525))
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
