@@ -125,6 +125,8 @@ configData:
   DEFAULT_ENVIRONMENT_NAME: "pulsar"
   DEFAULT_ENVIRONMENT_SERVICE_URL: ""
   BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
+  CONNECTOR_ENABLED: false
+  FLINK_SQL_ENABLED: false
 
 login:
   vault:
