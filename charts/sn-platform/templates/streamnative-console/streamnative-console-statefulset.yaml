@@ -121,7 +121,7 @@ spec:
             value: "true"
           {{- end }}
           - name: CONNECTOR_ENABLED
-            value: "{{ .Values.streamnative_console.configData.CONNECTOR_ENABLED | default "false" }}"
+            value: "{{ .Values.streamnative_console.configData.CONNECTOR_ENABLED | default "true" }}"
           - name: FLINK_SQL_ENABLED
             value: "{{ .Values.streamnative_console.configData.FLINK_SQL_ENABLED | default "false" }}"
           - name: WEB_SERVICE_URL
