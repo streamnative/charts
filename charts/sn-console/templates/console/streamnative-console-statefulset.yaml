@@ -165,9 +165,9 @@ spec:
             value: {{ .Values.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
           {{- end }}
           - name: CONNECTOR_ENABLED
-            value: {{ .Values.configData.CONNECTOR_ENABLED | default "false" }}
+            value: "{{ .Values.configData.CONNECTOR_ENABLED | default "false" }}"
           - name: FLINK_SQL_ENABLED
-            value: {{ .Values.configData.FLINK_SQL_ENABLED | default "false" }}
+            value: "{{ .Values.configData.FLINK_SQL_ENABLED | default "false" }}"
           {{- if .Values.login.pulsarJwt.enabled }}
           - name: AUTHENTICATION_NAME
             value: "pulsar-jwt"
