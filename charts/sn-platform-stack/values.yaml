@@ -16,8 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-stackName: ""
+global:
+  stackName: ""
+  stackVersion: ""
 
 sn-console:
   initialize: false
@@ -71,7 +72,6 @@ sn-platform:
     vault: false
       
 sn-platform-vault:
-  stackName: ""
   fullnameOverride: ""
   images:
     broker:

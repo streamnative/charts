@@ -35,7 +35,7 @@ If release name contains chart name it will be used as a full name.
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- $name := default .Values.stackName .Values.nameOverride -}}
+{{- $name := default .Values.global.stackName .Chart.Name -}}
 {{- if contains $name .Release.Name -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -48,7 +48,11 @@ If release name contains chart name it will be used as a full name.
 Create chart name and version as used by the chart label.
 */}}
 {{- define "pulsar.chart" -}}
-{{- printf "%s-%s" .Values.stackName .Values.stackVersion | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- if and .Values.global.stackName .Values.global.stackVersion -}}
+{{- printf "%s-%s" .Values.global.stackName .Values.global.stackVersion | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*

@@ -64,7 +64,7 @@ images:
     repository: streamnative/pulsar_vault_init
     tag: "v1.0.2"
   bank_vaults:
-    repository: ghcr.io/banzaicloud/bank-vaults
+    repository: banzaicloud/bank-vaults
     tag: "1.15.2"
     pullPolicy: "IfNotPresent"
 
@@ -99,6 +99,9 @@ vault:
   serviceAccount:
     created: true
     name: ""
+  oidcToken:
+    # time to live for service-account and user
+    ttl: 12h
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}
