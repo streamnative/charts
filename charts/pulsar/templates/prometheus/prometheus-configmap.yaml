@@ -137,6 +137,11 @@ data:
           target_label: __metrics_path__
           replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
 {{- end }}
+{{- if .Values.prometheus.extraScrapeConfigs -}}
+{{- with .Values.prometheus.extraScrapeConfigs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
   rules.yml: |
 {{- if .Values.monitoring.alert_manager -}}
 {{- with .Values.alert_manager.rules }}
