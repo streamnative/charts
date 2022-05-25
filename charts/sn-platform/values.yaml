@@ -2430,5 +2430,6 @@ istio:
     # default namespace for gateway is `istio-system`
     namespace: ""
     tls:
+      # mode options are SIMPLE, PASSTHROUGH
       mode: SIMPLE
       certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE]"
