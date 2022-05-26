@@ -196,6 +196,16 @@ spec:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
   {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
+  {{- if .Values.tls.broker.enabled }}
+  tls:
+    enabled: true
+    certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    # trustCertsEnabled in .Values.auth.authentication.tls has higher priority
+    {{- if and .Values.auth.authentication.enabled (and .Values.auth.authentication.tls.enabled .Values.auth.authentication.tls.trustCertsEnabled) }}
+    {{- else }}
+    trustCertsEnabled: {{ .Values.tls.broker.trustCertsEnabled }}
+    {{- end }}
+  {{- end }}
   istio:
     enabled: true
     gateway:
@@ -289,11 +299,6 @@ spec:
     custom:
       PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
-      {{- if .Values.tls.broker.enabled }}
-      PULSAR_PREFIX_tlsCertificateFilePath: "/pulsar/certs/broker/tls.crt"
-      PULSAR_PREFIX_tlsKeyFilePath: "/pulsar/certs/broker/tls.key"
-      PULSAR_PREFIX_tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
-      {{- end }}
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}

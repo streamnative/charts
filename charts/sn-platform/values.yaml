@@ -296,6 +296,8 @@ tls:
     cert_name: tls-broker
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
+    # trustCertsEnabled in .Values.auth.authentication.tls has higher priority
+    trustCertsEnabled: false
   functions:
     enabled: false
     # name of chart generated certificate
