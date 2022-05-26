@@ -34,9 +34,18 @@ Define the kop service url
 
 {{/*
 Define the web service url
+TODO: console need to support mount ca certs to work with internal tls broker mode
 */}}
 {{- define "pulsar.web.service.url" -}}
+{{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
+{{- if and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") -}}
 http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
+{{- else -}}
+https://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
+{{- end -}}
+{{- else -}}
+http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
+{{- end -}}
 {{- end -}}
 
 {{/*
