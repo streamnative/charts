@@ -379,6 +379,23 @@ auth:
     # brokerClientAuthenticationParameters: ""
     authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
     authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
+  ldap:
+    enabled: false
+    ldapJavaProviderUrl: ""
+    ldapBindDn: "cn=admin,dc=example,dc=org"
+    ldapBaseDn: "dc=example,dc=org"
+    ldapPassword: "admin"
+    ldapUserNameAttribute: uid
+    ldapGroupNameAttribute: cn
+    ldapUserObjectClass: inetOrgPerson
+    ldapGroupObjectClass: groupOfNames
+    superUserRoles: admin,Group:pulsar
+    brokerClientAuthenticationParameters: "token:YmlsbDpiaWxsCg=="
+    brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.AuthenticationToken
+    ldapGroupMemberAttribute: member
+    ldapGroupMemberAttributePattern: uid={0},ou=People,dc=example,dc=org
+    authenticationProviders: io.streamnative.pulsar.broker.authentication.AuthenticationProviderLDAP
+    authorizationProvider: io.streamnative.pulsar.broker.authorization.AuthorizationProviderLDAP
 
 # Support deploy on OpenShift
 openshift:

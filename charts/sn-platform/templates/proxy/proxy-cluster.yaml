@@ -116,24 +116,24 @@ spec:
               topologyKey: "kubernetes.io/hostname"
           {{ end }}
       {{- end }}
-    {{- if .Values.auth.authentication.enabled }}
-    vars:
-    - name: PULSAR_PREFIX_OIDCTokenAudienceID
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: PULSAR_PREFIX_OIDCTokenAudienceID
-    - name: brokerClientAuthenticationParameters
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
-    - name: PROXY_TOKEN
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
-    {{- end }}
+    # {{- if .Values.auth.authentication.enabled }}
+    # vars:
+    # - name: PULSAR_PREFIX_OIDCTokenAudienceID
+    #   valueFrom:
+    #       secretKeyRef:
+    #         name: {{ template "pulsar.vault-secret-key-name" . }}
+    #         key: PULSAR_PREFIX_OIDCTokenAudienceID
+    # - name: brokerClientAuthenticationParameters
+    #   valueFrom:
+    #       secretKeyRef:
+    #         name: {{ template "pulsar.vault-secret-key-name" . }}
+    #         key: brokerClientAuthenticationParameters
+    # - name: PROXY_TOKEN
+    #   valueFrom:
+    #       secretKeyRef:
+    #         name: {{ template "pulsar.vault-secret-key-name" . }}
+    #         key: brokerClientAuthenticationParameters
+    # {{- end }}
 {{- with .Values.proxy.extraEnv}}
 {{ toYaml . | indent 4 }}
 {{- end }}
@@ -173,7 +173,24 @@ spec:
 {{- with .Values.proxy.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+      {{- if .Values.auth.ldap.enabled }}
+      authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
+      PULSAR_PREFIX_ldapJavaProviderUrl: "ldap://pulsar31-sn-platform-test-ldap-server:389"
+      PULSAR_PREFIX_ldapBindDn: "cn=admin,dc=example,dc=org"
+      PULSAR_PREFIX_ldapBaseDn: "dc=example,dc=org"
+      PULSAR_PREFIX_ldapPassword: "admin"
+      PULSAR_PREFIX_ldapUserNameAttribute: "uid"
+      PULSAR_PREFIX_ldapGroupNameAttribute: "cn"
+      PULSAR_PREFIX_ldapUserObjectClass: "inetOrgPerson"
+      PULSAR_PREFIX_ldapGroupObjectClass: "groupOfNames"
+      superUserRoles: "admin,Group:pulsar"
+      brokerClientAuthenticationParameters: "token:YmlsbDpiaWxsCg=="
+      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+      PULSAR_PREFIX_ldapGroupMemberAttribute: "member"
+      PULSAR_PREFIX_ldapGroupMemberAttributePattern: {{ .Values.auth.ldap.ldapGroupMemberAttributePattern }}
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderLDAP"
+      {{- else if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
       authenticationEnabled: "true"
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
