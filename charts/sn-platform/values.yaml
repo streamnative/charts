@@ -1966,6 +1966,7 @@ streamnative_console:
     GOOGLE_REDIRECT_URI: ""
     GRAFANA_AUTH_PROXY: false
     GRAFANA_AUTH_PROXY_USER: ""
+    CONNECTOR_ENABLED: true
 
   login:
     sso:
