@@ -1,0 +1,186 @@
+# Create OUs
+dn: ou=People,dc=example,dc=org
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Groups,dc=example,dc=org
+objectClass: organizationalUnit
+ou: Groups
+
+dn: ou=Users,dc=example,dc=org
+objectClass: organizationalUnit
+ou: Users
+
+# Create Groups
+dn: cn=admins,ou=Groups,dc=example,dc=org
+objectClass: posixGroup
+cn: admins
+gidNumber: 5000
+
+# Create user bill
+dn: uid=bill,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: bill
+sn: smith
+givenName: Bill
+cn: Bill Smith
+displayName: Bill Smith
+uidNumber: 10000
+gidNumber: 5000
+userPassword: bill
+gecos: Bill Smith
+loginShell: /bin/bash
+homeDirectory: /home/bsmith
+
+# Create user tom for group
+dn: uid=tom,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: tom
+sn: smith
+givenName: Tom
+cn: Bill Smith
+displayName: Tom Smith
+uidNumber: 10001
+gidNumber: 5000
+userPassword: tom
+gecos: Bill Smith
+loginShell: /bin/bash
+homeDirectory: /home/bsmith
+
+dn: uid=alice,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: alice
+sn: smith
+givenName: Alice
+cn: Alice
+displayName: Alice Smith
+uidNumber: 10002
+gidNumber: 5000
+userPassword: alice
+gecos: Alice Smith
+loginShell: /bin/bash
+homeDirectory: /home/bsmith
+
+# Create user amy
+dn: cn=Amy,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: amy
+sn: smith
+givenName: amy
+cn: Amy
+displayName: Alice Smith
+uidNumber: 10003
+gidNumber: 5000
+userPassword: amy
+gecos: Amy
+loginShell: /bin/bash
+homeDirectory: /home/bsmith
+
+# Create user joe
+dn: cn=Joe,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: joe
+sn: smith
+givenName: joe
+cn: Joe
+displayName: Joe Smith
+uidNumber: 10004
+gidNumber: 5000
+userPassword: joe
+gecos: Joe
+loginShell: /bin/bash
+homeDirectory: /home/bsmith
+
+dn: cn=test,ou=Groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: test
+member: uid=alice,ou=People,dc=example,dc=org
+member: uid=bill,ou=People,dc=example,dc=org
+
+dn: cn=proxy,ou=Groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: proxy
+member: uid=alice,ou=People,dc=example,dc=org
+
+dn: cn=data,ou=Groups,dc=example,dc=org
+objectClass: groupOfNames
+cn: data
+member: uid=tom,ou=People,dc=example,dc=org
+
+dn: cn=pulsar,ou=Groups,dc=example,dc=org
+objectClass: groupOfNames
+objectClass: top
+cn: pulsar
+member: uid=bill,ou=People,dc=example,dc=org
+member: cn=amy,ou=People,dc=example,dc=org
+member: uid=joe
+member: cn=client,ou=People,dc=example,dc=org
+
+# Create user andy
+dn: uid=andy,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: shadowAccount
+uid: andy
+sn: smith
+givenName: Andy
+cn: Andy
+displayName: Andy
+userPassword: andy
+memberOf: cn=test,ou=Groups,dc=example,dc=org
+
+# Create user david
+dn: cn=client,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: shadowAccount
+uid: david
+sn: smith
+givenName: David
+cn: Client
+displayName: David
+userPassword: David
+memberOf: cn=pulsar,ou=Groups,dc=example,dc=org
+memberOf: cn=test,ou=Groups,dc=example,dc=org
+
+# Create user daniel
+dn: uid=daniel,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: shadowAccount
+uid: daniel
+sn: smith
+givenName: Daniel
+cn: Daniel
+displayName: Daniel
+userPassword: daniel
+memberOf: cn=Apache Pulsar,ou=Groups,dc=example,dc=org
+
+# Create user lily
+dn: uid=lily,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: shadowAccount
+uid: lily
+sn: smith
+givenName: Lily
+cn: Lily
+displayName: Lily
+userPassword: lily
+
+# Create user snow
+dn: uid=snow,ou=People,dc=example,dc=org
+objectClass: inetOrgPerson
+objectClass: shadowAccount
+uid: snow
+sn: smith
+givenName: Snow
+cn: Snow
+displayName: Snow
+userPassword: snow
