@@ -36,3 +36,6 @@ spec:
       targetPort: tls-port
       protocol: TCP
       name: tls-port
+  selector:
+    {{- include "pulsar.matchLabels" . | nindent 4 }}
+    component: {{ .Values.ldap.component }}
