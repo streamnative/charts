@@ -28,8 +28,8 @@ metadata:
     "helm.sh/hook": test
 spec:
   containers:
-    - name: wget
+    - name: nc
       image: busybox
-      command: ['wget']
-      args: ['{{ template "pulsar.fullname" . }}-{{ .Values.ldap.component }}:{{ .Values.service.port }}']
+      command: ['nc']
+      args: ['-z', '-v', '{{ template "pulsar.fullname" . }}-{{ .Values.ldap.component }}', '{{ .Values.service.port }}']
   restartPolicy: Never
