@@ -86,7 +86,7 @@ data:
       installUserCodeDependencies: true
     {{- if .Values.functions.functionMesh }}
     functionsWorkerServiceNarPackage: "/pulsar/lib/mesh-worker-service.nar"
-    functionsWorkerServiceCustomConfigs: |
+    functionsWorkerServiceCustomConfigs:
       jobNamespace: "{{ .Values.functions.jobNamespace }}"
       defaultServiceAccountName: "{{ .Values.functions.functionMeshServiceAccount }}"
       extraDependenciesDir: "/pulsar/lib"
