@@ -40,6 +40,3 @@ dependencies:
   - name: sn-platform-vault
     version: "0.1.0"
     repository: file://../sn-platform-vault
-  - name: sn-platform-ldap
-    version: "0.1.0"
-    repository: file://../sn-platform-ldap

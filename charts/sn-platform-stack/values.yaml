@@ -78,6 +78,3 @@ sn-platform-vault:
       repository: streamnative/sn-platform
       tag: "2.8.1.30"
       pullPolicy: IfNotPresent
-
-sn-platform-ldap:
-  fullnameOverride: ""
