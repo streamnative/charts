@@ -16,27 +16,24 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
-apiVersion: v2
-name: sn-platform-stack
-description: StreamNative Platform Stack
-type: application
-version: 0.1.0
-appVersion: "2.9"
-home: https://streamnative.io
-sources:
-  - https://github.com/streamnative/charts/tree/master/charts/sn-platform-stack
-icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
-maintainers:
-  - name: StreamNative Support
-    email: support@streamnative.io
-dependencies: 
-  - name: sn-platform
-    version: "1.4.0"
-    repository: file://../sn-platform
-  - name: sn-console
-    version: "1.9.0"
-    repository: https://charts.streamnative.io
-  - name: sn-platform-vault
-    version: "0.1.0"
-    repository: file://../sn-platform-vault
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-create-pulsar-tokens"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.vault.component }}
+data:
+{{ (.Files.Glob "scripts/create_pulsar_tokens/*").AsConfig | indent 2 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-streamnative-console"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.vault.component }}
+data:
+{{ (.Files.Glob "scripts/init_vault_streamnative_console/*").AsConfig | indent 2 }}

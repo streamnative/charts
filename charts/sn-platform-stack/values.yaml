@@ -16,6 +16,9 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+global:
+  stackName: ""
+  stackVersion: ""
 
 sn-console:
   initialize: false
@@ -23,6 +26,13 @@ sn-console:
   broker:
     webServiceUrl: http://localhost:8080
     # kopServiceUrl: localhost:9093
+    auth:
+      authentication:
+        vault:
+          secretKeyRef: ""
+  volumes:
+    data:
+      storageClassName: ""
   streamnative_console:
     configData:
       # *required*: the organization name to show in the SN console
@@ -38,7 +48,6 @@ sn-console:
           enabled: false
         okta:
           enabled: false
-
   # vault
   vault:
     # vault service url
@@ -60,3 +69,12 @@ sn-platform:
   components:
     # streamnative console
     streamnative_console: false
+    vault: false
+      
+sn-platform-vault:
+  fullnameOverride: ""
+  images:
+    broker:
+      repository: streamnative/sn-platform
+      tag: "2.8.1.30"
+      pullPolicy: IfNotPresent
