@@ -103,7 +103,11 @@ spec:
     - client auth
   # At least one of a DNS Name, USI SAN, or IP address is required.
   dnsNames:
-  - "*.{{ .Values.domain.suffix }}"
+  {{- if .Values.domain.enabled }}
+    - "*.{{ .Release.Name }}.{{ .Values.domain.suffix }}"
+  {{- else }}
+    - "*.{{ .Values.domain.suffix }}"
+  {{- end }}
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"

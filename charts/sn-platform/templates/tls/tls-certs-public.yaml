@@ -31,7 +31,11 @@ spec:
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   isCA: false
   dnsNames:
+  {{- if .Values.domain.enabled }}
+    - "*.{{ .Release.Name }}.{{ .Values.domain.suffix }}"
+  {{- else }}
     - "*.{{ .Values.domain.suffix }}"
+  {{- end }}
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
     kind: Issuer
@@ -61,7 +65,11 @@ spec:
   dnsNames:
     #- {{ template "pulsar.service_domain" . }}
     # Apply certs for wildcard domain 
+  {{- if .Values.domain.enabled }}
+    - "*.{{ .Release.Name }}.{{ .Values.domain.suffix }}"
+  {{- else }}
     - "*.{{ .Values.domain.suffix }}"
+  {{- end }}
     - "*.messaging.{{ .Values.domain.suffix }}"
   # Issuer references are always required.
   issuerRef:
