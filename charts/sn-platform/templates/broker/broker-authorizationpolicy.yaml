@@ -29,14 +29,18 @@ spec:
     - operation:
         ports:
         - "6650"
-        - "6652"
         - "8080"
-        {{- if ne .Values.istio.gateway.tls.mode "SIMPLE" }}
-        - "8443"
-        {{- end }}
         - "9092"
-        - "9094"
         - "5682"
+        {{- if .Values.tls.broker.enabled }}
+        - "8443"
+        - "6651"
+        - "9093"
+        {{- end }}
+        {{- if eq .Values.istio.gateway.tls.mode "SIMPLE "}}
+        - "6652"
+        - "9094"
+        {{- end }}
   action: ALLOW
   selector:
     matchLabels:
