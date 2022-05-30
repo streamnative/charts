@@ -37,7 +37,7 @@ spec:
         - "6651"
         - "9093"
         {{- end }}
-        {{- if eq .Values.istio.gateway.tls.mode "SIMPLE "}}
+        {{- if eq .Values.istio.gateway.tls.mode "SIMPLE"}}
         - "6652"
         - "9094"
         {{- end }}

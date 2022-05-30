@@ -296,7 +296,6 @@ tls:
     cert_name: tls-broker
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
-    # trustCertsEnabled in .Values.auth.authentication.tls has higher priority
     trustCertsEnabled: false
   functions:
     enabled: false
@@ -353,9 +352,6 @@ auth:
       usingSecretKey: false
     tls:
       enabled: false
-      trustCertsEnabled: false
-      certSecretName: "broker-tls-ca"
-      certSecretKey: "ca.pem"
   authorization:
     enabled: true
   superUsers:
