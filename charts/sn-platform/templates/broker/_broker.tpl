@@ -528,8 +528,6 @@ Define Broker TLS certificate secret name
 {{- define "pulsar.broker.tls.secret.name" -}}
 {{- if .Values.tls.broker.certSecretName -}}
 {{- .Values.tls.broker.certSecretName -}}
-{{- else if and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") -}}
-{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}-gateway-passthrough
 {{- else -}}
 {{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}
 {{- end -}}
