@@ -37,14 +37,17 @@ Define the web service url
 TODO: console need to support mount ca certs to work with internal tls broker mode
 */}}
 {{- define "pulsar.web.service.url" -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include "pulsar.broker.service" .) (include "pulsar.namespace" .) -}}
+{{- $httpUrl := printf "http://%s:%s" $host (.Values.broker.ports.http | toString) -}}
+{{- $httpsUrl := printf "https://%s:%s" $host (.Values.broker.ports.https | toString ) -}}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
 {{- if and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") -}}
-http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
+{{- $httpUrl -}}
 {{- else -}}
-https://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
+{{- $httpsUrl -}}
 {{- end -}}
 {{- else -}}
-http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
+{{- $httpUrl -}}
 {{- end -}}
 {{- end -}}
 
