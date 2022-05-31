@@ -17,35 +17,23 @@
 # under the License.
 #
 
-name: Precommit - SN-Platform-Vault Helm Chart (Basic Template)
-on:
-  pull_request:
-    branches:
-      - '*'
-    paths:
-      - 'charts/sn-platform-vault/**'
-      - '.github/workflows/**'
-jobs:
-  lint-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Lint chart
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Install Helm
-        uses: azure/setup-helm@v1
-        id: install
-
-      - name: Basic templating
-        run: |
-          helm dependency update charts/sn-platform-vault
-          helm template pulsar charts/sn-platform-vault
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.pulsar_detector.component }}
+spec:
+{{- with .Values.pulsar_detector.service.spec }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+  ports:
+    - name: server
+      port: {{ .Values.pulsar_detector.port }}
+      protocol: TCP
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.pulsar_detector.component }}

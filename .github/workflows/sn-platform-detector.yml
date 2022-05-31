@@ -17,13 +17,13 @@
 # under the License.
 #
 
-name: Precommit - SN-Platform-Vault Helm Chart (Basic Template)
+name: Precommit - SN-Platform-Stack Helm Chart (Basic Template)
 on:
   pull_request:
     branches:
       - '*'
     paths:
-      - 'charts/sn-platform-vault/**'
+      - 'charts/sn-platform-detector/**'
       - '.github/workflows/**'
 jobs:
   lint-test:
@@ -47,5 +47,5 @@ jobs:
 
       - name: Basic templating
         run: |
-          helm dependency update charts/sn-platform-vault
-          helm template pulsar charts/sn-platform-vault
+          helm dependency update charts/sn-platform-detector
+          helm template pulsar charts/sn-platform-detector

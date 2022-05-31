@@ -17,35 +17,19 @@
 # under the License.
 #
 
-name: Precommit - SN-Platform-Vault Helm Chart (Basic Template)
-on:
-  pull_request:
-    branches:
-      - '*'
-    paths:
-      - 'charts/sn-platform-vault/**'
-      - '.github/workflows/**'
-jobs:
-  lint-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Lint chart
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Install Helm
-        uses: azure/setup-helm@v1
-        id: install
-
-      - name: Basic templating
-        run: |
-          helm dependency update charts/sn-platform-vault
-          helm template pulsar charts/sn-platform-vault
+{{- if .Values.pulsar_detector.pdb.usePolicy }}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.pulsar_detector.component }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.pulsar_detector.component }}
+  maxUnavailable: {{ .Values.pulsar_detector.pdb.maxUnavailable }}
+{{- end }}
