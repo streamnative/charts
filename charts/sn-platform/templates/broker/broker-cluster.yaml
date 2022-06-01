@@ -406,13 +406,21 @@ spec:
 {{- end }}
     {{- end }}
   {{- end }}
-  {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
+  {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
   apiObjects:
     statefulSet:
+{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
       volumeMounts:
       {{- include "pulsar.broker.certs.volumeMounts" . | nindent 6 }}
 {{- with .Values.broker.extraVolumeMounts }}
 {{ toYaml . | indent 6 }}
+{{- end }}
+{{- end }}
+{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
+      volumeClaimTemplates:
+{{- with .Values.broker.extraVolumeClaimTemplates }}
+{{ toYaml . | indent 6 }}
+{{- end }}        
 {{- end }}
   {{- end }}
 {{- end }}
