@@ -35,7 +35,7 @@ spec:
         {{- if .Values.tls.broker.enabled }}
         - "6651"
         {{- end }}
-        {{- if or .Values.tls.broker.enabled (eq .Values.istio.gateway.tls.mode "SIMPLE") }}
+        {{- if or .Values.tls.broker.enabled (eq .Values.istio.gateway.tls.mode "SSLTHROUGH") }}
         - "8443"
         {{- end }}
         {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
