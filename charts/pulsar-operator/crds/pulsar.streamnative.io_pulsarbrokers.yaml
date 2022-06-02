@@ -3976,16 +3976,25 @@ spec:
                         tls:
                           properties:
                             certSecretName:
-                              description: CertSecretName defines the name of the secret
-                                that contains the certificate to use. The value should
-                                be name of the secret in the gateway workload namespace.
-                                Required in SIMPLE mode; not used in PASSTHROUGH mode.
+                              description: "SIMPLE mode:   CertSecretName defines the
+                                name of the secret that contains the   certificate to
+                                use in Istio Ingress Gateway. The value should be   name
+                                of the secret in the gateway workload namespace. PASSTHROUGH
+                                mode: \t CertSecretName defines the name of the secret
+                                that contains the \t certificate to use in Broker. The
+                                value should be name of the secret   name of the secret
+                                in the Broker workload namespace. Required in both SIMPLE
+                                and PASSTHROUGH mode."
                               type: string
                             mode:
                               description: 'Optional: Indicates whether connections
-                              to this port should be secured using TLS. The value
-                              of this field determines how TLS is enforced.'
+                                to this port should be secured using TLS. The value
+                                of this field determines how TLS is enforced.'
                               type: string
+                            trustCertsEnabled:
+                              description: TrustCertsEnabled defines whether to enable
+                                trust store
+                              type: boolean
                           type: object
                       type: object
                   type: object
