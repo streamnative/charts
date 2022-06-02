@@ -47,8 +47,6 @@ spec:
         name: cert-jks-passwd
         key: password
   {{- end }}
-  {{- end }}
-  {{- end }}
 {{- end }}
 {{- if .Values.tls.proxy.enabled }}
 apiVersion: cert-manager.io/v1alpha2

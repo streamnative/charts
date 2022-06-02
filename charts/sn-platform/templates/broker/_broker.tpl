@@ -36,11 +36,7 @@ Define the kop service url
 Define the web service url
 */}}
 {{- define "pulsar.web.service.url" -}}
-{{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
-https://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
-{{- else -}}
 http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
-{{- end -}}
 {{- end -}}
 
 {{/*
@@ -526,4 +522,25 @@ Define Broker TLS certificate secret name
 {{- else -}}
 {{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Define Broker TLS authentication ca volumes
+*/}}
+{{- define "pulsar.broker.tlsAuthentication.ca.volumes" -}}
+- name: authentication-ca
+  secret:
+    secretName: "{{ .Values.auth.authentication.tls.certSecretName }}"
+    items:
+    - key: "{{ .Values.auth.authentication.tls.certSecretKey }}"
+      path: ca.pem
+{{- end -}}
+
+{{/*
+Define Broker TLS authentication ca mounts
+*/}}
+{{- define "pulsar.broker.tlsAuthentication.ca.volumeMounts" -}}
+- name: authentication-ca
+  mountPath: "/pulsar/certs/authentication/ca"
+  readOnly: true
 {{- end -}}
