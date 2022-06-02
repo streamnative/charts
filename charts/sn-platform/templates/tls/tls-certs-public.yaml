@@ -19,14 +19,14 @@
 
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if .Values.tls.enabled }}
-{{- if .Values.tls.broker.enabled  }}
+{{- if or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.cert_name }}"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.gateway.cert_name }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-  secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}"
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.gateway.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
   isCA: false

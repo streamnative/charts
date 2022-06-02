@@ -193,12 +193,6 @@ spec:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
   {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
-  {{- if .Values.tls.broker.enabled }}
-  tls:
-    enabled: true
-    certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
-    trustCertsEnabled: {{ .Values.tls.broker.trustCertsEnabled }}
-  {{- end }}
   istio:
     enabled: true
     gateway:
@@ -209,6 +203,8 @@ spec:
         certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
         mode: "simple"
       {{- else }}
+        certSecretName: "{{ template "pulsar.broker.gateway.tls.secret.name" . }}"
+        trustCertsEnabled: {{ .Values.tls.broker.gateway.trustCertsEnabled }}
         mode: "passthrough"
       {{- end }}
   {{- end }}

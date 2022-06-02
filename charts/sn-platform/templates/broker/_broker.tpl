@@ -535,3 +535,14 @@ Define Broker TLS certificate secret name
 {{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Define Broker Gateway TLS certificate secret name
+*/}}
+{{- define "pulsar.broker.gateway.tls.secret.name" -}}
+{{- if .Values.tls.broker.gateway.certSecretName -}}
+{{- .Values.tls.broker.gateway.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.broker.gateway.cert_name }}
+{{- end -}}
+{{- end -}}

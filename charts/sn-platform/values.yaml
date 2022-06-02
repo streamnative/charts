@@ -297,6 +297,12 @@ tls:
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
     trustCertsEnabled: false
+    gateway:
+      # name of chart generated certificate
+      cert_name: tls-broker-gateway
+      # specify name of secret contain certificate if using pre-generated certificate
+      certSecretName:
+      trustCertsEnabled: false
   functions:
     enabled: false
     # name of chart generated certificate
