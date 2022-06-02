@@ -199,8 +199,14 @@ spec:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
       tls:
+      {{- if eq .Values.istio.gateway.tls.mode "SIMPLE" }}
         certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
-        mode: simple
+        mode: "simple"
+      {{- else }}
+        certSecretName: "{{ template "pulsar.broker.gateway.tls.secret.name" . }}"
+        trustCertsEnabled: {{ .Values.tls.broker.gateway.trustCertsEnabled }}
+        mode: "passthrough"
+      {{- end }}
   {{- end }}
   {{- if .Values.broker.dnsNames }}
   dnsNames:
@@ -240,9 +246,11 @@ spec:
           trustStoreEnabled: false
     {{- end }}
     {{- if .Values.broker.kop.tls.certSecretName }}
-          certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
-    {{ else }}
-          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
+          certSecretName: "{{ .Values.broker.kop.tls.certSecretName }}"
+    {{- else if .Values.istio.enabled }}
+          certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    {{- else }}
+          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}
     {{- end }}
     {{- if .Values.broker.kop.tls.passwordSecretRef }}
           passwordSecretRef:
@@ -310,7 +318,11 @@ spec:
       {{- else if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
+      {{- if .Values.auth.authentication.tls.enabled }}
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,org.apache.pulsar.broker.authentication.AuthenticationProviderTls"
+      {{- else }}
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
+      {{- end }}
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
       {{- if .Values.broker.readPublicKeyFromFile }}
@@ -421,6 +433,6 @@ spec:
 {{- with .Values.broker.extraVolumeClaimTemplates }}
 {{ toYaml . | indent 6 }}
 {{- end }}        
-{{- end }}
+{{- end }}    
   {{- end }}
 {{- end }}

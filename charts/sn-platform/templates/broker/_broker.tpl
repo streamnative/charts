@@ -34,12 +34,20 @@ Define the kop service url
 
 {{/*
 Define the web service url
+TODO: console need to support mount ca certs to work with internal tls broker mode
 */}}
 {{- define "pulsar.web.service.url" -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include "pulsar.broker.service" .) (include "pulsar.namespace" .) -}}
+{{- $httpUrl := printf "http://%s:%s" $host (.Values.broker.ports.http | toString) -}}
+{{- $httpsUrl := printf "https://%s:%s" $host (.Values.broker.ports.https | toString ) -}}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
-https://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
+{{- if and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") -}}
+{{- $httpUrl -}}
 {{- else -}}
-http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
+{{- $httpsUrl -}}
+{{- end -}}
+{{- else -}}
+{{- $httpUrl -}}
 {{- end -}}
 {{- end -}}
 
@@ -525,5 +533,16 @@ Define Broker TLS certificate secret name
 {{- .Values.tls.broker.certSecretName -}}
 {{- else -}}
 {{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Broker Gateway TLS certificate secret name
+*/}}
+{{- define "pulsar.broker.gateway.tls.secret.name" -}}
+{{- if .Values.tls.broker.gateway.certSecretName -}}
+{{- .Values.tls.broker.gateway.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.broker.gateway.cert_name }}
 {{- end -}}
 {{- end -}}
