@@ -36,7 +36,11 @@ spec:
     - server auth
     - client auth
   dnsNames:
-  - "*.{{ .Values.domain.suffix }}"
+  {{- if .Values.domain.enabled }}
+    - "*.{{ .Release.Name }}.{{ .Values.domain.suffix }}"
+  {{- else }}
+    - "*.{{ .Values.domain.suffix }}"
+  {{- end }}
   # NOTE: Since PulsarBroker generates Pod DNSName based on advertisedDomain(domain of Broker), 
   # there's a limit that broker.external_domain and control_center.external_domain must be covered 
   # by the *.{{ .Values.domain.suffix }} if they are defined.
