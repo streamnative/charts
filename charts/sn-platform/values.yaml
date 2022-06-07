@@ -245,15 +245,6 @@ images:
     repository: k8s.gcr.io/external-dns/external-dns
     tag: "v0.7.3"
     pullPolicy: IfNotPresent
-  imagePuller:
-    hook:
-      repository: streamnative/k8s-image-awaiter
-      tag: "0.1.0"
-      pullPolicy: IfNotPresent
-    pause:
-      repository: gcr.io/google_containers/pause
-      tag: "0.3.0"
-      pullPolicy: IfNotPresent
 
 ## TLS
 ## templates/tls-certs.yaml
@@ -559,24 +550,6 @@ ingress:
     tls:
       enabled: false
     annotations: {}
-
-imagePuller:
-  component: image-puller
-  pullSecret:
-    enabled: false
-  hook:
-    enabled: false
-    image:
-      name: streamnative/k8s-image-awaiter
-      tag: '0.1.0'
-  rbac:
-    enabled: true
-  continuous:
-    enabled: false
-  pause:
-    image:
-      name: gcr.io/google_containers/pause
-      tag: '3.1'
 
 
 ######################################################################
