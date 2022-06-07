@@ -239,7 +239,7 @@ images:
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
-    tag: v0.3.0
+    tag: "v0.3.0"
     pullPolicy: IfNotPresent
   external_dns:
     repository: k8s.gcr.io/external-dns/external-dns
