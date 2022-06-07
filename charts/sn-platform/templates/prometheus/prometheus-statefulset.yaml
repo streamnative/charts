@@ -126,8 +126,8 @@ spec:
       containers:
       {{- if .Values.configmapReload.prometheus.enabled }}
       - name: {{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.configmapReload.prometheus.name }}
-        image: "{{ .Values.configmapReload.prometheus.image.repository }}:{{ .Values.configmapReload.prometheus.image.tag }}"
-        imagePullPolicy: "{{ .Values.configmapReload.prometheus.image.pullPolicy }}"
+        image: "{{ .Values.images.configmapReload.repository }}:{{ .Values.images.configmapReload.tag }}"
+        imagePullPolicy: "{{ .Values.images.configmapReload.pullPolicy }}"
         args:
           - --volume-dir=/etc/config
           - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}{{ template "pulsar.control_center_path.prometheus" . }}/-/reload
