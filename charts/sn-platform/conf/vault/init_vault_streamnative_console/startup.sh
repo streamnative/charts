@@ -13,10 +13,19 @@
 # limitations under the License.
 #
 
+if [ -n "$VAULT_SUPER_USER_NAME" ];then
+    export VAULT_SUPER_USER_NAME=$VAULT_SUPER_USER_NAME
+else
+    export VAULT_SUPER_USER_NAME=admin
+fi
+if [ -n "$VAULT_SUPER_USER_PASSWORD" ]; then
+    export VAULT_SUPER_USER_PASSWORD=$VAULT_SUPER_USER_PASSWORD
+else
+    export VAULT_SUPER_USER_PASSWORD=$(cat /dev/urandom | base64 | tr -dc '0-9a-zA-Z' | head -c12)
+fi
+
 export VAULT_APPROLE_SUPER_NAME=apachepulsar
-export VAULT_SUPER_USER_NAME=admin
 # generate console password
-export VAULT_SUPER_USER_PASSWORD=$(cat /dev/urandom | base64 | tr -dc '0-9a-zA-Z' | head -c12)
 #export VAULT_ADDR="http://127.0.0.1:8200"
 
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

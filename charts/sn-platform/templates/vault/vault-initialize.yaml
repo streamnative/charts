@@ -82,6 +82,12 @@ spec:
           value: {{ template "pulsar.vault.url" . }}
         - name: VAULT_TTL
           value: {{ .Values.vault.oidcToken.ttl | default "12h" }}
+        {{- if and .Values.streamnative_console.username .Values.streamnative_console.password }}
+        - name: VAULT_SUPER_USER_NAME
+          value: {{ .Values.streamnative_console.username }}
+        - name: VAULT_SUPER_USER_PASSWORD
+          value:  {{ .Values.streamnative_console.password }}
+        {{- end }}
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
