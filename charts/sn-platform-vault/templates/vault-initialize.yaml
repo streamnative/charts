@@ -66,18 +66,7 @@ spec:
            done;
            echo "vault is ready~";
 
-           INITIALIZED=$(vault read identity/oidc/role/user | grep client_id | awk '{print $1}');
-           if [ $INITIALIZED == "client_id" ]; then
-             echo "update oidc ttl";
-             vault write identity/oidc/role/user ttl=$VAULT_TTL;
-             vault write identity/oidc/role/super-user ttl=$VAULT_TTL;
-             vault write identity/oidc/role/service-account ttl=$VAULT_TTL;
-             vault write identity/oidc/role/super-service-account ttl=$VAULT_TTL;
-           else
-             echo "initialize vault";
-             cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
-           fi
-            
+           cd /root/{{ template "pulsar.name" . }}/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ template "vault.secetPrefix" . }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/{{ template "pulsar.name" . }}/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
            echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
         env:
         - name: NAMESPACE
