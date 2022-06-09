@@ -21,7 +21,7 @@
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
+  name: "{{ template "pulsar.fullname" . }}{{ template "pulsar.detector.component" . }}"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}

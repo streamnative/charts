@@ -4,10 +4,16 @@
     {{- if .Values.pulsar_detector.serviceAccount.name -}}
 {{ .Values.pulsar_detector.serviceAccount.name }}
     {{- else -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}-acct
+{{ template "pulsar.fullname" . }}{{ template "pulsar.detector.component" . }}-acct
     {{- end -}}
 {{- else -}}
 {{ .Values.pulsar_detector.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{- define "pulsar.detector.component" -}}
+{{- if .Values.global.stackName -}}
+{{- printf "-%s" .Values.pulsar_detector.component }}
 {{- end -}}
 {{- end -}}
 

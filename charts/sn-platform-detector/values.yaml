@@ -17,10 +17,10 @@
 # under the License.
 #
 
+global:
+  stackName: ""
 ## Namespace to deploy 
 namespace: ""
-stackName: pulsar-dector
-stackVersion: "0.1.0"
 
 images:
   pulsar_detector:
