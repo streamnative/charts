@@ -16,11 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+global:
+  ## Reference to one or more secrets to be used when pulling images
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  imagePullSecrets: []
+  stackName: ""
 
 ## Namespace to deploy 
 namespace: ""
-stackName: pulsar
-stackVersion: "1.0.0"
 
 ###
 ### Global Settings
@@ -87,11 +90,6 @@ auth:
     # pulsar-admin client to broker/proxy communication
     client: "admin"
     
-global:
-  ## Reference to one or more secrets to be used when pulling images
-  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-  imagePullSecrets: []
-
 vault:
   component: "vault"
   # -- replicaCount indicates the number of vault pod
@@ -109,7 +107,7 @@ vault:
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
-    - name: vault-raft
+    - name: raft
       mountPath: /vault/file
       # use raft protocol for a vault cluster
   config:
@@ -147,7 +145,7 @@ vault:
       cpu: "100m"
   volume:
     persistence: true
-    name: "vault-volume"
+    name: "volume"
     size: 10Gi
     local_storage: true
     # storageClassName: ""
