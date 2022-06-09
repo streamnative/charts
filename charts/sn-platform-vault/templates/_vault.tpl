@@ -11,6 +11,14 @@
 {{- end -}}
 {{- end -}}
 
+{{- define "vault.secetPrefix" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "console-secret-key-name" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-console-admin-passwd
 {{- end }}
