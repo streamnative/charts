@@ -19,10 +19,13 @@
 
 {{- if .Values.ingress.control_center.enabled }}
 {{- $fullName := include "pulsar.fullname" . -}}
+{{- $isIngressAPIStable := eq (include "pulsar.ingress.isStable" .) "true" -}}
 
 {{/* COMMENT */}}
 {{- if .Values.deployment.openshift }}
 apiVersion: networking.k8s.io/v1beta1
+{{- else if $isIngressAPIStable }}
+apiVersion: networking.k8s.io/v1
 {{- else }}
 apiVersion: extensions/v1beta1
 {{- end }}
@@ -68,37 +71,91 @@ spec:
         paths:
           {{- if and .Values.monitoring.grafana .Values.ingress.control_center.endpoints.grafana }}
           - path: /grafana
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.grafana.pathType | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: "{{ $fullName }}-{{ .Values.grafana.component }}"
+                port:
+                  number: {{ .Values.grafana.port }}
+            {{- else }}
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.grafana.component }}"
               servicePort: {{ .Values.grafana.port }}
+            {{- end }}
           {{- end }}
           {{- if and .Values.monitoring.alert_manager .Values.ingress.control_center.endpoints.alertmanager }}
           - path: /alerts
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.alert_manager.pathType | default "ImplementationSpecific" }}
+            backend:
+              service: 
+                name: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
+                port: 
+                  number: {{ .Values.alert_manager.port }}
+            {{- else }}
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
               servicePort: {{ .Values.alert_manager.port }}
+            {{- end }}
           {{- end }}
           {{- if and .Values.monitoring.prometheus .Values.ingress.control_center.endpoints.prometheus }}
           - path: /prometheus
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.prometheus.pathType | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: "{{ $fullName }}-{{ .Values.prometheus.component }}"
+                port: 
+                  number: {{ .Values.prometheus.port }}
+            {{- else }}
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.prometheus.component }}"
               servicePort: {{ .Values.prometheus.port }}
+            {{- end }}
           {{- end }}
           {{- if .Values.components.streamnative_console }}
           - path: /console
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.streamnative_console.pathType | default "ImplementationSpecific" }}
+            backend:
+              service: 
+                name: "{{ $fullName }}-{{ .Values.streamnative_console.component }}"
+                port: 
+                  number: {{ .Values.streamnative_console.ports.frontend }}
+            {{- else }}
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.streamnative_console.component }}"
               servicePort: {{ .Values.streamnative_console.ports.frontend }}
+            {{- end }}
           {{- end }}
           {{- if .Values.components.pulsar_manager }}
           - path: /
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.pulsar_manager.pathType | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
+                port:
+                  number: {{ .Values.pulsar_manager.ports.frontend }}
+            {{- else }}
             backend:
               serviceName: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
               servicePort: {{ .Values.pulsar_manager.ports.frontend }}
+            {{- end }}
           {{- else }}
           - path: /
+            {{- if $isIngressAPIStable }}
+            pathType: "ImplementationSpecific"
+            backend:
+              service: 
+                name: default
+                port: 
+                  number: 80
+            {{- else }}
             backend:
               serviceName: default
               servicePort: 80
+            {{- end }}
           {{- end }}
 {{- end }}
