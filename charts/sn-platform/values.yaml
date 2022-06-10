@@ -1891,8 +1891,8 @@ alert_manager:
 ##
 streamnative_console:
   component: streamnative-console
-  username: "apachepulsar"
-  password: "apachepulsar"
+  # username: "apachepulsar"
+  # password: "apachepulsar"
   ports:
     frontend: 9527
     backend: 7750
