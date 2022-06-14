@@ -52,6 +52,15 @@ TODO: console need to support mount ca certs to work with internal tls broker mo
 {{- end -}}
 
 {{/*
+Define the internal web service url
+*/}}
+{{- define "pulsar.web.internal.service.url" -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include "pulsar.broker.service" .) (include "pulsar.namespace" .) -}}
+{{- $httpUrl := printf "http://%s:%s" $host (.Values.broker.ports.http | toString) -}}
+{{- $httpUrl -}}
+{{- end -}}
+
+{{/*
 Define the hostname
 */}}
 {{- define "pulsar.broker.hostname" -}}
