@@ -192,7 +192,7 @@ spec:
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
-  {{- if .Values.tls.broker.enabled }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
   tls:
     enabled: true
     certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
