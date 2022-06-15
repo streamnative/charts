@@ -172,6 +172,9 @@ spec:
   {{ if .Values.prometheus.maxQuerySamples }}
           - --query.max-samples={{.Values.prometheus.maxQuerySamples }}
   {{- end }}
+  {{ if .Values.prometheus.args.walCompressionEnabled }}
+          - --storage.tsdb.wal-compression
+  {{- end }}
         ports:
         - name: server
           containerPort: {{ .Values.prometheus.port }}
