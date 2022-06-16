@@ -124,18 +124,7 @@ spec:
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
-    {{- if .Values.bookkeeper.operator.adopt_existing }}
-    volumes:
-    {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
-    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
-      emptyDir: {}
-    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
-      emptyDir: {}
-    {{- end }}
-    {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
-    {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
-    {{- end }}
-    {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+    {{- if .Values.tls.bookie.enabled }}
     volumes:
     {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
     {{- end }}
@@ -185,13 +174,6 @@ spec:
       {{- end }}
       # Do not retain journal files as it increase the disk utilization
       journalMaxBackups: "0"
-      {{- if .Values.bookkeeper.operator.adopt_existing }}
-      # if adopting existing bk cluster then also keep existing ledger/journal dir setting
-      journalDirectories: "/pulsar/data/bookkeeper/journal"
-      PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
-      ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
-      PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
-      {{- end }}
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 6 }}
 {{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 6 }}
   autoRecovery:
@@ -334,40 +316,8 @@ spec:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
       updatePolicy:
-      {{- if .Values.bookkeeper.operator.adopt_existing }}
-      {{ .Values.bookkeeper.operator.updatePolicy }}
-      {{- else }}
         - all
-      {{- end }}
-      {{- if .Values.bookkeeper.operator.adopt_existing }}
-      {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
-      volumeClaimTemplates:
-      - metadata:
-          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
-        spec:
-          accessModes: [ "ReadWriteOnce" ]
-          resources:
-            requests:
-              storage: {{ .Values.bookkeeper.volumes.journal.size }}
-          {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 10 }}
-      - metadata:
-          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
-        spec:
-          accessModes: [ "ReadWriteOnce" ]
-          resources:
-            requests:
-              storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
-          {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 10 }}
-      {{- end }}
-      volumeMounts:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
-        mountPath: /pulsar/data/bookkeeper/journal
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
-        mountPath: /pulsar/data/bookkeeper/ledgers
-      {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
-      {{- include "pulsar.bookkeeper.log.volumeMounts" . | nindent 6 }}
-      {{- end }}
-      {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+      {{- if .Values.tls.bookie.enabled }}
       volumeMounts:
       {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
       {{- end }}
@@ -375,11 +325,7 @@ spec:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
       updatePolicy:
-      {{- if .Values.autorecovery.operator.adopt_existing }}
-      {{ .Values.autorecovery.operator.updatePolicy }}
-      {{- else }}
         - all
-      {{- end }}
     configMap:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
