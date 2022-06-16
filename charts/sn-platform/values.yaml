@@ -2101,6 +2101,10 @@ presto:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
         maxTotalMemoryPerNode: "256MB"
+      # Add custom configs to config.properties
+      custom:
+        # To add custom config `sql.forced-session-time-zone=America/New_York`
+        #sql.forced-session-time-zone: America/New_York
     jvm:
       memory: 2G
     log:
@@ -2150,6 +2154,10 @@ presto:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
         maxTotalMemoryPerNode: "256MB"
+      # Add custom configs to config.properties
+      custom:
+        # To add custom config `sql.forced-session-time-zone=America/New_York`
+        #sql.forced-session-time-zone: America/New_York
     jvm:
       memory: 2G
     log:
