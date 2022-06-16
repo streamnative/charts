@@ -233,7 +233,7 @@ spec:
     serviceURLGenerationPolicy: FQDN
     {{- end }}
     usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
-    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) .Values.broker.mop.enabled}}
+    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) .Values.broker.aop.enabled .Values.broker.mop.enabled}}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
@@ -263,7 +263,7 @@ spec:
     {{- end }}
     {{- end }}
     {{- end }}
-    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+    {{- if .Values.broker.aop.enabled }}
       aop:
         enabled: true
         {{- if .Values.broker.aop.proxyEnabled }}
