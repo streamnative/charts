@@ -125,7 +125,7 @@ spec:
           - name: FLINK_SQL_ENABLED
             value: "{{ .Values.streamnative_console.configData.FLINK_SQL_ENABLED | default "false" }}"
           - name: WEB_SERVICE_URL
-            value: {{ template "pulsar.web.service.url" . }}
+            value: {{ template "pulsar.web.internal.service.url" . }}
           - name: KOP_SERVICE_URL
             value: {{ .Values.broker.advertisedDomain }}:9093
           {{- if .Values.streamnative_console.login.sso.google.enabled }}
