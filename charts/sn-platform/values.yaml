@@ -191,11 +191,11 @@ images:
       pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
-    tag: "v2.17.2"
+    tag: "v2.36.1"
     pullPolicy: IfNotPresent
   alert_manager:
     repository: prom/alertmanager
-    tag: "v0.20.0"
+    tag: "v0.24.0"
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
@@ -208,7 +208,7 @@ images:
     hasCommand: false
   node_exporter:
     repository: prom/node-exporter
-    tag: "v0.16.0"
+    tag: "v1.3.1"
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
@@ -216,7 +216,7 @@ images:
     pullPolicy: "IfNotPresent"
   vault:
     repository: vault
-    tag: "1.7.0"
+    tag: "1.10.4"
     pullPolicy: "IfNotPresent"
   bank_vaults:
     repository: ghcr.io/banzaicloud/bank-vaults
