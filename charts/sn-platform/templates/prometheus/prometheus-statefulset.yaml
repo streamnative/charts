@@ -172,6 +172,9 @@ spec:
   {{ if .Values.prometheus.maxQuerySamples }}
           - --query.max-samples={{.Values.prometheus.maxQuerySamples }}
   {{- end }}
+          {{- with .Values.prometheus.extraArgs }}
+          {{ toYaml . | nindent 10 }}
+          {{- end }}
         ports:
         - name: server
           containerPort: {{ .Values.prometheus.port }}

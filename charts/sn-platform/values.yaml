@@ -1664,6 +1664,9 @@ prometheus:
     ## Prometheus data retention period (default if not specified is 15 days)
     ##
     retention: "15d"
+  extraArgs:
+    # https://prometheus.io/docs/prometheus/latest/storage/#operational-aspects
+    - --storage.tsdb.wal-compression
   scrapeInterval: 15s
   securityContext:
     runAsUser: 65534
