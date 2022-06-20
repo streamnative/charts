@@ -158,7 +158,7 @@ Define the pulsar zookeeper
 Inject vault token values to pod through env variables
 */}}
 {{- define "pulsar.vault-secret-key-name" -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-secret-env-injection
+{{ template "pulsar.fullname" . }}-secret-env-injection
 {{- end }}
 
 {{- define "pulsar.vault.url" -}}

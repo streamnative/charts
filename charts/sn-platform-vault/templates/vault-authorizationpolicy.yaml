@@ -20,7 +20,7 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}"
+  name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
@@ -33,5 +33,5 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: vault
-      vault_cr: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}"
+      vault_cr: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}"
 {{- end }}
