@@ -209,7 +209,7 @@ spec:
         {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
         - name: ca
           secret:
-            secretName: "{{ template "pulsar.tls.ca.secret.name" . }} "
+            secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
             items:
               - key: ca.crt
                 path: ca.crt
