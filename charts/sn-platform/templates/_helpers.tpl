@@ -111,7 +111,7 @@ istio: ingressgateway
 Extra necessary Pod annotations in Istio mode
 */}}
 {{- define "pulsar.istio.pod.annotations" -}}
-{{- if not .Values.istio.enabled -}}
+{{- if .Values.istio.enabled -}}
 prometheus.istio.io/merge-metrics: "false"
 {{- end }}
 {{- end -}}
