@@ -6406,6 +6406,23 @@ spec:
                   description: Replicas is the expected size of the pulsar broker
                   format: int32
                   type: integer
+                tls:
+                  description: TLS defines the TLS configuration on the broker.
+                  properties:
+                    certSecretName:
+                      description: CertSecretName defines the name of the secret that
+                        contains the certificate to use the value should be name of
+                        the secret that contains a valid certificate to use in the proxy
+                      type: string
+                    enabled:
+                      description: Enabled determines whether to enable TLS in proxies
+                        TODO move other TLS related fields here
+                      type: boolean
+                    trustCertsEnabled:
+                      description: TrustCertsEnabled defines whether to enable trust
+                        store
+                      type: boolean
+                  type: object
                 zkServers:
                   description: Zookeeper server list
                   type: string
