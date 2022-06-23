@@ -35,6 +35,7 @@ spec:
   statsdDisabled: true
 
   vaultLabels:
+    component: "{{ .Values.vault.component }}"
   {{- include "pulsar.template.labels" . | nindent 4 }}
   
   {{- if or .Values.monitoring.datadog .Values.vault.annotations }}

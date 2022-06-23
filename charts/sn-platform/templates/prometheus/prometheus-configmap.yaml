@@ -46,9 +46,6 @@ data:
       static_configs:
       - targets:
         - '127.0.0.1:{{ .Values.prometheus.port }}'
-        {{- if .Values.components.pulsar_detector }}
-        - '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}:{{ .Values.pulsar_detector.port }}'
-        {{- end }}
       metrics_path: {{ template "pulsar.control_center_path.prometheus" . }}/metrics
     - job_name: 'kubernetes-pods'
 {{- if .Values.auth.authentication.enabled }}
@@ -74,11 +71,16 @@ data:
         key_file: /etc/prom-certs/key.pem
         insecure_skip_verify: true
 {{- end }}
-      relabel_configs:
 {{- if .Values.istio.enabled }}
-      - source_labels: [__meta_kubernetes_pod_label_cloud_streamnative_io_app]
-        action: keep
-        regex: pulsar
+      # ignore job generated pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_job_name]
+        action: drop
+        regex: ".+"
+      # ignore prometheus,grafana,vault
+      - source_labels: [__meta_kubernetes_pod_label_component]
+        action: drop
+        regex: "{{ .Values.prometheus.component }}|{{ .Values.grafana.component }}|{{ .Values.vault.component }}"
 {{- end }}
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
