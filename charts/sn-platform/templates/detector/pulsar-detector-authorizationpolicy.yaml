@@ -1,0 +1,17 @@
+{{- if and .Values.components.pulsar_detector .Values.istio.enabled }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "{{ .Values.pulsar_detector.port }}"
+  action: ALLOW
+  selector:
+    matchLabels:
+      component: {{ .Values.pulsar_detector.component }}
+{{- end }}
