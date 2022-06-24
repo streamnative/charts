@@ -45,7 +45,7 @@ components:
 ## Control what images to use for each component
 images:
   registry: "docker.cloudsmith.io"
-  tag: "v0.11.1"
+  tag: "v0.11.5"
 
   zookeeper:
     registry: ""
@@ -162,6 +162,7 @@ pulsar:
   ## Whether to create the CRD.
   crd:
     create: false
+  extraEnv: []
   ## Operator pod resources
   resources:
     limits:
