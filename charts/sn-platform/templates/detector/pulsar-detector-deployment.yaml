@@ -37,8 +37,11 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.pulsar_detector.component }}
-{{- if .Values.pulsar_detector.annotations }}  
       annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.pulsar_detector.port }}"
+      {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
+{{- if .Values.pulsar_detector.annotations }}
 {{ toYaml .Values.pulsar_detector.annotations | indent 8 }}
 {{- end }}
     spec:

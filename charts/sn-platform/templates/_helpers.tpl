@@ -108,6 +108,15 @@ istio: ingressgateway
 {{- end }}
 
 {{/*
+Extra necessary Pod annotations in Istio mode
+*/}}
+{{- define "pulsar.istio.pod.annotations" -}}
+{{- if .Values.istio.enabled -}}
+prometheus.istio.io/merge-metrics: "false"
+{{- end }}
+{{- end -}}
+
+{{/*
 Define TLS CA secret name
 */}}
 {{- define "pulsar.tls.ca.secret.name" -}}
