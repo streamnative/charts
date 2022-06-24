@@ -55,6 +55,7 @@ spec:
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
 {{- end }}
+      {{- include "pulsar.istio.pod.annotations" . | nindent 6 }}
 {{- with .Values.bookkeeper.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
@@ -229,6 +230,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
 {{- end }}
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}

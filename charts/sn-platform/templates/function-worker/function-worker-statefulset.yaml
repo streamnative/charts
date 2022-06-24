@@ -47,6 +47,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.functions.ports.http }}"
 {{- end }}
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
         {{- if .Values.functions.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/broker/function-worker-configfile-configmap.yaml") . | sha256sum }}
     {{- end }}

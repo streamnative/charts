@@ -57,6 +57,7 @@ spec:
       prometheus.io/port: "{{ .Values.broker.ports.http }}"
       prometheus.io/path: "/metrics/"
 {{- end }}
+      {{- include "pulsar.istio.pod.annotations" . | nindent 6 }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}

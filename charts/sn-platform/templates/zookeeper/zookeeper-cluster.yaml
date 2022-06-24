@@ -54,6 +54,7 @@ spec:
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.zookeeper.ports.metrics  }}"
 {{- end }}
+      {{- include "pulsar.istio.pod.annotations" . | nindent 6 }}
 {{- with .Values.zookeeper.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}

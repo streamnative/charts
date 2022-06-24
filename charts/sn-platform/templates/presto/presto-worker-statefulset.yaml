@@ -44,6 +44,7 @@ spec:
       annotations:
         prometheus.io/scrape: "false"
         prometheus.io/port: "{{ .Values.presto.worker.ports.http }}"
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
 {{- with .Values.presto.worker.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
