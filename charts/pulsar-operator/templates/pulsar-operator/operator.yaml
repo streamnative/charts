@@ -66,6 +66,9 @@ spec:
         - name: FUNCTION_ROLE_TYPE
           value: "Role"
         {{- end}}
+        {{- with .Values.pulsar.extraEnv }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.pulsar.resources }}
         resources:
 {{ toYaml .Values.pulsar.resources | indent 10 }}
