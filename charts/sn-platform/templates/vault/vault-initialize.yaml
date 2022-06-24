@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.components.vault }}
+{{- if .Values.initialize }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -26,10 +27,6 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: "{{ .Values.vault.component }}-init"
-  annotations:
-    "helm.sh/hook": post-install
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation
 spec:
   template:
     metadata:
@@ -92,4 +89,5 @@ spec:
       {{- if .Values.vault.securityContext }}
       securityContext: {{- toYaml .Values.vault.securityContext | nindent 8 }}
       {{- end }}
+{{- end }}
 {{- end }}
