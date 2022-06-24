@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - SN-Platform-Stack Helm Chart (Basic Template)
+name: Precommit - SN-Platform-Vault Helm Chart (Basic Template)
 on:
   pull_request:
     branches:
