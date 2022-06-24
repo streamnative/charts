@@ -27,10 +27,11 @@ KUBECTL=${OUTPUT_BIN}/kubectl
 NAMESPACE=pulsar
 CLUSTER=pulsar-ci
 CLUSTER_ID=$(uuidgen)
+K8S_VERSION=${K8S_VERSION:-"v1.18.15"}
 
 function ci::create_cluster() {
     echo "Creating a kind cluster ..."
-    ${CHARTS_HOME}/hack/kind-cluster-build.sh --name pulsar-ci-${CLUSTER_ID} -c 1 -v 10
+    ${CHARTS_HOME}/hack/kind-cluster-build.sh --name pulsar-ci-${CLUSTER_ID} -c 1 -v 10 --k8sVersion ${K8S_VERSION}
     echo "Successfully created a kind cluster."
 }
 
