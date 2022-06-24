@@ -522,11 +522,13 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 5
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 5
     startup:
       enabled: false
       failureThreshold: 30
