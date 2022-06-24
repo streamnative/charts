@@ -162,6 +162,7 @@ pulsar:
   ## Whether to create the CRD.
   crd:
     create: false
+  extraEnv: []
   ## Operator pod resources
   resources:
     limits:
