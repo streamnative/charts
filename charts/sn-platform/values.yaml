@@ -100,8 +100,6 @@ components:
   sql_worker: false
   # kop
   kop: false
-  # aop
-  aop: false
   # pulsar detector
   pulsar_detector: true
   # superset
