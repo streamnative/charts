@@ -71,9 +71,9 @@ data:
         key_file: /etc/prom-certs/key.pem
         insecure_skip_verify: true
 {{- end }}
+      relabel_configs:
 {{- if .Values.istio.enabled }}
       # ignore job generated pod
-      relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_job_name]
         action: drop
         regex: ".+"
