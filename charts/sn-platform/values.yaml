@@ -710,10 +710,6 @@ zookeeper:
     backup:
       component: "backup"
       enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.17"
-      pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
       bucket: "s3a://bucket"
@@ -737,10 +733,6 @@ zookeeper:
     restore:
       component: "restore"
       enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.17"
-      pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
       managedLedgerPath: "/managed-ledgers"
