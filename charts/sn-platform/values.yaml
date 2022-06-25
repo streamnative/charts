@@ -152,7 +152,7 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.7.0.4
+  #   tag: 2.9.2.17
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
