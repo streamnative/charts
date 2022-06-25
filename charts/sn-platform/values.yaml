@@ -961,14 +961,6 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
-  image:
-    # the image used for running `pulsar-cluster-initialize` job
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    # Deprecated, this configuration repository and tag has been moved to the images section
-    repository: streamnative/sn-platform
-    tag: "2.9.2.17"
-    pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
   configurationStoreMetadataPrefix: ""
