@@ -237,7 +237,7 @@ images:
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
-    tag: v0.3.0
+    tag: "v0.3.0"
     pullPolicy: IfNotPresent
   external_dns:
     repository: k8s.gcr.io/external-dns/external-dns
@@ -1503,14 +1503,6 @@ configmapReload:
     ## configmap-reload container name
     ##
     name: configmap-reload
-    ## configmap-reload container image
-    ##
-    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
-    image:
-      repository: jimmidyson/configmap-reload
-      tag: v0.3.0
-      pullPolicy: IfNotPresent
-
     ## Additional configmap-reload container arguments
     ##
     extraArgs: {}
@@ -1539,15 +1531,6 @@ configmapReload:
     ## configmap-reload container name
     ##
     name: configmap-reload
-
-    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
-    ## configmap-reload container image
-    ##
-    image:
-      repository: jimmidyson/configmap-reload
-      tag: v0.3.0
-      pullPolicy: IfNotPresent
-
     ## Additional configmap-reload container arguments
     ##
     extraArgs: {}
