@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.openshift.enabled .Values.openshift.ssc.enabled -}}
+{{- if and .Values.openshift.enabled .Values.openshift.scc.enabled -}}
 {{- $sas := list (include "pulsar.vault.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.zookeeper.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.bookkeeper.serviceAccount" .) -}}

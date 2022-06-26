@@ -381,9 +381,12 @@ auth:
 # Support deploy on OpenShift
 openshift:
   enabled: false
-  # SecurityContextConstrains is enabled by default
-  ssc:
+  # SecurityContextConstrains (SCC) is enabled by default
+  scc:
     enabled: true
+    # Create an SCC automatically when `name` is not set or empty. Default behavior
+    # Use an existing SCC when `name` is set to a specific SCC name
+    name: ""
 
 ######################################################################
 # External dependencies
