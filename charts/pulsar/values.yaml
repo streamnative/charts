@@ -381,6 +381,8 @@ ingress:
       pulsarssl: true
       websocket: true
       websockettls: true
+      portNumbers:
+        https: 443
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
