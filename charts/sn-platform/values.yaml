@@ -384,8 +384,12 @@ openshift:
   # SecurityContextConstrains (SCC) is enabled by default
   scc:
     enabled: true
-    # Create an SCC automatically when `name` is not set or empty. Default behavior
-    # Use an existing SCC when `name` is set to a specific SCC name
+    # If create is true and name is not set or empty. Will create an SCC with generated name
+    # If create is true and name is set. Will create an SCC with specific name
+    # If create is false and name is not set or empty. Will reuse an existing SCC with generated name
+    # If create is false and name is set. Will reuse an existing SCC with specific name
+    create: true
+    # The name of the SCC to use.
     name: ""
 
 ######################################################################

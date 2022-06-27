@@ -21,7 +21,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "pulsar.openshift.scc.name" . }}
+  name: {{ include "pulsar.openshift.role" . }}
   namespace: {{ include "pulsar.namespace" . }}
 rules:
   - verbs:
@@ -31,5 +31,5 @@ rules:
     resources:
       - securitycontextconstraints
     resourceNames:
-      - {{ default (include "pulsar.openshift.scc.name" . ) .Values.openshift.scc.name }}
+      - {{ include "pulsar.openshift.scc" . }}
 {{- end -}}

@@ -17,11 +17,11 @@
 # under the License.
 #
 
-{{- if and .Values.openshift.enabled .Values.openshift.scc.enabled (not .Values.openshift.scc.name) }}
+{{- if and .Values.openshift.enabled .Values.openshift.scc.enabled .Values.openshift.scc.create }}
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
-  name: {{ include "pulsar.openshift.scc.name" . }}
+  name: {{ include "pulsar.openshift.scc" . }}
 allowHostDirVolumePlugin: false
 allowHostIPC: false
 allowHostNetwork: false
