@@ -405,7 +405,9 @@ ingress:
     # this section is used to control individal ports
     ports:
       http: true
-      https: true
+      https:
+        enabled: true
+        port: 443
       pulsar: true
       pulsarssl: true
       websocket: true
