@@ -1349,7 +1349,7 @@ proxy:
   ports:
     http: 8080
     https: 443
-    httpsServicePort: 443
+    #httpsServicePort:
     pulsar: 6650
     pulsarssl: 6651
     websocket: 9090

@@ -62,8 +62,8 @@ spec:
     {{- end }}
     {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
     - name: https
-      port: {{ .Values.proxy.ports.httpsServicePort }}
-{{- if not (eq .Values.proxy.ports.httpsServicePort .Values.proxy.ports.https) }}
+      port: {{ .Values.proxy.ports.httpsServicePort | default .Values.proxy.ports.https }}
+{{- if and .Values.proxy.ports.httpsServicePort (not (eq .Values.proxy.ports.httpsServicePort .Values.proxy.ports.https)) }}
       targetPort: {{ template "pulsar.proxy.ingress.targetPort.admin" . }}
 {{- end }}
       protocol: TCP
