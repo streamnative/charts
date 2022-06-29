@@ -47,6 +47,25 @@ To uninstall the `pulsar-operator` chart, execute this command.
 helm uninstall pulsar-operator -n <k8s-namespace>
 ```
 
+## Note
+As helm won't upgrade CRD when doing helm upgrade https://helm.sh/docs/chart_best_practices/custom_resource_definitions/#some-caveats-and-explanations ,we'll need to manually upgrade CRD version before upgrading pulsar-operator chart version. 
+<br>when upgrading the CRD from `apiextensions.k8s.io/v1beta1` to `apiextensions.k8s.io/v1` we might get exception like:
+```
+The CustomResourceDefinition "pulsarbrokers.pulsar.streamnative.io" is invalid: spec.preserveUnknownFields: Invalid value: true: must be false in order to use defaults in the schema
+```
+<br>This caused by a controller-gen bug: https://github.com/kubernetes-sigs/controller-tools/issues/476, which makes `preserveUnknownFields: false` missing from the generated CRD even if adding `preserveUnknownFields=false` option. So we can manually patch the CRD wheing getting such exception like below:
+```
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.6.0
+  creationTimestamp: null
+  name: pulsarbrokers.pulsar.streamnative.io
+spec:
+  group: pulsar.streamnative.io
+  preserveUnknownFields: false
+```
 
 ## Versioning Convention
 
