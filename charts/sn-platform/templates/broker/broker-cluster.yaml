@@ -293,7 +293,6 @@ spec:
 
     {{- end }}
     custom:
-      PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
