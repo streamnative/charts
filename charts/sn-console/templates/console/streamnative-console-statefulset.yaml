@@ -166,8 +166,6 @@ spec:
           {{- end }}
           - name: CONNECTOR_ENABLED
             value: "{{ .Values.configData.CONNECTOR_ENABLED | default "true" }}"
-          - name: FLINK_SQL_ENABLED
-            value: "{{ .Values.configData.FLINK_SQL_ENABLED | default "false" }}"
           {{- if .Values.login.pulsarJwt.enabled }}
           - name: AUTHENTICATION_NAME
             value: "pulsar-jwt"
