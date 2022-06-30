@@ -17,20 +17,23 @@
 # under the License.
 #
 
-apiVersion: v2
-description: StreamNative Platform Vault
-name: sn-platform-vault
-type: application
-version: 0.1.0
-appVersion: "0.1.0"
-home: https://streamnative.io
-sources:
-  - https://github.com/streamnative/charts/tree/master/charts/sn-platform-vault
-icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
-maintainers:
-  - name: StreamNative
-    email: support@streamnative.io
-dependencies:
-  - name: sn-platform-common
-    version: 0.1.0
-    repository: file://../sn-platform-common
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ template "pulsar.fullname" . }}{{ template "pulsar.detector.component" . }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.pulsar_detector.component }}
+spec:
+{{- with .Values.pulsar_detector.service.spec }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+  ports:
+    - name: server
+      port: {{ .Values.pulsar_detector.port }}
+      protocol: TCP
+  selector:
+    app: {{ template "pulsar.name" . }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.pulsar_detector.component }}
