@@ -1,0 +1,215 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.coordinator.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.coordinator.component }}
+data:
+  node.properties: |
+    node.environment={{ .Values.node.environment }}
+    node.data-dir={{ template "pulsar.home" . }}/data
+  jvm.config: |
+    -Dpresto-temporarily-allow-java8=true
+    -server
+    -Xmx{{ .Values.coordinator.jvm.memory }}
+    -XX:+UseG1GC
+    -XX:G1HeapRegionSize=32M
+    -XX:+UseGCOverheadLimit
+    -XX:+ExplicitGCInvokesConcurrent
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:+ExitOnOutOfMemoryError
+    -Dpresto-temporarily-allow-java8=true
+    -Djdk.attach.allowAttachSelf=true
+  config.properties: |
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #   http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    coordinator=true
+{{- if .Values.tls.presto.enabled }}
+    http-server.http.enabled=false
+    http-server.https.enabled=true
+    http-server.https.port={{ .Values.coordinator.ports.https }}
+    http-server.https.keystore.path=<keystore path>
+    http-server.https.keystore.key=<keystore password>
+    discovery.uri=https://localhost:{{ .Values.coordinator.ports.https }}
+    internal-communication.https.required=true
+    internal-communication.https.keystore.path=<keystore path>
+    internal-communication.https.keystore.key=<keystore password>
+{{- else }}
+    http-server.https.enabled=false
+    internal-communication.https.required=false
+    {{- if and .Values.ingress.presto.enabled .Values.ingress.presto.tls.enabled }}
+    http-server.authentication.allow-forwarded-https=true
+    dispatcher.forwarded-header=ACCEPT
+    {{- end }}
+    http-server.http.enabled=true
+    http-server.http.port={{ .Values.coordinator.ports.http }}
+    discovery.uri=http://localhost:{{ .Values.coordinator.ports.http }}
+{{- end }}
+    discovery-server.enabled=true
+    query.max-memory={{ .Values.coordinator.config.query.maxMemory }}
+    query.max-memory-per-node={{ .Values.coordinator.config.query.maxMemoryPerNode }}
+    query.max-total-memory-per-node={{ .Values.coordinator.config.query.maxTotalMemoryPerNode }}
+{{- if gt (int .Values.worker.replicaCount) 0 }}
+    node-scheduler.include-coordinator=false
+{{- else }}
+    node-scheduler.include-coordinator=true
+{{- end }}
+{{- if .Values.security.authentication.jwt.enabled }}
+    # JWT Authentication
+    http-server.authentication.type=JWT
+    http-server.authentication.jwt.key-file={{ template "pulsar.home" . }}/conf/presto/{{ .Values.security.authentication.jwt.publicKeyFileName }}
+{{- end }}
+    {{- if .Values.coordinator.config.custom }}
+    {{- range $k, $v := .Values.coordinator.config.custom }}
+    {{ $k }}={{ $v }}
+    {{- end }}
+    {{- end }}
+
+  log.properties: |
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #   http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+    #
+
+    com.facebook.presto={{ .Values.coordinator.log.presto.level }}
+    com.sun.jersey.guice.spi.container.GuiceComponentProviderFactory=WARN
+    com.ning.http.client=WARN
+    com.facebook.presto.server.PluginManager={{ .Values.coordinator.log.presto.level }}
+
+  pulsar.properties: |
+    #
+    # Licensed to the Apache Software Foundation (ASF) under one
+    # or more contributor license agreements.  See the NOTICE file
+    # distributed with this work for additional information
+    # regarding copyright ownership.  The ASF licenses this file
+    # to you under the Apache License, Version 2.0 (the
+    # "License"); you may not use this file except in compliance
+    # with the License.  You may obtain a copy of the License at
+    #
+    #   http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing,
+    # software distributed under the License is distributed on an
+    # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    # KIND, either express or implied.  See the License for the
+    # specific language governing permissions and limitations
+    # under the License.
+
+    # name of the connector to be displayed in the catalog
+    connector.name=pulsar
+    # URI of Zookeeper cluster
+    pulsar.zookeeper-uri={{ .Values.zkURL }}
+    # minimum number of entries to read at a single time
+    pulsar.max-entry-read-batch-size={{ .Values.catalog.pulsar.maxEntryReadBatchSize }}
+    # default number of splits to use per query
+    pulsar.target-num-splits={{ .Values.catalog.pulsar.targetNumSplits }}
+    # max message queue size
+    pulsar.max-split-message-queue-size={{ .Values.catalog.pulsar.maxSplitMessageQueueSize }}
+    # max entry queue size
+    pulsar.max-split-entry-queue-size={{ .Values.catalog.pulsar.maxSplitEntryQueueSize }}
+    # Rewrite namespace delimiter
+    # Warn: avoid using symbols allowed by Namespace (a-zA-Z_0-9 -=:%)
+    # to prevent erroneous rewriting
+    pulsar.namespace-delimiter-rewrite-enable={{ .Values.catalog.pulsar.namespaceDelimiterRewriteEnable }}
+    pulsar.rewrite-namespace-delimiter={{ .Values.catalog.pulsar.rewriteNamespaceDelimiter }}
+
+    ####### BOOKKEEPER CONFIGS #######
+
+    # Entries read count throttling-limit per seconds, 0 is represents disable the throttle, default is 0.
+    pulsar.bookkeeper-throttle-value = {{ .Values.catalog.pulsar.bookkeeperThrottleValue }}
+
+    # The number of threads used by Netty to handle TCP connections,
+    # default is 2 * Runtime.getRuntime().availableProcessors().
+    pulsar.bookkeeper-num-io-threads = {{ .Values.catalog.pulsar.bookkeeperNumIOThreads }}
+
+    # The number of worker threads used by bookkeeper client to submit operations,
+    # default is Runtime.getRuntime().availableProcessors().
+    pulsar.bookkeeper-num-worker-threads = {{ .Values.catalog.pulsar.bookkeeperNumWorkerThreads }}
+
+    ####### MANAGED LEDGER CONFIGS #######
+
+    # Amount of memory to use for caching data payload in managed ledger. This memory
+    # is allocated from JVM direct memory and it's shared across all the managed ledgers
+    # running in same sql worker. 0 is represents disable the cache, default is 0.
+    pulsar.managed-ledger-cache-size-MB = {{ .Values.catalog.pulsar.managedLedgerCacheSizeMB }}
+
+    # Number of threads to be used for managed ledger tasks dispatching,
+    # default is Runtime.getRuntime().availableProcessors().
+    pulsar.managed-ledger-num-worker-threads = {{ .Values.catalog.pulsar.mlNumWorkerThreads }}
+
+    # Number of threads to be used for managed ledger scheduled tasks,
+    # default is Runtime.getRuntime().availableProcessors().
+    pulsar.managed-ledger-num-scheduler-threads = {{ .Values.catalog.pulsar.mlNumSchedulerThreads }}
+
+    {{- if .Values.coordinator.config.pulsarExtraConfig }}
+{{ .Values.coordinator.config.pulsarExtraConfig | indent 4 }}
+    {{- end }}
+{{- if or .Values.security.authentication.jwt.enabled .Values.security.authentication.password.enabled }}
+  rules.json:
+{{ toYaml .Values.security.rules | indent 2 }}
+{{- end}}
+{{- if .Values.security.authentication.jwt.enabled }}
+  access-control.properties: |
+    # access-control.properties
+    access-control.name=file
+    security.config-file={{ template "pulsar.home" . }}/conf/presto/rules.json
+    security.refresh-period=60s
+{{- end}}
+{{- if .Values.security.authentication.password.enabled }}
+  password-authenticator.properties: |
+    password-authenticator.name=file
+    file.password-file={{ template "pulsar.home" . }}/presto/{{ .Values.security.authentication.password.passwordFileName }}
+    file.refresh-period=60s
+{{- end}}

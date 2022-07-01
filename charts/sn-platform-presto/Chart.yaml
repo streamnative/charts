@@ -18,35 +18,19 @@
 #
 
 apiVersion: v2
-name: sn-platform-stack
-description: StreamNative Platform Stack
+description: StreamNative Platform Presto
+name: sn-platform-presto
 type: application
 version: 0.1.0
-appVersion: "2.9"
+appVersion: "0.1.0"
 home: https://streamnative.io
 sources:
-  - https://github.com/streamnative/charts/tree/master/charts/sn-platform-stack
+  - https://github.com/streamnative/charts/tree/master/charts/sn-platform-presto
 icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
 maintainers:
   - name: StreamNative
     email: support@streamnative.io
-dependencies: 
-  - name: sn-platform
-    version: "1.5.0"
-    repository: file://../sn-platform
-  - name: sn-console
-    version: "1.9.0"
-    repository: https://charts.streamnative.io
-    condition: sn-console.enabled
-  - name: sn-platform-vault
-    version: "0.1.0"
-    repository: file://../sn-platform-vault
-    condition: sn-platform-vault.enabled
-  - name: sn-platform-detector
-    version: "0.1.0"
-    repository: file://../sn-platform-detector
-    condition: sn-platform-detector.enabled
-  - name: sn-platform-presto
-    version: "0.1.0"
-    repository: file://../sn-platform-presto
-    condition: sn-platform-presto.enabled
+dependencies:
+  - name: sn-platform-common
+    version: 0.1.0
+    repository: file://../sn-platform-common

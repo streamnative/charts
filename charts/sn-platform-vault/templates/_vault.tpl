@@ -74,15 +74,6 @@ storageClassName: "{{ .Values.vault.volume.storageClassName }}"
 {{- end }}
 
 {{/*
-Define pulsar vault root tokens volume mounts
-*/}}
-{{- define "vault.rootToken.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-root-token"
-  mountPath: "/root/{{ template "pulsar.home" .}}/rootToken"
-  subPath: vault-root
-{{- end }}
-
-{{/*
 Define pulsar vault root tokens volume
 */}}
 {{- define "vault.rootToken.volumes" -}}
@@ -96,7 +87,7 @@ Define pulsar create pulsar tokens volume mounts
 */}}
 {{- define "vault.createPulsarTokens.volumeMounts" -}}
 - name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-create-pulsar-tokens"
-  mountPath: "/root/{{ template "pulsar.home" .}}/create_pulsar_tokens/"
+  mountPath: "/root/{{ template "pulsar.name" .}}/create_pulsar_tokens/"
 {{- end }}
 
 {{/*
@@ -114,7 +105,7 @@ Define pulsar init pulsar manager volume mounts
 */}}
 {{- define "vault.initStreamNativeConsole.volumeMounts" -}}
 - name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-init-streamnative-console"
-  mountPath: "/root/{{ template "pulsar.home" .}}/init_vault_streamnative_console/"
+  mountPath: "/root/{{ template "pulsar.name" .}}/init_vault_streamnative_console/"
 {{- end }}
 
 {{/*

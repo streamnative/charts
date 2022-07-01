@@ -163,3 +163,12 @@ Inject vault token values to pod through env variables
 {{- define "pulsar.vault.url" -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200
 {{- end }}
+
+{{/*
+Extra necessary Pod annotations in Istio mode
+*/}}
+{{- define "pulsar.istio.pod.annotations" -}}
+{{- if .Values.istio.enabled -}}
+prometheus.istio.io/merge-metrics: "false"
+{{- end }}
+{{- end -}}

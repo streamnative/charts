@@ -1,0 +1,298 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+global:
+  ## Reference to one or more secrets to be used when pulling images
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  imagePullSecrets: []
+  stackName: ""
+
+## Namespace to deploy 
+namespace: ""
+
+autoRollDeployment: true
+
+## AntiAffinity
+affinity:
+  anti_affinity: true
+  
+## Presto Images
+images:
+  presto:
+    repository: streamnative/sn-platform
+    tag: "2.9.2.17"
+    pullPolicy: IfNotPresent
+  broker:
+    repository: streamnative/sn-platform
+    tag: "2.9.2.17"
+    pullPolicy: IfNotPresent
+
+## TLS setting
+tls:
+  enabled: false
+  presto:
+    enabled: false
+    # name of chart generated certificate
+    cert_name: tls-presto
+    # specify name of secret contain certificate if using pre-generated certificate
+    certSecretName:
+      
+## Ingresses for exposing Presto
+ingress:
+  presto:
+    enabled: false
+    tls:
+      enabled: true
+    type: LoadBalancer
+    annotations: { }
+    extraSpec: { }
+    ports:
+      http: 80
+      https: 443
+
+zkURL: zk:2181
+
+# Deploy pulsar sql
+security:
+  authentication:
+    password:
+      enabled: false
+      # a K8S secret that stores the password file
+      #
+      # a) generate the password file `password.db`:
+      #    $ touch password.db
+      #    $ htpasswd -B -C 10 password.db <username>
+      #
+      # b) generate the secret: `kubectl -n pulsar create secret generic [PASSWORD FILE SECRET NAME] --from-file=password=password.db`
+      #    example: kubectl -n pulsar create secret generic prod-pulsar-presto-password --from-file=password=password.db
+      passwordFileName: "password.db"
+      passwordFileSecret: '[PASSWORD FILE SECRET NAME]'
+      passwordFileSecretKey: 'password'
+    jwt:
+      enabled: false
+      publicKeyFileName: "public.key"
+      publicKeyConfigMapName: '[PUBLIC KEY CM NAME]'
+      # the public key stored in the configmap should be persisted in PEM format.
+      # presto prefers the PEM format. If you generate the public key using `pulsar tokens` CLI,
+      # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
+      # to convert the public key file to a public key file in PEM format.
+      publicKeyConfigMapKey: 'public.key'
+  rules: >
+    {
+      "rules": [
+      ]
+    }
+coordinator:
+  component: coordinator
+  replicaCount: 1
+  tolerations: []
+  extraEnv: []
+  extraVolumes: []
+  extraVolumeMounts: []
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+  annotations: {}
+  gracePeriod: 10
+  ports:
+    http: 8081
+    https: 8443
+  resources:
+    requests:
+      memory: 4Gi
+      cpu: 2
+    # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+      path: "/v1/status"
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+      path: "/v1/status"
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  config:
+    http:
+      port: 8081
+    query:
+      maxMemory: "1GB"
+      maxMemoryPerNode: "128MB"
+      maxTotalMemoryPerNode: "256MB"
+    # Add custom configs to config.properties
+    custom:
+    # To add custom config `sql.forced-session-time-zone=America/New_York`
+    # sql.forced-session-time-zone: America/New_York
+    pulsarExtraConfig: |
+      # the url of Pulsar broker service
+      # pulsar.broker-service-url = "https://my-broker:8443"
+      # the url of Pulsar broker service
+      pulsar.broker-service-url = "http://my-broker:8080"
+
+      # If broker has tls enabled
+      ## Accept untrusted TLS certificate
+      # pulsar.tls-allow-insecure-connection = false
+      ## Whether to enable hostname verification on TLS connections
+      # pulsar.tls-hostname-verification-enable = false
+      ## Path for the trusted TLS certificate file
+      # pulsar.tls-trust-cert-file-path = /pulsar/certs/ca/ca.crt
+      
+      ####### AUTHENTICATION CONFIGS #######
+      ## the authentication plugin to be used to authenticate to Pulsar cluster
+      # pulsar.auth-plugin = org.apache.pulsar.client.impl.auth.AuthenticationToken
+  
+      ####### TIERED STORAGE OFFLOADER CONFIGS #######
+      ## Driver to use to offload old data to long term storage
+      # pulsar.managed-ledger-offload-driver = {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+      ## The directory to locate offloaders
+      #  pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
+      ## Maximum number of thread pool threads for ledger offloading
+      # pulsar.managed-ledger-offload-max-threads = 2
+  
+      ## Properties and configurations related to specific offloader implementation
+      # pulsar.offloader-properties = \
+  #      { "s3ManagedLedgerOffloadBucket": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}", \
+  #        "s3ManagedLedgerOffloadRegion": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}", \
+  #        "s3ManagedLedgerOffloadReadBufferSizeInBytes": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}", \
+  #        "s3ManagedLedgerOffloadServiceEndpoint": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}" }
+  
+      ## the authentication parameter to be used to authenticate to Pulsar cluster
+      # pulsar.auth-params = file:///pulsar/tokens/client/token
+  jvm:
+    memory: 2G
+  log:
+    presto:
+      level: DEBUG
+worker:
+  service:
+    spec:
+  component: worker
+  replicaCount: 2
+  tolerations: []
+  extraEnv: []
+  extraVolumes: []
+  extraVolumeMounts: []
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+  annotations: {}
+  gracePeriod: 10
+  ports:
+    http: 8081
+  resources:
+    requests:
+      memory: 4Gi
+      cpu: 2
+    # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  config:
+    query:
+      maxMemory: "1GB"
+      maxMemoryPerNode: "128MB"
+      maxTotalMemoryPerNode: "256MB"
+    # Add custom configs to config.properties
+    custom:
+    # To add custom config `sql.forced-session-time-zone=America/New_York`
+    # sql.forced-session-time-zone: America/New_York
+    pulsarExtraConfig: |
+      # Pulsar webservice https endpoint
+      # pulsar.broker-service-url = "https://my-broker:8443"
+      # Pulsar webservice http endpoint
+      pulsar.broker-service-url = "http://my-broker:8080"
+
+      #    # Driver to use to offload old data to long term storage
+      #    pulsar.managed-ledger-offload-driver = {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+      #    # The directory to locate offloaders
+      #    pulsar.offloaders-directory = {{ template "pulsar.home" . }}/offloaders
+      #    # Maximum number of thread pool threads for ledger offloading
+      #    pulsar.managed-ledger-offload-max-threads = 2
+      #    {{- if .Values.broker.offload.s3.enabled }}
+      #    # Properties and configurations related to specific offloader implementation
+      #    pulsar.offloader-properties = \
+      #    {"s3ManagedLedgerOffloadBucket": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}", \
+      #     "s3ManagedLedgerOffloadRegion": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}", \
+      #     "s3ManagedLedgerOffloadReadBufferSizeInBytes": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}", \
+      #     "s3ManagedLedgerOffloadServiceEndpoint": "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}"}
+
+      # If broker has tls enabled
+      ## Accept untrusted TLS certificate
+      # pulsar.tls-allow-insecure-connection = false
+      ## Whether to enable hostname verification on TLS connections
+      # pulsar.tls-hostname-verification-enable = false
+      ## Path for the trusted TLS certificate file
+      # pulsar.tls-trust-cert-file-path = /pulsar/certs/ca/ca.crt
+
+      ####### AUTHENTICATION CONFIGS #######
+      ## the authentication plugin to be used to authenticate to Pulsar cluster
+      # pulsar.auth-plugin = org.apache.pulsar.client.impl.auth.AuthenticationToken
+
+      ## the authentication parameter to be used to authenticate to Pulsar cluster
+      # pulsar.auth-params = file:///pulsar/tokens/client/token
+  jvm:
+    memory: 2G
+  log:
+    presto:
+      level: DEBUG
+node:
+  environment: production
+read_offload:
+  enabled: false
+catalog:
+  pulsar:
+    maxEntryReadBatchSize: "100"
+    targetNumSplits: "16"
+    maxSplitMessageQueueSize: "10000"
+    maxSplitEntryQueueSize: "1000"
+    namespaceDelimiterRewriteEnable: "true"
+    rewriteNamespaceDelimiter: "/"
+    bookkeeperThrottleValue: "0"
+    managedLedgerCacheSizeMB: "0"
+    bookkeeperNumIOThreads: "8"
+    bookkeeperNumWorkerThreads: "8"
+    mlNumWorkerThreads: "8"
+    mlNumSchedulerThreads: "8"
+service:
+  spec:
+
+istio:
+  enabled: false
