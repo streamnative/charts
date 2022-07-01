@@ -38,8 +38,13 @@ spec:
     component: "{{ .Values.vault.component }}"
   {{- include "pulsar.template.labels" . | nindent 4 }}
   
-  {{- if or .Values.monitoring.datadog .Values.vault.annotations }}
+  {{- if or (and .Values.prometheus.scrape.vault .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.vault.annotations }}
   vaultAnnotations:
+{{- if (and .Values.prometheus.scrape.vault .Values.prometheus.scrape.enabled) }}
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ .Values.vault.servicePorts.api }}"
+    promethues.io/path: "/v1/sys/metrics"
+{{- end }}
 {{- if .Values.vault.annotations }}    
 {{ toYaml .Values.vault.annotations | indent 4 }}
 {{- end }}
@@ -59,7 +64,7 @@ spec:
   {{- if .Values.imagePullSecrets }}
   vaultPodSpec:
     imagePullSecrets:
-    - name: {{ .Values.imagePullSecrets }}
+    - name: {{ .Values.global.imagePullSecrets }}
   {{- end }}
   {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe }}
   vaultContainerSpec:
