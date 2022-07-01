@@ -1682,7 +1682,7 @@ datadog:
         "\"_*\""
       ]
     vault:
-      enabled: true
+      enabled: false
       auth:
         enabled: false
         token: ""
