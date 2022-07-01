@@ -1575,6 +1575,7 @@ prometheus:
     node_exporter: true
     proxy: true
     zookeeper: true
+    vault: true
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   annotations: {}
@@ -1681,7 +1682,7 @@ datadog:
         "\"_*\""
       ]
     vault:
-      enabled: true
+      enabled: false
       auth:
         enabled: false
         token: ""
@@ -2162,7 +2163,8 @@ vault:
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}
-  annotations: {}
+  annotations:
+    prometheus.io/port: "9091"
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
@@ -2177,6 +2179,8 @@ vault:
       tcp:
         tls_disable: true
         address: "0.0.0.0:8200"
+        telemetry:
+          unauthenticated_metrics_access: true
     api_addr: "http://${.Env.POD_NAME}:8200"
     cluster_addr: "http://${.Env.POD_NAME}:8201"
     ui: true

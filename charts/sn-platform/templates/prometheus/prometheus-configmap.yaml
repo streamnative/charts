@@ -65,6 +65,7 @@ data:
 {{- end }}
 {{- if .Values.istio.enabled }}
       scheme: https
+      enable_http2: false
       tls_config:
         ca_file: /etc/prom-certs/root-cert.pem
         cert_file: /etc/prom-certs/cert-chain.pem
@@ -80,7 +81,7 @@ data:
       # ignore prometheus,grafana,vault
       - source_labels: [__meta_kubernetes_pod_label_component]
         action: drop
-        regex: "{{ .Values.prometheus.component }}|{{ .Values.grafana.component }}|{{ .Values.vault.component }}"
+        regex: "{{ .Values.prometheus.component }}|{{ .Values.grafana.component }}|{{ .Values.toolset.component }}"
 {{- end }}
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
