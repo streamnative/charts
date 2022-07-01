@@ -79,7 +79,7 @@ data:
       - source_labels: [__meta_kubernetes_pod_label_job_name]
         action: drop
         regex: ".+"
-      # ignore prometheus,grafana,vault
+      # ignore prometheus,grafana,toolset
       - source_labels: [__meta_kubernetes_pod_label_component]
         action: drop
         regex: "{{ .Values.prometheus.component }}|{{ .Values.grafana.component }}|{{ .Values.toolset.component }}"
