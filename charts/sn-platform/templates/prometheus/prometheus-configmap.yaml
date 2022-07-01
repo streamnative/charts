@@ -65,6 +65,7 @@ data:
 {{- end }}
 {{- if .Values.istio.enabled }}
       scheme: https
+      # Disable http2 for Prometheus issue: https://github.com/prometheus/prometheus/issues/10213
       enable_http2: false
       tls_config:
         ca_file: /etc/prom-certs/root-cert.pem
