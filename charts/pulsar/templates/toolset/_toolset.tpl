@@ -204,7 +204,7 @@ http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Val
 {{- end -}}
 {{- else -}}
 {{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.httpsServicePort | default .Values.proxy.ports.https }}
 {{- else -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
 {{- end -}}
