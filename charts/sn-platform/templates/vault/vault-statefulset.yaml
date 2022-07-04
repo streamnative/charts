@@ -45,7 +45,7 @@ spec:
 {{- end }}
 {{- include "pulsar.vault.datadog.annotation" . | nindent 4 }}
 {{- end }}
-
+  {{- include "pulsar.istio.pod.annotations" . | nindent 4 }}
   {{- if .Values.vault.tolerations }}
   tolerations:
 {{ toYaml .Values.vault.tolerations | indent 4 }}
@@ -59,7 +59,7 @@ spec:
   {{- if .Values.imagePullSecrets }}
   vaultPodSpec:
     imagePullSecrets:
-    - name: {{ .Values.imagePullSecrets }}
+    - name: {{ .Values.global.imagePullSecrets }}
   {{- end }}
   {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe }}
   vaultContainerSpec:
