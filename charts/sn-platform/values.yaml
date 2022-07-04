@@ -152,7 +152,7 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.7.0.4
+  #   tag: 2.9.2.17
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
@@ -717,10 +717,6 @@ zookeeper:
     backup:
       component: "backup"
       enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.17"
-      pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
       bucket: "s3a://bucket"
@@ -744,10 +740,6 @@ zookeeper:
     restore:
       component: "restore"
       enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.17"
-      pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
       managedLedgerPath: "/managed-ledgers"
@@ -976,14 +968,6 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
-  image:
-    # the image used for running `pulsar-cluster-initialize` job
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    # Deprecated, this configuration repository and tag has been moved to the images section
-    repository: streamnative/sn-platform
-    tag: "2.9.2.17"
-    pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
   configurationStoreMetadataPrefix: ""
