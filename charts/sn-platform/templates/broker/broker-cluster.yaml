@@ -349,8 +349,11 @@ spec:
       authorizationEnabled: "true"
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
-      {{- if and .Values.broker.kop.enabled .Values.kop.auth.enabled }}
+      {{- if .Values.broker.kop.enabled }}
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      {{- if .Values.kop.auth.enabled }}
       PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}
       {{- end }}
       ## Offloading settings
       {{- if .Values.broker.offload.enabled }}
