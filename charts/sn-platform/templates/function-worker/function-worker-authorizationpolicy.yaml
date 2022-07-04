@@ -1,0 +1,21 @@
+{{- if and .Values.components.functions (and .Values.functions.useDedicatedRunner .Values.istio.enabled) }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  action: ALLOW
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "{{ .Values.functions.ports.http }}"
+        {{- if and .Values.tls.enabled .Values.tls.functions.enabled }}
+        - "{{ .Values.functions.ports.https }}"
+        {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pulsar.template.labels" . | nindent 6 }}
+      component: {{ .Values.functions.component }}
+{{- end }}
