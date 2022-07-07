@@ -76,7 +76,7 @@ jobs:
           helm plugin install https://github.com/quintush/helm-unittest
           helm unittest -3 ${{ steps.list-changed.outputs.chart_name }}
 
-  install-on-v1.18:
+  install-on-v1-18:
     runs-on: ubuntu-latest
     needs: basic-tests
     steps:
@@ -114,7 +114,7 @@ jobs:
       - name: Run chart-testing (install)
         run: ct install
 
-  install-on-v1.19:
+  install-on-v1-19:
     runs-on: ubuntu-latest
     needs: basic-tests
     steps:
@@ -152,7 +152,7 @@ jobs:
       - name: Run chart-testing (install)
         run: ct install
 
-  install-on-v1.20:
+  install-on-v1-20:
     runs-on: ubuntu-latest
     needs: basic-tests
     steps:
@@ -190,7 +190,7 @@ jobs:
       - name: Run chart-testing (install)
         run: ct install
 
-  install-on-v1.21:
+  install-on-v1-21:
     runs-on: ubuntu-latest
     needs: basic-tests
     steps:
@@ -229,7 +229,7 @@ jobs:
         run: ct install
 
 
-  install-on-v1.22:
+  install-on-v1-22:
     runs-on: ubuntu-latest
     needs: basic-tests
     steps:
@@ -267,7 +267,7 @@ jobs:
       - name: Run chart-testing (install)
         run: ct install
 
-  install-on-v1.23:
+  install-on-v1-23:
     runs-on: ubuntu-latest
     needs: basic-tests
     steps:
@@ -306,7 +306,7 @@ jobs:
         run: ct install
 
 
-  install-on-v1.24:
+  install-on-v1-24:
     runs-on: ubuntu-latest
     needs: basic-tests
     steps:
