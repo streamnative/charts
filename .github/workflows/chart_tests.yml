@@ -32,10 +32,12 @@ env:
   GKE_REGION: us-east4 
 
 jobs:
-  job_id:
-    permissions:
-      contents: 'read'
-      id-token: 'write'
+  setup-gke:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
 
     steps:
     - id: 'get-credentials'
