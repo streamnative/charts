@@ -1,0 +1,50 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+name: Chart Tests On Long-running Cluster
+on:
+  pull_request:
+    branches:
+      - '*'
+    paths:
+      - 'charts/**'
+      - '.github/workflows/**'
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: sn-shiner-charts-testing
+  GKE_REGION: us-east4 
+
+jobs:
+  job_id:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - id: 'get-credentials'
+      uses: 'google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e'
+      with:
+        cluster_name: ${{ env.GKE_CLUSTER }}
+        location: ${{ env.GKE_REGION }}
+        credentials: ${{ secrets.GKE_SA_KEY }}
+
+    # The KUBECONFIG env var is automatically exported and picked up by kubectl.
+    - id: 'get-pods'
+      run: 'kubectl get pods'
