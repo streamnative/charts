@@ -86,12 +86,12 @@ jobs:
 
     - id: 'setup-helm'
       run: |
-      export HELM_VERSION=v3.9.0
-      wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
-      tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz
-      mv linux-amd64/helm /usr/local/bin/helm
-      helm repo add hello https://www.kleinloog.ch/hello-helm/
+        export HELM_VERSION=v3.9.0
+        wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+        tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz
+        mv linux-amd64/helm /usr/local/bin/helm
+        helm repo add hello https://www.kleinloog.ch/hello-helm/
 
     - id: 'run-upgrade'
       run: |
-      helm -n ${{ inputs.namespace }} upgrade --install ${{ inputs.release_name }} ${{ iputs.chart_name }} -f ${{ inputs.value_filename }} --version ${{ inputs.chart_version }}
+        helm -n ${{ inputs.namespace }} upgrade --install ${{ inputs.release_name }} ${{ inputs.chart_name }} -f ${{ inputs.value_filename }} --version ${{ inputs.chart_version }}
