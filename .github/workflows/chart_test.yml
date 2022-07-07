@@ -27,40 +27,7 @@ on:
       - '.github/workflows/**'
 
 jobs:
-  lint-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.9.0
-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
-
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
-
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          if [[ -n "$changed" ]]; then
-            echo "::set-output name=changed::true"
-          fi
-
-      - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml
-
-
-  template-test:
+  basic-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -90,6 +57,10 @@ jobs:
             echo "::set-output name=chart_name::$chart_name"
           fi
 
+      - name: Run chart-testing (lint)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct lint --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml
+
       - name: Run template test
         if: steps.list-changed.outputs.changed == 'true'
         run: |
@@ -98,3 +69,44 @@ jobs:
             helm template test ${{ steps.list-changed.outputs.chart_name }} --kube-version $i> $i.yaml
             yamllint $i.yaml --config-file lintconf.yaml
           done
+
+      - name: Run unittest
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          helm unittest -3 ${{ steps.list-changed.outputs.chart_name }}
+
+  installation-test:
+    runs-on: ubuntu-latest
+    needs: basic-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.9.0
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.2.1
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          if [[ -n "$changed" ]]; then
+            echo "::set-output name=changed::true"
+          fi
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.3.0
+        if: steps.list-changed.outputs.changed == 'true'
+
+      - name: Run chart-testing (install)
+        run: ct install
