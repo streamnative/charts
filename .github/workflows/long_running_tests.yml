@@ -94,12 +94,12 @@ jobs:
         helm repo add streamnative https://charts.streamnative.io
 
     - name: 'Upgrade Chart'
-      if: ${{ inputs.namespace }} != ''
+      if: ${{ inputs.namespace != '' }}
       run: |
         export namespace=${{ inputs.namespace }}
         echo ${#namespace}
         helm -n ${{ inputs.namespace }} upgrade --install ${{ inputs.release_name }} ${{ inputs.chart_name }} -f ${{ inputs.value_filename }} --version ${{ inputs.chart_version }}
     - name: 'Upgrade test'
-      if: ${{ inputs.namespace }} == ''
+      if: ${{ inputs.namespace == '' }}
       run: |
         helm -n default upgrade --install my-hello hello/hello  --version 0.4.0-rc2 -f ''
