@@ -26,11 +26,6 @@ on:
       - 'charts/**'
       - '.github/workflows/**'
 
-env:
-  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: sn-shiner-charts-testing
-  GKE_REGION: us-east4 
-
 jobs:
   setup-gke:
     runs-on: ubuntu-latest
@@ -51,8 +46,8 @@ jobs:
     - id: 'get-credentials'
       uses: 'google-github-actions/get-gke-credentials@v0'
       with:
-        cluster_name: ${{ env.GKE_CLUSTER }}
-        location: ${{ env.GKE_REGION }}
+        cluster_name: sn-shiner-charts-testing
+        location: us-east4
 
     # The KUBECONFIG env var is automatically exported and picked up by kubectl.
     - id: 'get-pods'
