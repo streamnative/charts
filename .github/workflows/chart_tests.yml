@@ -44,6 +44,7 @@ jobs:
       with:
         service_account_key: ${{ secrets.GKE_SA_KEY }}
         project_id: ${{ secrets.GKE_PROJECT }}
+        export_default_credentials: true
 
     # Get the GKE credentials so we can connect to the cluster
     - id: 'get-credentials'
