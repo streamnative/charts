@@ -27,7 +27,7 @@ on:
       - '*'
     paths:
       - 'charts/pulsar/**'
-      - '.github/workflows/**'
+      - '.github/workflows/pulsar**'
 jobs:
   upgrade-test:
     runs-on: ubuntu-latest
