@@ -34,6 +34,9 @@ env:
 jobs:
   setup-gke:
     runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
     - name: Checkout
@@ -44,12 +47,9 @@ jobs:
       with:
         credentials_json: '${{ secrets.GKE_SA_KEY }}'
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v0'
-
     # Get the GKE credentials so we can connect to the cluster
     - id: 'get-credentials'
-      uses: 'google-github-actions/get-gke-credentials@v0
+      uses: 'google-github-actions/get-gke-credentials@v0'
       with:
         cluster_name: ${{ env.GKE_CLUSTER }}
         location: ${{ env.GKE_REGION }}
