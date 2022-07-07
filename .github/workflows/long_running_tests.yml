@@ -96,8 +96,9 @@ jobs:
     - name: 'Upgrade Chart'
       if: ${{ inputs.namespace }} != ''
       run: |
+        export namespace=${{ inputs.namespace }}
+        echo ${#namespace}
         helm -n ${{ inputs.namespace }} upgrade --install ${{ inputs.release_name }} ${{ inputs.chart_name }} -f ${{ inputs.value_filename }} --version ${{ inputs.chart_version }}
-        echo ${{ inputs.namespace }}
     - name: 'Upgrade test'
       if: ${{ inputs.namespace }} == ''
       run: |
