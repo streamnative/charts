@@ -20,11 +20,42 @@
 name: Chart Tests On Long-running Cluster
 on:
   pull_request:
+    # TODO change the branch to release branch
     branches:
       - '*'
     paths:
-      - 'charts/**'
-      - '.github/workflows/**'
+      - 'charts/pulsar-operator/**'
+      - 'charts/sn-platform/**'
+      - '.github/workflows/long_running_tests.yml'
+
+  workflow_call:
+    inputs:
+      namespace:
+        description: 'A namespace passed from the caller workflow'
+        default: 'default'
+        required: false
+        type: string
+      release_name:
+        description: 'A release name passed from the caller workflow'
+        default: 'sn-test-hello'
+        required: false
+        type: string
+      chart_name:
+        description: 'A chart name passed from the caller workflow'
+        default: 'hello/hello'
+        required: false
+        type: string
+      value_filename:
+        description: 'A value file path passed from the caller workflow'
+        default: ''
+        required: false
+        type: string
+      chart_version:
+        description: 'A chart version passed from the caller workflow'
+        default: '0.4.0-rc2'
+        required: false
+        type: string
+
 
 jobs:
   setup-gke:
@@ -52,3 +83,15 @@ jobs:
     # The KUBECONFIG env var is automatically exported and picked up by kubectl.
     - id: 'get-pods'
       run: 'kubectl get pods'
+
+    - id: 'setup-helm'
+      run: |
+      export HELM_VERSION=v3.9.0
+      wget https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+      tar -zxvf helm-${HELM_VERSION}-linux-amd64.tar.gz
+      mv linux-amd64/helm /usr/local/bin/helm
+      helm repo add hello https://www.kleinloog.ch/hello-helm/
+
+    - id: 'run-upgrade'
+      run: |
+      helm -n ${{ inputs.namespace }} upgrade --install ${{ inputs.release_name }} ${{ iputs.chart_name }} -f ${{ inputs.value_filename }} --version ${{ inputs.chart_version }}
