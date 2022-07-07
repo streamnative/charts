@@ -93,5 +93,8 @@ jobs:
       - name: Run template test
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          helm template test ${{ steps.list-changed.outputs.chart_name }} > demo.yaml
-          yamllint demo.yaml --config-file lintconf.yaml
+          for i in v1.19.0 v1.20.0 v1.21.0 v1.22.0 v1.23.0 v1.24.0
+          do
+            helm template test ${{ steps.list-changed.outputs.chart_name }} --kube-version $i> $i.yaml
+            yamllint $i.yaml --config-file lintconf.yaml
+          done
