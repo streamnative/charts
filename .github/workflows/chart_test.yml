@@ -73,6 +73,7 @@ jobs:
       - name: Run unittest
         if: steps.list-changed.outputs.changed == 'true'
         run: |
+          helm plugin install https://github.com/quintush/helm-unittest
           helm unittest -3 ${{ steps.list-changed.outputs.chart_name }}
 
   installation-test:
