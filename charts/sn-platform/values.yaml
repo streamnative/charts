@@ -309,6 +309,7 @@ tls:
     cert_name: tls-function
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
+    trustCertsEnabled: false
   # settings for generating certs for bookies
   bookie:
     enabled: false
