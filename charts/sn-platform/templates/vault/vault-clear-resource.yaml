@@ -38,6 +38,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"

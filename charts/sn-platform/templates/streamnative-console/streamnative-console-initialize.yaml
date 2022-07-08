@@ -33,6 +33,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
       {{- if not .Values.istio.enabled }}
       initContainers:
         # This init container will wait for broker to be ready before

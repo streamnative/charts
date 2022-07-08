@@ -36,8 +36,6 @@ spec:
   updateStrategy:
     type: RollingUpdate
   podManagementPolicy: Parallel
-
-
   template:
     metadata:
       labels:
@@ -48,9 +46,8 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
     {{- if .Values.streamnative_console.nodeSelector }}
       nodeSelector:
@@ -61,7 +58,6 @@ spec:
 {{ toYaml .Values.streamnative_console.tolerations | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.streamnative_console.gracePeriod }}
-
       {{- if not .Values.istio.enabled }}
       initContainers:
       # This init container will wait for broker to be ready before
@@ -200,7 +196,6 @@ spec:
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data
-
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
       - name: streamnative-console-data
@@ -219,7 +214,6 @@ spec:
       {{- if .Values.streamnative_console.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
       {{- end }}
-
   {{- if or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName }}
   volumeClaimTemplates:
   - metadata:
