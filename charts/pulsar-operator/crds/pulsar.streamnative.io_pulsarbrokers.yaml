@@ -37,7 +37,7 @@ spec:
       name: v1alpha1
       schema:
         openAPIV3Schema:
-          description: PulsarBroker defines a Pulsar broker
+          description: PulsarBroker is the Schema for the pulsarbrokers API
           properties:
             apiVersion:
               description: 'APIVersion defines the versioned schema of this representation
@@ -74,11 +74,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -108,11 +110,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -142,11 +146,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -176,11 +182,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -210,11 +218,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -244,11 +254,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -278,11 +290,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -312,11 +326,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -345,11 +361,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -380,11 +398,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -1392,7 +1412,8 @@ spec:
                               description: Enabled defines whether to enable AoP
                               type: boolean
                             proxyEnabled:
-                              description: Whether to start AMQP proxy.
+                              description: Whether to start AMQP proxy. Deprecated,
+                                proxy will be always be enabled
                               type: boolean
                           type: object
                         kop:
@@ -2765,18 +2786,22 @@ spec:
                         extraOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         gcLoggingOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         gcOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         memoryOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                       type: object
                     labels:
@@ -3977,19 +4002,19 @@ spec:
                           properties:
                             certSecretName:
                               description: "SIMPLE mode:   CertSecretName defines the
-                                name of the secret that contains the   certificate to
-                                use in Istio Ingress Gateway. The value should be   name
-                                of the secret in the gateway workload namespace. PASSTHROUGH
-                                mode: \t CertSecretName defines the name of the secret
-                                that contains the \t certificate to use in Broker. The
-                                value should be name of the secret   name of the secret
-                                in the Broker workload namespace. Required in both SIMPLE
-                                and PASSTHROUGH mode."
+                              name of the secret that contains the   certificate to
+                              use in Istio Ingress Gateway. The value should be   name
+                              of the secret in the gateway workload namespace. PASSTHROUGH
+                              mode: \t CertSecretName defines the name of the secret
+                              that contains the \t certificate to use in Broker. The
+                              value should be name of the secret   name of the secret
+                              in the Broker workload namespace. Required in both SIMPLE
+                              and PASSTHROUGH mode."
                               type: string
                             mode:
                               description: 'Optional: Indicates whether connections
-                                to this port should be secured using TLS. The value
-                                of this field determines how TLS is enforced.'
+                              to this port should be secured using TLS. The value
+                              of this field determines how TLS is enforced.'
                               type: string
                             trustCertsEnabled:
                               description: TrustCertsEnabled defines whether to enable
@@ -5266,18 +5291,22 @@ spec:
                         extraOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         gcLoggingOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         gcOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         memoryOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                       type: object
                     labels:

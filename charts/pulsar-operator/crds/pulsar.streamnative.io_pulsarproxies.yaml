@@ -85,11 +85,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -153,11 +155,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -187,11 +191,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -220,11 +226,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -254,11 +262,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -289,11 +299,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -619,11 +631,13 @@ spec:
                               additionalProperties:
                                 type: string
                               description: Annotations of the resource.
+                              nullable: true
                               type: object
                             labels:
                               additionalProperties:
                                 type: string
                               description: Labels of the resource.
+                              nullable: true
                               type: object
                             name:
                               description: Name of the resource within a namespace.
@@ -2565,18 +2579,22 @@ spec:
                         extraOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         gcLoggingOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         gcOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                         memoryOptions:
                           items:
                             type: string
+                          nullable: true
                           type: array
                       type: object
                     labels:
