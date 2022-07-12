@@ -295,6 +295,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
         "pulsar_in_bytes_total": "counter",
         "pulsar_in_messages_total": "counter",
         "pulsar_ml_cursor_nonContiguousDeletedMessagesRange": "gauge",
+        "pulsar_consumer_msg_ack_rate": "gauge",
         "topic_load_times": "counter",
         "jvm_memory_bytes_used": "gauge",
         "jvm_memory_bytes_committed": "gauge",
