@@ -1220,6 +1220,7 @@ functions:
   # Specify the pulsar root directory
   pulsarRootDir: ""
   nodeSelector: {}
+  # cloud.google.com/gke-nodepool: default-pool
   securityContext: {}
   tolerations: []
   extraVolumes: []

@@ -67,8 +67,12 @@ spec:
       {{- if or .Values.functions.serviceAccount.use (and .Values.components.functions  (not .Values.functions.useDedicatedRunner)) }}
       serviceAccountName: {{ template "pulsar.function.serviceAccount" . }}
       {{- end }}
+      {{- if .Values.functions.nodeSelector }}
       nodeSelector: {{- toYaml .Values.functions.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.functions.tolerations }}
       tolerations: {{- toYaml .Values.functions.tolerations | nindent 8 }}
+      {{- end }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.functions.affinity.anti_affinity}}
         podAntiAffinity:
