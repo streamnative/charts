@@ -311,8 +311,11 @@ jobs:
       - name: Create kind cluster
         run: |
           ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.23.6
+          docker pull "$SN_IMAGE"
+          kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
         env:
           KIND_VERSION: 0.14.0
+          SN_IMAGE: streamnative/sn-platform:2.9.2.20
         if: steps.list-changed.outputs.changed == 'true'
 
 
