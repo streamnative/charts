@@ -309,10 +309,12 @@ jobs:
           fi
 
       - name: Create kind cluster
-        uses: helm/kind-action@v1.3.0
-        with:
-          node_image: kindest/node:v1.23.6
+        run: |
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.23.6
+        env:
+          KIND_VERSION: 0.14.0
         if: steps.list-changed.outputs.changed == 'true'
+
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
