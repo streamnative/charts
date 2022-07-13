@@ -1219,7 +1219,7 @@ functions:
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
-  # nodeSelector:
+  nodeSelector: {}
   # cloud.google.com/gke-nodepool: default-pool
   securityContext: {}
   tolerations: []

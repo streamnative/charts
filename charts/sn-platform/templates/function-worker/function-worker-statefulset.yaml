@@ -68,12 +68,10 @@ spec:
       serviceAccountName: {{ template "pulsar.function.serviceAccount" . }}
       {{- end }}
       {{- if .Values.functions.nodeSelector }}
-      nodeSelector:
-      {{ toYaml .Values.functions.nodeSelector | indent 8 }}
+      nodeSelector: {{- toYaml .Values.functions.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.functions.tolerations }}
-      tolerations:
-      {{ toYaml .Values.functions.tolerations | indent 8 }}
+      tolerations: {{- toYaml .Values.functions.tolerations | nindent 8 }}
       {{- end }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.functions.affinity.anti_affinity}}
