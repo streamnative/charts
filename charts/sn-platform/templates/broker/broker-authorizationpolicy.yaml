@@ -41,6 +41,10 @@ spec:
         {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
         - "9093"
         {{- end }}
+        {{- if .Values.broker.aop.enabled }}
+        - "5672"
+        - "5673"
+        {{- end }}
         {{- if eq .Values.istio.gateway.tls.mode "SIMPLE" }}
         - "6652"
         {{- if .Values.broker.kop.enabled }}

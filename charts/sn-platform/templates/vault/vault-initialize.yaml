@@ -34,9 +34,8 @@ spec:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"

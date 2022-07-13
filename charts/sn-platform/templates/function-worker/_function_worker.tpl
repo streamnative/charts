@@ -38,7 +38,11 @@ Pulsar Broker Service URL TLS
 */}}
 {{- define "pulsar.function.broker.service.url.tls" -}}
 {{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
+{{- if .Values.components.proxy -}}
 pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.pulsarssl }}
+{{- else -}}
+pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.pulsarssl }}
+{{- end -}}
 {{- else -}}
 pulsar+ssl://localhost:6651
 {{- end -}}
@@ -49,7 +53,11 @@ Pulsar Web Service URL TLS
 */}}
 {{- define "pulsar.function.web.service.url.tls" -}}
 {{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
+{{- if .Values.components.proxy -}}
 https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.https }}
+{{- else -}}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
+{{- end -}}
 {{- else -}}
 https://localhost:8443
 {{- end -}}
@@ -73,7 +81,7 @@ Define function tls certs mounts
 Define function tls certs volumes
 */}}
 {{- define "pulsar.function.certs.volumes" -}}
-{{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+{{- if and .Values.tls.enabled .Values.tls.functions.enabled }}
 - name: function-certs
   secret:
     secretName: "{{ template "pulsar.function.tls.secret.name" . }}"

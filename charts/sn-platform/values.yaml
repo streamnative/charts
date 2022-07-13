@@ -298,6 +298,7 @@ tls:
     cert_name: tls-function
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
+    trustCertsEnabled: false
   # settings for generating certs for bookies
   bookie:
     enabled: false
@@ -1218,7 +1219,7 @@ functions:
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
-  # nodeSelector:
+  nodeSelector: {}
   # cloud.google.com/gke-nodepool: default-pool
   securityContext: {}
   tolerations: []
