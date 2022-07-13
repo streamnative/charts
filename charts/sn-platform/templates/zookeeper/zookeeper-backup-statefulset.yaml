@@ -53,9 +53,8 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
       securityContext:
       {{- with .Values.zookeeper.securityContext }}
