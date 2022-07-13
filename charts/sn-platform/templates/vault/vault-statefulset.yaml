@@ -82,7 +82,7 @@ spec:
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-{{ .Values.vault.volume.name }}"
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: ["ReadWriteOnce"]
       resources:
         requests:
           storage: {{ .Values.vault.volume.size }}

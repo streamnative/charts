@@ -29,7 +29,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.prometheus.volumes.data.size }}
-  accessModes: [ "ReadWriteOnce" ]
+  accessModes: ["ReadWriteOnce"]
 {{- if and .Values.volumes.local_storage .Values.prometheus.volumes.data.local_storage }}
   storageClassName: "local-storage"
 {{- else }}

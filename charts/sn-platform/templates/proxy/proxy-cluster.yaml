@@ -120,26 +120,26 @@ spec:
     vars:
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
       valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: PULSAR_PREFIX_OIDCTokenAudienceID
+        secretKeyRef:
+          name: {{ template "pulsar.vault-secret-key-name" . }}
+          key: PULSAR_PREFIX_OIDCTokenAudienceID
     - name: brokerClientAuthenticationParameters
       valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
+        secretKeyRef:
+          name: {{ template "pulsar.vault-secret-key-name" . }}
+          key: brokerClientAuthenticationParameters
     - name: PROXY_TOKEN
       valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
+        secretKeyRef:
+          name: {{ template "pulsar.vault-secret-key-name" . }}
+          key: brokerClientAuthenticationParameters
     {{- end }}
 {{- with .Values.proxy.extraEnv}}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    #envFrom:
-    #- secretRef:
-    #    name: {{ template "pulsar.vault-secret-key-name" . }}
+    # envFrom:
+    # - secretRef:
+    #     name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.proxy.resources }}
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}

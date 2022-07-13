@@ -64,7 +64,7 @@ spec:
           - --volume-dir=/etc/config
           - --webhook-url=http://127.0.0.1:{{ .Values.alert_manager.port }}{{ template "pulsar.control_center_path.alertmanager" . }}/-/reload
         resources:
-{{ toYaml .Values.configmapReload.alertmanager.resources | indent 12 }}
+{{- toYaml .Values.configmapReload.alertmanager.resources | nindent 10 }}
         volumeMounts:
           - name: config-volume
             mountPath: /etc/config

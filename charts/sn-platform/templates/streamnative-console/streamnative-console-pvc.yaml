@@ -29,7 +29,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.streamnative_console.volumes.data.size }}
-  accessModes: [ "ReadWriteOnce" ]
+  accessModes: ["ReadWriteOnce"]
 {{- if and .Values.volumes.local_storage .Values.streamnative_console.volumes.data.local_storage }}
   storageClassName: "local-storage"
 {{- else }}

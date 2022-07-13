@@ -148,7 +148,7 @@ spec:
   - metadata:
       name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: ["ReadWriteOnce"]
       resources:
         requests:
           storage: {{ .Values.grafana.volumes.data.size }}
