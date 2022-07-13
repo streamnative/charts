@@ -101,8 +101,10 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+            echo "::set-output name=chart_name::$chart_name"
           fi
 
       - name: Create kind cluster
@@ -139,8 +141,10 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+            echo "::set-output name=chart_name::$chart_name"
           fi
 
       - name: Create kind cluster
@@ -177,8 +181,10 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+            echo "::set-output name=chart_name::$chart_name"
           fi
 
       - name: Create kind cluster
@@ -215,8 +221,10 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+            echo "::set-output name=chart_name::$chart_name"
           fi
 
       - name: Create kind cluster
@@ -254,8 +262,10 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+            echo "::set-output name=chart_name::$chart_name"
           fi
 
       - name: Create kind cluster
@@ -292,8 +302,10 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+            echo "::set-output name=chart_name::$chart_name"
           fi
 
       - name: Create kind cluster
@@ -301,6 +313,14 @@ jobs:
         with:
           node_image: kindest/node:v1.23.6
         if: steps.list-changed.outputs.changed == 'true'
+
+      # Install the pulsar operator before testing the sn-platform
+      - name: Install the pulsar operator
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        run: |
+          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+          helm -n sn-system install sn charts/pulsar-operator --create-namespace
+          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
 
       - name: Run chart-testing (install)
         run: ct install
@@ -331,8 +351,10 @@ jobs:
         id: list-changed
         run: |
           changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "::set-output name=changed::true"
+            echo "::set-output name=chart_name::$chart_name"
           fi
 
       - name: Create kind cluster
@@ -340,6 +362,14 @@ jobs:
         with:
           node_image: kindest/node:v1.24.0
         if: steps.list-changed.outputs.changed == 'true'
+
+      # Install the pulsar operator before testing the sn-platform
+      - name: Install the pulsar operator
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        run: |
+          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+          helm -n sn-system install sn charts/pulsar-operator --create-namespace
+          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
 
       - name: Run chart-testing (install)
         run: ct install
