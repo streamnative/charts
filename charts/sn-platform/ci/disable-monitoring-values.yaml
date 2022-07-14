@@ -17,6 +17,7 @@
 # under the License.
 #
 
+initialize: true
 # Based on the defult values, disable the monitoring components
 monitoring:
   prometheus: false
