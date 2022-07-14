@@ -79,10 +79,10 @@ data:
       - source_labels: [__meta_kubernetes_pod_label_job_name]
         action: drop
         regex: ".+"
-      # ignore istio
-      - source_labels: [__meta_kubernetes_pod_label_istio]
-        action: drop
-        regex: ".+"
+      # Only discover pod in sn-platform target namespace
+      - source_labels: [__meta_kubernetes_namespace]
+        action: keep
+        regex: "{{ template "pulsar.namespace" . }}"
       # ignore prometheus,grafana,toolset,console
       - source_labels: [__meta_kubernetes_pod_label_component]
         action: drop
