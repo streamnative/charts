@@ -27,5 +27,5 @@ charts:
   - charts/sn-platform
   - charts/pulsar
 debug: true
-helm-extra-args: --timeout 1200
+helm-extra-args: --timeout 1200s
 validate-maintainers: false
