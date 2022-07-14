@@ -326,9 +326,9 @@ jobs:
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
           kubectl -nsn-system get deploy
-          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-controller-manager
-          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/sn-zookeeper-controller-manager
-          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/sn-bookkeeper-controller-manager
+          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-pulsar-controller-manager
+          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-zookeeper-controller-manager
+          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-bookkeeper-controller-manager
           helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
           kubectl -nsn-system wait --for condition=available --timeout=360s deployment/vault-operator
           df -h
