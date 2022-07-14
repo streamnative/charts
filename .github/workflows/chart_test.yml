@@ -286,6 +286,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: clean disk
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
+          sudo apt clean
+          docker rmi $(docker images -q) -f
+          df -h
+
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
