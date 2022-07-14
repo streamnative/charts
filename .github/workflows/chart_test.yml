@@ -345,6 +345,11 @@ jobs:
       - name: Run chart-testing (install)
         run: ct install
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: failure()
+      
+
 
 #  install-on-v1-24:
 #    runs-on: ubuntu-latest
