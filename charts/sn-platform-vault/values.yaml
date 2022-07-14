@@ -65,7 +65,7 @@ images:
     pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
-    tag: "v1.0.2"
+    tag: "v1.0.5"
   bank_vaults:
     repository: banzaicloud/bank-vaults
     tag: "1.15.2"
