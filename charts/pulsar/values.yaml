@@ -227,8 +227,8 @@ tls:
     organization:
       - pulsar
     keySize: 4096
-    keyAlgorithm: rsa
-    keyEncoding: pkcs8
+    keyAlgorithm: RSA
+    keyEncoding: PKCS8
     caSecretName:
   # settings for generating certs for proxy
   proxy:
