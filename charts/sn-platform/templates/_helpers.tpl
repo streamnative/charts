@@ -205,6 +205,9 @@ PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
 PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
 PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
 PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
+{{- if .Values.auth.oauth.brokerClientAuthenticationPlugin }}
+brokerClientAuthenticationPlugin: "{{ .Values.auth.oauth.brokerClientAuthenticationPlugin }}"
+{{- end }}
 {{- if .Values.auth.oauth.brokerClientAuthenticationParameters }}
 brokerClientAuthenticationParameters: "{{ .Values.auth.oauth.brokerClientAuthenticationParameters }}"
 {{- end }}
