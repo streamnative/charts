@@ -310,8 +310,8 @@ spec:
       authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
       {{- else }}
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
-      {{- end -}}
-      {{- end -}}
+      {{- end }}
+      {{- end }}
       {{- if .Values.broker.kop.enabled }}
       PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
       {{- if .Values.kop.auth.enabled }}
