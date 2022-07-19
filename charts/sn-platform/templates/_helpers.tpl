@@ -158,3 +158,55 @@ jvmOptions:
   {{- toYaml . | nindent 2 }}
   {{- end }}
 {{- end }}
+
+{{/*
+Define function for save authenticaiton provider list
+*/}}
+{{- define "pulsar.authenticationProviders" }}
+{{- $authenticationProviders := "" -}}
+{{- if .Values.auth.vault.enabled }}
+{{- $authenticationProviderList := splitList "," $authenticationProviders -}}
+{{ $authenticationProviders = (compact (append $authenticationProviderList "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken") | join ",") }}
+{{- end }}
+{{- if .Values.auth.authentication.tls.enabled }}
+{{- $authenticationProviderList := splitList "," $authenticationProviders -}}
+{{ $authenticationProviders = (compact (append $authenticationProviderList "org.apache.pulsar.broker.authentication.AuthenticationProviderTls") | join ",") }}
+{{- end }}
+{{- if .Values.auth.oauth.enabled }}
+{{- $authenticationProviderList := splitList "," $authenticationProviders -}}
+{{ $authenticationProviders = (compact (append $authenticationProviderList "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth") | join ",") }}
+{{- end }}
+{{- $authenticationProviders | quote }}
+{{- end }}
+
+{{/*
+Define function for save authenticaiton configuration
+*/}}
+{{- define "pulsar.autConfiguration" }}
+{{- if .Values.auth.vault.enabled }}
+brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+PULSAR_PREFIX_chainAuthenticationEnabled: "true"
+PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+{{- if .Values.broker.readPublicKeyFromFile }}
+{{- if .Values.broker.publicKeyPath }}
+PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.broker.publicKeyPath }}/publicKey"
+{{- else }}
+PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
+{{- end }}
+{{- else }}
+PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+{{- end }}
+{{- end }}
+{{- if .Values.auth.oauth.enabled }}
+PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
+PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
+PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
+PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
+PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
+PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
+PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
+{{- if .Values.auth.oauth.brokerClientAuthenticationParameters }}
+brokerClientAuthenticationParameters: "{{ .Values.auth.oauth.brokerClientAuthenticationParameters }}"
+{{- end }}
+{{- end }}
+{{- end }}
