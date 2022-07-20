@@ -30,9 +30,10 @@ allowHostPorts: false
 allowPrivilegeEscalation: true
 allowPrivilegedContainer: true
 allowedCapabilities:
+  {{- if .Values.components.vault }}
   - IPC_LOCK
   - SETFCAP
-  - SETUID
+  {{- end }}
 defaultAddCapabilities: null
 fsGroup:
   type: RunAsAny
