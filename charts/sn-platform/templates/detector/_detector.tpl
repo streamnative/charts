@@ -26,6 +26,6 @@
 {{- if .Values.pulsar_detector.webServiceUrl -}}
 {{ .Values.pulsar_detector.webServiceUrl -}}
 {{- else -}}
-{{ template "pulsar.web.service.url" . }}
+{{ template "pulsar.web.internal.service.url" . }}
 {{- end -}}
 {{- end -}}

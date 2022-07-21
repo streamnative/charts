@@ -22,7 +22,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-{{ .Values.volumes.data.name }}"
+  name: {{ template "streamnative_console.data.pvc.name" . }}
   namespace: {{ template "sn_console.namespace" . }}
 spec:
   resources:

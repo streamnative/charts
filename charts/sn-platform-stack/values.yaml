@@ -17,12 +17,37 @@
 # under the License.
 #
 
+global:
+  stackName: ""
+  stackVersion: ""
+
+sn-platform:
+  # Flag to control whether to run initialize job
+  initialize: false
+
+  ## Components
+  ##
+  ## Control what components of Apache Pulsar to deploy for the cluster
+  components:
+    # streamnative console
+    streamnative_console: false
+    pulsar_detector: false
+    vault: false
+    
 sn-console:
+  enabled: true
   initialize: false
   # broker related settings. configure how streamnative console should access Pulsar brokers.
   broker:
     webServiceUrl: http://localhost:8080
     # kopServiceUrl: localhost:9093
+    auth:
+      authentication:
+        vault:
+          secretKeyRef: ""
+  volumes:
+    data:
+      storageClassName: ""
   streamnative_console:
     configData:
       # *required*: the organization name to show in the SN console
@@ -38,7 +63,6 @@ sn-console:
           enabled: false
         okta:
           enabled: false
-
   # vault
   vault:
     # vault service url
@@ -49,14 +73,29 @@ sn-console:
     # - A secret that contains the password for user `admin` for the SN console
     # - A toolset token to store in the secret `vault.toolsetTokenSecretRef`
     initialize: false
-    
-sn-platform:  
-  # Flag to control whether to run initialize job
-  initialize: false
-  
-  ## Components
-  ##
-  ## Control what components of Apache Pulsar to deploy for the cluster
-  components:
-    # streamnative console
-    streamnative_console: false
+      
+sn-platform-vault:
+  enabled: true
+  fullnameOverride: "<release name>-sn-platform"
+  images:
+    broker:
+      repository: streamnative/sn-platform
+      tag: "2.9.2.17"
+      pullPolicy: IfNotPresent
+
+sn-platform-detector:
+  enabled: false
+  images:
+    broker:
+      repository: streamnative/sn-platform
+      tag: "2.9.2.17"
+      pullPolicy: IfNotPresent
+  pulsar_detector:
+    clusterName: ""
+    zookeeper:
+      url: ""
+    broker:
+      clientSecretName: ""
+      service: ""
+      serviceURL: ""
+      webserviceURL: ""

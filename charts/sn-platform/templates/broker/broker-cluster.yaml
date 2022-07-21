@@ -55,7 +55,9 @@ spec:
 {{- if (and .Values.prometheus.scrape.broker .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.broker.ports.http }}"
+      prometheus.io/path: "/metrics/"
 {{- end }}
+      {{- include "pulsar.istio.pod.annotations" . | nindent 6 }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
@@ -73,9 +75,12 @@ spec:
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
-    {{- if .Values.tls.broker.enabled }}
+    {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumes }}
     volumes:
     {{- include "pulsar.broker.certs.volumes" . | nindent 4 }}
+{{- with .Values.broker.extraVolumes }}
+{{ toYaml . | indent 4 }}
+{{- end }}
     {{- end }}
     affinity:
       {{- if .Values.broker.affinity.customRules }}
@@ -188,6 +193,12 @@ spec:
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  tls:
+    enabled: true
+    certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    trustCertsEnabled: {{ .Values.tls.broker.trustCertsEnabled }}
+  {{- end }}
   {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
   istio:
     enabled: true
@@ -195,8 +206,14 @@ spec:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
       tls:
+      {{- if eq .Values.istio.gateway.tls.mode "SIMPLE" }}
         certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
-        mode: simple
+        mode: "simple"
+      {{- else }}
+        certSecretName: "{{ template "pulsar.broker.gateway.tls.secret.name" . }}"
+        trustCertsEnabled: {{ .Values.tls.broker.gateway.trustCertsEnabled }}
+        mode: "passthrough"
+      {{- end }}
   {{- end }}
   {{- if .Values.broker.dnsNames }}
   dnsNames:
@@ -212,6 +229,10 @@ spec:
       mesh:
         builtinConnectorsRef:
           name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
+        functionEnabled: true
+        sinkEnabled: true
+        sourceEnabled: true
+        uploadEnabled: true
       type: FunctionMesh
     {{- end }}
     {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
@@ -219,7 +240,7 @@ spec:
     serviceURLGenerationPolicy: FQDN
     {{- end }}
     usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
-    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) .Values.broker.mop.enabled}}
+    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) .Values.broker.aop.enabled .Values.broker.mop.enabled}}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
@@ -232,9 +253,11 @@ spec:
           trustStoreEnabled: false
     {{- end }}
     {{- if .Values.broker.kop.tls.certSecretName }}
-          certSecretName: {{ .Values.broker.kop.tls.certSecretName }}
-    {{ else }}
-          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
+          certSecretName: "{{ .Values.broker.kop.tls.certSecretName }}"
+    {{- else if .Values.istio.enabled }}
+          certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    {{- else }}
+          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}
     {{- end }}
     {{- if .Values.broker.kop.tls.passwordSecretRef }}
           passwordSecretRef:
@@ -247,7 +270,7 @@ spec:
     {{- end }}
     {{- end }}
     {{- end }}
-    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+    {{- if .Values.broker.aop.enabled }}
       aop:
         enabled: true
         {{- if .Values.broker.aop.proxyEnabled }}
@@ -270,7 +293,6 @@ spec:
 
     {{- end }}
     custom:
-      PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
@@ -302,7 +324,11 @@ spec:
       {{- else if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
+      {{- if .Values.auth.authentication.tls.enabled }}
+      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,org.apache.pulsar.broker.authentication.AuthenticationProviderTls"
+      {{- else }}
       authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
+      {{- end }}
       brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
       PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
       {{- if .Values.broker.readPublicKeyFromFile }}
@@ -323,8 +349,11 @@ spec:
       authorizationEnabled: "true"
       authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
       {{- end }}
-      {{- if and .Values.broker.kop.enabled .Values.kop.auth.enabled }}
+      {{- if .Values.broker.kop.enabled }}
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      {{- if .Values.kop.auth.enabled }}
       PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}
       {{- end }}
       ## Offloading settings
       {{- if .Values.broker.offload.enabled }}
@@ -398,10 +427,21 @@ spec:
 {{- end }}
     {{- end }}
   {{- end }}
-  {{- if .Values.tls.broker.enabled }}
+  {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
   apiObjects:
     statefulSet:
+{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
       volumeMounts:
       {{- include "pulsar.broker.certs.volumeMounts" . | nindent 6 }}
+{{- with .Values.broker.extraVolumeMounts }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- end }}
+{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
+      volumeClaimTemplates:
+{{- with .Values.broker.extraVolumeClaimTemplates }}
+{{ toYaml . | indent 6 }}
+{{- end }}        
+{{- end }}    
   {{- end }}
 {{- end }}

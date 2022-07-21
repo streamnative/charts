@@ -34,13 +34,30 @@ Define the kop service url
 
 {{/*
 Define the web service url
+TODO: console need to support mount ca certs to work with internal tls broker mode
 */}}
 {{- define "pulsar.web.service.url" -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include "pulsar.broker.service" .) (include "pulsar.namespace" .) -}}
+{{- $httpUrl := printf "http://%s:%s" $host (.Values.broker.ports.http | toString) -}}
+{{- $httpsUrl := printf "https://%s:%s" $host (.Values.broker.ports.https | toString ) -}}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
-https://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
+{{- if and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") -}}
+{{- $httpUrl -}}
 {{- else -}}
-http://{{ template "pulsar.broker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.http }}
+{{- $httpsUrl -}}
 {{- end -}}
+{{- else -}}
+{{- $httpUrl -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the internal web service url
+*/}}
+{{- define "pulsar.web.internal.service.url" -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include "pulsar.broker.service" .) (include "pulsar.namespace" .) -}}
+{{- $httpUrl := printf "http://%s:%s" $host (.Values.broker.ports.http | toString) -}}
+{{- $httpUrl -}}
 {{- end -}}
 
 {{/*
@@ -85,12 +102,6 @@ Define broker tls certs mounts
 */}}
 {{- define "pulsar.broker.certs.volumeMounts" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-- name: broker-certs
-  mountPath: "/pulsar/certs/broker"
-  readOnly: true
-- name: ca
-  mountPath: "/pulsar/certs/ca"
-  readOnly: true
 {{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
@@ -104,20 +115,6 @@ Define broker tls certs volumes
 */}}
 {{- define "pulsar.broker.certs.volumes" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-- name: broker-certs
-  secret:
-    secretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
-    items:
-    - key: tls.crt
-      path: tls.crt
-    - key: tls.key
-      path: tls.key
-- name: ca
-  secret:
-    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
-    items:
-    - key: ca.crt
-      path: ca.crt
 {{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
 - name: keytool
   configMap:
@@ -525,5 +522,16 @@ Define Broker TLS certificate secret name
 {{- .Values.tls.broker.certSecretName -}}
 {{- else -}}
 {{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Broker Gateway TLS certificate secret name
+*/}}
+{{- define "pulsar.broker.gateway.tls.secret.name" -}}
+{{- if .Values.tls.broker.gateway.certSecretName -}}
+{{- .Values.tls.broker.gateway.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.broker.gateway.cert_name }}
 {{- end -}}
 {{- end -}}

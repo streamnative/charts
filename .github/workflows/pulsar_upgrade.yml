@@ -27,7 +27,7 @@ on:
       - '*'
     paths:
       - 'charts/pulsar/**'
-      - '.github/workflows/**'
+      - '.github/workflows/pulsar**'
 jobs:
   upgrade-test:
     runs-on: ubuntu-latest
@@ -45,4 +45,5 @@ jobs:
       - name: Run chart-testing (upgrade)
         env:
           UPGRADE: true
+          K8S_VERSION: v1.18.15
         run: .ci/chart_test.sh .ci/clusters/values-upgrade.yaml ${PWD}/apache-charts

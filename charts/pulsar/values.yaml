@@ -195,7 +195,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.16
+    tag: 0.0.17
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
@@ -411,6 +411,8 @@ ingress:
       pulsarssl: true
       websocket: true
       websockettls: true
+      portNumbers:
+        https: 443
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
@@ -523,11 +525,13 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 5
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 5
     startup:
       enabled: false
       failureThreshold: 30
@@ -1105,6 +1109,8 @@ functions:
   useDedicatedRunner: false
   functionMesh: false
   functionMeshName: "function-mesh"
+  functionMeshServiceAccount: "default"
+  builtinConnectorConfigmap: ""
   replicaCount: 1
   functionState: false
   enableCustomizerRuntime: false
@@ -1356,6 +1362,7 @@ proxy:
   ports:
     http: 8080
     https: 443
+    # httpsServicePort:
     pulsar: 6650
     pulsarssl: 6651
     websocket: 9090

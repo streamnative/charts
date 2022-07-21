@@ -47,6 +47,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.functions.ports.http }}"
 {{- end }}
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
         {{- if .Values.functions.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/broker/function-worker-configfile-configmap.yaml") . | sha256sum }}
     {{- end }}
@@ -55,9 +56,8 @@ spec:
 {{- end }}
 {{- end }}    
     spec:
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-        - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
       securityContext:
 {{- with .Values.functions.securityContext }}
@@ -67,12 +67,10 @@ spec:
       serviceAccountName: {{ template "pulsar.function.serviceAccount" . }}
       {{- end }}
       {{- if .Values.functions.nodeSelector }}
-      nodeSelector:
-      {{ toYaml .Values.functions.nodeSelector | indent 8 }}
+      nodeSelector: {{- toYaml .Values.functions.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.functions.tolerations }}
-      tolerations:
-      {{ toYaml .Values.functions.tolerations | indent 8 }}
+      tolerations: {{- toYaml .Values.functions.tolerations | nindent 8 }}
       {{- end }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.functions.affinity.anti_affinity}}
@@ -116,6 +114,7 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.functions.gracePeriod }}
       initContainers:
+      {{- if .Values.components.proxy }}
         # This init container will wait for pulsar proxy to be ready before deploying the function worker
         - name: wait-proxy-ready
           image: "{{ .Values.images.function_worker.repository }}:{{ .Values.images.function_worker.tag }}"
@@ -130,6 +129,7 @@ spec:
                 sleep 10;
                 proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
               done;
+      {{- end }}
 {{- with .Values.common.extraInitContainers }}
 {{ toYaml . | indent 8 }}
 {{- end }}

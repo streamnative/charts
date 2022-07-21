@@ -213,6 +213,28 @@ Define function worker config volume
 {{- end }}
 {{- end }}
 
+{{/*
+Define built-in connector config volume mount
+*/}}
+{{- define "pulsar.function.builtinconnectors.volumeMounts" -}}
+{{- if .Values.functions.builtinConnectorConfigmap }}
+- name: "builtin-connectors"
+  mountPath: "{{ template "pulsar.home" . }}/conf/connectors.yaml"
+  subPath: connectors.yaml
+{{- end }}
+{{- end }}
+
+{{/*
+Define built-in connector config volume
+*/}}
+{{- define "pulsar.function.builtinconnectors.volumes" -}}
+{{- if .Values.functions.builtinConnectorConfigmap }}
+- name: "builtin-connectors"
+  configMap:
+    name: "{{ .Values.functions.builtinConnectorConfigmap }}"
+{{- end }}
+{{- end }}
+
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
@@ -272,6 +294,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
         "pulsar_subscription_msg_throughput_out": "gauge",
         "pulsar_in_bytes_total": "counter",
         "pulsar_in_messages_total": "counter",
+        "pulsar_ml_cursor_nonContiguousDeletedMessagesRange": "gauge",
         "topic_load_times": "counter",
         "jvm_memory_bytes_used": "gauge",
         "jvm_memory_bytes_committed": "gauge",
@@ -374,6 +397,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
         "pulsar_subscription_msg_throughput_out": "gauge",
         "pulsar_in_bytes_total": "counter",
         "pulsar_in_messages_total": "counter",
+        "pulsar_ml_cursor_nonContiguousDeletedMessagesRange": "gauge",
         "topic_load_times": "counter",
         "jvm_memory_bytes_used": "gauge",
         "jvm_memory_bytes_committed": "gauge",

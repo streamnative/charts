@@ -49,6 +49,9 @@ spec:
         args:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election
+        {{- if or .Values.watchNamespace (not .Values.pulsar.serviceAccount.clusterRole)}}
+        - --watch-namespace={{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+        {{- end }}
         command:
         - /manager
         ports:
@@ -59,6 +62,13 @@ spec:
           value: "{{ .Values.pulsar.workers }}"
         - name: WATCH_CERT_MANAGER_CRDS
           value: "{{ .Values.pulsar.watchCertManagerCRDs }}"
+        {{- if not .Values.pulsar.serviceAccount.clusterRole }}
+        - name: FUNCTION_ROLE_TYPE
+          value: "Role"
+        {{- end}}
+        {{- with .Values.pulsar.extraEnv }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.pulsar.resources }}
         resources:
 {{ toYaml .Values.pulsar.resources | indent 10 }}

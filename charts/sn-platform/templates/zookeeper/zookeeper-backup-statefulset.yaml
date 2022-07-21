@@ -47,15 +47,14 @@ spec:
         {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 8 }}
         {{- end }}
         {{- if .Values.zookeeper.autoRollDeployment }}
-        checksum/config: {{ include (print $.Template.BasePath "/zookeeper/zookeeper-configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/zookeeper/zookeeper-backup-configmap.yaml") . | sha256sum }}
         {{- end }}
 {{- with .Values.zookeeper.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
       securityContext:
       {{- with .Values.zookeeper.securityContext }}

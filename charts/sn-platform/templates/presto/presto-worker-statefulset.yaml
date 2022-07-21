@@ -44,6 +44,7 @@ spec:
       annotations:
         prometheus.io/scrape: "false"
         prometheus.io/port: "{{ .Values.presto.worker.ports.http }}"
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
 {{- with .Values.presto.worker.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -97,9 +98,8 @@ spec:
           {{ end }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.presto.worker.gracePeriod }}
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}-worker
@@ -209,7 +209,7 @@ spec:
         {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
         - name: ca
           secret:
-            secretName: "{{ template "pulsar.tls.ca.secret.name" . }} "
+            secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
             items:
               - key: ca.crt
                 path: ca.crt
