@@ -58,45 +58,7 @@ spec:
 {{ toYaml . | indent 8 }}
       {{- end }}
       affinity:
-      {{- if and .Values.affinity.anti_affinity .Values.presto.coordinator.affinity.anti_affinity}}
-        podAntiAffinity:
-          {{ .Values.presto.coordinator.affinity.type }}:
-          {{ if eq .Values.presto.coordinator.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
-          - labelSelector:
-              matchExpressions:
-              - key: "app"
-                operator: In
-                values:
-                - "{{ template "pulsar.name" . }}"
-              - key: "release"
-                operator: In
-                values:
-                - {{ .Release.Name }}
-              - key: "component"
-                operator: In
-                values:
-                - {{ .Values.presto.coordinator.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: "app"
-                      operator: In
-                      values:
-                      - "{{ template "pulsar.name" . }}"
-                    - key: "release"
-                      operator: In
-                      values:
-                      - {{ .Release.Name }}
-                    - key: "component"
-                      operator: In
-                      values:
-                      - {{ .Values.presto.coordinator.component }}
-                topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-      {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.presto.coordinator.affinity "Component" .Values.presto.coordinator.component "Relase" .Release) }}
       terminationGracePeriodSeconds: {{ .Values.presto.coordinator.gracePeriod }}
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
@@ -206,7 +168,7 @@ spec:
             - name: presto-certs
               mountPath: "/pulsar/certs/presto"
               readOnly: true
-            {{- end}}  
+            {{- end}}
           ports:
 {{- if .Values.tls.presto.enabled }}
             - name: https
