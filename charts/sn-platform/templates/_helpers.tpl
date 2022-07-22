@@ -183,7 +183,7 @@ podAntiAffinity:
             values:
               - {{ .Component }}
       topologyKey: "kubernetes.io/hostname"
-      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity
+      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
   preferredDuringSchedulingIgnoredDuringExecution:
     - weight: {{ .thisAffinity.zone_anti_affinity_weight | .Values.affinity.zone_anti_affinity_weight | default "100" }}
       podAffinityTerm:
@@ -221,7 +221,7 @@ podAntiAffinity:
               values:
                 - {{ .Component }}
         topologyKey: "kubernetes.io/hostname"
-      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity
+      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
     - weight: {{ .thisAffinity.zone_anti_affinity_weight | .Values.affinity.zone_anti_affinity_weight | default "100" }}
       podAffinityTerm:
         labelSelector:
