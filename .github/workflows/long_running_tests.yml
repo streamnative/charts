@@ -77,8 +77,8 @@ jobs:
     - id: 'get-credentials'
       uses: 'google-github-actions/get-gke-credentials@v0'
       with:
-        cluster_name: sn-shiner-charts-testing
-        location: us-east4
+        cluster_name: chart-tests-long-running
+        location: us-east4-a
 
     # The KUBECONFIG env var is automatically exported and picked up by kubectl.
     - id: 'get-pods'
