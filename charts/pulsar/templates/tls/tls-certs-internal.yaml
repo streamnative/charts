@@ -54,6 +54,7 @@ spec:
   # At least one of a DNS Name, USI SAN, or IP address is required.
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
   # Issuer references are always required.
   issuerRef:
@@ -140,6 +141,7 @@ spec:
   # At least one of a DNS Name, USI SAN, or IP address is required.
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
   # Issuer references are always required.
   issuerRef:
@@ -169,8 +171,8 @@ spec:
 {{ toYaml .Values.tls.common.organization | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
-  {{- if .Values.tls.bookkeeper.commonNameOverride }}
-  commonName: "{{ .Values.tls.bookkeeper.commonNameOverride }}"
+  {{- if .Values.tls.bookie.commonNameOverride }}
+  commonName: "{{ .Values.tls.bookie.commonNameOverride }}"
   {{- else }}
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   {{- end }}
@@ -184,6 +186,7 @@ spec:
     - client auth
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   # Issuer references are always required.
   issuerRef:
@@ -228,6 +231,7 @@ spec:
     - client auth
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
   # Issuer references are always required.
   issuerRef:
@@ -269,6 +273,7 @@ spec:
     - client auth
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   # Issuer references are always required.
   issuerRef:
@@ -314,6 +319,7 @@ spec:
   # At least one of a DNS Name, USI SAN, or IP address is required.
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
   # Issuer references are always required.
   issuerRef:
@@ -358,6 +364,7 @@ spec:
     - client auth
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+    -  "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   # Issuer references are always required.
   issuerRef:
