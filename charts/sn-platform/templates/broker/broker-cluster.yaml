@@ -403,6 +403,9 @@ spec:
         volumeMounts:
           - name: cleanup-config
             mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+        {{- if .Values.broker.initContainers.resources }}
+        resources: {{- toYaml .Values.broker.initContainers.resources | nindent 10 }}
+        {{- end }}
     volumes:
       - name: cleanup-config
         configMap:

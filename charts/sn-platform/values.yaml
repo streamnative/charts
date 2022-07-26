@@ -775,6 +775,10 @@ zookeeper:
     annotations: {}
     # whether to create a cluster role
     clusterRole: true
+  # Configs for init containers
+  initContainers:
+    resources:
+      limits: {}
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -1202,6 +1206,10 @@ broker:
   publicKeyPath: ""
   publicKeySecret: ""
   usePodIPAsAdvertisedAddress: false
+  # Configs for init containers
+  initContainers:
+    resources:
+      limits: {}
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1297,6 +1305,10 @@ functions:
     functionsDirectory: ./functions
     narExtractionDirectory: ""
   functionRuntimeFactoryConfigs:
+  # Configs for init containers
+  initContainers:
+    resources:
+      limits: {}
 
 ## Pulsar: pulsar detector
 ## templates/pulsar-detector-statefulset.yaml
@@ -1337,6 +1349,10 @@ pulsar_detector:
   pdb:
     usePolicy: true
     maxUnavailable: 1
+  # Configs for init containers
+  initContainers:
+    resources:
+      limits: {}
 
 proxy:
   # use a component name that matches your grafana configuration
@@ -1965,6 +1981,11 @@ streamnative_console:
           OKTA_CLIENT_SECRET: "OKTA_CLIENT_SECRET"
           OKTA_REDIRECT_URI: "OKTA_REDIRECT_URI"
           OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+
+  # Configs for init containers
+  initContainers:
+    resources:
+      limits: {}
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
