@@ -83,7 +83,7 @@ spec:
 {{- end }}
     {{- end }}
     affinity:
-      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.broker.affinity "Component" .Values.broker.component "Relase" .Release) }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.broker.affinity "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
     vars:
     {{- if .Values.auth.authentication.enabled }}

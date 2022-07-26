@@ -72,7 +72,7 @@ spec:
       {{ toYaml .Values.zookeeper.tolerations | indent 8 }}
       {{- end }}
       affinity:
-        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.zookeeper.affinity "Component" .Values.zookeeper.component "Relase" .Release) }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.zookeeper.affinity "Component" .Values.zookeeper.component "Release" .Release "Chart" .Chart) | indent 6 }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
       {{- with .Values.common.extraInitContainers }}

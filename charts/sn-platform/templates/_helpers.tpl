@@ -163,7 +163,7 @@ jvmOptions:
 AntiAffinity Rules
 */}}
 {{- define "pulsar.antiAffinityRules" }}
-{{- if .thisAffinity.affinity.customRules }}
+{{- if not .thisAffinity.customRules }}
 {{- if and .Values.affinity.anti_affinity .thisAffinity.anti_affinity }}
 podAntiAffinity:
   {{ .thisAffinity.type }}:
@@ -185,7 +185,7 @@ podAntiAffinity:
       topologyKey: "kubernetes.io/hostname"
       {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
   preferredDuringSchedulingIgnoredDuringExecution:
-    - weight: {{ .thisAffinity.zone_anti_affinity_weight | .Values.affinity.zone_anti_affinity_weight | default "100" }}
+    - weight: {{ .thisAffinity.zone_anti_affinity_weight | default .Values.affinity.zone_anti_affinity_weight }}
       podAffinityTerm:
         labelSelector:
           matchExpressions:
@@ -222,7 +222,7 @@ podAntiAffinity:
                 - {{ .Component }}
         topologyKey: "kubernetes.io/hostname"
       {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
-    - weight: {{ .thisAffinity.zone_anti_affinity_weight | .Values.affinity.zone_anti_affinity_weight | default "100" }}
+    - weight: {{ .thisAffinity.zone_anti_affinity_weight | default .Values.affinity.zone_anti_affinity_weight }}
       podAffinityTerm:
         labelSelector:
           matchExpressions:

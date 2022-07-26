@@ -74,7 +74,7 @@ spec:
     {{- include "pulsar.proxy.certs.volumes" . | nindent 4 }}
     {{- end }}
     affinity:
-      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.proxy.affinity "Component" .Values.proxy.component "Relase" .Release) }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.proxy.affinity "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
     - name: PULSAR_PREFIX_OIDCTokenAudienceID
