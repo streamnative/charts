@@ -779,8 +779,8 @@ zookeeper:
   initContainers:
     resources:
       limits: {}
-        #cpu: "0.5"
-        #memory: "200Mi"
+        # cpu: "0.5"
+        # memory: "200Mi"
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -1212,8 +1212,8 @@ broker:
   initContainers:
     resources:
       limits: {}
-        #cpu: "0.5"
-        #memory: "200Mi"
+        # cpu: "0.5"
+        # memory: "200Mi"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1313,8 +1313,8 @@ functions:
   initContainers:
     resources:
       limits: {}
-        #cpu: "0.5"
-        #memory: "200Mi"
+        # cpu: "0.5"
+        # memory: "200Mi"
 
 ## Pulsar: pulsar detector
 ## templates/pulsar-detector-statefulset.yaml
@@ -1359,8 +1359,8 @@ pulsar_detector:
   initContainers:
     resources:
       limits: {}
-        #cpu: "0.5"
-        #memory: "200Mi"
+        # cpu: "0.5"
+        # memory: "200Mi"
 
 proxy:
   # use a component name that matches your grafana configuration
@@ -1994,8 +1994,8 @@ streamnative_console:
   initContainers:
     resources:
       limits: {}
-        #cpu: "0.5"
-        #memory: "200Mi"
+        # cpu: "0.5"
+        # memory: "200Mi"
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
