@@ -177,16 +177,8 @@ spec:
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
-{{- include "pulsar.autConfiguration" . | indent 6 }}
+{{- include "pulsar.autoConfiguration" . | indent 6 }}
       superUserRoles: "admin"
-      {{- end }}
-      {{- if .Values.auth.authorization.enabled }}
-      authorizationEnabled: "true"
-      {{- if .Values.auth.oauth.enabled }}
-      authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
-      {{- else }}
-      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
-      {{- end }}
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}

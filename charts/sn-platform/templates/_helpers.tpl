@@ -182,7 +182,7 @@ Define function for save authenticaiton provider list
 {{/*
 Define function for save authenticaiton configuration
 */}}
-{{- define "pulsar.autConfiguration" }}
+{{- define "pulsar.autoConfiguration" }}
 {{- if .Values.auth.vault.enabled }}
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
 PULSAR_PREFIX_chainAuthenticationEnabled: "true"

@@ -301,7 +301,7 @@ spec:
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
-{{- include "pulsar.autConfiguration" . | indent 6 }}
+{{- include "pulsar.autoConfiguration" . | indent 6 }}
       superUserRoles: "admin"
       {{- end }}
       {{- if .Values.auth.authorization.enabled }}
