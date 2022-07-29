@@ -613,13 +613,15 @@ zookeeper:
   securityContext: {}
   tolerations: []
   gracePeriod: 30
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: "256Mi"
       cpu: "0.1"
-    # limits:
-    #   memory: "1Gi"
-    #   cpu: "0.4"
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -775,12 +777,6 @@ zookeeper:
     annotations: {}
     # whether to create a cluster role
     clusterRole: true
-  # Configs for init containers
-  initContainers:
-    resources:
-      limits: {}
-        # cpu: "0.5"
-        # memory: "200Mi"
 
 ## Pulsar: Bookkeeper cluster
 ## templates/bookkeeper-statefulset.yaml
@@ -1055,13 +1051,15 @@ broker:
     authorizationEnabled: false
   functionmesh:
     enabled: true
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: "512Mi"
       cpu: "0.2"
-    # limits:
-    #   memory: "2Gi"
-    #   cpu: "0.8"
+    limits: {}
+      # memory: "2Gi"
+      # cpu: "0.8"
   # extra environment variable to define for the containers
   extraEnv: []
   # extra secrets to mount for the pods
@@ -1208,12 +1206,6 @@ broker:
   publicKeyPath: ""
   publicKeySecret: ""
   usePodIPAsAdvertisedAddress: false
-  # Configs for init containers
-  initContainers:
-    resources:
-      limits: {}
-        # cpu: "0.5"
-        # memory: "200Mi"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1259,10 +1251,15 @@ functions:
   ports:
     http: 8080
     https: 8443
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: 512Mi
       cpu: 0.2
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   probe:
     liveness:
       enabled: true
@@ -1309,12 +1306,6 @@ functions:
     functionsDirectory: ./functions
     narExtractionDirectory: ""
   functionRuntimeFactoryConfigs:
-  # Configs for init containers
-  initContainers:
-    resources:
-      limits: {}
-        # cpu: "0.5"
-        # memory: "200Mi"
 
 ## Pulsar: pulsar detector
 ## templates/pulsar-detector-statefulset.yaml
@@ -1341,7 +1332,15 @@ pulsar_detector:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
-
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "0.1"
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -1355,12 +1354,6 @@ pulsar_detector:
   pdb:
     usePolicy: true
     maxUnavailable: 1
-  # Configs for init containers
-  initContainers:
-    resources:
-      limits: {}
-        # cpu: "0.5"
-        # memory: "200Mi"
 
 proxy:
   # use a component name that matches your grafana configuration
@@ -1893,10 +1886,15 @@ streamnative_console:
   annotations: {}
   tolerations: []
   gracePeriod: 0
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: 250Mi
       cpu: 0.1
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -1989,13 +1987,6 @@ streamnative_console:
           OKTA_CLIENT_SECRET: "OKTA_CLIENT_SECRET"
           OKTA_REDIRECT_URI: "OKTA_REDIRECT_URI"
           OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
-
-  # Configs for init containers
-  initContainers:
-    resources:
-      limits: {}
-        # cpu: "0.5"
-        # memory: "200Mi"
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
