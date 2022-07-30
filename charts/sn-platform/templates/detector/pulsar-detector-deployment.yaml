@@ -73,6 +73,9 @@ spec:
             until bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
               sleep 3;
             done;
+        {{- if .Values.pulsar_detector.resources }}
+        resources: {{- toYaml .Values.pulsar_detector.resources | nindent 10 }}
+        {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
@@ -88,6 +91,9 @@ spec:
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
+        {{- if .Values.pulsar_detector.resources }}
+        resources: {{- toYaml .Values.pulsar_detector.resources | nindent 10 }}
+        {{- end }}
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
