@@ -642,13 +642,15 @@ zookeeper:
   securityContext: {}
   tolerations: []
   gracePeriod: 30
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: "256Mi"
       cpu: "0.1"
-    # limits:
-    #   memory: "1Gi"
-    #   cpu: "0.4"
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -1094,13 +1096,15 @@ broker:
     authorizationEnabled: false
   functionmesh:
     enabled: true
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: "512Mi"
       cpu: "0.2"
-    # limits:
-    #   memory: "2Gi"
-    #   cpu: "0.8"
+    limits: {}
+      # memory: "2Gi"
+      # cpu: "0.8"
   # extra environment variable to define for the containers
   extraEnv: []
   # extra secrets to mount for the pods
@@ -1292,10 +1296,15 @@ functions:
   ports:
     http: 8080
     https: 8443
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: 512Mi
       cpu: 0.2
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   probe:
     liveness:
       enabled: true
@@ -1368,7 +1377,15 @@ pulsar_detector:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
-
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "0.1"
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -1927,10 +1944,15 @@ streamnative_console:
   annotations: {}
   tolerations: []
   gracePeriod: 0
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: 250Mi
       cpu: 0.1
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   volumes:
     # use a persistent volume or emptyDir
     persistence: true

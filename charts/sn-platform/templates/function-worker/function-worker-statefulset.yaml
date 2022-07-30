@@ -132,6 +132,9 @@ spec:
                 sleep 10;
                 proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
               done;
+          {{- if .Values.functions.resources }}
+          resources: {{- toYaml .Values.functions.resources | nindent 12 }}
+          {{- end }}
       {{- end }}
 {{- with .Values.common.extraInitContainers }}
 {{ toYaml . | indent 8 }}
