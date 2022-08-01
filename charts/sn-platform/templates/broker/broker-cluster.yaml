@@ -297,7 +297,7 @@ spec:
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-      {{- if .Values.auth.enabled }}
+      {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
