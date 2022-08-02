@@ -163,17 +163,17 @@ jvmOptions:
 Define function for save authenticaiton provider list
 */}}
 {{- define "pulsar.authenticationProviders" }}
-{{- $authenticationProviders := dict "auth" (list "") -}}
+{{- $authenticationProviders := list "" -}}
 {{- if .Values.auth.vault.enabled }}
-{{- $_ := set $authenticationProviders "auth" (concat (get $authenticationProviders "auth") (list "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken")) }}
+{{- $authenticationProviders = append $authenticationProviders "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken" }}
 {{- end }}
 {{- if .Values.auth.authentication.tls.enabled }}
-{{- $_ := set $authenticationProviders "auth" (concat (get $authenticationProviders "auth") (list "org.apache.pulsar.broker.authentication.AuthenticationProviderTls")) }}
+{{- $authenticationProviders = append $authenticationProviders "org.apache.pulsar.broker.authentication.AuthenticationProviderTls" }}
 {{- end }}
 {{- if .Values.auth.oauth.enabled }}
-{{- $_ := set $authenticationProviders "auth" (concat (get $authenticationProviders "auth") (list "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth")) }}
+{{- $authenticationProviders = append $authenticationProviders "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth" }}
 {{- end }}
-{{- join "," (compact (get $authenticationProviders "auth")) | quote }}
+{{- join "," (compact $authenticationProviders) | quote }}
 {{- end }}
 
 {{/*
