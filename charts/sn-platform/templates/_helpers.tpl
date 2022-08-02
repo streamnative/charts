@@ -163,7 +163,7 @@ jvmOptions:
 Define function for save authenticaiton provider list
 */}}
 {{- define "pulsar.authenticationProviders" }}
-{{- $authenticationProviders := list "" -}}
+{{- $authenticationProviders := list -}}
 {{- if .Values.auth.vault.enabled }}
 {{- $authenticationProviders = append $authenticationProviders "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken" }}
 {{- end }}
