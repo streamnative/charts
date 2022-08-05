@@ -19,6 +19,9 @@
 
 name: Chart Test
 on:
+  push:
+    paths:
+      - '.github/workflows/chart_test.yml'
   pull_request:
     branches:
       - '*'
