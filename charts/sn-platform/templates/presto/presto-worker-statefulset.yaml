@@ -58,7 +58,7 @@ spec:
 {{ toYaml . | indent 8 }}
       {{- end }}
       affinity:
-        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.presto.worker.affinity "Component" .Values.presto.worker.component "Release" .Release "Chart" .Chart) | indent 6 }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.presto.worker.affinity "Component" .Values.presto.worker.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.presto.worker.gracePeriod }}
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}

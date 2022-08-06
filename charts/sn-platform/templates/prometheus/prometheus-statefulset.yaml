@@ -79,7 +79,7 @@ spec:
 {{ toYaml .Values.prometheus.securityContext | indent 8 }}
       {{- end }}
       affinity:
-        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.prometheus.affinity "Component" .Values.prometheus.component "Release" .Release "Chart" .Chart) | indent 6 }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.prometheus.affinity "Component" .Values.prometheus.component "Release" .Release "Chart" .Chart) | indent 8 }}
       containers:
       {{- if .Values.configmapReload.prometheus.enabled }}
       - name: {{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.configmapReload.prometheus.name }}

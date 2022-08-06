@@ -73,7 +73,7 @@ spec:
       tolerations: {{- toYaml .Values.functions.tolerations | nindent 8 }}
       {{- end }}
       affinity:
-        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.functions.affinity "Component" .Values.functions.component "Release" .Release "Chart" .Chart) | indent 6 }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.functions.affinity "Component" .Values.functions.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.functions.gracePeriod }}
       initContainers:
       {{- if .Values.components.proxy }}

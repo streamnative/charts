@@ -208,7 +208,7 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       affinity:
-        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.autorecovery.affinity "Component" .Values.autorecovery.component "Release" .Release "Chart" .Chart) | indent 6 }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.autorecovery.affinity "Component" .Values.autorecovery.component "Release" .Release "Chart" .Chart) | indent 8 }}
       {{- if .Values.autorecovery.resources }}
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
