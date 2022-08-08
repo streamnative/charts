@@ -361,13 +361,13 @@ spec:
         volumeMounts:
           - name: cleanup-config
             mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
-        {{- if .Values.broker.resources }}
-        resources: {{- toYaml .Values.broker.resources | nindent 10 }}
-        {{- end }}
     volumes:
       - name: cleanup-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+    {{- if .Values.broker.resources }}
+    resources: {{- toYaml .Values.broker.resources | nindent 10 }}
+    {{- end }}
   {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
