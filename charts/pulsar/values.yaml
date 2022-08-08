@@ -352,6 +352,11 @@ certs:
         #     name: "[NAME OF SECRET]"
         #     key: "[KEY OF SECRET]"
         #   role: "[ASSUME A ROLE]"
+        # cloudflare:
+        #   email: "[YOUR ACCOUNT EMAIL]"
+        #   apiTokenSecretRef:
+        #     name: "[NAME OF SECRET]"
+        #     key: "[KEY OF SECRET]"
   lets_encrypt:
     ca_ref:
       secretName: "[SECRET STORES lets encrypt CA]"
