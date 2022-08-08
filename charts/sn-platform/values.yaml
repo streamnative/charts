@@ -516,6 +516,8 @@ ingress:
   ## Ingresses for exposing presto service publicly
   presto:
     enabled: false
+    # Set external domain of the presto
+    # external_domain: your.external.presto.domain
     tls:
       enabled: true
     type: LoadBalancer

@@ -25,7 +25,11 @@ presto service domain
 {{- if .Values.domain.enabled -}}
 {{- printf "presto.%s.%s" .Release.Name .Values.domain.suffix -}}
 {{- else -}}
+{{- if .Values.ingress.presto.external_domain -}}
+{{- printf "%s" .Values.ingress.presto.external_domain -}}
+{{- else -}}
 {{- print "" -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
