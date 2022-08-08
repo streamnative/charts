@@ -18,7 +18,7 @@
 #
 
 {{- if and .Values.components.sql_worker .Values.istio.enabled }}
-{{- range $i, $e := until (int .Values.presto.coordinator.replicaCount ) }}
+{{- range $i := until (int .Values.presto.coordinator.replicaCount) }}
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
@@ -40,7 +40,7 @@ spec:
   resolution: DNS
 ---
 {{- end }}
-{{- range $i, $e := until (int .Values.presto.worker.replicaCount) }}
+{{- range $i := until (int .Values.presto.worker.replicaCount) }}
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
