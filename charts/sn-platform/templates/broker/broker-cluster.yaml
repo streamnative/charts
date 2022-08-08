@@ -346,7 +346,6 @@ spec:
       PULSAR_PREFIX_managedLedgerOffloadServiceEndpoint: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadServiceEndpoint }}"
       {{- end}}
       {{- end }}
-  {{- if .Values.zookeeper.customTools.restore.enable }}
   initJobPod:
     initContainers:
       - name: cleanup
@@ -369,7 +368,6 @@ spec:
       - name: cleanup-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
-  {{- end }}
   {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
