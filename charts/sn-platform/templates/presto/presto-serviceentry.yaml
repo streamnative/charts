@@ -25,7 +25,7 @@ metadata:
   name: "{{ template "presto.coordinator" $ }}-{{ $i }}"
 spec:
   hosts:
-  - "{{ template "presto.coordinator" $ }}-{{ $i }}.{{ template "presto.service" $ }}.{{ template "pulsar.namespace"  $ }}.svc.cluster.local"
+  - "{{ template "presto.coordinator" $ }}-{{ $i }}.{{ template "presto.hostname" $ }}"
   location: MESH_INTERNAL
   ports:
   {{- if $.Values.tls.presto.enabled }}
@@ -47,7 +47,7 @@ metadata:
   name: "{{ template "presto.worker" $ }}-{{ $i }}"
 spec:
   hosts:
-  - "{{ template "presto.worker" $ }}-{{ $i }}.{{ template "presto.worker.service" $ }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local"
+  - "{{ template "presto.worker" $ }}-{{ $i }}.{{ template "presto.worker.hostname" $ }}"
   location: MESH_INTERNAL
   ports:
   - name: tcp-web

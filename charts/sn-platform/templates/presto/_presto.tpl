@@ -18,6 +18,14 @@ Expand the name of the chart.
 {{ template "pulsar.fullname" . }}-presto-worker
 {{- end -}}
 
+{{- define "presto.hostname" -}}
+{{ template "presto.service" . }}.{{ template "pulsar.namespace"  $ }}.svc.cluster.local
+{{- end -}}
+
+{{- define "presto.worker.hostname" -}}
+{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local
+{{- end -}}
+
 {{/*
 presto service domain
 */}}

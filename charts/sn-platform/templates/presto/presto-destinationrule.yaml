@@ -23,7 +23,7 @@ kind: DestinationRule
 metadata:
   name: "{{ template "presto.coordinator" . }}"
 spec:
-  host: "{{ template "presto.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  host: "{{ template "presto.hostname" . }}"
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
@@ -33,7 +33,7 @@ kind: DestinationRule
 metadata:
   name: "{{ template "presto.coordinator" . }}-headless"
 spec:
-  host: "*.{{ template "presto.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  host: "*.{{ template "presto.hostname" . }}"
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
@@ -43,7 +43,7 @@ kind: DestinationRule
 metadata:
   name: "{{ template "presto.worker" . }}"
 spec:
-  host: "{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  host: "{{ template "presto.worker.hostname" . }}"
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL
@@ -53,7 +53,7 @@ kind: DestinationRule
 metadata:
   name: "{{ template "presto.worker" . }}-headless"
 spec:
-  host: "*.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+  host: "*.{{ template "presto.worker.hostname" . }}"
   trafficPolicy:
     tls:
       mode: ISTIO_MUTUAL

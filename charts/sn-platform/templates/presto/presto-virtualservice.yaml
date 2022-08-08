@@ -34,7 +34,7 @@ spec:
             prefix: "/"
       route:
         - destination:
-            host: "{{ template "presto.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
+            host: "{{ template "presto.hostname" . }}"
             port:
               number: {{ .Values.presto.coordinator.ports.http }}
               # TODO: support terminate tls in presto(Istio SSL Passthrough)
