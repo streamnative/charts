@@ -35,6 +35,9 @@ spec:
   vaultLabels:
     component: "{{ .Values.vault.component }}"
   {{- include "pulsar.template.labels" . | nindent 4 }}
+{{- if .Values.vault.labels }}    
+{{ toYaml .Values.vault.labels | indent 4 }}
+{{- end }}
   {{- if or .Values.monitoring.datadog .Values.vault.annotations }}
   vaultAnnotations:
 {{- if .Values.vault.annotations }}    

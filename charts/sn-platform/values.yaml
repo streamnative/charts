@@ -18,7 +18,7 @@
 #
 
 # Flag to control whether to run initialize job
-initialize: false
+initialize: true
 
 ###
 ### K8S Settings
@@ -28,7 +28,7 @@ initialize: false
 # NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
 #       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
 #       a higher control structure that is not part of the application.
-namespace: ""
+namespace: "snp"
 namespaceCreate: false
 
 ###
@@ -2193,6 +2193,10 @@ vault:
   nodeSelector: {}
   annotations:
     prometheus.io/port: "9091"
+  labels: 
+    app.nomura.com/environment: "vault-operator"
+    app.nomura.com/cmdb-instance-id: "vault-operator"
+    app.nomura.com/sdlc-component: "vault-operator"
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:

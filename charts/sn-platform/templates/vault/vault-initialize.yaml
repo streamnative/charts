@@ -32,6 +32,13 @@ spec:
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
+{{- if .Values.vault.labels }}    
+{{ toYaml .Values.vault.labels | indent 8 }}
+{{- end }}
+      annotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 8 }}
+{{- end }}
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
       {{- if .Values.global.imagePullSecrets }}
