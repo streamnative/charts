@@ -347,6 +347,7 @@ spec:
       {{- end}}
       {{- end }}
   initJobPod:
+    {{- if .Values.zookeeper.customTools.restore.enable }}
     initContainers:
       - name: cleanup
         image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
@@ -365,6 +366,7 @@ spec:
       - name: cleanup-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+    {{- end }}
     {{- if .Values.broker.resources }}
     resources: {{- toYaml .Values.broker.resources | nindent 10 }}
     {{- end }}
