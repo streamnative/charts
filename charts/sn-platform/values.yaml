@@ -2242,6 +2242,7 @@ vault:
     local_storage: true
     # storageClassName: ""
   securityContext: {}
+  containerSecurityContex: {}
 
 # Support the addition of arbitrary resources to be deployed
 # This is simply an array of raw manifests
