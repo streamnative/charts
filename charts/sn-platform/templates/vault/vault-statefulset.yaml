@@ -54,9 +54,14 @@ spec:
   nodeSelector:
 {{ toYaml .Values.vault.nodeSelector | indent 4 }}
   {{- end }}
-  {{- if .Values.global.imagePullSecrets }}
+  {{- if or .Values.global.imagePullSecrets .Values.vault.securityContext }}
   vaultPodSpec:
+    {{- if .Values.global.imagePullSecrets }}
     imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
+    {{- end }}
+    {{- if .Values.vault.securityContext }}
+    securityContext: {{- toYaml .Values.vault.securityContext | nindent 6 }}
+    {{- end }}
   {{- end }}
   {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe }}
   vaultContainerSpec:
