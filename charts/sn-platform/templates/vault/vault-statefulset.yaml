@@ -84,7 +84,7 @@ spec:
 {{ toYaml .Values.vault.config.bankVaults.probe.livenessProbe | indent 6 }}
     {{- end }}
     {{- if .Values.vault.containerSecurityContext }}
-    securityContext: {{- toYaml .Values.vault.containerSecurityContex | nindent 6 }}
+    securityContext: {{- toYaml .Values.vault.containerSecurityContext | nindent 6 }}
     {{- end }}
   {{- end }}
 {{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
