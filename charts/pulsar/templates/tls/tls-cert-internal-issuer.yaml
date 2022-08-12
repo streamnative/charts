@@ -48,6 +48,11 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+  {{- with .Values.certs.ca.annotations }}
+  secretTemplate:
+    annotations:
+    {{ toYaml . | nindent 6 }}
+  {{- end }}
 ---
 
 apiVersion: cert-manager.io/v1
