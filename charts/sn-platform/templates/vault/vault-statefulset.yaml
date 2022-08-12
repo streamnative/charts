@@ -39,6 +39,8 @@ spec:
       value: "true"
     - name: SKIP_SETCAP
       value: "true"
+    - name: VAULT_DISABLE_MLOCK
+      value: "true"
   {{- end }}
   vaultLabels:
     component: "{{ .Values.vault.component }}"
@@ -114,9 +116,6 @@ spec:
   # See https://www.vaultproject.io/docs/configuration/ for more information.
   config:
   {{ toYaml .Values.vault.config | nindent 4 }}
-  {{- if .Values.vault.securityContext }}
-    disable_mlock: true
-  {{- end }}
   {{- end }}
   {{- if .Values.vault.resources }}
   resources:
