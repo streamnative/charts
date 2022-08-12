@@ -66,6 +66,10 @@ spec:
       - name: busybox
         image: "{{ .Values.images.toolset.busybox.repository }}:{{ .Values.images.toolset.busybox.tag }}"
         imagePullPolicy: {{ .Values.images.toolset.busybox.pullPolicy }}
+      {{- if .Values.toolset.resources }}
+        resources:
+{{ toYaml .Values.toolset.resources | indent 10 }}
+      {{- end }}
         command: ["sh", "-c"]
         args:
         - |
