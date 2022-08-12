@@ -192,6 +192,10 @@ images:
       repository: confluentinc/cp-kafka
       tag: "7.0.1"
       pullPolicy: IfNotPresent
+    busybox:
+      repository: busybox
+      tag: "1.35.0"
+      pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
     tag: "v2.36.1"

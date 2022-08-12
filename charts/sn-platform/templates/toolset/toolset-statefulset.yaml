@@ -58,6 +58,20 @@ spec:
 {{ toYaml .Values.toolset.tolerations | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.toolset.gracePeriod }}
+      initContainers:
+      - name: busybox
+        image: "{{ .Values.images.toolset.busybox.repository }}:{{ .Values.images.toolset.busybox.tag }}"
+        imagePullPolicy: {{ .Values.images.toolset.busybox.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+        - |
+          mkdir binaries;
+          busybox --install -s binaries;
+          cp binaries/* /tmp/binaries;
+          cp /bin/busybox /tmp/binaries;
+        volumeMounts:
+        - name: binaries
+          mountPath: /tmp/binaries
       containers:
       - name: "pulsar"
         {{- include "pulsar.toolset.image" . | nindent 8 }}
@@ -84,6 +98,12 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
         volumeMounts:
+        - name: binaries
+          mountPath: /bin/busybox
+          subPath: busybox
+        - name: binaries
+          mountPath: /bin/vi
+          subPath: vi
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
@@ -122,6 +142,8 @@ spec:
 {{- end }}
       {{- end }}
       volumes:
+      - name: binaries
+        emptyDir: {}
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.token.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.log.volumes" . | nindent 6 }}
