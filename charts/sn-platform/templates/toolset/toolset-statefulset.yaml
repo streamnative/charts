@@ -49,6 +49,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+    {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+    {{- end }}
     {{- if .Values.toolset.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.toolset.nodeSelector | indent 8 }}
