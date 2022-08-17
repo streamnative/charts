@@ -76,6 +76,9 @@ spec:
         {{- if .Values.vault.containerSecurityContext }}
         securityContext: {{- toYaml .Values.vault.containerSecurityContext | nindent 10 }}
         {{- end }}
+        {{- if .Values.vault.resources }}
+        resources: {{- toYaml .Values.vault.resources | nindent 10  }}
+        {{- end }}
       restartPolicy: Never
       {{- if .Values.vault.securityContext }}
       securityContext: {{- toYaml .Values.vault.securityContext | nindent 8 }}
