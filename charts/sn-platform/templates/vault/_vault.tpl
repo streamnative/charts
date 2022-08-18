@@ -73,7 +73,7 @@ Define pulsar vault root tokens volume mounts
 */}}
 {{- define "pulsar.vault.rootToken.volumeMounts" -}}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-root-token"
-  mountPath: "/root/{{ template "pulsar.home" .}}/rootToken"
+  mountPath: "/vault/{{ template "pulsar.home" .}}/rootToken"
   subPath: vault-root
 {{- end }}
 
@@ -94,7 +94,7 @@ Define pulsar create pulsar tokens volume mounts
 */}}
 {{- define "pulsar.vault.createPulsarTokens.volumeMounts" -}}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-create-pulsar-tokens"
-  mountPath: "/root/{{ template "pulsar.home" .}}/create_pulsar_tokens/"
+  mountPath: "/vault/{{ template "pulsar.home" .}}/create_pulsar_tokens/"
 {{- end }}
 
 {{/*
@@ -112,7 +112,7 @@ Define pulsar init pulsar manager volume mounts
 */}}
 {{- define "pulsar.vault.initStreamNativeConsole.volumeMounts" -}}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-streamnative-console"
-  mountPath: "/root/{{ template "pulsar.home" .}}/init_vault_streamnative_console/"
+  mountPath: "/vault/{{ template "pulsar.home" .}}/init_vault_streamnative_console/"
 {{- end }}
 
 {{/*
