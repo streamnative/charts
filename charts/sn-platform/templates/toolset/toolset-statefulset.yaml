@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.toolset.component }}
+{{- with .Values.toolset.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   replicas: {{ .Values.toolset.replicaCount }}
@@ -41,6 +44,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.toolset.component }}
+{{- with .Values.toolset.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.toolset.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/toolset/toolset-configmap.yaml") . | sha256sum }}
