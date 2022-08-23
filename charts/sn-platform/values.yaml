@@ -231,7 +231,7 @@ images:
     pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
-    tag: "v1.0.5"
+    tag: "v1.0.6"
   custom_metric_server_prometheus:
     repository: prom/prometheus
     tag: "v2.19.2"
