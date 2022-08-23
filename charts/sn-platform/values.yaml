@@ -624,6 +624,7 @@ zookeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   advanced:
     staticServerList: []
@@ -778,7 +779,6 @@ zookeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   # Definition of the serviceAccount used to run zookeeper.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -820,6 +820,7 @@ bookkeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   securityContext: {}
   tolerations: []
@@ -932,7 +933,6 @@ bookkeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
 
 ## Pulsar: Bookkeeper AutoRecovery
 ## templates/autorecovery-statefulset.yaml
@@ -955,6 +955,7 @@ autorecovery:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   securityContext: {}
   # tolerations: []
@@ -1034,6 +1035,7 @@ broker:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   tolerations: []
   securityContext: {}
@@ -1221,7 +1223,6 @@ broker:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
@@ -1334,6 +1335,7 @@ functions:
 pulsar_detector:
   component: pulsar-detector
   replicaCount: 1
+  labels: {}
   annotations: {}
   gracePeriod: 30
   port: 9000
@@ -1392,6 +1394,7 @@ proxy:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   securityContext: {}
   tolerations: []
@@ -1473,7 +1476,6 @@ proxy:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
@@ -1488,6 +1490,7 @@ toolset:
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1602,6 +1605,7 @@ prometheus:
     vault: true
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1756,6 +1760,7 @@ grafana:
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1825,6 +1830,7 @@ grafana:
 
 node_exporter:
   component: node-exporter
+  labels: {}
   annotations: {}
   limits:
     cpu: 10m
@@ -1836,6 +1842,7 @@ node_exporter:
 alert_manager:
   component: alert-manager
   port: 9093
+  labels: {}
   annotations: {}
   replicaCount: 1
   gracePeriod: 0
@@ -1886,7 +1893,6 @@ streamnative_console:
   ports:
     frontend: 9527
     backend: 7750
-
   replicaCount: 1
   probe:
     liveness:
@@ -1906,6 +1912,7 @@ streamnative_console:
       periodSeconds: 30
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -2061,6 +2068,7 @@ presto:
       # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
       # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
       type: preferredDuringSchedulingIgnoredDuringExecution
+    labels: {}
     annotations: {}
     gracePeriod: 10
     ports:
@@ -2120,6 +2128,7 @@ presto:
       # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
       # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
       type: preferredDuringSchedulingIgnoredDuringExecution
+    labels: {}
     annotations: {}
     gracePeriod: 10
     ports:
