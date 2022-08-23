@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.streamnative_console.component }}
+{{- with .Values.streamnative_console.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   replicas: 1
@@ -41,6 +44,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.streamnative_console.component }}
+{{- with .Values.streamnative_console.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
 {{- with .Values.streamnative_console.annotations }}
 {{ toYaml . | indent 8 }}

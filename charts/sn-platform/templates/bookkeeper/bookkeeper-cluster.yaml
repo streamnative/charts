@@ -183,6 +183,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.autorecovery.component }}
+{{- with .Values.autorecovery.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
 {{- if or (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) .Values.autorecovery.annotations }}
       annotations:
 {{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}
