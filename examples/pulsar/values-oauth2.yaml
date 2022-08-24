@@ -34,14 +34,13 @@ auth:
     enabled: true
     provider: "oauth2"
     # below configurations are using Azure as the provider
-    # please refer to: https://streamnative.slab.com/posts/how-oauth-2-broker-plugin-work-with-azure-active-directory-azure-ad-platform-ui9a8ox8
     oauth2:
-      issuerUrl: https://xxxxxx/ 
-      issuerUrlParam: https://xxxxxx/v2.0
-      audience: api://xxxxxx
-      audienceParam: api://xxxxxx/.default
+      issuerUrl: https://xxxxxx/ # the issuerUrl, such as https://sts.windows.net/xxxxxx/
+      issuerUrlParam: https://xxxxxx/v2.0 # such as https://sts.windows.net/xxxxxx/v2.0
+      audience: api://YOUR-APPLICATION-ID
+      audienceParam: api://YOUR-APPLICATION-ID/.default
       brokerClientCredential: '{"client_id":"****","client_secret":"*****"}'
       subjectClaim: appid
       adminScope: appid
-      adminScopeParam: api://xxxxxx
+      adminScopeParam: api://YOUR-APPLICATION-ID
       authenticationProviders: io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth
