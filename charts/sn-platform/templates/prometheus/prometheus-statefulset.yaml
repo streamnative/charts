@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.prometheus.component }}
+{{- with .Values.prometheus.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
   replicas: {{ .Values.prometheus.replicaCount }}
@@ -41,6 +44,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.prometheus.component }}
+{{- with .Values.prometheus.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.istio.enabled }}
         # ref: https://istio.io/latest/docs/ops/integrations/prometheus/#tls-settings

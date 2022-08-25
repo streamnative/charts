@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.alert_manager.component }}
+{{- with .Values.alert_manager.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.alert_manager.replicaCount }}
   selector:
@@ -37,6 +40,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.alert_manager.component }}
+{{- with .Values.alert_manager.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
 {{- with .Values.alert_manager.annotations }}
 {{ toYaml . | indent 8 }}
