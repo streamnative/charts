@@ -94,9 +94,6 @@ spec:
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
-        {{- if .Values.vault.containerSecurityContext }}
-        securityContext: {{- toYaml .Values.vault.containerSecurityContext | nindent 10 }}
-        {{- end }}
         {{- if .Values.vault.resources }}
         resources: {{- toYaml .Values.vault.resources | nindent 10  }}
         {{- end }}

@@ -67,9 +67,6 @@ spec:
         env:
         - name: NAMESPACE
           value: {{ template "pulsar.namespace" . }}
-        {{- if .Values.vault.containerSecurityContext }}
-        securityContext: {{- toYaml .Values.vault.containerSecurityContext | nindent 10 }}
-        {{- end }}
         {{- if .Values.vault.resources }}
         resources: {{- toYaml .Values.vault.resources | nindent 10  }}
         {{- end }}

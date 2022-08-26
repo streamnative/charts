@@ -70,7 +70,7 @@ spec:
     imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
     {{- end }}
   {{- end }}
-  {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe .Values.vault.containerSecurityContext }}
+  {{- if or .Values.vault.config.bankVaults.probe.livenessProbe .Values.vault.config.bankVaults.probe.startupProbe .Values.vault.config.bankVaults.probe.readinessProbe  }}
   vaultContainerSpec:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-vault"
     {{- if .Values.vault.config.bankVaults.probe.readinessProbe }}
@@ -84,9 +84,6 @@ spec:
     {{- if .Values.vault.config.bankVaults.probe.livenessProbe }}
     livenessProbe:
 {{ toYaml .Values.vault.config.bankVaults.probe.livenessProbe | indent 6 }}
-    {{- end }}
-    {{- if .Values.vault.containerSecurityContext }}
-    securityContext: {{- toYaml .Values.vault.containerSecurityContext | nindent 6 }}
     {{- end }}
   {{- end }}
 {{- if and .Values.volumes.persistence .Values.vault.volume.persistence}}
