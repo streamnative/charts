@@ -249,6 +249,7 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
         volumeMounts:
+          {{- include "pulsar.proxy.oauth2.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.log.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.token.volumeMounts" . | nindent 10 }}
           {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 10 }}
@@ -329,6 +330,7 @@ spec:
         {{- if .Values.proxy.websocket.enabled }}
         {{- include "pulsar.websocket.token.volumes" . | nindent 8 }}
         {{- end }}
+        {{- include "pulsar.proxy.oauth2.volumes" . | nindent 8 }}
         {{- include "pulsar.proxy.log.volumes" . | nindent 8 }}
         {{- include "pulsar.proxy.token.volumes" . | nindent 8 }}
         {{- include "pulsar.proxy.certs.volumes" . | nindent 8 }}
