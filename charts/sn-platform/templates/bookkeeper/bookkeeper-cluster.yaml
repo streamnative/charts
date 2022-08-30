@@ -61,48 +61,7 @@ spec:
 {{- end }}
 {{- end }}
     affinity:
-      {{- if .Values.bookkeeper.affinity.customRules }}
-{{ toYaml .Values.bookkeeper.affinity.customRules | indent 6 }}
-      {{- end }}
-      {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
-      podAntiAffinity:
-        {{ .Values.bookkeeper.affinity.type }}:
-          {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.bookkeeper.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.bookkeeper.component }}
-              topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-      {{- end }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.bookkeeper.affinity "Component" .Values.bookkeeper.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.bookkeeper.resources }}
     resources:
 {{ toYaml .Values.bookkeeper.resources | indent 6 }}
@@ -224,9 +183,12 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.autorecovery.component }}
+{{- with .Values.autorecovery.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
 {{- if or (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) .Values.autorecovery.annotations }}
       annotations:
-{{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}        
+{{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
 {{- end }}
@@ -234,7 +196,7 @@ spec:
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-{{- end }}      
+{{- end }}
       {{- with .Values.autorecovery.securityContext }}
       securityContext:
 {{ toYaml . | indent 8 }}
@@ -249,48 +211,7 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
       affinity:
-        {{- if .Values.autorecovery.affinity.customRules }}
-{{ toYaml .Values.autorecovery.affinity.customRules | indent 8 }}
-        {{- end }}
-        {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
-        podAntiAffinity:
-          {{ .Values.autorecovery.affinity.type }}:
-            {{ if eq .Values.autorecovery.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-            - labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.autorecovery.component }}
-              topologyKey: "kubernetes.io/hostname"
-            {{ else }}
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: "app"
-                      operator: In
-                      values:
-                        - "{{ template "pulsar.name" . }}"
-                    - key: "release"
-                      operator: In
-                      values:
-                        - {{ .Release.Name }}
-                    - key: "component"
-                      operator: In
-                      values:
-                        - {{ .Values.autorecovery.component }}
-                topologyKey: "kubernetes.io/hostname"
-            {{ end }}
-        {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.autorecovery.affinity "Component" .Values.autorecovery.component "Release" .Release "Chart" .Chart) | indent 8 }}
       {{- if .Values.autorecovery.resources }}
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}

@@ -54,7 +54,7 @@ spec:
 {{- with .Values.functions.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-{{- end }}    
+{{- end }}
     spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
@@ -73,45 +73,7 @@ spec:
       tolerations: {{- toYaml .Values.functions.tolerations | nindent 8 }}
       {{- end }}
       affinity:
-        {{- if and .Values.affinity.anti_affinity .Values.functions.affinity.anti_affinity}}
-        podAntiAffinity:
-          {{ .Values.functions.affinity.type }}:
-          {{ if eq .Values.functions.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.functions.component }}
-            topologyKey: "kubernetes.io/hostname"
-              {{ else }}
-              - weight: 100
-                podAffinityTerm:
-                  labelSelector:
-                    matchExpressions:
-                      - key: "app"
-                        operator: In
-                        values:
-                          - "{{ template "pulsar.name" . }}"
-                      - key: "release"
-                        operator: In
-                        values:
-                          - {{ .Release.Name }}
-                      - key: "component"
-                        operator: In
-                        values:
-                          - {{ .Values.functions.component }}
-                  topologyKey: "kubernetes.io/hostname"
-        {{ end }}
-      {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.functions.affinity "Component" .Values.functions.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.functions.gracePeriod }}
       initContainers:
       {{- if .Values.components.proxy }}
@@ -129,6 +91,9 @@ spec:
                 sleep 10;
                 proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
               done;
+          {{- if .Values.functions.resources }}
+          resources: {{- toYaml .Values.functions.resources | nindent 12 }}
+          {{- end }}
       {{- end }}
 {{- with .Values.common.extraInitContainers }}
 {{ toYaml . | indent 8 }}

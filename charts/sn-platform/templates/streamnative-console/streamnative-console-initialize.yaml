@@ -48,6 +48,9 @@ spec:
             - >
               set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
               echo "broker cluster is ready";
+          {{- if .Values.streamnative_console.resources }}
+          resources: {{- toYaml .Values.streamnative_console.resources | nindent 12 }}
+          {{- end }}
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"

@@ -26,6 +26,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.toolset.component }}
+{{- with .Values.toolset.statefulset.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   replicas: {{ .Values.toolset.replicaCount }}

@@ -363,3 +363,33 @@ Define Proxy TLS certificate secret name
 {{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Define Proxy oauth2 mounts
+*/}}
+{{- define "pulsar.proxy.oauth2.volumeMounts" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "oauth2" }}
+- mountPath: "/pulsar/oauth2"
+  name: proxy-oauth2
+  readOnly: true
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Define Proxy oauth2 volumes
+*/}}
+{{- define "pulsar.proxy.oauth2.volumes" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "oauth2" }}
+- name: proxy-oauth2
+  secret:
+    secretName: "{{ .Release.Name }}-oauth2-private-key"
+    items:
+      - key: auth.json
+        path: auth.json
+{{- end }}
+{{- end }}
+{{- end }}

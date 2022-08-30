@@ -206,3 +206,91 @@ brokerClientAuthenticationParameters: "{{ .Values.auth.oauth.brokerClientAuthent
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+AntiAffinity Rules
+*/}}
+{{- define "pulsar.antiAffinityRules" }}
+{{- if not .thisAffinity.customRules }}
+{{- if and .Values.affinity.anti_affinity .thisAffinity.anti_affinity }}
+podAntiAffinity:
+  {{ .thisAffinity.type }}:
+    {{ if eq .thisAffinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+    - labelSelector:
+        matchExpressions:
+          - key: "app"
+            operator: In
+            values:
+              - "{{ template "pulsar.name" . }}"
+          - key: "release"
+            operator: In
+            values:
+              - {{ .Release.Name }}
+          - key: "component"
+            operator: In
+            values:
+              - {{ .Component }}
+      topologyKey: "kubernetes.io/hostname"
+      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
+  preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: {{ .thisAffinity.zone_anti_affinity_weight | default .Values.affinity.zone_anti_affinity_weight }}
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+            - key: "app"
+              operator: In
+              values:
+                - "{{ template "pulsar.name" . }}"
+            - key: "release"
+              operator: In
+              values:
+                - {{ .Release.Name }}
+            - key: "component"
+              operator: In
+              values:
+                - {{ .Component }}
+        topologyKey: "topology.kubernetes.io/zone"
+      {{end}}
+    {{ else }}
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+            - key: "app"
+              operator: In
+              values:
+                - "{{ template "pulsar.name" . }}"
+            - key: "release"
+              operator: In
+              values:
+                - {{ .Release.Name }}
+            - key: "component"
+              operator: In
+              values:
+                - {{ .Component }}
+        topologyKey: "kubernetes.io/hostname"
+      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
+    - weight: {{ .thisAffinity.zone_anti_affinity_weight | default .Values.affinity.zone_anti_affinity_weight }}
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+            - key: "app"
+              operator: In
+              values:
+                - "{{ template "pulsar.name" . }}"
+            - key: "release"
+              operator: In
+              values:
+                - {{ .Release.Name }}
+            - key: "component"
+              operator: In
+              values:
+                - {{ .Component }}
+        topologyKey: "topology.kubernetes.io/zone"
+      {{end}}
+    {{ end }}
+{{- end }}
+{{- else }}
+{{ toYaml .thisAffinity.affinity.customRules }}
+{{- end }}
+{{end}}

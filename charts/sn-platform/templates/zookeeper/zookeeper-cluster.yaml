@@ -90,54 +90,16 @@ spec:
             mountPath: "/pulsar/data"
           - name: restore-config
             mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+        {{- if .Values.zookeeper.resources }}
+        resources: {{- toYaml .Values.zookeeper.resources | nindent 10 }}
+        {{- end }}
     volumes:
       - name: restore-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
     {{- end }}
     affinity:
-      {{- if .Values.zookeeper.affinity.customRules }}
-{{ toYaml .Values.zookeeper.affinity.customRules | indent 6 }}
-      {{- end }}
-      {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity }}
-      podAntiAffinity:
-        {{ .Values.zookeeper.affinity.type }}:
-          {{ if eq .Values.zookeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.zookeeper.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.zookeeper.component }}
-              topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-      {{- end }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.zookeeper.affinity "Component" .Values.zookeeper.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.zookeeper.resources }}
     resources:
 {{ toYaml .Values.zookeeper.resources | indent 6 }}
@@ -184,7 +146,7 @@ spec:
       resources:
         requests:
           storage: {{ .Values.zookeeper.volumes.data.size }}
-{{- include "pulsar.zookeeper.data.storage.class" . | nindent 6 }} 
+{{- include "pulsar.zookeeper.data.storage.class" . | nindent 6 }}
     dataLog:
       accessModes:
         - ReadWriteOnce

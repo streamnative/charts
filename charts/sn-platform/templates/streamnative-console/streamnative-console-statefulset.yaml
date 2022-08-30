@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.streamnative_console.component }}
+{{- with .Values.streamnative_console.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   replicas: 1
@@ -41,6 +44,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.streamnative_console.component }}
+{{- with .Values.streamnative_console.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
 {{- with .Values.streamnative_console.annotations }}
 {{ toYaml . | indent 8 }}
@@ -70,6 +76,9 @@ spec:
           - >
             set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
             echo "broker cluster is ready";
+        {{- if .Values.streamnative_console.resources }}
+        resources: {{- toYaml .Values.streamnative_console.resources | nindent 10 }}
+        {{- end }}
       {{- end }}
       containers:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"

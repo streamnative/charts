@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.presto.worker.component }}
+{{- with .Values.presto.worker.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: {{ template "presto.worker.service" . }}
   replicas: {{ .Values.presto.worker.replicaCount }}
@@ -41,6 +44,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.presto.worker.component }}
+{{- with .Values.presto.worker.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         prometheus.io/scrape: "false"
         prometheus.io/port: "{{ .Values.presto.worker.ports.http }}"
@@ -58,45 +64,7 @@ spec:
 {{ toYaml . | indent 8 }}
       {{- end }}
       affinity:
-      {{- if and .Values.affinity.anti_affinity .Values.presto.worker.affinity.anti_affinity}}
-        podAntiAffinity:
-          {{ .Values.presto.worker.affinity.type }}:
-          {{ if eq .Values.presto.worker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
-          - labelSelector:
-              matchExpressions:
-              - key: "app"
-                operator: In
-                values:
-                - "{{ template "pulsar.name" . }}"
-              - key: "release"
-                operator: In
-                values:
-                - {{ .Release.Name }}
-              - key: "component"
-                operator: In
-                values:
-                - {{ .Values.presto.worker.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: "app"
-                      operator: In
-                      values:
-                      - "{{ template "pulsar.name" . }}"
-                    - key: "release"
-                      operator: In
-                      values:
-                      - {{ .Release.Name }}
-                    - key: "component" 
-                      operator: In
-                      values:
-                      - {{ .Values.presto.worker.component }}
-                topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-      {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.presto.worker.affinity "Component" .Values.presto.worker.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.presto.worker.gracePeriod }}
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
