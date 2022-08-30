@@ -62,9 +62,11 @@ spec:
 {{- end }}
 {{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
     secretRefs:
+    {{- if .Values.proxy.readPublicKeyFromFile }}
     - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
       {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
       secretName: {{ default $defaultSecretName .Values.proxy.publicKeySecret }}
+    {{- end }}
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
@@ -121,6 +123,10 @@ spec:
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
+  {{- if .Values.istio.enabled }}
+  istio:
+    enabled: true
+  {{- end }}
   config:
     {{- if .Values.pulsar_metadata.clusterName }}
     clusterName: {{ .Values.pulsar_metadata.clusterName }}
