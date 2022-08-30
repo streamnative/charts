@@ -515,6 +515,7 @@ ingress:
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+    # external_domain: 
   ## templates/broker-service-ingress.yaml
   ##
   ## Ingresses for exposing pulsar service publicly
