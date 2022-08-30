@@ -177,7 +177,7 @@ spec:
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
-{{- include "pulsar.autoConfiguration" . | indent 6 }}
+{{- include "pulsar.authConfiguration" . | indent 6 }}
       superUserRoles: "admin"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}

@@ -185,11 +185,7 @@ brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.Authentica
 PULSAR_PREFIX_chainAuthenticationEnabled: "true"
 PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
 {{- if .Values.broker.readPublicKeyFromFile }}
-{{- if .Values.broker.publicKeyPath }}
-PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.broker.publicKeyPath }}/publicKey"
-{{- else }}
-PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-{{- end }}
+PULSAR_PREFIX_OIDCPublicKeyPath: file://{{ .Values.broker.publicKeyPath | default "/pulsar/vault/v1/identity/oidc/.well-known/keys" }}/publicKey
 {{- else }}
 PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
 {{- end }}
