@@ -126,6 +126,12 @@ spec:
   {{- if .Values.istio.enabled }}
   istio:
     enabled: true
+    gateway:
+      selector:
+{{- include "pulsar.istio.gateway.selector" . | indent 8 }}
+      tls:
+        certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
+        mode: "simple"
   {{- end }}
   config:
     {{- if .Values.pulsar_metadata.clusterName }}
@@ -193,8 +199,8 @@ spec:
       {{- end }}
       {{- end }}
   dnsNames:
-  {{- if .Values.domain.enabled }}
-    - {{ template "pulsar.service_domain" . }}
+  {{- if or .Values.domain.enabled (and .Values.ingress.proxy.enabled .Values.ingress.proxy.external_domain) }}
+    - "{{ template "pulsar.service_domain" . }}"
   {{- else }}
     []
   {{- end }}
@@ -210,7 +216,7 @@ spec:
     {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 6 }}
     {{- end }}
     externalService:
-  {{- if .Values.ingress.proxy.enabled }}
+  {{- if and .Values.ingress.proxy.enabled (not .Values.istio.enabled) }}
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-ingress"
         {{- if .Values.ingress.proxy.annotations }}
