@@ -59,7 +59,7 @@ data:
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
-  # this configuration should be always true when authentication is enabled
+  # this configuration should be same with `authenticateOriginalAuthData` in broker.conf
   forwardAuthorizationCredentials: "true"
   {{- if .Values.auth.authorization.enabled }}
   # disable authorization on proxy and forward authorization credentials to broker
