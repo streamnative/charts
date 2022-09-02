@@ -347,7 +347,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config
+        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
