@@ -83,48 +83,7 @@ spec:
 {{- end }}
     {{- end }}
     affinity:
-      {{- if .Values.broker.affinity.customRules }}
-{{ toYaml .Values.broker.affinity.customRules | indent 6 }}
-      {{- end }}
-      {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
-      podAntiAffinity:
-        {{ .Values.broker.affinity.type }}:
-          {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.broker.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.broker.component }}
-              topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-      {{- end }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.broker.affinity "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
     vars:
     {{- if .Values.auth.authentication.enabled }}
@@ -387,8 +346,8 @@ spec:
       PULSAR_PREFIX_managedLedgerOffloadServiceEndpoint: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadServiceEndpoint }}"
       {{- end}}
       {{- end }}
-  {{- if .Values.zookeeper.customTools.restore.enable }}
   initJobPod:
+    {{- if .Values.zookeeper.customTools.restore.enable }}
     initContainers:
       - name: cleanup
         image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
@@ -407,7 +366,10 @@ spec:
       - name: cleanup-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
-  {{- end }}
+    {{- end }}
+    {{- if .Values.broker.resources }}
+    resources: {{- toYaml .Values.broker.resources | nindent 10 }}
+    {{- end }}
   {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
@@ -441,7 +403,7 @@ spec:
       volumeClaimTemplates:
 {{- with .Values.broker.extraVolumeClaimTemplates }}
 {{ toYaml . | indent 6 }}
-{{- end }}        
-{{- end }}    
+{{- end }}
+{{- end }}
   {{- end }}
 {{- end }}

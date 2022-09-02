@@ -37,6 +37,13 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.bookkeeper.component }}
+        {{- if .Values.bookkeeper.podLabels }}
+{{ toYaml .Values.bookkeeper.podLabels | indent 8 }}
+        {{- end }}
+      {{- if .Values.bookkeeper.podAnnotations }}
+      annotations:
+{{ toYaml .Values.bookkeeper.podAnnotations | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.serviceAccount.name }}'
       {{- with .Values.imagePullSecrets }}
@@ -65,6 +72,10 @@ spec:
         resources:
 {{ toYaml .Values.bookkeeper.resources | indent 10 }}
         {{- end }}
+        {{- if .Values.bookkeeper.containerSecurityContext }}
+        securityContext:
+{{ toYaml .Values.bookkeeper.containerSecurityContext | indent 10 }}
+        {{- end }}
       {{- if .Values.bookkeeper.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.bookkeeper.nodeSelector | indent 8 }}
@@ -80,5 +91,9 @@ spec:
       {{- if .Values.bookkeeper.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds:
 {{ toYaml .Values.bookkeeper.terminationGracePeriodSeconds | indent 8 }}
+      {{- end }}
+      {{- if .Values.bookkeeper.podSecurityContext }}
+      securityContext:
+{{ toYaml .Values.bookkeeper.podSecurityContext | indent 8 }}
       {{- end }}
 {{- end }}

@@ -17,16 +17,20 @@
 # under the License.
 #
 
-apiVersion: v1
-version: 0.12.0
-appVersion: "0.12.0"
-kubeVersion: ">= 1.16.0-0 <= 1.24.0-0"
-description: Apache Pulsar Operators Helm chart for Kubernetes
-name: pulsar-operator
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+ingress:
+  broker:
+    enabled: true
+    # set the domain name for broker
+    external_domain: "httpbin.example.com"
+  control_center:
+    enabled: true
+    # set the domain name for Console and Grafana
+    external_domain: "console-httpbin.example.com"
+    external_domain_scheme: "https://"
+
+istio:
+  enabled: true
+  gateway:
+    tls:
+      # use the tls secret created in istio-system namespace
+      certSecretName: "example-credential"

@@ -28,6 +28,9 @@ metadata:
     component: {{ .Values.node_exporter.component }}
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
+{{- with .Values.node_exporter.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   selector:
     matchLabels:
@@ -40,6 +43,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.node_exporter.component }}
+{{- with .Values.node_exporter.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
 {{- if or (and .Values.prometheus.scrape.node_exporter .Values.prometheus.scrape.enabled) .Values.node_exporter.annotations }}
       annotations:
 {{- if (and .Values.prometheus.scrape.node_exporter .Values.prometheus.scrape.enabled) }}

@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.pulsar_detector.component }}
+{{- with .Values.pulsar_detector.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.pulsar_detector.replicaCount }}
   selector:
@@ -37,6 +40,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.pulsar_detector.component }}
+{{- with .Values.pulsar_detector.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.pulsar_detector.port }}"
@@ -73,6 +79,9 @@ spec:
             until bin/pulsar zookeeper-shell -server {{ template "pulsar.zookeeper.connect" . }} get {{ .Values.metadataPrefix }}/admin/clusters/{{ template "pulsar.cluster" . }}; do
               sleep 3;
             done;
+        {{- if .Values.pulsar_detector.resources }}
+        resources: {{- toYaml .Values.pulsar_detector.resources | nindent 10 }}
+        {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
@@ -88,6 +97,9 @@ spec:
               sleep 10;
               brokerServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }} | grep Name | wc -l)";
             done;
+        {{- if .Values.pulsar_detector.resources }}
+        resources: {{- toYaml .Values.pulsar_detector.resources | nindent 10 }}
+        {{- end }}
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"

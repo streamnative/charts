@@ -17,16 +17,23 @@
 # under the License.
 #
 
-apiVersion: v1
-version: 0.12.0
-appVersion: "0.12.0"
-kubeVersion: ">= 1.16.0-0 <= 1.24.0-0"
-description: Apache Pulsar Operators Helm chart for Kubernetes
-name: pulsar-operator
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+{{- if and .Values.ingress.presto.enabled .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: "{{ template "presto.service" . }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  selector:
+{{ toYaml .Values.istio.gateway.selector | indent 4 }}
+  servers:
+  - hosts:
+    - "{{ template "presto.service_domain" . }}"
+    port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    tls:
+      credentialName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
+      mode: SIMPLE
+{{- end }}
