@@ -23,7 +23,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+  name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   resources:
@@ -34,7 +34,7 @@ spec:
   storageClassName: "local-storage"
 {{- else }}
   {{- if  .Values.prometheus.volumes.data.storageClass }}
-  storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+  storageClassName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
   {{- else if .Values.prometheus.volumes.data.storageClassName }}
   storageClassName: {{ .Values.prometheus.volumes.data.storageClassName }}
   {{- end -}}
