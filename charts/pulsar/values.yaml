@@ -207,8 +207,8 @@ images:
     tag: v0.16.0
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
-    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
-    tag: 0.26.2
+    repository: k8s.gcr.io/ingress-nginx/controller
+    tag: v1.1.1
     pullPolicy: "IfNotPresent"
 
 ## TLS
