@@ -62,9 +62,11 @@ spec:
 {{- end }}
 {{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
     secretRefs:
+    {{- if .Values.proxy.readPublicKeyFromFile }}
     - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
       {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
       secretName: {{ default $defaultSecretName .Values.proxy.publicKeySecret }}
+    {{- end }}
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
@@ -121,6 +123,18 @@ spec:
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
+  {{- if .Values.istio.enabled }}
+  istio:
+    enabled: true
+    {{- if eq .Values.ingress.proxy.type "IstioGateway" }}
+    gateway:
+      selector:
+{{- include "pulsar.istio.gateway.selector" . | indent 8 }}
+      tls:
+        certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
+        mode: "simple"
+    {{- end }}
+  {{- end }}
   config:
     {{- if .Values.pulsar_metadata.clusterName }}
     clusterName: {{ .Values.pulsar_metadata.clusterName }}
@@ -187,8 +201,8 @@ spec:
       {{- end }}
       {{- end }}
   dnsNames:
-  {{- if .Values.domain.enabled }}
-    - {{ template "pulsar.service_domain" . }}
+  {{- if or .Values.domain.enabled (and .Values.ingress.proxy.enabled .Values.ingress.proxy.external_domain) }}
+    - "{{ template "pulsar.service_domain" . }}"
   {{- else }}
     []
   {{- end }}
@@ -204,7 +218,7 @@ spec:
     {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 6 }}
     {{- end }}
     externalService:
-  {{- if .Values.ingress.proxy.enabled }}
+  {{- if and .Values.ingress.proxy.enabled (ne .Values.ingress.proxy.type "IstioGateway") }}
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-ingress"
         {{- if .Values.ingress.proxy.annotations }}
