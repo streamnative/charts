@@ -137,56 +137,56 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.20"
+        tag: "2.9.3.7"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.20"
+        tag: "2.9.3.7"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.9.2.20
+  #   tag: 2.9.3.7
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
@@ -231,7 +231,7 @@ images:
     pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
-    tag: "v1.0.5"
+    tag: "v1.0.6"
   custom_metric_server_prometheus:
     repository: prom/prometheus
     tag: "v2.19.2"
@@ -242,7 +242,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
