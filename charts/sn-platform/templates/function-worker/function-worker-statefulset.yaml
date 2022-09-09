@@ -114,7 +114,7 @@ spec:
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.functions.gracePeriod }}
       initContainers:
-      {{- if .Values.components.proxy }}
+      {{- if and .Values.components.proxy (not .Values.istio.enabled) }}
         # This init container will wait for pulsar proxy to be ready before deploying the function worker
         - name: wait-proxy-ready
           image: "{{ .Values.images.function_worker.repository }}:{{ .Values.images.function_worker.tag }}"

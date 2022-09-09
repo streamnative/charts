@@ -497,10 +497,12 @@ ingress:
     ## otherwise, the ports will be 8080 and 6650 as default
     tls:
       enabled: true
-    ## Type options are LoadBalancer, ClusterIP
+    ## Type options are LoadBalancer, ClusterIP, IstioGateway
+    ##   IstioGateway means using Istio Ingress Gateway, available when Istio enabled
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+    # external_domain: your.external.proxy.domain
   ## templates/broker-service-ingress.yaml
   ##
   ## Ingresses for exposing pulsar service publicly
