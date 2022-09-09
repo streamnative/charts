@@ -1310,6 +1310,51 @@ spec:
                     enabled:
                       description: Enabled defines whether to enable Istio
                       type: boolean
+                    gateway:
+                      description: Gateway defines the gateway configuration The operator
+                        could either create a gateway automatically or use an existing
+                        one
+                      properties:
+                        create:
+                          description: Create defines whether to create a gateway
+                          type: boolean
+                        gateways:
+                          description: Gateways defines a list of existing gateways
+                          items:
+                            type: string
+                          nullable: true
+                          type: array
+                        selector:
+                          additionalProperties:
+                            type: string
+                          description: Selector defines the selector for the gateway
+                            to create
+                          nullable: true
+                          type: object
+                        tls:
+                          properties:
+                            certSecretName:
+                              description: "SIMPLE mode:   CertSecretName defines the
+                                name of the secret that contains the   certificate to
+                                use in Istio Ingress Gateway. The value should be   name
+                                of the secret in the gateway workload namespace. PASSTHROUGH
+                                mode: \t CertSecretName defines the name of the secret
+                                that contains the \t certificate to use in Broker. The
+                                value should be name of the secret   name of the secret
+                                in the Broker workload namespace. Required in both SIMPLE
+                                and PASSTHROUGH mode."
+                              type: string
+                            mode:
+                              description: 'Optional: Indicates whether connections
+                                to this port should be secured using TLS. The value
+                                of this field determines how TLS is enforced.'
+                              type: string
+                            trustCertsEnabled:
+                              description: TrustCertsEnabled defines whether to enable
+                                trust store
+                              type: boolean
+                          type: object
+                      type: object
                   type: object
                 labels:
                   additionalProperties:
