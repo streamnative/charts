@@ -143,14 +143,24 @@ spec:
       - name: "cfg"
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+      {{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+      {{- if not (or .Values.grafana.volumes.data.storageClass .Values.grafana.volumes.data.storageClassName) }}
+      - name: "{{ template "pulsar.grafana.volumes.pvc.name" . }}"
+        persistentVolumeClaim:
+          claimName: "{{ template "pulsar.grafana.volumes.pvc.name" . }}"
+      {{- end }}
+      {{- end }}
+  {{- if or .Values.grafana.volumes.data.storageClass .Values.grafana.volumes.data.storageClassName }}
   volumeClaimTemplates:
   - metadata:
-      name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+      name: "{{ template "pulsar.grafana.volumes.pvc.name" . }}"
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
           storage: {{ .Values.grafana.volumes.data.size }}
       {{- include "pulsar.grafana.volumes.storage.class" . | nindent 6 }}
+  {{- end }}
 {{- end }}
 {{- end }}
+
