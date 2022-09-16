@@ -154,6 +154,10 @@ images:
     repository: streamnative/sn-platform
     tag: "2.9.3.7"
     pullPolicy: IfNotPresent
+    exporter:
+      repository: bitnami/jmx-exporter
+      tag: "0.17.0"
+      pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
@@ -2192,6 +2196,10 @@ presto:
   service:
     spec:
       type: ClusterIP
+  exporter:
+    enabled: false
+    whitelist: []
+    rules: []
 
 vault:
   component: "vault"
