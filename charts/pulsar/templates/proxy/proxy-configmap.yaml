@@ -59,10 +59,11 @@ data:
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
+  # this configuration should be same with `authenticateOriginalAuthData` in broker.conf
+  forwardAuthorizationCredentials: "true"
   {{- if .Values.auth.authorization.enabled }}
   # disable authorization on proxy and forward authorization credentials to broker
   authorizationEnabled: "false"
-  forwardAuthorizationCredentials: "true"
   superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
   {{- end }}
   {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}

@@ -45,7 +45,7 @@ components:
 ## Control what images to use for each component
 images:
   registry: "docker.cloudsmith.io"
-  tag: "v0.12.0"
+  tag: "v0.12.3"
 
   zookeeper:
     registry: ""

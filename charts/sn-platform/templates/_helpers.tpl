@@ -291,6 +291,6 @@ podAntiAffinity:
     {{ end }}
 {{- end }}
 {{- else }}
-{{ toYaml .thisAffinity.affinity.customRules }}
+{{ toYaml .thisAffinity.customRules }}
 {{- end }}
 {{end}}

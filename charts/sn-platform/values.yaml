@@ -137,56 +137,56 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.20"
+        tag: "2.9.3.7"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.20"
+        tag: "2.9.3.7"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.9.2.20
+  #   tag: 2.9.3.7
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
@@ -242,7 +242,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -511,10 +511,12 @@ ingress:
     ## otherwise, the ports will be 8080 and 6650 as default
     tls:
       enabled: true
-    ## Type options are LoadBalancer, ClusterIP
+    ## Type options are LoadBalancer, ClusterIP, IstioGateway
+    ##   IstioGateway means using Istio Ingress Gateway, available when Istio enabled
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+    # external_domain: your.external.proxy.domain
   ## templates/broker-service-ingress.yaml
   ##
   ## Ingresses for exposing pulsar service publicly
