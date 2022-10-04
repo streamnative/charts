@@ -971,7 +971,7 @@ autorecovery:
     #   cpu: "0.2"
   jvm:
     memoryOptions:
-    - -Xms64m -Xmx64m
+    - -Xms128m -Xmx256m
     gcOptions: []
     extraOptions: []
     gcLoggingOptions: []
