@@ -964,14 +964,14 @@ autorecovery:
   gracePeriod: 30
   resources:
     requests:
-      memory: "64Mi"
-      cpu: "0.05"
+      memory: "512Mi"
+      cpu: "0.2"
     # limits:
     #   memory: "256Mi"
     #   cpu: "0.2"
   jvm:
     memoryOptions:
-    - -Xms64m -Xmx64m
+    - -Xms128m -Xmx256m
     gcOptions: []
     extraOptions: []
     gcLoggingOptions: []
