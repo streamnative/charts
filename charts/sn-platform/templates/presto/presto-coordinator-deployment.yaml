@@ -19,7 +19,7 @@
 
 {{- if .Values.components.sql_worker }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ template "presto.coordinator" . }}
   namespace: {{ template "pulsar.namespace" . }}
@@ -30,15 +30,11 @@ metadata:
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
-  serviceName: {{ template "presto.service" . }}
   replicas: {{ .Values.presto.coordinator.replicaCount }}
   selector:
     matchLabels:
       {{- include "pulsar.matchLabels" . | nindent 6 }}
       component: {{ .Values.presto.coordinator.component }}
-  updateStrategy:
-    type: RollingUpdate
-  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
