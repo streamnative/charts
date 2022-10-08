@@ -120,7 +120,7 @@ spec:
             - >-
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
-              echo "node.internal-address=${HOSTNAME}.{{ template "presto.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.internal-address=${POD_IP}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
               {{- if .Values.tls.presto.enabled }}
               set -ex;
