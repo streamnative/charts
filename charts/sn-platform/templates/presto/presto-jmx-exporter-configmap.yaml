@@ -29,8 +29,6 @@ data:
     startDelaySeconds: 0
     jmxUrl: service:jmx:rmi://localhost:9081/jndi/rmi://localhost:9081/jmxrmi
     ssl: false
-    lowercaseOutputName: false
-    lowercaseOutputLabelNames: false
     whitelistObjectNames:
 {{- with .Values.presto.exporter.whitelist }}
 {{- toYaml . | nindent 4 }}
