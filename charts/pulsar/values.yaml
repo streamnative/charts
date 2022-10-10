@@ -361,7 +361,8 @@ certs:
     ca_ref:
       secretName: "[SECRET STORES lets encrypt CA]"
       keyName: "[KEY IN THE SECRET STORES let encrypt CA]"
-
+  ca:
+    annotations: {}
 ## External DNS
 ## templates/external-dns.yaml
 ## templates/external-dns-rbac.yaml
@@ -632,6 +633,8 @@ zookeeper:
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
       -Dzookeeper.forceSync=no
+  statefulset:
+    annotations: {}
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
   ##
@@ -839,6 +842,8 @@ bookkeeper:
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
       -verbosegc
+  statefulset:
+    annotations: {}
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -887,6 +892,8 @@ autorecovery:
   configData:
     BOOKIE_MEM: >
       -Xms64m -Xmx64m
+  statefulset:
+    annotations: {}
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
@@ -1042,6 +1049,8 @@ broker:
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
+  statefulset:
+    annotations: {}
   ## Broker service
   ## templates/broker-service.yaml
   ##
@@ -1168,6 +1177,8 @@ functions:
       failureThreshold: 30
       initialDelaySeconds: 60
       periodSeconds: 10
+  statefulset:
+    annotations: {}
   service:
     annotations: {}
   affinity:
@@ -1226,6 +1237,8 @@ pulsar_detector:
     # annotations to apply to the serviceAccount.
     annotations: {}
 
+  statefulset:
+    annotations: {}
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -1359,6 +1372,8 @@ proxy:
     pulsarssl: 6651
     websocket: 9090
     websockettls: 9443
+  statefulset:
+    annotations: {}
   service:
     annotations: {}
     type: ClusterIP
@@ -1399,6 +1414,8 @@ toolset:
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
+  statefulset:
+    annotations: {}
 
 #############################################################
 ### Monitoring Stack : Prometheus / Grafana
@@ -1794,6 +1811,8 @@ pulsar_manager:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+  statefulset:
+    annotations: {}
   ## Pulsar manager service
   ## templates/pulsar-manager-service.yaml
   ##
@@ -1989,6 +2008,8 @@ presto:
       bookkeeperNumWorkerThreads: "8"
       mlNumWorkerThreads: "8"
       mlNumSchedulerThreads: "8"
+  statefulset:
+    annotations: {}
   service:
     spec:
       type: ClusterIP

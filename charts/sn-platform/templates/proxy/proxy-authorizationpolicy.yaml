@@ -17,16 +17,28 @@
 # under the License.
 #
 
-apiVersion: v1
-version: 0.12.0
-appVersion: "0.12.3"
-kubeVersion: ">= 1.16.0-0 <= 1.24.0-0"
-description: Apache Pulsar Operators Helm chart for Kubernetes
-name: pulsar-operator
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+{{- if and .Values.components.proxy .Values.istio.enabled }}
+{{- if eq .Values.ingress.proxy.type "IstioGateway" }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "6650"
+        - "8080"
+        {{- if .Values.proxy.websocket }}
+        - "9090"
+        {{- end }}
+  action: ALLOW
+  selector:
+    matchLabels:
+      cloud.streamnative.io/app: pulsar
+      cloud.streamnative.io/component: proxy
+      cloud.streamnative.io/cluster: "{{ template "pulsar.fullname" . }}"
+{{- end }}
+{{- end }}

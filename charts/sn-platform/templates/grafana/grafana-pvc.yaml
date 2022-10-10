@@ -17,26 +17,26 @@
 # under the License.
 #
 
-{{- if .Values.components.streamnative_console }}
-{{- if and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence }}
-{{- if not (or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName) }}
+{{- if .Values.monitoring.grafana }}
+{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+{{- if not (or .Values.grafana.volumes.data.storageClass .Values.grafana.volumes.data.storageClassName) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
+  name: "{{ template "pulsar.grafana.volumes.pvc.name" . }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   resources:
     requests:
-      storage: {{ .Values.streamnative_console.volumes.data.size }}
+      storage: {{ .Values.grafana.volumes.data.size }}
   accessModes: [ "ReadWriteOnce" ]
-{{- if and .Values.volumes.local_storage .Values.streamnative_console.volumes.data.local_storage }}
+{{- if and .Values.volumes.local_storage .Values.grafana.volumes.data.local_storage }}
   storageClassName: "local-storage"
 {{- else }}
-  {{- if  .Values.streamnative_console.volumes.data.storageClass }}
-  storageClassName: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
-  {{- else if .Values.streamnative_console.volumes.data.storageClassName }}
-  storageClassName: {{ .Values.streamnative_console.volumes.data.storageClassName }}
+  {{- if  .Values.grafana.volumes.data.storageClass }}
+  storageClassName: "{{ template "pulsar.grafana.volumes.pvc.name" . }}}"
+  {{- else if .Values.grafana.volumes.data.storageClassName }}
+  storageClassName: {{ .Values.grafana.volumes.data.storageClassName }}
   {{- end -}}
 {{- end }}
 {{- end }}

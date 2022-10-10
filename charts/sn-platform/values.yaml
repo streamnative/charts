@@ -137,60 +137,64 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.20"
+        tag: "2.9.3.7"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.20"
+        tag: "2.9.3.7"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.9.2.20
+  #   tag: 2.9.3.7
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
       tag: "7.0.1"
+      pullPolicy: IfNotPresent
+    busybox:
+      repository: busybox
+      tag: "1.35.0"
       pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -206,7 +210,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "v1.13.0"
+    tag: "v1.13.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -238,7 +242,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.9.2.20"
+    tag: "2.9.3.7"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -507,10 +511,12 @@ ingress:
     ## otherwise, the ports will be 8080 and 6650 as default
     tls:
       enabled: true
-    ## Type options are LoadBalancer, ClusterIP
+    ## Type options are LoadBalancer, ClusterIP, IstioGateway
+    ##   IstioGateway means using Istio Ingress Gateway, available when Istio enabled
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+    # external_domain: your.external.proxy.domain
   ## templates/broker-service-ingress.yaml
   ##
   ## Ingresses for exposing pulsar service publicly
@@ -620,6 +626,7 @@ zookeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   advanced:
     staticServerList: []
@@ -774,7 +781,6 @@ zookeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   # Definition of the serviceAccount used to run zookeeper.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -816,6 +822,7 @@ bookkeeper:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   securityContext: {}
   tolerations: []
@@ -928,7 +935,6 @@ bookkeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
 
 ## Pulsar: Bookkeeper AutoRecovery
 ## templates/autorecovery-statefulset.yaml
@@ -951,20 +957,21 @@ autorecovery:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   securityContext: {}
   # tolerations: []
   gracePeriod: 30
   resources:
     requests:
-      memory: "64Mi"
-      cpu: "0.05"
+      memory: "512Mi"
+      cpu: "0.2"
     # limits:
     #   memory: "256Mi"
     #   cpu: "0.2"
   jvm:
     memoryOptions:
-    - -Xms64m -Xmx64m
+    - -Xms128m -Xmx256m
     gcOptions: []
     extraOptions: []
     gcLoggingOptions: []
@@ -1030,6 +1037,7 @@ broker:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   tolerations: []
   securityContext: {}
@@ -1217,7 +1225,6 @@ broker:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
@@ -1330,6 +1337,7 @@ functions:
 pulsar_detector:
   component: pulsar-detector
   replicaCount: 1
+  labels: {}
   annotations: {}
   gracePeriod: 30
   port: 9000
@@ -1388,6 +1396,7 @@ proxy:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
   securityContext: {}
   tolerations: []
@@ -1469,7 +1478,6 @@ proxy:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
@@ -1484,6 +1492,7 @@ toolset:
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1598,6 +1607,7 @@ prometheus:
     vault: true
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1752,6 +1762,7 @@ grafana:
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1821,6 +1832,7 @@ grafana:
 
 node_exporter:
   component: node-exporter
+  labels: {}
   annotations: {}
   limits:
     cpu: 10m
@@ -1832,6 +1844,7 @@ node_exporter:
 alert_manager:
   component: alert-manager
   port: 9093
+  labels: {}
   annotations: {}
   replicaCount: 1
   gracePeriod: 0
@@ -1882,7 +1895,6 @@ streamnative_console:
   ports:
     frontend: 9527
     backend: 7750
-
   replicaCount: 1
   probe:
     liveness:
@@ -1902,6 +1914,7 @@ streamnative_console:
       periodSeconds: 30
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -2057,6 +2070,7 @@ presto:
       # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
       # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
       type: preferredDuringSchedulingIgnoredDuringExecution
+    labels: {}
     annotations: {}
     gracePeriod: 10
     ports:
@@ -2116,6 +2130,7 @@ presto:
       # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
       # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
       type: preferredDuringSchedulingIgnoredDuringExecution
+    labels: {}
     annotations: {}
     gracePeriod: 10
     ports:

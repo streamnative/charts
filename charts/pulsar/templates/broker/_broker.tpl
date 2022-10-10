@@ -119,6 +119,35 @@ Define broker tls certs volumes
 {{- end }}
 
 {{/*
+Define broker oauth2 mounts
+*/}}
+{{- define "pulsar.broker.oauth2.volumeMounts" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "oauth2" }}
+- mountPath: "/pulsar/oauth2"
+  name: broker-oauth2
+  readOnly: true
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Define broker oauth2 volumes
+*/}}
+{{- define "pulsar.broker.oauth2.volumes" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "oauth2" }}
+- name: broker-oauth2
+  secret:
+    secretName: "{{ .Release.Name }}-oauth2-private-key"
+    items:
+      - key: auth.json
+        path: auth.json
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Define broker token mounts
 */}}
 {{- define "pulsar.broker.token.volumeMounts" -}}

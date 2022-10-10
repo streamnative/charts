@@ -37,6 +37,13 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
+        {{- if .Values.zookeeper.podLabels }}
+{{ toYaml .Values.zookeeper.podLabels | indent 8 }}
+        {{- end }}
+      {{- if .Values.zookeeper.podAnnotations }}
+      annotations:
+{{ toYaml .Values.zookeeper.podAnnotations | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
       {{- with .Values.imagePullSecrets }}
@@ -65,6 +72,10 @@ spec:
         resources:
 {{ toYaml .Values.zookeeper.resources | indent 10 }}
         {{- end }}
+        {{- if .Values.zookeeper.containerSecurityContext }}
+        securityContext:
+{{ toYaml .Values.zookeeper.containerSecurityContext | indent 10 }}
+        {{- end }}
       {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
@@ -80,5 +91,9 @@ spec:
       {{- if .Values.zookeeper.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds:
 {{ toYaml .Values.zookeeper.terminationGracePeriodSeconds | indent 8 }}
+      {{- end }}
+      {{- if .Values.zookeeper.podSecurityContext }}
+      securityContext:
+{{ toYaml .Values.zookeeper.podSecurityContext | indent 8 }}
       {{- end }}
 {{- end }}

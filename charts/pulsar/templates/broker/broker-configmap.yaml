@@ -132,6 +132,15 @@ data:
   tokenPublicKey: "file:///pulsar/keys/token/public.key"
   {{- end }}
   {{- end }}
+  {{- if (eq .Values.auth.authentication.provider "oauth2") }}
+  PULSAR_PREFIX_oauthIssuerUrl: {{ .Values.auth.authentication.oauth2.issuerUrl }}
+  PULSAR_PREFIX_oauthAudience: {{ .Values.auth.authentication.oauth2.audience }}
+  PULSAR_PREFIX_oauthSubjectClaim: {{ .Values.auth.authentication.oauth2.subjectClaim }}
+  PULSAR_PREFIX_oauthAdminScope: {{ .Values.auth.authentication.oauth2.adminScope }}
+  authenticationProviders:  {{ .Values.auth.authentication.oauth2.authenticationProviders }}
+  brokerClientAuthenticationParameters: '{"privateKey":"file:///pulsar/oauth2/auth.json","issuerUrl":"{{ .Values.auth.authentication.oauth2.issuerUrlParam }}","audience":"{{ .Values.auth.authentication.oauth2.audienceParam }}","scope":"{{ .Values.auth.authentication.oauth2.adminScopeParam }}"}'
+  brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
+  {{- end }}
   {{- end }}
 
   {{- if and .Values.tls.enabled .Values.tls.bookie.enabled }}
