@@ -57,11 +57,10 @@ spec:
   nodeSelector:
 {{ toYaml .Values.vault.nodeSelector | indent 4 }}
   {{- end }}
+  {{- if .Values.vault.envsConfig }}
   vaultEnvsConfig:
-    - name: SKIP_CHOWN
-      value: "true"
-    - name: SKIP_SETCAP
-      value: "true"
+{{ toYaml .Values.vault.envsConfig | indent 4 }}
+  {{- end }}
   {{- if .Values.global.imagePullSecrets }}
   vaultPodSpec:
     imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 6 }}
