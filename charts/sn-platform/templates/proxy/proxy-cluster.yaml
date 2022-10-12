@@ -79,31 +79,18 @@ spec:
       {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.proxy.affinity "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
-    - name: PULSAR_PREFIX_OIDCTokenAudienceID
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: PULSAR_PREFIX_OIDCTokenAudienceID
-    - name: brokerClientAuthenticationParameters
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
-    - name: PROXY_TOKEN
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
+{{- include "pulsar.authEnvironment" . | indent 4 }}
     {{- end }}
 {{- with .Values.proxy.extraEnv}}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    #envFrom:
-    #- secretRef:
-    #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.proxy.resources }}
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
+    {{- end }}
+    {{- if .Values.auth.oauth.enabled }}
+    secretRefs:
+{{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
     {{- with .Values.proxy.securityContext }}
     securityContext:
@@ -149,6 +136,7 @@ spec:
       {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
+      forwardAuthorizationCredentials: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
       superUserRoles: "admin"
