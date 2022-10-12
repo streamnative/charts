@@ -81,7 +81,11 @@ spec:
           livenessProbe:
             httpGet:
               {{- if .Values.tls.presto.enabled }}
+              {{- if .Values.presto.security.authentication.tls.enabled }}
+              path: /
+              {{- else }}
               path: {{ .Values.presto.coordinator.probe.liveness.path }}
+              {{- end }}
               port: {{ .Values.presto.coordinator.ports.https }}
               scheme: HTTPS
               {{- else }}
@@ -96,7 +100,11 @@ spec:
           readinessProbe:
             httpGet:
               {{- if .Values.tls.presto.enabled }}
+              {{- if .Values.presto.security.authentication.tls.enabled }}
+              path: /
+              {{- else }}
               path: {{ .Values.presto.coordinator.probe.liveness.path }}
+              {{- end }}
               port: {{ .Values.presto.coordinator.ports.https }}
               scheme: HTTPS
               {{- else }}

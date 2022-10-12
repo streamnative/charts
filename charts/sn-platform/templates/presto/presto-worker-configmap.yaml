@@ -88,6 +88,10 @@ data:
     http-server.https.truststore.key=changeit
     {{- end }}
     discovery.uri=https://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.https }}
+    {{- if .Values.presto.security.authentication.tls.enabled }}
+    http-server.authentication.type=CERTIFICATE
+    http-server.authentication.certificate.user-mapping.pattern=CN=([^,]+).*
+    {{- end }}
 {{- else }}
     http-server.https.enabled=false
     internal-communication.https.required=false

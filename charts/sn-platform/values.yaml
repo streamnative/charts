@@ -2061,6 +2061,8 @@ presto:
         # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
         # to convert the public key file to a public key file in PEM format.
         publicKeyConfigMapKey: 'public.key'
+      tls:
+        enabled: false
     rules: >
       {
         "rules": [

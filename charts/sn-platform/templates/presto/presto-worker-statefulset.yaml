@@ -78,20 +78,30 @@ spec:
           {{- include "presto.worker.image" . | nindent 10 }}
           {{- if .Values.presto.worker.probe.liveness.enabled }}
           livenessProbe:
+            {{- if .Values.presto.security.authentication.tls.enabled }}
+            tcpSocket:
+              port: {{ .Values.presto.coordinator.ports.https }}
+            {{- else }}
             exec:
               command:
                 - /bin/bash
                 - /presto/health_check.sh
+            {{- end }}
             initialDelaySeconds: {{ .Values.presto.worker.probe.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.presto.worker.probe.liveness.periodSeconds }}
             failureThreshold: {{ .Values.presto.worker.probe.liveness.failureThreshold }}
           {{- end }}
           {{- if .Values.presto.worker.probe.readiness.enabled }}
           readinessProbe:
+            {{- if .Values.presto.security.authentication.tls.enabled }}
+            tcpSocket:
+              port: {{ .Values.presto.coordinator.ports.https }}
+            {{- else }}
             exec:
               command:
                 - /bin/bash
                 - /presto/health_check.sh
+            {{- end }}    
             initialDelaySeconds: {{ .Values.presto.worker.probe.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.presto.worker.probe.readiness.periodSeconds }}
             failureThreshold: {{ .Values.presto.worker.probe.readiness.failureThreshold }}
