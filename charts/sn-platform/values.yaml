@@ -1250,6 +1250,7 @@ functions:
   # cloud.google.com/gke-nodepool: default-pool
   securityContext: {}
   tolerations: []
+  extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
   extraEnvs: []
