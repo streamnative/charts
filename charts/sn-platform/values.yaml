@@ -570,7 +570,8 @@ ingress:
       alertmanager: false
     # Set external domain of the load balancer of ingress controller
     # external_domain: your.external.control.center.domain
-    # external_domain_scheme: https://
+    external_domain_scheme: https://
+    # external_domain_scheme should same with actual situation
     tls:
       enabled: false
     annotations: {}
