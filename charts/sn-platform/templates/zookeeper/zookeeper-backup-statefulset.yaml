@@ -75,12 +75,12 @@ spec:
         {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.zookeeper.affinity "Component" .Values.zookeeper.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
-      {{- with .Values.common.extraInitContainers }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
-      {{- with .Values.zookeeper.extraInitContainers }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.zookeeper.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if .Values.zookeeper.customTools.backup.enable }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
