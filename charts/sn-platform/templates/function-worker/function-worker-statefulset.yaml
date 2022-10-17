@@ -98,6 +98,9 @@ spec:
 {{- with .Values.common.extraInitContainers }}
 {{ toYaml . | indent 8 }}
 {{- end }}
+{{- with .Values.functions.extraInitContainers }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       containers:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}"
           image: "{{ .Values.images.function_worker.repository }}:{{ .Values.images.function_worker.tag }}"
