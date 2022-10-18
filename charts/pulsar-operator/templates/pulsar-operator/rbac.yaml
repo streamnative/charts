@@ -374,6 +374,15 @@ rules:
   - pods/finalizers
   verbs:
   - update
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: {{ template "pulsar.operatorRoleBindingKind" . }}

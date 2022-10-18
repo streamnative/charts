@@ -163,7 +163,16 @@ rules:
       - list
       - patch
       - update
-      - watch
+      - watch  
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - list
+      - update
 ---
 kind: {{ template "pulsar.zookeeperRoleBindingKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
