@@ -53,7 +53,7 @@ spec:
            echo "vault root token is ready";
            rootToken=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
            echo $rootToken;
-           echo $rootToken > /root/rootToken;
+           echo $rootToken > /vault/rootToken;
            export ROOT_TOKEN=$rootToken;
            vault login $ROOT_TOKEN;
            until [ $? -eq 0 ]; do
@@ -63,7 +63,7 @@ spec:
            done;
            echo "vault is ready~";
 
-           cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
+           cd /vault/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /vault/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
            echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
         env:
         - name: NAMESPACE

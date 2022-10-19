@@ -50,7 +50,7 @@ spec:
            echo "vault root token is ready";
            rootToken=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
            echo $rootToken;
-           echo $rootToken > /root/rootToken;
+           echo $rootToken > /vault/rootToken;
            export ROOT_TOKEN=$rootToken;
            vault login $ROOT_TOKEN;
            until [ $? -eq 0 ]; do
