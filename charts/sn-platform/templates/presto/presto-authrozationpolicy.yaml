@@ -33,6 +33,9 @@ spec:
         {{- else }}
         - "{{ .Values.presto.coordinator.ports.http }}"
         {{- end }}
+        {{- if .Values.presto.exporter.enabled }}
+        - "5556"
+        {{- end }}
   selector:
     matchLabels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
@@ -49,6 +52,9 @@ spec:
     - operation:
         ports:
         - "{{ .Values.presto.worker.ports.http }}"
+        {{- if .Values.presto.exporter.enabled }}
+        - "5556"
+        {{- end }}
   selector:
     matchLabels:
       {{- include "pulsar.template.labels" . | nindent 6 }}

@@ -48,9 +48,13 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
       annotations:
-        prometheus.io/scrape: "false"
-        prometheus.io/port: "{{ .Values.presto.worker.ports.http }}"
+        prometheus.io/scrape: "{{ .Values.presto.exporter.enabled }}"
+        prometheus.io/port: "5556"        
         {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
+        checksum/config: {{ include (print $.Template.BasePath "/presto/presto-worker-configmap.yaml") . | sha256sum }}
+        {{- if .Values.presto.exporter.enabled }}
+        checksum/exporter-config: {{ include (print $.Template.BasePath "/presto/presto-jmx-exporter-configmap.yaml") . | sha256sum }}
+        {{- end }}
 {{- with .Values.presto.worker.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
@@ -163,6 +167,24 @@ spec:
             - name: http
               containerPort: {{ .Values.presto.worker.ports.http }}
               protocol: TCP
+        {{- if .Values.presto.exporter }}
+        - name: jmx-exporter
+          image: "{{ .Values.images.presto.exporter.repository }}:{{ .Values.images.presto.exporter.tag }}"
+          imagePullPolicy: {{ .Values.images.presto.exporter.pullPolicy }}
+          command:
+            - java
+            - -jar
+            - jmx_prometheus_httpserver.jar
+            - "0.0.0.0:5556"
+            - /jmx_config/jmx_exporter.yaml
+          ports:
+          - containerPort: 5556
+            protocol: TCP
+          volumeMounts:
+            - mountPath: /jmx_config/jmx_exporter.yaml
+              name: jmx-exporter-config-volume
+              subPath: jmx_exporter.yaml
+        {{- end }}
       volumes:
         {{- if .Values.auth.authentication.enabled }}
         {{- if eq .Values.auth.authentication.provider "jwt" }}
@@ -195,5 +217,10 @@ spec:
         - name: config-volume
           configMap:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}"
+        {{- if .Values.presto.exporter }}
+        - name: jmx-exporter-config-volume
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-presto-jmx-exporter"
+        {{- end }}
 {{- end }}
 {{- end }}
