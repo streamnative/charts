@@ -16,17 +16,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
+{{- if and .Values.components.sql_worker .Values.presto.exporter.enabled }}
 apiVersion: v1
-version: 0.13.0
-appVersion: "0.13.0"
-kubeVersion: ">= 1.16.0-0 <= 1.24.0-0"
-description: Apache Pulsar Operators Helm chart for Kubernetes
-name: pulsar-operator
-home: https://streamnative.io
-sources:
-- https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
-maintainers:
-- name: StreamNative Support
-  email: support@streamnative.io
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-presto-jmx-exporter"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+data:
+  jmx_exporter.yaml: |
+    startDelaySeconds: 0
+    jmxUrl: service:jmx:rmi://localhost:9081/jndi/rmi://localhost:9081/jmxrmi
+    ssl: false
+    whitelistObjectNames:
+{{- with .Values.presto.exporter.whitelist }}
+{{- toYaml . | nindent 4 }}
+{{- end }}
+    rules:
+{{- with .Values.presto.exporter.rules }}
+{{- toYaml . | nindent 4 }}
+{{- end }}
+
+{{- end }}

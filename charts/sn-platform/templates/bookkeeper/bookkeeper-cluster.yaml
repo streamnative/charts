@@ -312,4 +312,8 @@ spec:
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+  {{- with .Values.bookkeeper.customization }}
+  customization:
+  {{- toYaml . | nindent 2 -}}
+  {{- end }}
 {{- end }}

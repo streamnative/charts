@@ -233,4 +233,8 @@ spec:
 {{ toYaml .Values.zookeeper.advanced.customStartupCommand | indent 6 }}
     {{- end }}
   {{- end }}
+  {{- with .Values.zookeeper.customization }}
+  customization:
+  {{- toYaml . | nindent 2 -}}
+  {{- end }}
 {{- end }}
