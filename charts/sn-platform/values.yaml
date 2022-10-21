@@ -344,6 +344,7 @@ tls:
     cert_name: tls-presto
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
+    trustCertsEnabled: false
   streamnative_console:
     enabled: false
     # name of chart generated certificate
@@ -2141,6 +2142,7 @@ presto:
     gracePeriod: 10
     ports:
       http: 8081
+      https: 8443
     resources:
       requests:
         memory: 4Gi

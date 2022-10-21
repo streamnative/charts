@@ -107,6 +107,15 @@ spec:
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               echo "node.internal-address=${HOSTNAME}.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
+              {{- if .Values.tls.presto.enabled }}
+              set -ex;
+              mkdir -p /pulsar/jks;
+              openssl pkcs12 -export -in /pulsar/certs/presto/tls.crt -inkey /pulsar/certs/presto/tls.key -out /pulsar/jks/server-cert.p12 -name presto-coordinator -passout "pass:changeit";
+              keytool -importkeystore -srckeystore /pulsar/jks/server-cert.p12 -srcstoretype PKCS12 -srcstorepass "changeit" -alias presto-coordinator -destkeystore /pulsar/jks/presto.keystore.jks -deststorepass "changeit";
+              {{- if .Values.tls.presto.trustCertsEnabled }}
+              echo "y" | keytool -import -alias selfsigned -file /pulsar/certs/presto/ca.crt -keystore /pulsar/jks/trust.jks -trustcacerts -storepass "changeit"; 
+              {{- end }}
+              {{- end }}
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/conf/presto \
                 --data-dir={{ template "pulsar.home" . }}/data;
@@ -163,6 +172,9 @@ spec:
               mountPath: "/pulsar/certs/presto"
               readOnly: true
             {{- end}}
+{{- with .Values.presto.extraVolumeMounts }}
+{{ toYaml . | indent 12 }}
+{{- end }}                        
           ports:
             - name: http
               containerPort: {{ .Values.presto.worker.ports.http }}
@@ -213,6 +225,10 @@ spec:
                 path: tls.crt
               - key: tls.key
                 path: tls.key
+              {{- if .Values.tls.presto.trustCertsEnabled }}
+              - key: ca.crt
+                path: ca.crt
+              {{- end }}
         {{- end }}
         - name: config-volume
           configMap:
@@ -222,5 +238,8 @@ spec:
           configMap:
             name: "{{ template "pulsar.fullname" . }}-presto-jmx-exporter"
         {{- end }}
+{{- with .Values.presto.extraVolumes }}
+{{ toYaml . | indent 8 }}
+{{- end }}
 {{- end }}
 {{- end }}
