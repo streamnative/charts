@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: apache/pulsar-helm-chart
-          ref: 'master'
+          ref: 'pulsar-2.9.4'
           path: 'apache-charts'
 
       - name: Run chart-testing (upgrade)
