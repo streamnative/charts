@@ -345,7 +345,7 @@ tls:
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
     trustCertsEnabled: false
-    # use "changeit" as password if not set passwordSecretRef 
+    # use "changeit" as password if not set passwordSecretRef
     # passwordSecretRef:
     #   key: password
     #   name: ""
