@@ -2218,12 +2218,14 @@ vault:
   nodeSelector: {}
   annotations:
     prometheus.io/port: "9091"
+  labels: {}
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
   - name: vault-raft
     mountPath: /vault/file
     # use raft protocol for a vault cluster
+  envsConfig: {}
   config:
     storage:
       raft:

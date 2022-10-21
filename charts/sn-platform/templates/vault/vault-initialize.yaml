@@ -32,6 +32,13 @@ spec:
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
+{{- if .Values.vault.labels }}    
+{{ toYaml .Values.vault.labels | indent 8 }}
+{{- end }}
+      annotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 8 }}
+{{- end }}
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
       {{- if .Values.global.imagePullSecrets }}
@@ -87,6 +94,9 @@ spec:
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
+        {{- if .Values.vault.resources }}
+        resources: {{- toYaml .Values.vault.resources | nindent 10  }}
+        {{- end }}
       volumes:
       {{- include "pulsar.vault.createPulsarTokens.volumes" . | nindent 6 }}
       {{- include "pulsar.vault.initStreamNativeConsole.volumes" . | nindent 6 }}
