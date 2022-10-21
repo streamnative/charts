@@ -129,10 +129,10 @@ spec:
               {{- if .Values.tls.presto.enabled }}
               set -ex;
               mkdir -p /pulsar/jks;
-              openssl pkcs12 -export -in /pulsar/certs/presto/tls.crt -inkey /pulsar/certs/presto/tls.key -out /pulsar/jks/server-cert.p12 -name presto-coordinator -passout "pass:changeit";
-              keytool -importkeystore -srckeystore /pulsar/jks/server-cert.p12 -srcstoretype PKCS12 -srcstorepass "changeit" -alias presto-coordinator -destkeystore /pulsar/jks/presto.keystore.jks -deststorepass "changeit";
+              openssl pkcs12 -export -in /pulsar/certs/presto/tls.crt -inkey /pulsar/certs/presto/tls.key -out /pulsar/jks/server-cert.p12 -name presto-coordinator -passout "pass:{{ template "pulsar.presto.jks.password" . }}";
+              keytool -importkeystore -srckeystore /pulsar/jks/server-cert.p12 -srcstoretype PKCS12 -srcstorepass "{{ template "pulsar.presto.jks.password" . }}" -alias presto-coordinator -destkeystore /pulsar/jks/presto.keystore.jks -deststorepass "{{ template "pulsar.presto.jks.password" . }}";
               {{- if .Values.tls.presto.trustCertsEnabled }}
-              echo "y" | keytool -import -alias selfsigned -file /pulsar/certs/presto/ca.crt -keystore /pulsar/jks/trust.jks -trustcacerts -storepass "changeit"; 
+              echo "y" | keytool -import -alias selfsigned -file /pulsar/certs/presto/ca.crt -keystore /pulsar/jks/trust.jks -trustcacerts -storepass "{{ template "pulsar.presto.jks.password" . }}"; 
               {{- end }}
               {{- end }}
               bin/pulsar sql-worker run \
@@ -208,6 +208,11 @@ spec:
               mountPath: "/pulsar/certs/presto"
               readOnly: true
             {{- end}}
+            {{- if and .Values.tls.presto.enabled .Values.tls.presto.passwordSecretRef }}
+            - name: presto-password
+              mountPath: "/pulsar/jks-password"
+              readOnly: true
+            {{- end }}
 {{- with .Values.presto.extraVolumeMounts }}
 {{ toYaml . | indent 12 }}
 {{- end }}            
@@ -272,6 +277,14 @@ spec:
               - key: ca.crt
                 path: ca.crt
               {{- end }}
+        {{- end }}
+        {{- if and .Values.tls.presto.enabled .Values.tls.presto.passwordSecretRef }}
+        - name: presto-password
+          secret:
+            secretName: "{{ .Values.tls.presto.passwordSecretRef.name }}"
+            items:
+              - key: "{{ .Values.tls.presto.passwordSecretRef.key }}"
+                path: password
         {{- end }}
         - name: config-volume
           configMap:

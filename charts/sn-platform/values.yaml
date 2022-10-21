@@ -345,6 +345,10 @@ tls:
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
     trustCertsEnabled: false
+    # use "changeit" as password if not set passwordSecretRef 
+    # passwordSecretRef:
+    #   key: password
+    #   name: ""
   streamnative_console:
     enabled: false
     # name of chart generated certificate

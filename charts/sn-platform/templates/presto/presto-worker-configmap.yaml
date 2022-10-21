@@ -79,13 +79,13 @@ data:
     http-server.https.enabled=true
     http-server.https.port={{ .Values.presto.coordinator.ports.https }}
     http-server.https.keystore.path=/pulsar/jks/presto.keystore.jks
-    http-server.https.keystore.key=changeit
+    http-server.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
     internal-communication.https.required=true
     internal-communication.https.keystore.path=/pulsar/jks/presto.keystore.jks
-    internal-communication.https.keystore.key=changeit
+    internal-communication.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
     {{- if .Values.tls.presto.trustCertsEnabled }}
     http-server.https.truststore.path=/pulsar/jks/trust.jks
-    http-server.https.truststore.key=changeit
+    http-server.https.truststore.key={{ template "pulsar.presto.jks.password" . }}
     {{- end }}
     discovery.uri=https://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.https }}
     {{- if .Values.presto.security.authentication.tls.enabled }}
