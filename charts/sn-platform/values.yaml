@@ -344,6 +344,11 @@ tls:
     cert_name: tls-presto
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
+    trustCertsEnabled: false
+    # use "changeit" as password if not set passwordSecretRef
+    # passwordSecretRef:
+    #   key: password
+    #   name: ""
   streamnative_console:
     enabled: false
     # name of chart generated certificate
@@ -2060,6 +2065,8 @@ presto:
         # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
         # to convert the public key file to a public key file in PEM format.
         publicKeyConfigMapKey: 'public.key'
+      tls:
+        enabled: false
     rules: >
       {
         "rules": [
@@ -2141,6 +2148,7 @@ presto:
     gracePeriod: 10
     ports:
       http: 8081
+      https: 8443
     resources:
       requests:
         memory: 4Gi

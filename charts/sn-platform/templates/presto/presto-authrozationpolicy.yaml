@@ -51,7 +51,11 @@ spec:
   - to:
     - operation:
         ports:
+        {{- if .Values.tls.presto.enabled }}
+        - "{{ .Values.presto.worker.ports.https }}"
+        {{- else }}
         - "{{ .Values.presto.worker.ports.http }}"
+        {{- end }}
         {{- if .Values.presto.exporter.enabled }}
         - "5556"
         {{- end }}

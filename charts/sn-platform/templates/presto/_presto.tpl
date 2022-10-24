@@ -75,3 +75,14 @@ Define Presto TLS certificate secret name
 {{ .Release.Name }}-{{ .Values.tls.presto.cert_name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Defines Presto jks password
+*/}}
+{{- define "pulsar.presto.jks.password" -}}
+{{- if .Values.tls.presto.passwordSecretRef -}}
+{{- print "/pulsar/jks-password/password" -}}
+{{- else -}}
+{{- print "changeit" -}}
+{{- end -}}
+{{- end -}}

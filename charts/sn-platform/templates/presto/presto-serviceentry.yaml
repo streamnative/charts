@@ -50,9 +50,15 @@ spec:
   - "{{ template "presto.worker" $ }}-{{ $i }}.{{ template "presto.worker.hostname" $ }}"
   location: MESH_INTERNAL
   ports:
+  {{- if $.Values.tls.presto.enabled }}
+  - name: tls-web
+    number: {{ $.Values.presto.worker.ports.https }}
+    protocol: HTTPS
+  {{- else }}
   - name: tcp-web
     number: {{ $.Values.presto.worker.ports.http }}
     protocol: HTTP
+  {{- end }}
   resolution: DNS
 ---
 {{- end }}
