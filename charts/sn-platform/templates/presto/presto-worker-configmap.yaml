@@ -78,12 +78,20 @@ data:
     http-server.http.enabled=false
     http-server.https.enabled=true
     http-server.https.port={{ .Values.presto.coordinator.ports.https }}
-    http-server.https.keystore.path=<keystore path>
-    http-server.https.keystore.key=<keystore password>
+    http-server.https.keystore.path=/pulsar/jks/presto.keystore.jks
+    http-server.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
     internal-communication.https.required=true
-    internal-communication.https.keystore.path=<keystore path>
-    internal-communication.https.keystore.key=<keystore password>
+    internal-communication.https.keystore.path=/pulsar/jks/presto.keystore.jks
+    internal-communication.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
+    {{- if .Values.tls.presto.trustCertsEnabled }}
+    http-server.https.truststore.path=/pulsar/jks/trust.jks
+    http-server.https.truststore.key={{ template "pulsar.presto.jks.password" . }}
+    {{- end }}
     discovery.uri=https://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.https }}
+    {{- if .Values.presto.security.authentication.tls.enabled }}
+    http-server.authentication.type=CERTIFICATE
+    http-server.authentication.certificate.user-mapping.pattern=CN=([^,]+).*
+    {{- end }}
 {{- else }}
     http-server.https.enabled=false
     internal-communication.https.required=false
@@ -247,6 +255,10 @@ data:
 
   health_check.sh: |
     #!/bin/bash
-    curl --silent {{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(hostname)
+    {{- if .Values.tls.presto.enabled }}
+    curl --silent https://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.https }}/v1/node -k | tr "," "\n" | grep --silent $(hostname)
+    {{- else }}
+    curl --silent http://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(hostname)
+    {{- end }}
 {{- end }}
 {{- end }}

@@ -78,12 +78,20 @@ data:
     http-server.http.enabled=false
     http-server.https.enabled=true
     http-server.https.port={{ .Values.presto.coordinator.ports.https }}
-    http-server.https.keystore.path=<keystore path>
-    http-server.https.keystore.key=<keystore password>
-    discovery.uri=https://localhost:{{ .Values.presto.coordinator.ports.https }}
+    http-server.https.keystore.path=/pulsar/jks/presto.keystore.jks
+    http-server.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
     internal-communication.https.required=true
-    internal-communication.https.keystore.path=<keystore path>
-    internal-communication.https.keystore.key=<keystore password>
+    internal-communication.https.keystore.path=/pulsar/jks/presto.keystore.jks
+    internal-communication.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
+    {{- if .Values.tls.presto.trustCertsEnabled }}
+    http-server.https.truststore.path=/pulsar/jks/trust.jks
+    http-server.https.truststore.key={{ template "pulsar.presto.jks.password" . }}
+    {{- end }}
+    discovery.uri=https://localhost:{{ .Values.presto.coordinator.ports.https }}
+    {{- if .Values.presto.security.authentication.tls.enabled }}
+    http-server.authentication.type=CERTIFICATE
+    http-server.authentication.certificate.user-mapping.pattern=CN=([^,]+).*
+    {{- end }}
 {{- else }}
     http-server.https.enabled=false
     internal-communication.https.required=false
