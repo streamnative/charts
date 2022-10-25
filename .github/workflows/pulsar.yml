@@ -47,3 +47,7 @@ jobs:
           .ci/chart_test.sh .ci/clusters/values-local-pv.yaml
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: failure()

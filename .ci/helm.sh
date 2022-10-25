@@ -27,7 +27,7 @@ KUBECTL=${OUTPUT_BIN}/kubectl
 NAMESPACE=pulsar
 CLUSTER=pulsar-ci
 CLUSTER_ID=$(uuidgen)
-K8S_VERSION=${K8S_VERSION:-"v1.18.15"}
+K8S_VERSION=${K8S_VERSION:-"v1.19.16"}
 
 function ci::create_cluster() {
     echo "Creating a kind cluster ..."
