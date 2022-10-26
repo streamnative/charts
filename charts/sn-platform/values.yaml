@@ -2133,6 +2133,7 @@ presto:
     service:
       spec:
         type: ClusterIP
+        clusterIP: None
     component: worker
     replicaCount: 2
     tolerations: []
@@ -2206,6 +2207,7 @@ presto:
   service:
     spec:
       type: ClusterIP
+      clusterIP: None
   exporter:
     enabled: false
     whitelist: []

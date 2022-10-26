@@ -97,7 +97,7 @@ spec:
               command:
                 - /bin/bash
                 - /presto/health_check.sh
-            {{- end }}    
+            {{- end }}
             initialDelaySeconds: {{ .Values.presto.worker.probe.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.presto.worker.probe.readiness.periodSeconds }}
             failureThreshold: {{ .Values.presto.worker.probe.readiness.failureThreshold }}
@@ -111,7 +111,7 @@ spec:
             - >-
               cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
-              echo "node.internal-address=${POD_IP}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.internal-address=$(echo ${POD_IP} | tr "." "-").{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
               ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
               {{- if .Values.tls.presto.enabled }}
               set -ex;
