@@ -388,7 +388,7 @@ auth:
     # Create secret by use kubectl
     # kubectl create secret generic my-secret \
     # --from-literal=broker_client_credential.json=$(echo -n '{"client_id":"your-client-id","client_secret":"your-client-secret","issuer_url":"http://your-issuer-url/"}') \
-    # -n namespace
+    # -n your-namespace
     # brokerClientCredentialSecret: "my-secret"
     brokerClientAuthenticationParameters: {"privateKey":"file:///mnt/secrets/broker_client_credential.json", "issuerUrl":"https://login.microsoftonline.com/your-tenant-id/v2.0", "audience":"your-audience", "scope":"your-scope"}
     authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
