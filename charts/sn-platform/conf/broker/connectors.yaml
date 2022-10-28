@@ -93,6 +93,14 @@
   version: 2.9.2.17
   imageTag: 2.9.2.17
   typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-debezium-mssql
+  name: debezium-mssql
+  description: Debezium Microsoft SQL Server Source
+  sourceClass: org.apache.pulsar.io.debezium.mssql.DebeziumMsSqlSource
+  imageRepository: streamnative/pulsar-io-debezium-mssql
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
 - id: pulsar-io-kafka
   name: kafka
   description: Kafka Source
