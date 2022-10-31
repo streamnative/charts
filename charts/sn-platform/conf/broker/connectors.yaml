@@ -127,3 +127,15 @@
   imageRepository: streamnative/pulsar-io-aws-lambda
   version: 2.9.2.17
   imageTag: 2.9.2.17
+- id: pulsar-io-bigquery
+  name: bigquery
+  description: Google BigQuery connectors
+  sinkClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySink
+  sinkConfigClass: org.apache.pulsar.ecosystem.io.bigquery.BigQueryConfig
+  sourceClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySource
+  sourceConfigClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySourceConfig
+  imageRepository: streamnative/pulsar-io-bigquery
+  version: 2.10.1.10
+  imageTag: 2.10.1.10
+  sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
+  sourceTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord  
