@@ -86,18 +86,7 @@ spec:
       {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.broker.affinity "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
     vars:
-    {{- if .Values.auth.authentication.enabled }}
-    - name: PULSAR_PREFIX_OIDCTokenAudienceID
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: PULSAR_PREFIX_OIDCTokenAudienceID
-    - name: brokerClientAuthenticationParameters
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
-    {{- end }}
+    {{- include "pulsar.authEnvironment" . | indent 4 }}
     {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
@@ -133,6 +122,10 @@ spec:
     {{- if .Values.broker.resources }}
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
+    {{- end }}
+    {{- if .Values.auth.oauth.enabled }}
+    secretRefs:
+{{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
     {{- with .Values.broker.securityContext }}
     securityContext:
@@ -256,57 +249,15 @@ spec:
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+      {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_chainAuthenticationEnabled: "true"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.broker.readPublicKeyFromFile }}
-      {{- if .Values.broker.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.broker.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-      {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
-      PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
-      PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
-      PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
-      PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
-      PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
-      PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
-      PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
-      superUserRoles: "admin"
-      {{- else if .Values.auth.authentication.enabled }}
-      authenticationEnabled: "true"
-      authenticateOriginalAuthData: "true"
-      {{- if .Values.auth.authentication.tls.enabled }}
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,org.apache.pulsar.broker.authentication.AuthenticationProviderTls"
-      {{- else }}
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
-      {{- end }}
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.broker.readPublicKeyFromFile }}
-      {{- if .Values.broker.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.broker.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-      {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
+      authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
+{{- include "pulsar.authConfiguration" . | indent 6 }}
       superUserRoles: "admin"
       {{- end }}
-      {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
-      authorizationEnabled: "true"
-      authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
-      {{- else if .Values.auth.authorization.enabled }}
-      authorizationEnabled: "true"
-      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
+      {{- if .Values.auth.authorization.enabled }}
+{{- include "pulsar.authorizationProvider" . | indent 6 }}
       {{- end }}
       {{- if .Values.broker.kop.enabled }}
       PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"

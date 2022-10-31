@@ -79,31 +79,18 @@ spec:
       {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.proxy.affinity "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
-    - name: PULSAR_PREFIX_OIDCTokenAudienceID
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: PULSAR_PREFIX_OIDCTokenAudienceID
-    - name: brokerClientAuthenticationParameters
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
-    - name: PROXY_TOKEN
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
+{{- include "pulsar.authEnvironment" . | indent 4 }}
     {{- end }}
 {{- with .Values.proxy.extraEnv}}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    #envFrom:
-    #- secretRef:
-    #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.proxy.resources }}
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
+    {{- end }}
+    {{- if .Values.auth.oauth.enabled }}
+    secretRefs:
+{{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
     {{- with .Values.proxy.securityContext }}
     securityContext:
@@ -146,53 +133,13 @@ spec:
 {{- with .Values.proxy.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+      {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_chainAuthenticationEnabled: "true"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.proxy.readPublicKeyFromFile }}
-      {{- if .Values.proxy.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.proxy.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-      {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
-      PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
-      PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
-      PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
-      PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
-      PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
-      PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
-      PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
-      superUserRoles: "admin"
-      {{- else if .Values.auth.authentication.enabled }}
-      authenticationEnabled: "true"
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.proxy.readPublicKeyFromFile }}
-      {{- if .Values.proxy.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.proxy.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-      {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
-      superUserRoles: "admin"
-      {{- end }}
-      {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
-      authorizationEnabled: "false"
+      authenticateOriginalAuthData: "true"
       forwardAuthorizationCredentials: "true"
-      authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
-      {{- else if .Values.auth.authorization.enabled }}
-      authorizationEnabled: "false"
-      forwardAuthorizationCredentials: "true"
-      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
+      authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
+{{- include "pulsar.authConfiguration" . | indent 6 }}
+      superUserRoles: "admin"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}
