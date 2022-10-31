@@ -640,7 +640,8 @@ zookeeper:
   annotations: {}
   advanced:
     staticServerList: []
-  securityContext: {}
+  securityContext: 
+    runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
   # Resources requests/limits for both init containers and app containers
@@ -834,7 +835,8 @@ bookkeeper:
     type: preferredDuringSchedulingIgnoredDuringExecution
   labels: {}
   annotations: {}
-  securityContext: {}
+  securityContext: 
+    runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
   resources:
@@ -968,7 +970,8 @@ autorecovery:
     type: preferredDuringSchedulingIgnoredDuringExecution
   labels: {}
   annotations: {}
-  securityContext: {}
+  securityContext: 
+    runAsNonRoot: true
   # tolerations: []
   gracePeriod: 30
   resources:
@@ -1049,7 +1052,8 @@ broker:
   labels: {}
   annotations: {}
   tolerations: []
-  securityContext: {}
+  securityContext: 
+    runAsNonRoot: true
   gracePeriod: 30
   # For exposing kop service for external access
   advertisedDomain: ""
@@ -1408,7 +1412,8 @@ proxy:
     type: preferredDuringSchedulingIgnoredDuringExecution
   labels: {}
   annotations: {}
-  securityContext: {}
+  securityContext: 
+    runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
   resources:
