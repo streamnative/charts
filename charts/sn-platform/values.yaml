@@ -1393,12 +1393,6 @@ pulsar_detector:
     # spec:
     # clusterIP: None
     annotations: {}
-  ## Pulsar detector PodDisruptionBudget
-  ## templates/pulsar-detector-pdb.yaml
-  ##
-  pdb:
-    usePolicy: true
-    maxUnavailable: 1
 
 proxy:
   # use a component name that matches your grafana configuration
