@@ -61,9 +61,6 @@ metadataPrefix: ""
 ## that component.
 volumes:
   persistence: true
-  # configure the components to use local persistent volume
-  # the local provisioner should be installed prior to enable local persistent volume
-  local_storage: false
 
 ## AntiAffinity
 ##
@@ -672,7 +669,6 @@ zookeeper:
     data:
       name: data
       size: 50Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -691,7 +687,6 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -879,7 +874,6 @@ bookkeeper:
       numDirsPerVolume: 1
       name: journal
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -898,7 +892,6 @@ bookkeeper:
     ledgers:
       name: ledgers
       size: 50Gi
-      local_storage: true
       # It determines the directory of ledgers data
       numVolumes: 1
       numDirsPerVolume: 1
@@ -1660,7 +1653,6 @@ prometheus:
     data:
       name: data
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1812,7 +1804,6 @@ grafana:
     data:
       name: data
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1949,7 +1940,6 @@ streamnative_console:
     data:
       name: data
       size: 10Gi
-      # local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -2280,7 +2270,6 @@ vault:
     persistence: true
     name: "vault-volume"
     size: 10Gi
-    local_storage: true
     # storageClassName: ""
   securityContext: {}
 

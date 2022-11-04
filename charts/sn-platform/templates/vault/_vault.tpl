@@ -59,13 +59,8 @@ http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200
 
 
 {{- define "pulsar.vault.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.vault.volume.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.vault.volume.storageClassName }}
+{{- if  .Values.vault.volume.storageClassName }}
 storageClassName: "{{ .Values.vault.volume.storageClassName }}"
-  {{- end -}}
-{{- end }}
 {{- end }}
 
 {{/*

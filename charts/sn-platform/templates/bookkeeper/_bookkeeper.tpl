@@ -31,26 +31,18 @@ Define bookie zookeeper client tls settings
 {{- end }}
 
 {{- define "pulsar.bookkeeper.journal.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.journal.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.bookkeeper.volumes.journal.storageClass }}
+{{- if  .Values.bookkeeper.volumes.journal.storageClass }}
 storageClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
-  {{- else if .Values.bookkeeper.volumes.journal.storageClassName }}
+{{- else if .Values.bookkeeper.volumes.journal.storageClassName }}
 storageClassName: "{{ .Values.bookkeeper.volumes.journal.storageClassName }}"
-  {{- end -}}
 {{- end }}
 {{- end }}
 
 {{- define "pulsar.bookkeeper.ledgers.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.bookkeeper.volumes.ledgers.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.bookkeeper.volumes.ledgers.storageClass }}
+{{- if  .Values.bookkeeper.volumes.ledgers.storageClass }}
 storageClassName: "{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}"
-  {{- else if .Values.bookkeeper.volumes.ledgers.storageClassName }}
+{{- else if .Values.bookkeeper.volumes.ledgers.storageClassName }}
 storageClassName: "{{ .Values.bookkeeper.volumes.ledgers.storageClassName }}"
-  {{- end -}}
 {{- end }}
 {{- end }}
 
