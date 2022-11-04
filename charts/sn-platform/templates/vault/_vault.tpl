@@ -59,8 +59,9 @@ http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200
 
 
 {{- define "pulsar.vault.storage.class" -}}
-{{- if  .Values.vault.volume.storageClassName }}
+{{- if .Values.vault.volume.storageClassName }}
 storageClassName: "{{ .Values.vault.volume.storageClassName }}"
+{{- end }}
 {{- end }}
 
 {{/*
@@ -80,9 +81,6 @@ Define pulsar vault root tokens volume
   secret:
     secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-unseal-keys"
 {{- end }}
-
-
-
 
 {{/*
 Define pulsar create pulsar tokens volume mounts

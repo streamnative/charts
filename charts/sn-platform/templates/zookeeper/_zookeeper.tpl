@@ -211,11 +211,10 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.data.size }}
-    {{- if  .Values.zookeeper.volumes.data.storageClass }}
+  {{- if  .Values.zookeeper.volumes.data.storageClass }}
     storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-    {{- else if .Values.zookeeper.volumes.data.storageClassName }}
+  {{- else if .Values.zookeeper.volumes.data.storageClassName }}
     storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
-    {{- end -}}
   {{- end }}
 {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
 - metadata:
@@ -225,11 +224,10 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.dataLog.size }}
-    {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
+  {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
     storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
-    {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
+  {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
     storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
-    {{- end -}}
   {{- end }}
 {{- end }}
 {{- end }}

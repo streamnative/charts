@@ -34,7 +34,6 @@ spec:
   storageClassName: "{{ template "pulsar.grafana.volumes.pvc.name" . }}}"
 {{- else if .Values.grafana.volumes.data.storageClassName }}
   storageClassName: {{ .Values.grafana.volumes.data.storageClassName }}
-  {{- end -}}
 {{- end }}
 {{- end }}
 {{- end }}

@@ -34,7 +34,6 @@ spec:
   storageClassName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
 {{- else if .Values.prometheus.volumes.data.storageClassName }}
   storageClassName: {{ .Values.prometheus.volumes.data.storageClassName }}
-  {{- end -}}
 {{- end }}
 {{- end }}
 {{- end }}
