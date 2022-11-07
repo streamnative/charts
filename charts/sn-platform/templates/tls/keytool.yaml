@@ -19,7 +19,7 @@
 
 # script to process key/cert to keystore and truststore
 {{- if .Values.tls.enabled }}
-{{- if or .Values.tls.zookeeper.enabled (or .Values.tls.streamnative_console.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if or .Values.tls.zookeeper.enabled (or .Values.tls.streamnative_console.enabled (and .Values.tls.broker.enabled .Values.broker.kop.enabled)) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -103,7 +103,7 @@ data:
         echo "BOOKIE_EXTRA_OPTS=\"${BOOKIE_EXTRA_OPTS} -Dzookeeper.clientCnxnSocket=org.apache.zookeeper.ClientCnxnSocketNetty -Dzookeeper.client.secure=true -Dzookeeper.ssl.keyStore.location=${keyStoreFile} -Dzookeeper.ssl.keyStore.password=${PASSWORD} -Dzookeeper.ssl.trustStore.location=${trustStoreFile} -Dzookeeper.ssl.trustStore.password=${PASSWORD}\"" >> conf/bkenv.sh
         echo $'\n' >> conf/bkenv.sh
 {{- end }}
-{{- if and .Values.tls.broker.enabled .Values.components.kop }}
+{{- if and .Values.tls.broker.enabled .Values.broker.kop.enabled }}
         echo $'\n' >> conf/broker.conf
         echo "kopSslKeystorePassword=${PASSWORD}" >> conf/broker.conf
         echo $'\n' >> conf/broker.conf

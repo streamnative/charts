@@ -40,7 +40,7 @@ spec:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
     kind: Issuer
     group: cert-manager.io
-  {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+  {{- if .Values.broker.kop.enabled }}
   {{- if .Values.broker.kop.tls.enabled }}
   keystores:
     jks:
@@ -84,7 +84,7 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
-  {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+  {{- if .Values.broker.kop.enabled }}
   {{- if .Values.broker.kop.tls.enabled }}
   keystores:
     jks:
