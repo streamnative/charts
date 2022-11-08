@@ -139,7 +139,7 @@ spec:
       forwardAuthorizationCredentials: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
-      superUserRoles: "admin"
+      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}

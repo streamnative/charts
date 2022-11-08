@@ -371,15 +371,15 @@ auth:
     enabled: true
   superUsers:
     # broker to broker communication
-    broker: "broker-admin"
+    broker: "admin,broker-admin,admin-approle,pulsar-manager-admin"
     # proxy to broker communication
-    proxy: "proxy-admin"
+    proxy: "admin,proxy-admin,admin-approle,pulsar-manager-admin"
     # websocket proxy to broker communication
-    websocket: "ws-admin"
+    websocket: "admin,ws-admin,admin-approle,pulsar-manager-admin"
     # pulsar-admin client to broker/proxy communication
     client: "admin"
     # streamnative-console
-    streamnative-console: "super"
+    streamnative-console: "super,pulsar-manager-admin"
   # Enable vault based authentication
   vault:
     enabled: true
