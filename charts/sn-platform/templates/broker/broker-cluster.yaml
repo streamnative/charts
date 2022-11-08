@@ -123,7 +123,7 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.auth.oauth.enabled }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
 {{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}

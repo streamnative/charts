@@ -173,6 +173,9 @@ Define function for save authenticaiton provider list
 {{- if .Values.auth.oauth.enabled }}
 {{- $authenticationProviders = append $authenticationProviders "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth" }}
 {{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
+{{- $authenticationProviders = append $authenticationProviders "org.apache.pulsar.broker.authentication.AuthenticationProviderToken" }}
+{{- end }}
 {{- join "," (compact $authenticationProviders) | quote }}
 {{- end }}
 
@@ -223,6 +226,9 @@ brokerClientAuthenticationParameters: '{{ .Values.auth.oauth.brokerClientAuthent
 PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
 {{- end }}
 {{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
+brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+{{- end }}
 {{- end }}
 
 {{/*
@@ -241,15 +247,38 @@ Define function for get authenticaiton environment variable
         name: {{ template "pulsar.vault-secret-key-name" . }}
         key: brokerClientAuthenticationParameters
 {{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
+- name: brokerClientAuthenticationParameters
+  valueFrom:
+      secretKeyRef:
+        name: {{ .Release.Name }}-token-admin
+        key: TOKEN
+{{- if .Values.auth.authentication.jwt.usingSecretKey }}
+- name: tokenSecretKey
+  value: "file:///mnt/secrets/SECRETKEY"
+{{- else }}
+- name: tokenSecretKey
+  value: "file:///mnt/secrets/PRIVATEKEY"
+- name: tokenPublicKey
+  value: "file:///mnt/secrets/PUBLICKEY"
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{/*
 Define function for get authenticaiton secret
 */}}
 {{- define "pulsar.authSecret" }}
-{{- if .Values.auth.oauth.brokerClientCredentialSecret }}
+{{- if and .Values.auth.oauth.enabled .Values.auth.oauth.brokerClientCredentialSecret }}
 - mountPath: /mnt/secrets
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
+{{- end }}
+{{- if .Values.auth.authentication.jwt.usingSecretKey }}
+- mountPath: /mnt/secrets
+  secretName: {{ .Release.Name }}-token-symmetric-key
+{{- else }}
+- mountPath: /mnt/secrets
+  secretName: {{ .Release.Name }}-token-asymmetric-key
 {{- end }}
 {{- end }}
 

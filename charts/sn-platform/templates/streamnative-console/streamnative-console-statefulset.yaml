@@ -177,7 +177,51 @@ spec:
           - name: GRAFANA_SERVLET_PATH
             value: {{ .Values.streamnative_console.configData.GRAFANA_SERVLET_PATH | default "/grafana/*" }}
           {{- end }}
-          {{- if or (eq .Values.auth.vault.enabled true) (eq .Values.streamnative_console.login.sso.google.enabled true) (eq .Values.streamnative_console.login.sso.azure.enabled true) (eq .Values.streamnative_console.login.sso.okta.enabled true) }}
+          {{- if .Values.streamnative_console.configData.INIT_DEFAULT_ENVIRONMENT }}
+          - name: DEFAULT_ENVIRONMENT_NAME
+            value: "pulsar"
+          - name: DEFAULT_ENVIRONMENT_SERVICE_URL
+            value: "http://{{ .Release.Name }}-sn-platform-broker:8080"
+          {{- end }}
+          {{- if and .Values.streamnative_console.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
+          - name: BACKEND_DEFAULT_SUPER_USER_ROLE
+            value: {{ .Values.streamnative_console.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
+          {{- end }}
+          {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+          - name: AUTHENTICATION_NAME
+            value: "pulsar-jwt"
+          - name: AUTHENTICATION_PROVIDER
+            value: org.apache.pulsar.manager.authentication.PulsarJWTAuthenticationProvider
+          - name: AUTHENTICATION_CUSTOM_CLAIM
+            value: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.AUTHENTICATION_CUSTOM_CLAIM | default "sub" }}
+          - name: SERVICE_ACCOUNT_NAME
+            value: jwt
+          - name: SERVICE_ACCOUNT_PROVIDER
+            value: org.apache.pulsar.manager.serviceAccount.JWTProvider
+          - name: AUTH_METHOD_NAME
+            value: pulsar-jwt
+          - name: AUTH_METHOD_PROVIDER
+            value: org.apache.pulsar.manager.authMethod.PulsarJWTAuthMethodProvider
+          - name: AUTH_METHOD_CUSTOM_CLAIM
+            value: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.AUTHENTICATION_CUSTOM_CLAIM | default "sub" }}
+          - name: USERNAME_CLAIM
+            value: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.USERNAME_CLAIM | default "sub" }}
+          {{- if eq .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "PRIVATE" }}
+          - name: JWT_BROKER_TOKEN_MODE
+            value: PRIVATE
+          - name: JWT_BROKER_PUBLIC_KEY_PATH
+            value: /pulsar-manager/keys/token/public.key
+          - name: JWT_BROKER_PRIVATE_KEY_PATH
+            value: /pulsar-manager/keys/token/private.key
+          {{- end }}
+          {{- if eq .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "SECRET" }}
+          - name: JWT_BROKER_TOKEN_MODE
+            value: SECRET
+          - name: JWT_BROKER_SECRET_KEY_PATH
+            value: /pulsar-manager/keys/token/secret.key
+          {{- end }}
+          {{- end }}
+          {{- if or .Values.auth.vault.enabled .Values.streamnative_console.login.sso.google.enabled .Values.streamnative_console.login.sso.azure.enabled .Values.streamnative_console.login.sso.okta.enabled .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
           envFrom:
           {{- end }}
           {{- if .Values.auth.vault.enabled }}
@@ -196,15 +240,23 @@ spec:
           - secretRef:
               name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-okta-oauth2-secret"
           {{- end }}
+          {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+          - secretRef:
+              name: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
+          {{- end }}
           ports:
           - name: frontend
             containerPort: {{ .Values.streamnative_console.ports.frontend }}
           - name: backend
             containerPort: {{ .Values.streamnative_console.ports.backend }}
-
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data
+          {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+          - mountPath: /pulsar-manager/keys
+            name: token-keys
+            readOnly: true
+          {{- end }}
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
       - name: streamnative-console-data
@@ -216,6 +268,24 @@ spec:
         persistentVolumeClaim:
           claimName: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
       {{- end }}
+      {{- end }}
+      {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+      - name: token-keys
+        secret:
+          defaultMode: 420
+          items:
+          {{- if eq .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "PRIVATE" }}
+          - key: PUBLICKEY
+            path: token/public.key
+          - key: PRIVATEKEY
+            path: token/private.key
+          secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_PUBLIC_PRIVATE_KEY }}
+          {{- end }}
+          {{- if eq .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "SECRET" }}
+          - key: SECRETKEY
+            path: token/secret.key
+          secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_SECRET_KEY }}
+          {{- end }}
       {{- end }}
       {{- if .Values.streamnative_console.securityContext }}
       securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
