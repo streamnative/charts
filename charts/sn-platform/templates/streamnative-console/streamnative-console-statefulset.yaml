@@ -181,7 +181,7 @@ spec:
           - name: DEFAULT_ENVIRONMENT_NAME
             value: "pulsar"
           - name: DEFAULT_ENVIRONMENT_SERVICE_URL
-            value: "http://{{ .Release.Name }}-sn-platform-broker:8080"
+            value: "http://{{ template "pulsar.fullname" . }}-broker:8080"
           {{- end }}
           {{- if and .Values.streamnative_console.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
           - name: BACKEND_DEFAULT_SUPER_USER_ROLE
