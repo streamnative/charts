@@ -646,7 +646,7 @@ zookeeper:
   annotations: {}
   advanced:
     staticServerList: []
-  securityContext: 
+  securityContext:
     runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
@@ -841,7 +841,7 @@ bookkeeper:
     type: preferredDuringSchedulingIgnoredDuringExecution
   labels: {}
   annotations: {}
-  securityContext: 
+  securityContext:
     runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
@@ -976,7 +976,7 @@ autorecovery:
     type: preferredDuringSchedulingIgnoredDuringExecution
   labels: {}
   annotations: {}
-  securityContext: 
+  securityContext:
     runAsNonRoot: true
   # tolerations: []
   gracePeriod: 30
@@ -1058,7 +1058,7 @@ broker:
   labels: {}
   annotations: {}
   tolerations: []
-  securityContext: 
+  securityContext:
     runAsNonRoot: true
   gracePeriod: 30
   # For exposing kop service for external access
@@ -1412,7 +1412,7 @@ proxy:
     type: preferredDuringSchedulingIgnoredDuringExecution
   labels: {}
   annotations: {}
-  securityContext: 
+  securityContext:
     runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
@@ -1528,7 +1528,7 @@ toolset:
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
-  securityContext: 
+  securityContext:
     runAsUser: 0
   serviceAccount:
     # Specifies whether to use a service account to run this component
