@@ -321,25 +321,6 @@ spec:
     {{- if .Values.broker.resources }}
     resources: {{- toYaml .Values.broker.resources | nindent 10 }}
     {{- end }}
-  {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
-  autoScalingPolicy:
-    maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
-    {{- if .Values.broker.autoscaling.minReplicas }}
-    minReplicas: {{ .Values.broker.autoscaling.minReplicas }}
-    {{- end }}
-    {{- if .Values.broker.autoscaling.metrics }}
-    metrics:
-{{- with .Values.broker.autoscaling.metrics }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-    {{- if .Values.broker.autoscaling.behavior }}
-    behavior:
-{{- with .Values.broker.autoscaling.behavior }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-  {{- end }}
   {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
   apiObjects:
     statefulSet:
