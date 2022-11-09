@@ -257,8 +257,6 @@ Define function for get authenticaiton environment variable
 - name: tokenSecretKey
   value: "file:///mnt/secrets/SECRETKEY"
 {{- else }}
-- name: tokenSecretKey
-  value: "file:///mnt/secrets/PRIVATEKEY"
 - name: tokenPublicKey
   value: "file:///mnt/secrets/PUBLICKEY"
 {{- end }}

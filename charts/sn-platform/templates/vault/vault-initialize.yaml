@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.components.vault }}
-{{- if .Values.initialize }}
+{{- if and .Values.initialize .Values.login.vault.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
