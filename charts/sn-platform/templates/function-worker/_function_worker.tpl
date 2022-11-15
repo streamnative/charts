@@ -151,7 +151,7 @@ Define function token volumes
 {{- end }}
 - name: function-token
   secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
+    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
     items:
       - key: TOKEN
         path: function/token
