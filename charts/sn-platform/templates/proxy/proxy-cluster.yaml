@@ -88,7 +88,7 @@ spec:
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.auth.oauth.enabled }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
 {{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
@@ -139,7 +139,7 @@ spec:
       forwardAuthorizationCredentials: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
-      superUserRoles: "admin"
+      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}
