@@ -85,11 +85,11 @@ spec:
           args:
             - >-
               set -e;
-              proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
+              proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless | grep Name | wc -l)";
               until [ ${proxyServiceNumber} -ge 1 ]; do
                 echo "pulsar proxy {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 10 seconds ...";
                 sleep 10;
-                proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
+                proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless | grep Name | wc -l)";
               done;
           {{- if .Values.functions.resources }}
           resources: {{- toYaml .Values.functions.resources | nindent 12 }}

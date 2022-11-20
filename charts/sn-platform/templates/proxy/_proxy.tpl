@@ -16,58 +16,6 @@ pulsar service domain
 {{- end -}}
 
 {{/*
-Define proxy token mounts
-*/}}
-{{- define "pulsar.proxy.token.volumeMounts" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
-{{- if not .Values.auth.vault.enabled }}
-- mountPath: "/pulsar/keys"
-  name: token-keys
-  readOnly: true
-{{- end }}
-- mountPath: "/pulsar/tokens"
-  name: proxy-token
-  readOnly: true
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define proxy token volumes
-*/}}
-{{- define "pulsar.proxy.token.volumes" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
-{{- if not .Values.auth.vault.enabled }}
-- name: token-keys
-  secret:
-    {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-asymmetric-key"
-    {{- end}}
-    {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-symmetric-key"
-    {{- end}}
-    items:
-      {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-      - key: SECRETKEY
-        path: token/secret.key
-      {{- else }}
-      - key: PUBLICKEY
-        path: token/public.key
-      {{- end}}
-{{- end }}
-- name: proxy-token
-  secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.proxy }}"
-    items:
-      - key: TOKEN
-        path: proxy/token
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
 Define proxy certs mounts
 */}}
 {{- define "pulsar.proxy.certs.volumeMounts" -}}
