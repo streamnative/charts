@@ -222,7 +222,7 @@ spec:
               containerPort: {{ .Values.presto.coordinator.ports.http }}
               protocol: TCP
 {{- end }}
-        {{- if .Values.presto.exporter }}
+        {{- if .Values.presto.exporter.enabled }}
         - name: jmx-exporter
           image: "bitnami/jmx-exporter:0.17.0"
           image: "{{ .Values.images.presto.exporter.repository }}:{{ .Values.images.presto.exporter.tag }}"
@@ -298,7 +298,7 @@ spec:
             - key: {{ .Values.presto.security.authentication.password.passwordFileSecretKey }}
               path: {{ .Values.presto.security.authentication.password.passwordFileName }}
         {{- end}}
-        {{- if .Values.presto.exporter }}
+        {{- if .Values.presto.exporter.enabled }}
         - name: jmx-exporter-config-volume
           configMap:
             name: "{{ template "pulsar.fullname" . }}-presto-jmx-exporter"
