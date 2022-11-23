@@ -1715,7 +1715,6 @@ prometheus:
 
 datadog:
   component: datadog
-  namespace: pulsar
   components:
     zookeeper:
       enabled: false
