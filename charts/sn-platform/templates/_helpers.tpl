@@ -267,6 +267,7 @@ Define function for get authenticaiton environment variable
 Define function for get authenticaiton secret
 */}}
 {{- define "pulsar.authSecret" }}
+{{- if .Values.auth.authentication.enabled }}
 {{- if and .Values.auth.oauth.enabled .Values.auth.oauth.brokerClientCredentialSecret }}
 - mountPath: /mnt/secrets
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
@@ -277,6 +278,7 @@ Define function for get authenticaiton secret
 {{- else }}
 - mountPath: /mnt/secrets
   secretName: {{ .Release.Name }}-token-asymmetric-key
+{{- end }}
 {{- end }}
 {{- end }}
 
