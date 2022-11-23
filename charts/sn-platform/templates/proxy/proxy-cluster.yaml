@@ -38,6 +38,10 @@ spec:
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
   imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
   pod:
+    {{- with .Values.proxy.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.proxy.serviceAccount.use }}
     serviceAccountName: {{ include "pulsar.proxy.serviceAccount" . }}
     {{- end }}

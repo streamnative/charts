@@ -36,6 +36,10 @@ spec:
   replicas: {{ .Values.zookeeper.replicaCount }}
   image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
   pod:
+    {{- with .Values.zookeeper.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.zookeeper.serviceAccount.use }}
     serviceAccountName: {{ template "pulsar.zookeeper.serviceAccount" . }}
     {{- end }}

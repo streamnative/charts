@@ -38,6 +38,10 @@ spec:
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
   pod:
+    {{- with .Values.broker.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.broker.serviceAccount.use }}
     serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
     {{- end }}
