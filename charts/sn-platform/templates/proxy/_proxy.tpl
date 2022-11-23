@@ -120,7 +120,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -143,7 +143,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "enable_health_service_check": true,
       "timeout": 300,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -169,7 +169,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -184,7 +184,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "enable_health_service_check": true,
       "timeout": 300,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
