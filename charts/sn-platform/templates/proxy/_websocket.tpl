@@ -3,7 +3,7 @@ Define websocket token mounts
 */}}
 {{- define "pulsar.websocket.token.volumeMounts" -}}
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
 {{- if not .Values.auth.vault.enabled }}
 - mountPath: "/pulsar/keys"
   name: token-keys
@@ -21,7 +21,7 @@ Define websocket token volumes
 */}}
 {{- define "pulsar.websocket.token.volumes" -}}
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
 {{- if not .Values.auth.vault.enabled }}
 - name: token-keys
   secret:

@@ -38,6 +38,10 @@ spec:
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
   pod:
+    {{- with .Values.broker.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.broker.serviceAccount.use }}
     serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
     {{- end }}
@@ -123,7 +127,7 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.auth.oauth.enabled }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
 {{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
@@ -254,7 +258,7 @@ spec:
       authenticateOriginalAuthData: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
-      superUserRoles: "admin"
+      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
       {{- end }}
       {{- if .Values.auth.authorization.enabled }}
 {{- include "pulsar.authorizationProvider" . | indent 6 }}
