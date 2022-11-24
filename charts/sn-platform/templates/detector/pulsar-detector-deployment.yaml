@@ -114,7 +114,7 @@ spec:
         - name: server
           containerPort: {{ .Values.pulsar_detector.port }}
         env:
-        {{- if .Values.components.vault .Values.auth.vault.enabled }}
+        {{- if and .Values.components.vault .Values.auth.vault.enabled }}
         - name: brokerClientAuthenticationParameters
           valueFrom:
               secretKeyRef:
