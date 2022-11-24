@@ -48,7 +48,7 @@ data:
   secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   {{- end }}
-  {{- if .Values.zookeeper.reconfig.enabled }}
+  {{- if .Values.zookeeper.advanced.reconfig.enabled }}
   PULSAR_PREFIX_reconfigEnabled: "true"
   PULSAR_PREFIX_quorumListenOnAllIPs: "true"
   {{- end }}

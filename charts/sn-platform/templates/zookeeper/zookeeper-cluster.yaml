@@ -181,7 +181,7 @@ spec:
       secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
       PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
       {{- end }}
-      {{- if .Values.zookeeper.reconfig.enabled }}
+      {{- if .Values.zookeeper.advanced.reconfig.enabled }}
       PULSAR_PREFIX_reconfigEnabled: "true"
       PULSAR_PREFIX_quorumListenOnAllIPs: "true"
       {{- end }}
@@ -225,12 +225,12 @@ spec:
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
-  {{- if or .Values.zookeeper.advanced.staticServerList .Values.zookeeper.advanced.customStartupCommand }}
+  {{- if or .Values.zookeeper.advanced.reconfig.staticServerList .Values.zookeeper.advanced.customStartupCommand }}
   advancedOptions:
-    {{- if .Values.zookeeper.advanced.staticServerList }}
+    {{- if .Values.zookeeper.advanced.reconfig.staticServerList }}
     staticServerList:
       servers:
-{{ toYaml .Values.zookeeper.advanced.staticServerList | indent 8 }}
+{{ toYaml .Values.zookeeper.advanced.reconfig.staticServerList | indent 8 }}
     {{- end }}
     {{- if .Values.zookeeper.advanced.customStartupCommand }}
     customStartupCommand:

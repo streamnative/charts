@@ -18,9 +18,9 @@
 #
 
 zookeeper:
-  reconfig:
-    enabled: true
   advanced:
+    reconfig:
+      enabled: true
     staticServerList:
       - id: 1
         listeners:
