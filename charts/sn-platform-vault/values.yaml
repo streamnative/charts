@@ -99,7 +99,7 @@ vault:
     name: ""
   oidcToken:
     # verification_ttl cannot be longer than 10x rotation_period
-    rotation_period: 8760h
+    rotation_period: 24h
     # verification_ttl should be greater than the value of ttl below
     # https://developer.hashicorp.com/vault/api-docs/secret/identity/tokens#verification_ttl
     verification_ttl: 24h
