@@ -77,6 +77,8 @@ spec:
           value: {{ .Values.vault.oidcToken.ttl | default "12h" }}
         - name: VERIFICATION_TTL
           value: {{ .Values.vault.oidcToken.verification_ttl | default "24h" }}
+        - name: TOTATION_PERIOD
+          value: {{ .Values.vault.oidcToken.rotation_period | default "24h" }}
         - name: CONSOLE_SECRET_KEY_NAME
           value: {{ template "console-secret-key-name" . }}
         - name: TOOLSET_TOKEN_SECRET_NAME

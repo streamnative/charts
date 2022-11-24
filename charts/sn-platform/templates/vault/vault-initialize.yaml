@@ -87,6 +87,8 @@ spec:
           value: {{ .Values.vault.oidcToken.ttl | default "12h" }}
         - name: VERIFICATION_TTL
           value: {{ .Values.vault.oidcToken.verification_ttl | default "24h" }}
+        - name: TOTATION_PERIOD
+          value: {{ .Values.vault.oidcToken.rotation_period | default "24h" }}
         {{- if and .Values.streamnative_console.username .Values.streamnative_console.password }}
         - name: VAULT_SUPER_USER_NAME
           value: {{ .Values.streamnative_console.username }}
