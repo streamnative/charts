@@ -114,16 +114,15 @@ spec:
         - name: server
           containerPort: {{ .Values.pulsar_detector.port }}
         env:
-        {{- if .Values.auth.vault.enabled }}
+        {{- if and .Values.components.vault .Values.auth.vault.enabled }}
         - name: brokerClientAuthenticationParameters
           valueFrom:
               secretKeyRef:
                 name: {{ template "pulsar.vault-secret-key-name" . }}
                 key: brokerClientAuthenticationParameters
         {{- end }}
-        {{- if .Values.auth.authentication.jwt.enabled }}
+        {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
         - name: brokerClientAuthenticationParameters
-          valueFrom:
           valueFrom:
               secretKeyRef:
                 name: {{ .Release.Name }}-token-admin
