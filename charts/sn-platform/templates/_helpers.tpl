@@ -272,12 +272,14 @@ Define function for get authenticaiton secret
 - mountPath: /mnt/secrets
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
 {{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
 - mountPath: /mnt/secrets
   secretName: {{ .Release.Name }}-token-symmetric-key
 {{- else }}
 - mountPath: /mnt/secrets
   secretName: {{ .Release.Name }}-token-asymmetric-key
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
