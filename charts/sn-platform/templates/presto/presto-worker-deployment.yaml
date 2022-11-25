@@ -185,7 +185,7 @@ spec:
             - name: http
               containerPort: {{ .Values.presto.worker.ports.http }}
               protocol: TCP
-        {{- if .Values.presto.exporter }}
+        {{- if .Values.presto.exporter.enabled }}
         - name: jmx-exporter
           image: "{{ .Values.images.presto.exporter.repository }}:{{ .Values.images.presto.exporter.tag }}"
           imagePullPolicy: {{ .Values.images.presto.exporter.pullPolicy }}
@@ -239,7 +239,7 @@ spec:
         - name: config-volume
           configMap:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.worker.component }}"
-        {{- if .Values.presto.exporter }}
+        {{- if .Values.presto.exporter.enabled }}
         - name: jmx-exporter-config-volume
           configMap:
             name: "{{ template "pulsar.fullname" . }}-presto-jmx-exporter"
