@@ -37,6 +37,10 @@ spec:
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
   imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
   pod:
+    {{- with .Values.bookkeeper.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.bookkeeper.serviceAccount.use }}
     serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
     {{- end }}
