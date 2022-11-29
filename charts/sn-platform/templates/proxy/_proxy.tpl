@@ -114,7 +114,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -163,7 +163,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
