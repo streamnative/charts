@@ -1467,6 +1467,11 @@ spec:
                             description: FunctionEnabled defines whether to enable
                               function APIs
                             type: boolean
+                          insecureAuthEnabled:
+                            description: 'InsecureAuthEnabled defines whether to use
+                              insecure auth: use a same superuser account got from
+                              config file in all functions/sinks/sources'
+                            type: boolean
                           sinkEnabled:
                             description: SinkEnabled defines whether to enable sink
                               APIs
