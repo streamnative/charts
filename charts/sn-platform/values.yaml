@@ -2251,6 +2251,11 @@ vault:
     created: true
     name: ""
   oidcToken:
+    # verification_ttl cannot be longer than 10x rotation_period
+    rotation_period: 24h
+    # verification_ttl should be greater than the value of ttl below
+    # https://developer.hashicorp.com/vault/api-docs/secret/identity/tokens#verification_ttl
+    verification_ttl: 24h
     # time to live for service-account and user
     ttl: 12h
   serviceType: "ClusterIP"
