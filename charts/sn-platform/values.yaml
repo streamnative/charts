@@ -1996,7 +1996,9 @@ streamnative_console:
     # *required*: the instance name to display for the Pulsar clusters in SN console
     INSTANCE_NAME: "pulsar"
     INIT_DEFAULT_ENVIRONMENT: false
-    BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
+    BACKEND_DEFAULT_SUPER_USER_ROLE: "admin"
+    # If you want to enable jwt authentication, please enable the following configuration
+    # BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
     GLOBAL_RESOURCE_READ_ONLY: false
     REDIRECT_SCHEME: ""
     REDIRECT_HOST: ""
