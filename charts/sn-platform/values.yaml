@@ -647,11 +647,7 @@ zookeeper:
   #       "component": "zookeeper"
   labels: {}
   annotations: {}
-  # reconfig settings
-  reconfig:
-    enabled: false
-    # The zookeeper servers to observe/join
-    staticServerList: []
+  advanced: {}
   securityContext:
     runAsNonRoot: true
   tolerations: []
@@ -718,6 +714,11 @@ zookeeper:
   # The initial myid used for generating myid for each zookeeper pod.
   initialMyId: 0
   peerType: "participant"
+  # reconfig settings
+  reconfig:
+    enabled: false
+    # The zookeeper servers to observe/join
+    staticServerList: []
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   jvm:
