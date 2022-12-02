@@ -139,11 +139,3 @@
   imageTag: 2.10.1.10
   sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
   sourceTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord  
-- id: pulsar-io-debezium-oracle
-  name: debezium-oracle
-  description: Debezium Oracle Source
-  sourceClass: org.apache.pulsar.io.debezium.oracle.DebeziumOracleSource
-  imageRepository: streamnative/pulsar-io-debezium-oracle
-  version: 2.9.2.17
-  imageTag: 2.9.2.17
-  typeClassName: org.apache.pulsar.common.schema.KeyValue
