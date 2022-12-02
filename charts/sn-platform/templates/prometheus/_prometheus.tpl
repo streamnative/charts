@@ -134,13 +134,9 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
 {{- end }}
 
 {{- define "pulsar.prometheus.data.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.prometheus.volumes.data.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.prometheus.volumes.data.storageClass }}
+{{- if  .Values.prometheus.volumes.data.storageClass }}
 storageClassName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
-  {{- else if .Values.prometheus.volumes.data.storageClassName }}
+{{- else if .Values.prometheus.volumes.data.storageClassName }}
 storageClassName: "{{ .Values.prometheus.volumes.data.storageClassName }}"
-  {{- end -}}
 {{- end }}
 {{- end }}
