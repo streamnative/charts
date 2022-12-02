@@ -650,12 +650,11 @@ zookeeper:
   #       "component": "zookeeper"
   labels: {}
   annotations: {}
-  advanced:
-    # reconfig settings
-    reconfig:
-      enabled: false
-      # The zookeeper servers to observe/join
-      staticServerList: []
+  # reconfig settings
+  reconfig:
+    enabled: false
+    # The zookeeper servers to observe/join
+    staticServerList: []
   securityContext:
     runAsNonRoot: true
   tolerations: []

@@ -126,7 +126,7 @@ spec:
         - >
           bin/apply-config-from-env.py conf/zookeeper.conf;
           {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
-          {{- range $server := .Values.zookeeper.advanced.reconfig.staticServerList }}
+          {{- range $server := .Values.zookeeper.reconfig.staticServerList }}
           echo "{{ $server }}" >> conf/zookeeper.conf;
           {{- end }}
           bin/gen-zk-conf.sh conf/zookeeper.conf {{ .Values.zookeeper.initialMyId }} {{ .Values.zookeeper.peerType }};
