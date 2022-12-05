@@ -647,8 +647,7 @@ zookeeper:
   #       "component": "zookeeper"
   labels: {}
   annotations: {}
-  advanced:
-    staticServerList: []
+  advanced: {}
   securityContext:
     runAsNonRoot: true
   tolerations: []
@@ -719,7 +718,7 @@ zookeeper:
   reconfig:
     enabled: false
     # The zookeeper servers to observe/join
-    zkServers: []
+    staticServerList: []
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   jvm:

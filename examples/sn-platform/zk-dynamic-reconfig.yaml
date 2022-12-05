@@ -20,14 +20,13 @@
 zookeeper:
   reconfig:
     enabled: true
-  advanced:
-    staticServerList:
-      - id: 1
-        listeners:
-          - hostname: "pulsar-zookeeper-0.pulsar-zookeeper.snp.svc.cluster.local"
-      - id: 2
-        listeners:
-          - hostname: "pulsar-zookeeper-1.pulsar-zookeeper.snp.svc.cluster.local"
-      - id: 3
-        listeners:
-          - hostname: "pulsar-zookeeper-2.pulsar-zookeeper.snp.svc.cluster.local"
+  staticServerList:
+    - id: 1
+      listeners:
+        - hostname: "pulsar-zookeeper-0.pulsar-zookeeper.snp.svc.cluster.local"
+    - id: 2
+      listeners:
+        - hostname: "pulsar-zookeeper-1.pulsar-zookeeper.snp.svc.cluster.local"
+    - id: 3
+      listeners:
+        - hostname: "pulsar-zookeeper-2.pulsar-zookeeper.snp.svc.cluster.local"
