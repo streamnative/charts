@@ -37,7 +37,7 @@ spec:
         cnameStrategy: Follow
       {{- if eq .Values.certs.issuers.acme.solver "clouddns" }}
       {{- if .Values.certs.issuers.acme.solvers.clouddns }}
-        clouddns:
+        cloudDNS:
 {{ toYaml .Values.certs.issuers.acme.solvers.clouddns | indent 10 }}
       {{- end }}
       {{- end }}
