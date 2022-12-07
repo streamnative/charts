@@ -59,10 +59,11 @@ data:
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
   authenticationEnabled: "true"
+  # this configuration should be same with `authenticateOriginalAuthData` in broker.conf
+  forwardAuthorizationCredentials: "true"
   {{- if .Values.auth.authorization.enabled }}
   # disable authorization on proxy and forward authorization credentials to broker
   authorizationEnabled: "false"
-  forwardAuthorizationCredentials: "true"
   superUserRoles: {{ .Values.auth.superUsers.broker }},{{ .Values.auth.superUsers.proxy }},{{ .Values.auth.superUsers.websocket }},{{ .Values.auth.superUsers.client }},{{ .Values.auth.superUsers.pulsar_manager }}
   {{- end }}
   {{- if and (eq .Values.auth.authentication.provider "jwt") (not .Values.auth.vault.enabled) }}
@@ -75,6 +76,15 @@ data:
   {{- else }}
   tokenPublicKey: "file:///pulsar/keys/token/public.key"
   {{- end }}
+  {{- end }}
+  {{- if (eq .Values.auth.authentication.provider "oauth2") }}
+  PULSAR_PREFIX_oauthIssuerUrl: {{ .Values.auth.authentication.oauth2.issuerUrl }}
+  PULSAR_PREFIX_oauthAudience: {{ .Values.auth.authentication.oauth2.audience }}
+  PULSAR_PREFIX_oauthSubjectClaim: {{ .Values.auth.authentication.oauth2.subjectClaim }}
+  PULSAR_PREFIX_oauthAdminScope: {{ .Values.auth.authentication.oauth2.adminScope }}
+  authenticationProviders:  {{ .Values.auth.authentication.oauth2.authenticationProviders }}
+  brokerClientAuthenticationParameters: '{"privateKey":"file:///pulsar/oauth2/auth.json","issuerUrl":"{{ .Values.auth.authentication.oauth2.issuerUrlParam }}","audience":"{{ .Values.auth.authentication.oauth2.audienceParam }}","scope":"{{ .Values.auth.authentication.oauth2.adminScopeParam }}"}'
+  brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
   {{- end }}
   {{- end }}
   {{- if .Values.functions.useDedicatedRunner}}

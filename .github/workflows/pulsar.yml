@@ -25,7 +25,7 @@ on:
     paths:
       - 'charts/local-storage-provisioner/**'
       - 'charts/pulsar/**'
-      - '.github/workflows/**'
+      - '.github/workflows/pulsar**'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
@@ -47,3 +47,7 @@ jobs:
           .ci/chart_test.sh .ci/clusters/values-local-pv.yaml
         # Only build a kind cluster if there are chart changes to test.
         if: steps.lint.outputs.changed == 'true'
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: failure()

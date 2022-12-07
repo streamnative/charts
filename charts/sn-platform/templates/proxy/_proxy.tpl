@@ -16,58 +16,6 @@ pulsar service domain
 {{- end -}}
 
 {{/*
-Define proxy token mounts
-*/}}
-{{- define "pulsar.proxy.token.volumeMounts" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- mountPath: "/pulsar/keys"
-  name: token-keys
-  readOnly: true
-{{- end }}
-- mountPath: "/pulsar/tokens"
-  name: proxy-token
-  readOnly: true
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define proxy token volumes
-*/}}
-{{- define "pulsar.proxy.token.volumes" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- name: token-keys
-  secret:
-    {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-asymmetric-key"
-    {{- end}}
-    {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-symmetric-key"
-    {{- end}}
-    items:
-      {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-      - key: SECRETKEY
-        path: token/secret.key
-      {{- else }}
-      - key: PUBLICKEY
-        path: token/public.key
-      {{- end}}
-{{- end }}
-- name: proxy-token
-  secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.proxy }}"
-    items:
-      - key: TOKEN
-        path: proxy/token
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
 Define proxy certs mounts
 */}}
 {{- define "pulsar.proxy.certs.volumeMounts" -}}
@@ -166,13 +114,13 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -195,7 +143,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "enable_health_service_check": true,
       "timeout": 300,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -215,13 +163,13 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -236,7 +184,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "enable_health_service_check": true,
       "timeout": 300,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },

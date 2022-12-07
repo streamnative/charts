@@ -51,7 +51,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.prometheus.port }}/federate?match[]=%7B__name__%3D~%22pulsar_.%2B%7Cjvm_.%2B%7Ctopic_.%2B%22%7D",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.prometheus.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -134,13 +134,9 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
 {{- end }}
 
 {{- define "pulsar.prometheus.data.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.prometheus.volumes.data.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.prometheus.volumes.data.storageClass }}
+{{- if  .Values.prometheus.volumes.data.storageClass }}
 storageClassName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
-  {{- else if .Values.prometheus.volumes.data.storageClassName }}
+{{- else if .Values.prometheus.volumes.data.storageClassName }}
 storageClassName: "{{ .Values.prometheus.volumes.data.storageClassName }}"
-  {{- end -}}
 {{- end }}
 {{- end }}

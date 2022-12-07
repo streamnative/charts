@@ -35,11 +35,10 @@ If release name contains chart name it will be used as a full name.
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- $name := default .Values.global.stackName .Chart.Name -}}
-{{- if contains $name .Release.Name -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- if .Values.global.stackName -}}
+{{- printf "%s-%s" .Values.global.stackName "sn-platform" | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -158,7 +157,7 @@ Define the pulsar zookeeper
 Inject vault token values to pod through env variables
 */}}
 {{- define "pulsar.vault-secret-key-name" -}}
-{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-secret-env-injection
+{{ template "pulsar.fullname" . }}-secret-env-injection
 {{- end }}
 
 {{- define "pulsar.vault.url" -}}

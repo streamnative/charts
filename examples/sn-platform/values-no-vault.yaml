@@ -16,23 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-# deploy entities only when `components.entities` is true
-{{- if and .Values.components.entities }}
-{{- range .Values.entities.permissions }}
-apiVersion: pulsar.streamnative.io/v1alpha1
-kind: PulsarPermission
-metadata:
-  name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}-{{ template "entities.name-suffix" . }}"
-  namespace: {{ template "pulsar.namespace" $ }}
-  labels:
-    {{- include "pulsar.standardLabels" $ | nindent 4 }}
-    component: {{ $.Values.entities.component }}
-spec:
-  connectionRef:
-    name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}"
-{{- if .config }}
-{{- toYaml .config | nindent 2 }}
-{{- end }}
----
-{{- end }}
-{{- end }}
+
+components:
+  vault: false
+
+auth:
+  authentication:
+    enabled: false
+  authorization:
+    enabled: false
+  vault:
+    enabled: false

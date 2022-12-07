@@ -18,6 +18,14 @@ Expand the name of the chart.
 {{ template "pulsar.fullname" . }}-presto-worker
 {{- end -}}
 
+{{- define "presto.hostname" -}}
+{{ template "presto.service" . }}.{{ template "pulsar.namespace"  $ }}.svc.cluster.local
+{{- end -}}
+
+{{- define "presto.worker.hostname" -}}
+{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" $ }}.svc.cluster.local
+{{- end -}}
+
 {{/*
 presto service domain
 */}}
@@ -25,7 +33,11 @@ presto service domain
 {{- if .Values.domain.enabled -}}
 {{- printf "presto.%s.%s" .Release.Name .Values.domain.suffix -}}
 {{- else -}}
+{{- if .Values.ingress.presto.external_domain -}}
+{{- printf "%s" .Values.ingress.presto.external_domain -}}
+{{- else -}}
 {{- print "" -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
@@ -61,5 +73,16 @@ Define Presto TLS certificate secret name
 {{- .Values.tls.presto.certSecretName -}}
 {{- else -}}
 {{ .Release.Name }}-{{ .Values.tls.presto.cert_name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Defines Presto jks password
+*/}}
+{{- define "pulsar.presto.jks.password" -}}
+{{- if .Values.tls.presto.passwordSecretRef -}}
+{{- print "/pulsar/jks-password/password" -}}
+{{- else -}}
+{{- print "changeit" -}}
 {{- end -}}
 {{- end -}}

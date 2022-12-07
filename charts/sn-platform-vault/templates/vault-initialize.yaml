@@ -20,7 +20,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"
+  name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-init"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
@@ -41,7 +41,7 @@ spec:
 {{ toYaml .Values.global.imagePullSecrets | indent 8 }}
       {{- end }}
       containers:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"
+      - name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-init"
         image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"
         imagePullPolicy: {{ .Values.images.vault.pullPolicy }}
         command: ["sh", "-c"]
@@ -66,18 +66,7 @@ spec:
            done;
            echo "vault is ready~";
 
-           INITIALIZED=$(vault read identity/oidc/role/user | grep client_id | awk '{print $1}');
-           if [ $INITIALIZED == "client_id" ]; then
-             echo "update oidc ttl";
-             vault write identity/oidc/role/user ttl=$VAULT_TTL;
-             vault write identity/oidc/role/super-user ttl=$VAULT_TTL;
-             vault write identity/oidc/role/service-account ttl=$VAULT_TTL;
-             vault write identity/oidc/role/super-service-account ttl=$VAULT_TTL;
-           else
-             echo "initialize vault";
-             cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
-           fi
-            
+           cd /root/{{ template "pulsar.name" . }}/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ template "vault.secetPrefix" . }} -v {{ template "vault.url" . }} -r $ROOT_TOKEN && cd /root/{{ template "pulsar.name" . }}/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
            echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
         env:
         - name: NAMESPACE
@@ -86,6 +75,10 @@ spec:
           value: {{ template "pulsar.vault-secret-key-name" . }}
         - name: VAULT_TTL
           value: {{ .Values.vault.oidcToken.ttl | default "12h" }}
+        - name: VERIFICATION_TTL
+          value: {{ .Values.vault.oidcToken.verification_ttl | default "24h" }}
+        - name: ROTATION_PERIOD
+          value: {{ .Values.vault.oidcToken.rotation_period | default "24h" }}
         - name: CONSOLE_SECRET_KEY_NAME
           value: {{ template "console-secret-key-name" . }}
         - name: TOOLSET_TOKEN_SECRET_NAME

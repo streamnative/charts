@@ -44,7 +44,7 @@ data:
   {{- end }}
   {{- if .Values.zookeeper.reconfig.enabled }}
   PULSAR_PREFIX_reconfigEnabled: "true"
-  PULSAR_PREFIX_quorumListenOnAllIPs: "true"
+  PULSAR_PREFIX_skipACL: "yes"
   {{- end }}
   PULSAR_PREFIX_peerType: {{ .Values.zookeeper.peerType }}
 {{ toYaml .Values.zookeeper.configData | indent 2 }}

@@ -18,14 +18,10 @@
 #
 
 {{- if .Values.components.streamnative_console }}
+{{- if and .Values.initialize (not .Values.streamnative_console.configData.INIT_DEFAULT_ENVIRONMENT) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  annotations:
-    # This is what defines this resource as a hook. Without this line, the
-    # job is considered part of the release.
-    "helm.sh/hook": post-install
-    "helm.sh/hook-delete-policy": before-hook-creation #hook-succeeded
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
@@ -37,6 +33,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
       {{- if not .Values.istio.enabled }}
       initContainers:
         # This init container will wait for broker to be ready before
@@ -49,6 +48,9 @@ spec:
             - >
               set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
               echo "broker cluster is ready";
+          {{- if .Values.streamnative_console.resources }}
+          resources: {{- toYaml .Values.streamnative_console.resources | nindent 12 }}
+          {{- end }}
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
@@ -62,7 +64,7 @@ spec:
         - name: INSTANCE_NAME
           value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
         - name: WEB_SERVICE_URL
-          value: {{ template "pulsar.web.service.url" . }}
+          value: {{ template "pulsar.web.internal.service.url" . }}
         {{- if .Values.broker.kop.enabled }}
         - name: KOP_SERVICE_URL
           value: {{ template "pulsar.broker.kop.service.url" .}}
@@ -105,5 +107,6 @@ spec:
       {{- if .Values.streamnative_console.securityContext }}
       securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
       {{- end }}
+{{- end }}
 {{- end }}
 

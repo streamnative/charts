@@ -52,6 +52,15 @@ TODO: console need to support mount ca certs to work with internal tls broker mo
 {{- end -}}
 
 {{/*
+Define the internal web service url
+*/}}
+{{- define "pulsar.web.internal.service.url" -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include "pulsar.broker.service" .) (include "pulsar.namespace" .) -}}
+{{- $httpUrl := printf "http://%s:%s" $host (.Values.broker.ports.http | toString) -}}
+{{- $httpUrl -}}
+{{- end -}}
+
+{{/*
 Define the hostname
 */}}
 {{- define "pulsar.broker.hostname" -}}
@@ -93,12 +102,6 @@ Define broker tls certs mounts
 */}}
 {{- define "pulsar.broker.certs.volumeMounts" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-- name: broker-certs
-  mountPath: "/pulsar/certs/broker"
-  readOnly: true
-- name: ca
-  mountPath: "/pulsar/certs/ca"
-  readOnly: true
 {{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
@@ -112,20 +115,6 @@ Define broker tls certs volumes
 */}}
 {{- define "pulsar.broker.certs.volumes" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-- name: broker-certs
-  secret:
-    secretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
-    items:
-    - key: tls.crt
-      path: tls.crt
-    - key: tls.key
-      path: tls.key
-- name: ca
-  secret:
-    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
-    items:
-    - key: ca.crt
-      path: ca.crt
 {{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
 - name: keytool
   configMap:
@@ -134,61 +123,6 @@ Define broker tls certs volumes
 {{- end }}
 {{- end }}
 {{- end }}
-
-{{/*
-Define broker token mounts
-*/}}
-{{- define "pulsar.broker.token.volumeMounts" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- mountPath: "/pulsar/keys"
-  name: token-keys
-  readOnly: true
-{{- end }}
-- mountPath: "/pulsar/tokens"
-  name: broker-token
-  readOnly: true
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define broker token volumes
-*/}}
-{{- define "pulsar.broker.token.volumes" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- name: token-keys
-  secret:
-    {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-asymmetric-key"
-    {{- end}}
-    {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-symmetric-key"
-    {{- end}}
-    items:
-      {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-      - key: SECRETKEY
-        path: token/secret.key
-      {{- else }}
-      - key: PUBLICKEY
-        path: token/public.key
-      - key: PRIVATEKEY
-        path: token/private.key
-      {{- end}}
-{{- end }}
-- name: broker-token
-  secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
-    items:
-      - key: TOKEN
-        path: broker/token
-{{- end }}
-{{- end }}
-{{- end }}
-
 
 {{/*
 Define broker log mounts
@@ -247,7 +181,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -349,7 +283,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,

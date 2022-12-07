@@ -108,6 +108,15 @@ istio: ingressgateway
 {{- end }}
 
 {{/*
+Extra necessary Pod annotations in Istio mode
+*/}}
+{{- define "pulsar.istio.pod.annotations" -}}
+{{- if .Values.istio.enabled -}}
+prometheus.istio.io/merge-metrics: "false"
+{{- end }}
+{{- end -}}
+
+{{/*
 Define TLS CA secret name
 */}}
 {{- define "pulsar.tls.ca.secret.name" -}}
@@ -149,3 +158,216 @@ jvmOptions:
   {{- toYaml . | nindent 2 }}
   {{- end }}
 {{- end }}
+
+{{/*
+Define function for save authenticaiton provider list
+*/}}
+{{- define "pulsar.authenticationProviders" }}
+{{- $authenticationProviders := list -}}
+{{- if .Values.auth.vault.enabled }}
+{{- $authenticationProviders = append $authenticationProviders "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken" }}
+{{- end }}
+{{- if .Values.auth.authentication.tls.enabled }}
+{{- $authenticationProviders = append $authenticationProviders "org.apache.pulsar.broker.authentication.AuthenticationProviderTls" }}
+{{- end }}
+{{- if .Values.auth.oauth.enabled }}
+{{- $authenticationProviders = append $authenticationProviders "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth" }}
+{{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
+{{- $authenticationProviders = append $authenticationProviders "org.apache.pulsar.broker.authentication.AuthenticationProviderToken" }}
+{{- end }}
+{{- join "," (compact $authenticationProviders) | quote }}
+{{- end }}
+
+{{/*
+Define function for save authorization provider
+*/}}
+{{- define "pulsar.authorizationProvider" }}
+authorizationEnabled: "true"
+{{- if .Values.auth.oauth.enabled }}
+authorizationProvider: {{ .Values.auth.oauth.authorizationProvider | default "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth" }}
+{{- else }}
+authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
+{{- end }}
+{{- end }}
+
+{{/*
+Define function for save authenticaiton configuration
+*/}}
+{{- define "pulsar.authConfiguration" }}
+{{- if .Values.auth.vault.enabled }}
+brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+PULSAR_PREFIX_chainAuthenticationEnabled: "true"
+PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
+{{- if .Values.broker.readPublicKeyFromFile }}
+PULSAR_PREFIX_OIDCPublicKeyPath: file://{{ .Values.broker.publicKeyPath | default "/pulsar/vault/v1/identity/oidc/.well-known/keys" }}/publicKey
+{{- else }}
+PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
+{{- end }}
+{{- end }}
+{{- if .Values.auth.oauth.enabled }}
+PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
+PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
+{{- if .Values.auth.oauth.oauthAdminScope }}
+PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
+{{- end }}
+PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
+{{- if .Values.auth.oauth.oauthAuthzRoleClaim }}
+PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
+{{- end }}
+{{- if .Values.auth.oauth.oauthAuthzAdminRole }}
+PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
+{{- end }}
+brokerClientAuthenticationPlugin: {{ .Values.auth.oauth.brokerClientAuthenticationPlugin | default "org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2" }}
+{{- if .Values.auth.oauth.brokerClientAuthenticationParameters }}
+brokerClientAuthenticationParameters: '{{ .Values.auth.oauth.brokerClientAuthenticationParameters | toJson }}'
+{{- end }}
+{{- if .Values.auth.oauth.oauthSubjectClaim }}
+PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
+{{- end }}
+{{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
+brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+{{- end }}
+{{- end }}
+
+{{/*
+Define function for get authenticaiton environment variable
+*/}}
+{{- define "pulsar.authEnvironment" }}
+{{- if .Values.auth.vault.enabled }}
+- name: PULSAR_PREFIX_OIDCTokenAudienceID
+  valueFrom:
+      secretKeyRef:
+        name: {{ template "pulsar.vault-secret-key-name" . }}
+        key: PULSAR_PREFIX_OIDCTokenAudienceID
+- name: brokerClientAuthenticationParameters
+  valueFrom:
+      secretKeyRef:
+        name: {{ template "pulsar.vault-secret-key-name" . }}
+        key: brokerClientAuthenticationParameters
+{{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
+- name: brokerClientAuthenticationParameters
+  valueFrom:
+      secretKeyRef:
+        name: {{ .Release.Name }}-token-admin
+        key: TOKEN
+{{- if .Values.auth.authentication.jwt.usingSecretKey }}
+- name: tokenSecretKey
+  value: "file:///mnt/secrets/SECRETKEY"
+{{- else }}
+- name: tokenPublicKey
+  value: "file:///mnt/secrets/PUBLICKEY"
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Define function for get authenticaiton secret
+*/}}
+{{- define "pulsar.authSecret" }}
+{{- if .Values.auth.authentication.enabled }}
+{{- if and .Values.auth.oauth.enabled .Values.auth.oauth.brokerClientCredentialSecret }}
+- mountPath: /mnt/secrets
+  secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
+{{- end }}
+{{- if .Values.auth.authentication.jwt.enabled }}
+{{- if .Values.auth.authentication.jwt.usingSecretKey }}
+- mountPath: /mnt/secrets
+  secretName: {{ .Release.Name }}-token-symmetric-key
+{{- else }}
+- mountPath: /mnt/secrets
+  secretName: {{ .Release.Name }}-token-asymmetric-key
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+AntiAffinity Rules
+*/}}
+{{- define "pulsar.antiAffinityRules" }}
+{{- if not .thisAffinity.customRules }}
+{{- if and .Values.affinity.anti_affinity .thisAffinity.anti_affinity }}
+podAntiAffinity:
+  {{ .thisAffinity.type }}:
+    {{ if eq .thisAffinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
+    - labelSelector:
+        matchExpressions:
+          - key: "app"
+            operator: In
+            values:
+              - "{{ template "pulsar.name" . }}"
+          - key: "release"
+            operator: In
+            values:
+              - {{ .Release.Name }}
+          - key: "component"
+            operator: In
+            values:
+              - {{ .Component }}
+      topologyKey: "kubernetes.io/hostname"
+      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
+  preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: {{ .thisAffinity.zone_anti_affinity_weight | default .Values.affinity.zone_anti_affinity_weight }}
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+            - key: "app"
+              operator: In
+              values:
+                - "{{ template "pulsar.name" . }}"
+            - key: "release"
+              operator: In
+              values:
+                - {{ .Release.Name }}
+            - key: "component"
+              operator: In
+              values:
+                - {{ .Component }}
+        topologyKey: "topology.kubernetes.io/zone"
+      {{end}}
+    {{ else }}
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+            - key: "app"
+              operator: In
+              values:
+                - "{{ template "pulsar.name" . }}"
+            - key: "release"
+              operator: In
+              values:
+                - {{ .Release.Name }}
+            - key: "component"
+              operator: In
+              values:
+                - {{ .Component }}
+        topologyKey: "kubernetes.io/hostname"
+      {{ if and .Values.affinity.zone_anti_affinity .thisAffinity.zone_anti_affinity }}
+    - weight: {{ .thisAffinity.zone_anti_affinity_weight | default .Values.affinity.zone_anti_affinity_weight }}
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+            - key: "app"
+              operator: In
+              values:
+                - "{{ template "pulsar.name" . }}"
+            - key: "release"
+              operator: In
+              values:
+                - {{ .Release.Name }}
+            - key: "component"
+              operator: In
+              values:
+                - {{ .Component }}
+        topologyKey: "topology.kubernetes.io/zone"
+      {{end}}
+    {{ end }}
+{{- end }}
+{{- else }}
+{{ toYaml .thisAffinity.customRules }}
+{{- end }}
+{{end}}

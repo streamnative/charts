@@ -21,11 +21,11 @@ apiVersion: v1
 appVersion: "2.9"
 description: StreamNative Platform Chart
 name: sn-platform
-version: 1.4.0
+version: 1.6.0
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/tree/master/charts/sn-platform
-icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
+icon: https://streamnative.io/uploads/images/platform/sn-platform-header-element.svg
 maintainers:
 - name: StreamNative Support
   email: support@streamnative.io

@@ -53,9 +53,8 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
       securityContext:
       {{- with .Values.zookeeper.securityContext }}
@@ -73,53 +72,15 @@ spec:
       {{ toYaml .Values.zookeeper.tolerations | indent 8 }}
       {{- end }}
       affinity:
-        {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity}}
-        podAntiAffinity:
-          {{ .Values.zookeeper.affinity.type }}:
-          {{ if eq .Values.zookeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
-          - labelSelector:
-              matchExpressions:
-              - key: "app"
-                operator: In
-                values:
-                - "{{ template "pulsar.name" . }}"
-              - key: "release"
-                operator: In
-                values:
-                - {{ .Release.Name }}
-              - key: "component"
-                operator: In
-                values:
-                - {{ .Values.zookeeper.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: "app"
-                      operator: In
-                      values:
-                      - "{{ template "pulsar.name" . }}"
-                    - key: "release"
-                      operator: In
-                      values:
-                      - {{ .Release.Name }}
-                    - key: "component"
-                      operator: In
-                      values:
-                      - {{ .Values.zookeeper.component }}
-                topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-        {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.zookeeper.affinity "Component" .Values.zookeeper.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
-      {{- with .Values.common.extraInitContainers }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
-      {{- with .Values.zookeeper.extraInitContainers }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.zookeeper.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if .Values.zookeeper.customTools.backup.enable }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
@@ -165,7 +126,7 @@ spec:
         - >
           bin/apply-config-from-env.py conf/zookeeper.conf;
           {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
-          {{- range $server := .Values.zookeeper.reconfig.zkServers }}
+          {{- range $server := .Values.zookeeper.reconfig.staticServerList }}
           echo "{{ $server }}" >> conf/zookeeper.conf;
           {{- end }}
           bin/gen-zk-conf.sh conf/zookeeper.conf {{ .Values.zookeeper.initialMyId }} {{ .Values.zookeeper.peerType }};

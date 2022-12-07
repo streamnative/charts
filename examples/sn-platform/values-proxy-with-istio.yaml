@@ -17,21 +17,20 @@
 # under the License.
 #
 
-{{- if .Values.components.pulsar_detector }}
-{{- if .Values.pulsar_detector.pdb.usePolicy }}
-apiVersion: policy/v1beta1
-kind: PodDisruptionBudget
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.pulsar_detector.component }}
-spec:
-  selector:
-    matchLabels:
-      {{- include "pulsar.matchLabels" . | nindent 6 }}
-      component: {{ .Values.pulsar_detector.component }}
-  maxUnavailable: {{ .Values.pulsar_detector.pdb.maxUnavailable }}
-{{- end }}
-{{- end }}
+ingress:
+  broker:
+    enabled: true
+    # set the domain name for broker
+    external_domain: "httpbin.example.com"
+  control_center:
+    enabled: true
+    # set the domain name for Console and Grafana
+    external_domain: "console-httpbin.example.com"
+    external_domain_scheme: "https://"
+
+istio:
+  enabled: true
+  gateway:
+    tls:
+      # use the tls secret created in istio-system namespace
+      certSecretName: "example-credential"

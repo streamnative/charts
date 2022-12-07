@@ -47,17 +47,17 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.functions.ports.http }}"
 {{- end }}
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
         {{- if .Values.functions.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/broker/function-worker-configfile-configmap.yaml") . | sha256sum }}
     {{- end }}
 {{- with .Values.functions.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-{{- end }}    
+{{- end }}
     spec:
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-        - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
       securityContext:
 {{- with .Values.functions.securityContext }}
@@ -67,55 +67,16 @@ spec:
       serviceAccountName: {{ template "pulsar.function.serviceAccount" . }}
       {{- end }}
       {{- if .Values.functions.nodeSelector }}
-      nodeSelector:
-      {{ toYaml .Values.functions.nodeSelector | indent 8 }}
+      nodeSelector: {{- toYaml .Values.functions.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.functions.tolerations }}
-      tolerations:
-      {{ toYaml .Values.functions.tolerations | indent 8 }}
+      tolerations: {{- toYaml .Values.functions.tolerations | nindent 8 }}
       {{- end }}
       affinity:
-        {{- if and .Values.affinity.anti_affinity .Values.functions.affinity.anti_affinity}}
-        podAntiAffinity:
-          {{ .Values.functions.affinity.type }}:
-          {{ if eq .Values.functions.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.functions.component }}
-            topologyKey: "kubernetes.io/hostname"
-              {{ else }}
-              - weight: 100
-                podAffinityTerm:
-                  labelSelector:
-                    matchExpressions:
-                      - key: "app"
-                        operator: In
-                        values:
-                          - "{{ template "pulsar.name" . }}"
-                      - key: "release"
-                        operator: In
-                        values:
-                          - {{ .Release.Name }}
-                      - key: "component"
-                        operator: In
-                        values:
-                          - {{ .Values.functions.component }}
-                  topologyKey: "kubernetes.io/hostname"
-        {{ end }}
-      {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.functions.affinity "Component" .Values.functions.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.functions.gracePeriod }}
       initContainers:
+      {{- if and .Values.components.proxy (not .Values.istio.enabled) }}
         # This init container will wait for pulsar proxy to be ready before deploying the function worker
         - name: wait-proxy-ready
           image: "{{ .Values.images.function_worker.repository }}:{{ .Values.images.function_worker.tag }}"
@@ -124,13 +85,20 @@ spec:
           args:
             - >-
               set -e;
-              proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
+              proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless | grep Name | wc -l)";
               until [ ${proxyServiceNumber} -ge 1 ]; do
                 echo "pulsar proxy {{ template "pulsar.fullname" . }} isn't initialized yet ... check in 10 seconds ...";
                 sleep 10;
-                proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }} | grep Name | wc -l)";
+                proxyServiceNumber="$(nslookup -timeout=10 {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless | grep Name | wc -l)";
               done;
+          {{- if .Values.functions.resources }}
+          resources: {{- toYaml .Values.functions.resources | nindent 12 }}
+          {{- end }}
+      {{- end }}
 {{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.functions.extraInitContainers }}
 {{ toYaml . | indent 8 }}
 {{- end }}
       containers:

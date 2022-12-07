@@ -65,7 +65,7 @@ data:
       {{- if .Values.functions.pulsarAdminUrlOverride }}
       pulsarAdminUrl: {{ .Values.functions.pulsarAdminUrlOverride }}
       {{- else }}
-      {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
+      {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
       pulsarAdminUrl: {{ template "pulsar.function.web.service.url.tls" . }}
       {{- else }}
       pulsarAdminUrl: {{ template "pulsar.function.web.service.url" . }}
@@ -74,7 +74,7 @@ data:
       {{- if .Values.functions.pulsarServiceUrlOverride }}
       pulsarServiceUrl: {{ .Values.functions.pulsarServiceUrlOverride }}
       {{- else }}
-      {{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
+      {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
       pulsarServiceUrl: {{ template "pulsar.function.broker.service.url.tls" . }}
       {{- else }}
       pulsarServiceUrl: {{ template "pulsar.function.broker.service.url" . }}

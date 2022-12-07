@@ -47,5 +47,11 @@ spec:
 {{ toYaml .Values.certs.issuers.acme.solvers.route53 | indent 10 }}
       {{- end }}
       {{- end }}
+      {{- if eq .Values.certs.issuers.acme.solver "cloudflare" }}
+      {{- if .Values.certs.issuers.acme.solvers.cloudflare }}
+        cloudflare:
+{{ toYaml .Values.certs.issuers.acme.solvers.cloudflare | indent 10 }}
+      {{- end }}
+      {{- end }}
 {{- end }}
 {{- end }}

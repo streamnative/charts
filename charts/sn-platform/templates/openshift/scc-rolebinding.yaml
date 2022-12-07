@@ -17,7 +17,7 @@
 # under the License.
 #
 
-{{- if and .Values.openshift.enabled .Values.openshift.ssc.enabled -}}
+{{- if and .Values.openshift.enabled .Values.openshift.scc.enabled -}}
 {{- $sas := list (include "pulsar.vault.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.zookeeper.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.bookkeeper.serviceAccount" .) -}}
@@ -28,12 +28,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ include "pulsar.openshift.scc.name" .}}
+  name: {{ include "pulsar.openshift.rolebinding" .}}
   namespace: {{ include "pulsar.namespace" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ include "pulsar.openshift.scc.name" . }}
+  name: {{ include "pulsar.openshift.role" . }}
 subjects:
     {{- range $sas }}
   - kind: ServiceAccount

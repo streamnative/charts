@@ -61,9 +61,6 @@ metadataPrefix: ""
 ## that component.
 volumes:
   persistence: true
-  # configure the components to use local persistent volume
-  # the local provisioner should be installed prior to enable local persistent volume
-  local_storage: false
 
 ## AntiAffinity
 ##
@@ -71,8 +68,13 @@ volumes:
 ## This is a global setting that is applied to all components.
 ## If you need to disable AntiAffinity for a component, you can set
 ## the `affinity.anti_affinity` settings to `false` for that component.
+##
+## To enable anti_affintiy for a zone, enable `affinity.zone_anti_affinity: true`.
+## This can be disabled for each component as well
 affinity:
   anti_affinity: true
+  zone_anti_affinity: false
+  zone_anti_affinity_weight: 100
 
 ## Components
 ##
@@ -100,14 +102,10 @@ components:
   sql_worker: false
   # kop
   kop: false
-  # aop
-  aop: false
   # pulsar detector
   pulsar_detector: true
   # superset
   superset: false
-  # entities
-  entities: false
   # custom_metric_server
   custom_metric_server: false
 
@@ -134,81 +132,89 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.17"
+        tag: "2.10.1.11"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.9.2.17"
+        tag: "2.10.1.11"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
+    exporter:
+      repository: bitnami/jmx-exporter
+      tag: "0.17.0"
+      pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.7.0.4
+  #   tag: 2.10.1.11
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
       tag: "7.0.1"
       pullPolicy: IfNotPresent
+    busybox:
+      repository: busybox
+      tag: "1.35.0"
+      pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
-    tag: "v2.17.2"
+    tag: "v2.36.1"
     pullPolicy: IfNotPresent
   alert_manager:
     repository: prom/alertmanager
-    tag: "v0.20.0"
+    tag: "v0.24.0"
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: "0.0.16"
+    tag: "0.0.17"
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "v1.12.0"
+    tag: "v1.14.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
     repository: prom/node-exporter
-    tag: "v0.16.0"
+    tag: "v1.4.0"
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
@@ -216,18 +222,18 @@ images:
     pullPolicy: "IfNotPresent"
   vault:
     repository: vault
-    tag: "1.7.0"
+    tag: "1.10.4"
     pullPolicy: "IfNotPresent"
   bank_vaults:
     repository: ghcr.io/banzaicloud/bank-vaults
-    tag: "1.15.2"
+    tag: "1.16.0"
     pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
-    tag: "v1.0.2"
+    tag: "v1.0.6"
   custom_metric_server_prometheus:
     repository: prom/prometheus
-    tag: "v2.19.2"
+    tag: "v2.39.1"
     pullPolicy: IfNotPresent
   custom_metric_server:
     repository: k8s.gcr.io/prometheus-adapter/prometheus-adapter
@@ -235,25 +241,16 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.9.2.17"
+    tag: "2.10.1.11"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
-    tag: v0.3.0
+    tag: "v0.8.0"
     pullPolicy: IfNotPresent
   external_dns:
     repository: k8s.gcr.io/external-dns/external-dns
     tag: "v0.7.3"
     pullPolicy: IfNotPresent
-  imagePuller:
-    hook:
-      repository: streamnative/k8s-image-awaiter
-      tag: "0.1.0"
-      pullPolicy: IfNotPresent
-    pause:
-      repository: gcr.io/google_containers/pause
-      tag: "0.3.0"
-      pullPolicy: IfNotPresent
 
 ## TLS
 ## templates/tls-certs.yaml
@@ -309,6 +306,7 @@ tls:
     cert_name: tls-function
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
+    trustCertsEnabled: false
   # settings for generating certs for bookies
   bookie:
     enabled: false
@@ -341,6 +339,11 @@ tls:
     cert_name: tls-presto
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
+    trustCertsEnabled: false
+    # use "changeit" as password if not set passwordSecretRef
+    # passwordSecretRef:
+    #   key: password
+    #   name: ""
   streamnative_console:
     enabled: false
     # name of chart generated certificate
@@ -352,6 +355,7 @@ auth:
     enabled: true
     provider: "jwt"
     jwt:
+      enabled: false
       # Enable JWT authentication
       # If the token is generated by a secret key, set the usingSecretKey as true.
       # If the token is generated by a private key, set the usingSecretKey as false.
@@ -362,15 +366,15 @@ auth:
     enabled: true
   superUsers:
     # broker to broker communication
-    broker: "broker-admin"
+    broker: "admin,broker-admin,admin-approle,pulsar-manager-admin"
     # proxy to broker communication
-    proxy: "proxy-admin"
+    proxy: "admin,proxy-admin,admin-approle,pulsar-manager-admin"
     # websocket proxy to broker communication
-    websocket: "ws-admin"
+    websocket: "admin,ws-admin,admin-approle,pulsar-manager-admin"
     # pulsar-admin client to broker/proxy communication
     client: "admin"
     # streamnative-console
-    streamnative-console: "super"
+    streamnative-console: "super,pulsar-manager-admin"
   # Enable vault based authentication
   vault:
     enabled: true
@@ -386,15 +390,28 @@ auth:
     # brokerClientCredential: ""
     # brokerClientAuthenticationPlugin: org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
     # brokerClientAuthenticationParameters: ""
+    # Create secret by use kubectl
+    # kubectl create secret generic my-secret \
+    # --from-literal=broker_client_credential.json=$(echo -n '{"client_id":"your-client-id","client_secret":"your-client-secret","issuer_url":"http://your-issuer-url/"}') \
+    # -n your-namespace
+    # brokerClientCredentialSecret: "my-secret"
+    # brokerClientAuthenticationParameters: {"privateKey":"file:///mnt/secrets/broker_client_credential.json", "issuerUrl":"https://login.microsoftonline.com/your-tenant-id/v2.0", "audience":"your-audience", "scope":"your-scope"}
     authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
     authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
 
 # Support deploy on OpenShift
 openshift:
   enabled: false
-  # SecurityContextConstrains is enabled by default
-  ssc:
+  # SecurityContextConstrains (SCC) is enabled by default
+  scc:
     enabled: true
+    # If create is true and name is not set or empty. Will create an SCC with generated name
+    # If create is true and name is set. Will create an SCC with specific name
+    # If create is false and name is not set or empty. Will reuse an existing SCC with generated name
+    # If create is false and name is set. Will reuse an existing SCC with specific name
+    create: true
+    # The name of the SCC to use.
+    name: ""
 
 ######################################################################
 # External dependencies
@@ -449,6 +466,11 @@ certs:
         #     name: "[NAME OF SECRET]"
         #     key: "[KEY OF SECRET]"
         #   role: "[ASSUME A ROLE]"
+        # cloudflare:
+        #   email: "[YOUR ACCOUNT EMAIL]"
+        #   apiTokenSecretRef:
+        #     name: "[NAME OF SECRET]"
+        #     key: "[KEY OF SECRET]"
   lets_encrypt:
     ca_ref:
       secretName: "[SECRET STORES lets encrypt CA]"
@@ -500,10 +522,12 @@ ingress:
     ## otherwise, the ports will be 8080 and 6650 as default
     tls:
       enabled: true
-    ## Type options are LoadBalancer, ClusterIP
+    ## Type options are LoadBalancer, ClusterIP, IstioGateway
+    ##   IstioGateway means using Istio Ingress Gateway, available when Istio enabled
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
+    # external_domain: your.external.proxy.domain
   ## templates/broker-service-ingress.yaml
   ##
   ## Ingresses for exposing pulsar service publicly
@@ -519,6 +543,8 @@ ingress:
   ## Ingresses for exposing presto service publicly
   presto:
     enabled: false
+    # Set external domain of the presto
+    # external_domain: your.external.presto.domain
     tls:
       enabled: true
     type: LoadBalancer
@@ -555,28 +581,11 @@ ingress:
       alertmanager: false
     # Set external domain of the load balancer of ingress controller
     # external_domain: your.external.control.center.domain
-    # external_domain_scheme: https://
+    external_domain_scheme: https://
+    # external_domain_scheme should same with actual situation
     tls:
       enabled: false
     annotations: {}
-
-imagePuller:
-  component: image-puller
-  pullSecret:
-    enabled: false
-  hook:
-    enabled: false
-    image:
-      name: streamnative/k8s-image-awaiter
-      tag: '0.1.0'
-  rbac:
-    enabled: true
-  continuous:
-    enabled: false
-  pause:
-    image:
-      name: gcr.io/google_containers/pause
-      tag: '3.1'
 
 
 ######################################################################
@@ -624,23 +633,34 @@ zookeeper:
       periodSeconds: 30
   affinity:
     anti_affinity: true
+    zone_anti_affinity: true
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  topologySpreadConstraints: []
+  # - maxSkew: 1
+  #   topologyKey: "topology.kubernetes.io/zone"
+  #   whenUnsatisfiable: DoNotSchedule
+  #   labelSelector:
+  #     matchLabels:
+  #       "component": "zookeeper"
+  labels: {}
   annotations: {}
-  advanced:
-    staticServerList: []
-  securityContext: {}
+  advanced: {}
+  securityContext:
+    runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: "256Mi"
       cpu: "0.1"
-    # limits:
-    #   memory: "1Gi"
-    #   cpu: "0.4"
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -654,7 +674,6 @@ zookeeper:
     data:
       name: data
       size: 50Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -673,7 +692,6 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -700,7 +718,7 @@ zookeeper:
   reconfig:
     enabled: false
     # The zookeeper servers to observe/join
-    zkServers: []
+    staticServerList: []
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   jvm:
@@ -739,10 +757,6 @@ zookeeper:
     backup:
       component: "backup"
       enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.17"
-      pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
       bucket: "s3a://bucket"
@@ -766,10 +780,6 @@ zookeeper:
     restore:
       component: "restore"
       enable: false
-      # Deprecated, this configuration repository and tag has been moved to the images section
-      repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.17"
-      pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
       managedLedgerPath: "/managed-ledgers"
@@ -784,7 +794,6 @@ zookeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   # Definition of the serviceAccount used to run zookeeper.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -821,12 +830,16 @@ bookkeeper:
     # cloud.google.com/gke-nodepool: default-pool
   affinity:
     anti_affinity: true
+    zone_anti_affinity: true
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  topologySpreadConstraints: []
+  labels: {}
   annotations: {}
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
   resources:
@@ -863,7 +876,6 @@ bookkeeper:
       numDirsPerVolume: 1
       name: journal
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -882,7 +894,6 @@ bookkeeper:
     ledgers:
       name: ledgers
       size: 50Gi
-      local_storage: true
       # It determines the directory of ledgers data
       numVolumes: 1
       numDirsPerVolume: 1
@@ -923,7 +934,6 @@ bookkeeper:
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
       -verbosegc
-      -Xlog:gc:/var/log/bookie-gc.log
     extraOptions: []
     gcLoggingOptions: []
   custom: {}
@@ -931,7 +941,6 @@ bookkeeper:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
 
 ## Pulsar: Bookkeeper AutoRecovery
 ## templates/autorecovery-statefulset.yaml
@@ -949,24 +958,27 @@ autorecovery:
     # cloud.google.com/gke-nodepool: default-pool
   affinity:
     anti_affinity: true
+    zone_anti_affinity: true
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  labels: {}
   annotations: {}
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: true
   # tolerations: []
   gracePeriod: 30
   resources:
     requests:
-      memory: "64Mi"
-      cpu: "0.05"
+      memory: "512Mi"
+      cpu: "0.2"
     # limits:
     #   memory: "256Mi"
     #   cpu: "0.2"
   jvm:
     memoryOptions:
-    - -Xms64m -Xmx64m
+    - -Xms128m -Xmx256m
     gcOptions: []
     extraOptions: []
     gcLoggingOptions: []
@@ -983,14 +995,6 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
-  image:
-    # the image used for running `pulsar-cluster-initialize` job
-    # repository: apachepulsar/pulsar-all
-    # tag: 2.5.0
-    # Deprecated, this configuration repository and tag has been moved to the images section
-    repository: streamnative/sn-platform
-    tag: "2.9.2.17"
-    pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
   configurationStoreMetadataPrefix: ""
@@ -1030,13 +1034,17 @@ broker:
     # cloud.google.com/gke-nodepool: default-pool
   affinity:
     anti_affinity: true
+    zone_anti_affinity: true
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  topologySpreadConstraints: []
+  labels: {}
   annotations: {}
   tolerations: []
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: true
   gracePeriod: 30
   # For exposing kop service for external access
   advertisedDomain: ""
@@ -1071,13 +1079,15 @@ broker:
     authorizationEnabled: false
   functionmesh:
     enabled: true
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: "512Mi"
       cpu: "0.2"
-    # limits:
-    #   memory: "2Gi"
-    #   cpu: "0.8"
+    limits: {}
+      # memory: "2Gi"
+      # cpu: "0.8"
   # extra environment variable to define for the containers
   extraEnv: []
   # extra secrets to mount for the pods
@@ -1155,6 +1165,8 @@ broker:
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
+    PULSAR_PREFIX_systemTopicEnabled: "true"
+    PULSAR_PREFIX_topicLevelPoliciesEnabled: "true"
   ### Broker service account
   ## templates/broker-service-account.yaml
   # deprecated: use `serviceAccount` section to configure service account.
@@ -1213,7 +1225,6 @@ broker:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
@@ -1235,10 +1246,11 @@ functions:
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
-  # nodeSelector:
+  nodeSelector: {}
   # cloud.google.com/gke-nodepool: default-pool
   securityContext: {}
   tolerations: []
+  extraInitContainers: []
   extraVolumes: []
   extraVolumeMounts: []
   extraEnvs: []
@@ -1263,10 +1275,15 @@ functions:
   ports:
     http: 8080
     https: 8443
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: 512Mi
       cpu: 0.2
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   probe:
     liveness:
       enabled: true
@@ -1287,6 +1304,7 @@ functions:
     annotations: {}
   affinity:
     anti_affinity: true
+    zone_anti_affinity: true
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
@@ -1320,6 +1338,7 @@ functions:
 pulsar_detector:
   component: pulsar-detector
   replicaCount: 1
+  labels: {}
   annotations: {}
   gracePeriod: 30
   port: 9000
@@ -1339,7 +1358,15 @@ pulsar_detector:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
-
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "0.1"
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -1347,12 +1374,6 @@ pulsar_detector:
     # spec:
     # clusterIP: None
     annotations: {}
-  ## Pulsar detector PodDisruptionBudget
-  ## templates/pulsar-detector-pdb.yaml
-  ##
-  pdb:
-    usePolicy: true
-    maxUnavailable: 1
 
 proxy:
   # use a component name that matches your grafana configuration
@@ -1365,12 +1386,16 @@ proxy:
     # cloud.google.com/gke-nodepool: default-pool
   affinity:
     anti_affinity: true
+    zone_anti_affinity: true
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
+  topologySpreadConstraints: []
+  labels: {}
   annotations: {}
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
   resources:
@@ -1444,7 +1469,6 @@ proxy:
   ## Retention Policy
   resourcePolicy:
     keep: false
-  labels: {}
   readPublicKeyFromFile: false
   publicKeyPath: ""
   publicKeySecret: ""
@@ -1459,6 +1483,7 @@ toolset:
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1479,7 +1504,8 @@ toolset:
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
-  securityContext: {}
+  securityContext:
+    runAsUser: 0
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
@@ -1505,14 +1531,6 @@ configmapReload:
     ## configmap-reload container name
     ##
     name: configmap-reload
-    ## configmap-reload container image
-    ##
-    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
-    image:
-      repository: jimmidyson/configmap-reload
-      tag: v0.3.0
-      pullPolicy: IfNotPresent
-
     ## Additional configmap-reload container arguments
     ##
     extraArgs: {}
@@ -1541,15 +1559,6 @@ configmapReload:
     ## configmap-reload container name
     ##
     name: configmap-reload
-
-    # Deprecated, this configuration repository, tag and pullPolicy has been moved to the images section
-    ## configmap-reload container image
-    ##
-    image:
-      repository: jimmidyson/configmap-reload
-      tag: v0.3.0
-      pullPolicy: IfNotPresent
-
     ## Additional configmap-reload container arguments
     ##
     extraArgs: {}
@@ -1587,8 +1596,10 @@ prometheus:
     node_exporter: true
     proxy: true
     zookeeper: true
+    vault: true
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1600,6 +1611,7 @@ prometheus:
   # Definition of the serviceAccount used to run brokers.
   affinity:
     anti_affinity: true
+    zone_anti_affinity: true
     # Set the anti affinity type. Valid values:
     # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
@@ -1624,7 +1636,6 @@ prometheus:
     data:
       name: data
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1637,6 +1648,9 @@ prometheus:
     ## Prometheus data retention period (default if not specified is 15 days)
     ##
     retention: "15d"
+  extraArgs:
+    # https://prometheus.io/docs/prometheus/latest/storage/#operational-aspects
+    - --storage.tsdb.wal-compression
   scrapeInterval: 15s
   securityContext:
     runAsUser: 65534
@@ -1667,7 +1681,6 @@ prometheus:
 
 datadog:
   component: datadog
-  namespace: pulsar
   components:
     zookeeper:
       enabled: false
@@ -1690,7 +1703,7 @@ datadog:
         "\"_*\""
       ]
     vault:
-      enabled: true
+      enabled: false
       auth:
         enabled: false
         token: ""
@@ -1739,6 +1752,7 @@ grafana:
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
@@ -1772,7 +1786,6 @@ grafana:
     data:
       name: data
       size: 10Gi
-      local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1808,6 +1821,7 @@ grafana:
 
 node_exporter:
   component: node-exporter
+  labels: {}
   annotations: {}
   limits:
     cpu: 10m
@@ -1819,6 +1833,7 @@ node_exporter:
 alert_manager:
   component: alert-manager
   port: 9093
+  labels: {}
   annotations: {}
   replicaCount: 1
   gracePeriod: 0
@@ -1864,12 +1879,11 @@ alert_manager:
 ##
 streamnative_console:
   component: streamnative-console
-  username: "apachepulsar"
-  password: "apachepulsar"
+  # username: "apachepulsar"
+  # password: "apachepulsar"
   ports:
     frontend: 9527
     backend: 7750
-
   replicaCount: 1
   probe:
     liveness:
@@ -1889,20 +1903,25 @@ streamnative_console:
       periodSeconds: 30
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
+  labels: {}
   annotations: {}
   tolerations: []
   gracePeriod: 0
+  # Resources requests/limits for both init containers and app containers
+  # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
       memory: 250Mi
       cpu: 0.1
+    limits: {}
+      # memory: "1Gi"
+      # cpu: "0.4"
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
     data:
       name: data
       size: 10Gi
-      # local_storage: true
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1948,6 +1967,10 @@ streamnative_console:
     DEFAULT_ORGANIZATION: "streamnative"
     # *required*: the instance name to display for the Pulsar clusters in SN console
     INSTANCE_NAME: "pulsar"
+    INIT_DEFAULT_ENVIRONMENT: false
+    BACKEND_DEFAULT_SUPER_USER_ROLE: "admin"
+    # If you want to enable jwt authentication, please enable the following configuration
+    # BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
     GLOBAL_RESOURCE_READ_ONLY: false
     REDIRECT_SCHEME: ""
     REDIRECT_HOST: ""
@@ -1988,6 +2011,19 @@ streamnative_console:
           OKTA_CLIENT_SECRET: "OKTA_CLIENT_SECRET"
           OKTA_REDIRECT_URI: "OKTA_REDIRECT_URI"
           OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+      pulsarJwt:
+        enabled: false
+        config:
+          AUTHENTICATION_CUSTOM_CLAIM: sub
+          # The secret should contain both `TOKEN`
+          SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: ""
+          # AUTH_METHOD_CUSTOM_CLAIM: sub
+          # USERNAME_CLAIM: sub
+          JWT_BROKER_TOKEN_MODE: SECRET
+          # The secret should contain both `PUBLICKEY`, `PRIVATEKEY`
+          JWT_BROKER_PUBLIC_PRIVATE_KEY: ""
+          # The secret should contain both `SECRETKEY`
+          JWT_BROKER_SECRET_KEY: ""
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
@@ -2023,6 +2059,8 @@ presto:
         # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
         # to convert the public key file to a public key file in PEM format.
         publicKeyConfigMapKey: 'public.key'
+      tls:
+        enabled: false
     rules: >
       {
         "rules": [
@@ -2034,10 +2072,12 @@ presto:
     tolerations: []
     affinity:
       anti_affinity: true
+      zone_anti_affinity: true
       # Set the anti affinity type. Valid values:
       # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
       # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
       type: preferredDuringSchedulingIgnoredDuringExecution
+    labels: {}
     annotations: {}
     gracePeriod: 10
     ports:
@@ -2074,6 +2114,10 @@ presto:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
         maxTotalMemoryPerNode: "256MB"
+      # Add custom configs to config.properties
+      custom:
+        # To add custom config `sql.forced-session-time-zone=America/New_York`
+        # sql.forced-session-time-zone: America/New_York
     jvm:
       memory: 2G
     log:
@@ -2083,19 +2127,23 @@ presto:
     service:
       spec:
         type: ClusterIP
+        clusterIP: None
     component: worker
     replicaCount: 2
     tolerations: []
     affinity:
       anti_affinity: true
+      zone_anti_affinity: true
       # Set the anti affinity type. Valid values:
       # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
       # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
       type: preferredDuringSchedulingIgnoredDuringExecution
+    labels: {}
     annotations: {}
     gracePeriod: 10
     ports:
       http: 8081
+      https: 8443
     resources:
       requests:
         memory: 4Gi
@@ -2123,6 +2171,10 @@ presto:
         maxMemory: "1GB"
         maxMemoryPerNode: "128MB"
         maxTotalMemoryPerNode: "256MB"
+      # Add custom configs to config.properties
+      custom:
+        # To add custom config `sql.forced-session-time-zone=America/New_York`
+        # sql.forced-session-time-zone: America/New_York
     jvm:
       memory: 2G
     log:
@@ -2149,6 +2201,11 @@ presto:
   service:
     spec:
       type: ClusterIP
+      clusterIP: None
+  exporter:
+    enabled: false
+    whitelist: []
+    rules: []
 
 vault:
   component: "vault"
@@ -2158,18 +2215,26 @@ vault:
     created: true
     name: ""
   oidcToken:
+    # verification_ttl cannot be longer than 10x rotation_period
+    rotation_period: 24h
+    # verification_ttl should be greater than the value of ttl below
+    # https://developer.hashicorp.com/vault/api-docs/secret/identity/tokens#verification_ttl
+    verification_ttl: 24h
     # time to live for service-account and user
     ttl: 12h
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}
-  annotations: {}
+  annotations:
+    prometheus.io/port: "9091"
+  labels: {}
   volumeClaimTemplates: []
   unsealConfig: {}
   volumeMounts:
   - name: vault-raft
     mountPath: /vault/file
     # use raft protocol for a vault cluster
+  envsConfig: {}
   config:
     storage:
       raft:
@@ -2178,6 +2243,8 @@ vault:
       tcp:
         tls_disable: true
         address: "0.0.0.0:8200"
+        telemetry:
+          unauthenticated_metrics_access: true
     api_addr: "http://${.Env.POD_NAME}:8200"
     cluster_addr: "http://${.Env.POD_NAME}:8201"
     ui: true
@@ -2207,7 +2274,6 @@ vault:
     persistence: true
     name: "vault-volume"
     size: 10Gi
-    local_storage: true
     # storageClassName: ""
   securityContext: {}
 
@@ -2234,168 +2300,6 @@ custom_metric_server:
     retention: "2h"
     evaluationInterval: "30s"
     scrapeInterval: "15s"
-
-entities:
-  component: "entities"
-
-# ## Pulsar Resources
-# ## templates/entities/*.yaml
-# ##
-# ## To create the pulsar resources automaticlly for initialization
-# ## Make sure components.entities is true to open the feature
-# entities:
-#   # component is the part of instance name.
-#   # The full name format is <release_name>-<chart_name>-<entities.component>-<sha256sum>
-#   component: "entities"
-#
-#   # Pulsar Tenant
-#   # templates/entities/tenants.yaml
-#   #
-#   # Setup tenants config to create automaticlly
-#   tenants:
-#   # tenant name
-#   - name: cloud
-#     # the parameters for creating tenant
-#     config:
-#       # The list of auth principal allowed to administrate the tenant
-#       # +optional
-#       adminRoles:
-#       - admin
-#       # The list of allowed clusters. If it is empty, the tenant will have access to all clusters
-#       # if you set a list of specific names, please make sure the clusters do exist in pulsar
-#       # +optional
-#       # allowedClusters:
-#       # - pulsar
-#
-
-#   # Pulsar Namespace
-#   # templates/entities/namepsaces.yaml
-#   #
-#   # Setup namespace config to create automaticlly
-#   namespaces:
-#   # namespace name
-#   - name: cloud/test
-#     # The config for creating namespace
-#     config:
-#       # Backlog quota time limit in seconds
-#       # +optional
-#       # backlogQuotaLimitTime: 24h
-#       # Backlog quota size limit, eg(10Mi, 10Gi)
-#       # +optional
-#       # backlogQuotaLimitSize: 1Gi
-#
-#       # Retention policy to enforce when the limit is reached
-#       # +optional
-#       # backlogQuotaRetentionPolicy: producer_request_hold
-#
-#       # Message TTL time duration
-#       # +optional
-#       # messageTTL: 1h
-#
-#       # Number of bundles to activate, default is 4
-#       # bundles: 16
-#
-#       # Max producers per topic for a namespace
-#       # +optional
-#       # maxProducersPerTopic: 2
-#
-#       # Max consumers per topic for a namespace
-#       # +optional
-#       # maxConsumersPerTopic: 2
-#
-#       # Max consumers per subscription for a namespace
-#       # +optional
-#       # maxConsumersPerSubscription: 2
-#
-#       # Retention time in minutes, hours, days, weeks
-#       # +optional
-#       # retentionTime: 20h
-#
-#       # Retention size limit
-#       # +optional
-#       # retentionSize: 2Gi
-#
-#   # Pulsar Topic
-#   # templates/entities/topics.yaml
-#   #
-#   # Setup topic config to create automaticlly
-#   topics:
-#   # Topic name
-#   - name: persistent://cloud/test/user
-#     # The config for creating topic
-#     config:
-#       # persistent or nonpersistent topic.
-#       # +optional
-#       # persistent: true
-#
-#       # Number of partitions for the topic
-#       # +optional
-#       # partitions: 8
-#
-#       # Max producers for a topic
-#       # +optional
-#       # maxProducers: 8
-#
-#       # Max consumers for a topic
-#       # +optional
-#       # maxConsumers: 8
-#
-#       # Message TTL time duration
-#       # +optional
-#       # messageTTL:
-#
-#       # Max unacked messages num on consumer
-#       # +optional
-#       # maxUnAckedMessagesPerConsumer:
-#
-#       # Max unacked messages num on subscription
-#       # +optional
-#       # maxUnAckedMessagesPerSubscription:
-#       # Retention time in minutes, hours, days, weeks
-#       # +optional
-#       # retentionTime: 20h
-#
-#       # Retention size limit
-#       # +optional
-#       # retentionSize: 2Gi
-#
-#       # Backlog quota time limit in seconds
-#       # +optional
-#       # backlogQuotaLimitTime: 24h
-#
-#       # Backlog quota size limit, eg(10Mi, 10Gi)
-#       # +optional
-#       # backlogQuotaLimitSize: 1Gi
-#
-#       # Retention policy to enforce when the limit is reached
-#       # +optional
-#       # backlogQuotaRetentionPolicy: producer_request_hold
-#
-#   # Pulsar Permission
-#   # templates/entities/permissions.yaml
-#   #
-#   # Setup permission config of namespace or topic to grant automaticlly
-#   permissions:
-#   - name: p1
-#     config:
-#       # Resource type, namespace or topic
-#       resourceType: namespace
-#       # Resource name
-#       resourceName: cloud/test
-#       # Permission role list
-#       roles:
-#       - developer
-#       - ops
-#       # Permission action list, valid options are produce,consume,
-#       # functions,sinks,sources,packages
-#       # +optional
-#       actions:
-#       - produce
-#       - consume
-#       - functions
-#       - sinks
-#       - sources
-#       - packages
 
 istio:
   enabled: false

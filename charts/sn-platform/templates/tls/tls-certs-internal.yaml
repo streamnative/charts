@@ -349,7 +349,7 @@ spec:
 ---
 {{- end }}
 
-{{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop) }}
+{{- if or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:

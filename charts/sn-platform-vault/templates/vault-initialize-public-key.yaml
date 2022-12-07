@@ -20,7 +20,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-public-key"
+  name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-init-public-key"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
@@ -36,7 +36,7 @@ spec:
     spec:
       serviceAccountName: {{ template "vault.serviceAccount" . }}
       containers:
-      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"
+      - name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-init"
         image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"
         imagePullPolicy: {{ .Values.images.vault.pullPolicy }}
         command: ["sh", "-c"]
@@ -51,7 +51,7 @@ spec:
            echo "vault root token is ready";
            rootToken=$(kubectl get secret {{ template "vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
            echo $rootToken;
-           echo $rootToken > /root/rootToken;
+           echo $rootToken > /vault/rootToken;
            export ROOT_TOKEN=$rootToken;
            vault login $ROOT_TOKEN;
            until [ $? -eq 0 ]; do
@@ -62,7 +62,7 @@ spec:
            echo "vault is ready~";
            echo "Start init public key to secret";
            publicKey=$(wget -qO- http://{{ template "vault.url" . }}/v1/identity/oidc/.well-known/keys | base64 | tr -d \\n);
-           kubectl patch secret {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key --type='json' -p='[{"op":"replace","path":"/data/publicKey","value":"'$publicKey'"}]' -n {{ template "pulsar.namespace" . }};
+           kubectl patch secret {{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-public-key --type='json' -p='[{"op":"replace","path":"/data/publicKey","value":"'$publicKey'"}]' -n {{ template "pulsar.namespace" . }};
            echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
         env:
         - name: VAULT_ADDR

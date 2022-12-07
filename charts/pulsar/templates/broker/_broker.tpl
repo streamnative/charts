@@ -119,6 +119,35 @@ Define broker tls certs volumes
 {{- end }}
 
 {{/*
+Define broker oauth2 mounts
+*/}}
+{{- define "pulsar.broker.oauth2.volumeMounts" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "oauth2" }}
+- mountPath: "/pulsar/oauth2"
+  name: broker-oauth2
+  readOnly: true
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Define broker oauth2 volumes
+*/}}
+{{- define "pulsar.broker.oauth2.volumes" -}}
+{{- if .Values.auth.authentication.enabled }}
+{{- if eq .Values.auth.authentication.provider "oauth2" }}
+- name: broker-oauth2
+  secret:
+    secretName: "{{ .Release.Name }}-oauth2-private-key"
+    items:
+      - key: auth.json
+        path: auth.json
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Define broker token mounts
 */}}
 {{- define "pulsar.broker.token.volumeMounts" -}}
@@ -294,6 +323,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
         "pulsar_subscription_msg_throughput_out": "gauge",
         "pulsar_in_bytes_total": "counter",
         "pulsar_in_messages_total": "counter",
+        "pulsar_ml_cursor_nonContiguousDeletedMessagesRange": "gauge",
         "topic_load_times": "counter",
         "jvm_memory_bytes_used": "gauge",
         "jvm_memory_bytes_committed": "gauge",
@@ -396,6 +426,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.broker.component 
         "pulsar_subscription_msg_throughput_out": "gauge",
         "pulsar_in_bytes_total": "counter",
         "pulsar_in_messages_total": "counter",
+        "pulsar_ml_cursor_nonContiguousDeletedMessagesRange": "gauge",
         "topic_load_times": "counter",
         "jvm_memory_bytes_used": "gauge",
         "jvm_memory_bytes_committed": "gauge",

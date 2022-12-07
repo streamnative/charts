@@ -25,7 +25,8 @@ on:
     paths:
       - 'charts/local-storage-provisioner/**'
       - 'charts/pulsar/**'
-      - '.github/workflows/**'
+      - '.github/workflows/pulsar**'
+
 jobs:
   lint-test:
     runs-on: ubuntu-latest

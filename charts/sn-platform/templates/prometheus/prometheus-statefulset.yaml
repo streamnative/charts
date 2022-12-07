@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.prometheus.component }}
+{{- with .Values.prometheus.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
   replicas: {{ .Values.prometheus.replicaCount }}
@@ -41,12 +44,15 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.prometheus.component }}
+{{- with .Values.prometheus.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.istio.enabled }}
         # ref: https://istio.io/latest/docs/ops/integrations/prometheus/#tls-settings
         traffic.sidecar.istio.io/includeOutboundIPRanges: ""  # do not intercept any outbound traffic
         # configure an env variable `OUTPUT_CERTS` to write certificates to the given folder
-        proxy.istio.io/config: |  
+        proxy.istio.io/config: |
           proxyMetadata:
             OUTPUT_CERTS: /etc/istio-output-certs
         # mount the shared volume at sidecar proxy
@@ -59,9 +65,8 @@ spec:
         {{ toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      - name: {{ .Values.imagePullSecrets }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
     {{- if .Values.prometheus.nodeSelector }}
       nodeSelector:
@@ -80,54 +85,12 @@ spec:
 {{ toYaml .Values.prometheus.securityContext | indent 8 }}
       {{- end }}
       affinity:
-        {{- if and .Values.affinity.anti_affinity .Values.prometheus.affinity.anti_affinity}}
-        podAntiAffinity:
-          {{ if .Values.prometheus.affinity.customRules }}
-{{ toYaml .Values.prometheus.affinity.customRules | indent 10 }}
-          {{ else }}
-          {{ .Values.prometheus.affinity.type }}:
-          {{ if eq .Values.prometheus.affinity.type "requiredDuringSchedulingIgnoredDuringExecution"}}
-          - labelSelector:
-              matchExpressions:
-              - key: "app"
-                operator: In
-                values:
-                - "{{ template "pulsar.name" . }}"
-              - key: "release"
-                operator: In
-                values:
-                - {{ .Release.Name }}
-              - key: "component"
-                operator: In
-                values:
-                - {{ .Values.prometheus.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: "app"
-                      operator: In
-                      values:
-                      - "{{ template "pulsar.name" . }}"
-                    - key: "release"
-                      operator: In
-                      values:
-                      - {{ .Release.Name }}
-                    - key: "component"
-                      operator: In
-                      values:
-                      - {{ .Values.prometheus.component }}
-                topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-          {{ end }}
-        {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.prometheus.affinity "Component" .Values.prometheus.component "Release" .Release "Chart" .Chart) | indent 8 }}
       containers:
       {{- if .Values.configmapReload.prometheus.enabled }}
       - name: {{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.configmapReload.prometheus.name }}
-        image: "{{ .Values.configmapReload.prometheus.image.repository }}:{{ .Values.configmapReload.prometheus.image.tag }}"
-        imagePullPolicy: "{{ .Values.configmapReload.prometheus.image.pullPolicy }}"
+        image: "{{ .Values.images.configmapReload.repository }}:{{ .Values.images.configmapReload.tag }}"
+        imagePullPolicy: "{{ .Values.images.configmapReload.pullPolicy }}"
         args:
           - --volume-dir=/etc/config
           - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}{{ template "pulsar.control_center_path.prometheus" . }}/-/reload
@@ -172,6 +135,9 @@ spec:
   {{ if .Values.prometheus.maxQuerySamples }}
           - --query.max-samples={{.Values.prometheus.maxQuerySamples }}
   {{- end }}
+          {{- with .Values.prometheus.extraArgs }}
+          {{ toYaml . | nindent 10 }}
+          {{- end }}
         ports:
         - name: server
           containerPort: {{ .Values.prometheus.port }}

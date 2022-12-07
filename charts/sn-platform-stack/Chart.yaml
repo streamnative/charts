@@ -28,15 +28,21 @@ sources:
   - https://github.com/streamnative/charts/tree/master/charts/sn-platform-stack
 icon: https://streamnative.io/static/images/platform/sn-platform-header-element.svg
 maintainers:
-  - name: StreamNative Support
+  - name: StreamNative
     email: support@streamnative.io
 dependencies: 
   - name: sn-platform
     version: "1.4.0"
-    repository: file://../sn-platform
+    repository: https://charts.streamnative.io
   - name: sn-console
     version: "1.9.0"
     repository: https://charts.streamnative.io
+    condition: sn-console.enabled
   - name: sn-platform-vault
     version: "0.1.0"
     repository: file://../sn-platform-vault
+    condition: sn-platform-vault.enabled
+  - name: sn-platform-detector
+    version: "0.1.0"
+    repository: file://../sn-platform-detector
+    condition: sn-platform-detector.enabled

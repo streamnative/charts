@@ -38,6 +38,10 @@ spec:
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
   pod:
+    {{- with .Values.broker.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.broker.serviceAccount.use }}
     serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
     {{- end }}
@@ -57,6 +61,7 @@ spec:
       prometheus.io/port: "{{ .Values.broker.ports.http }}"
       prometheus.io/path: "/metrics/"
 {{- end }}
+      {{- include "pulsar.istio.pod.annotations" . | nindent 6 }}
 {{- with .Values.broker.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
@@ -82,62 +87,10 @@ spec:
 {{- end }}
     {{- end }}
     affinity:
-      {{- if .Values.broker.affinity.customRules }}
-{{ toYaml .Values.broker.affinity.customRules | indent 6 }}
-      {{- end }}
-      {{- if and .Values.affinity.anti_affinity .Values.broker.affinity.anti_affinity }}
-      podAntiAffinity:
-        {{ .Values.broker.affinity.type }}:
-          {{ if eq .Values.broker.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.broker.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.broker.component }}
-              topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-      {{- end }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.broker.affinity "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
     vars:
-    {{- if .Values.auth.authentication.enabled }}
-    - name: PULSAR_PREFIX_OIDCTokenAudienceID
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: PULSAR_PREFIX_OIDCTokenAudienceID
-    - name: brokerClientAuthenticationParameters
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
-    {{- end }}
+    {{- include "pulsar.authEnvironment" . | indent 4 }}
     {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
@@ -174,6 +127,10 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+    secretRefs:
+{{- include "pulsar.authSecret" . | indent 4 }}
+    {{- end }}
     {{- with .Values.broker.securityContext }}
     securityContext:
 {{ toYaml . | indent 6 }}
@@ -192,6 +149,12 @@ spec:
     imagePullSecrets:
 {{ toYaml .Values.global.imagePullSecrets | indent 6 }}
     {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  tls:
+    enabled: true
+    certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    trustCertsEnabled: {{ .Values.tls.broker.trustCertsEnabled }}
+  {{- end }}
   {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
   istio:
     enabled: true
@@ -233,7 +196,7 @@ spec:
     serviceURLGenerationPolicy: FQDN
     {{- end }}
     usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
-    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) (or .Values.broker.aop.enabled .Values.components.aop) .Values.broker.mop.enabled}}
+    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) .Values.broker.aop.enabled .Values.broker.mop.enabled}}
     protocolHandlers:
     {{- if or .Values.broker.kop.enabled .Values.components.kop }}
       kop:
@@ -263,7 +226,7 @@ spec:
     {{- end }}
     {{- end }}
     {{- end }}
-    {{- if or .Values.broker.aop.enabled .Values.components.aop }}
+    {{- if .Values.broker.aop.enabled }}
       aop:
         enabled: true
         {{- if .Values.broker.aop.proxyEnabled }}
@@ -286,65 +249,25 @@ spec:
 
     {{- end }}
     custom:
-      PULSAR_PREFIX_additionalServlets: "license-plugin-servlet"
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+      {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticateOriginalAuthData: "true"
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_chainAuthenticationEnabled: "true"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.broker.readPublicKeyFromFile }}
-      {{- if .Values.broker.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.broker.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
+      authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
+{{- include "pulsar.authConfiguration" . | indent 6 }}
+      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
       {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
-      PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
-      PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
-      PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
-      PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
-      PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
-      PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
-      PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
-      superUserRoles: "admin"
-      {{- else if .Values.auth.authentication.enabled }}
-      authenticationEnabled: "true"
-      authenticateOriginalAuthData: "true"
-      {{- if .Values.auth.authentication.tls.enabled }}
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,org.apache.pulsar.broker.authentication.AuthenticationProviderTls"
-      {{- else }}
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
+      {{- if .Values.auth.authorization.enabled }}
+{{- include "pulsar.authorizationProvider" . | indent 6 }}
       {{- end }}
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.broker.readPublicKeyFromFile }}
-      {{- if .Values.broker.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.broker.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-      {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
-      superUserRoles: "admin"
-      {{- end }}
-      {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
-      authorizationEnabled: "true"
-      authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
-      {{- else if .Values.auth.authorization.enabled }}
-      authorizationEnabled: "true"
-      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
-      {{- end }}
-      {{- if and .Values.broker.kop.enabled .Values.kop.auth.enabled }}
+      {{- if .Values.broker.kop.enabled }}
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      {{- if .Values.kop.auth.enabled }}
       PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}
       {{- end }}
       ## Offloading settings
       {{- if .Values.broker.offload.enabled }}
@@ -378,8 +301,8 @@ spec:
       PULSAR_PREFIX_managedLedgerOffloadServiceEndpoint: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadServiceEndpoint }}"
       {{- end}}
       {{- end }}
-  {{- if .Values.zookeeper.customTools.restore.enable }}
   initJobPod:
+    {{- if .Values.zookeeper.customTools.restore.enable }}
     initContainers:
       - name: cleanup
         image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
@@ -398,7 +321,10 @@ spec:
       - name: cleanup-config
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
-  {{- end }}
+    {{- end }}
+    {{- if .Values.broker.resources }}
+    resources: {{- toYaml .Values.broker.resources | nindent 10 }}
+    {{- end }}
   {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
   autoScalingPolicy:
     maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
@@ -432,7 +358,11 @@ spec:
       volumeClaimTemplates:
 {{- with .Values.broker.extraVolumeClaimTemplates }}
 {{ toYaml . | indent 6 }}
-{{- end }}        
-{{- end }}    
+{{- end }}
+{{- end }}
+  {{- end }}
+  {{- with .Values.broker.customization }}
+  customization:
+  {{- toYaml . | nindent 2 -}}
   {{- end }}
 {{- end }}
