@@ -125,7 +125,7 @@ spec:
 {{- with .Values.toolset.extraVolumeMounts }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-      {{- if .Values.components.kop }}
+      {{- if .Values.toolset.kafka.enabled }}
       - name: "kafka"
         image: "{{ .Values.images.toolset.kafka.repository }}:{{ .Values.images.toolset.kafka.tag }}"
         imagePullPolicy: {{ .Values.images.toolset.kafka.pullPolicy }}

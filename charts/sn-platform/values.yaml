@@ -100,8 +100,6 @@ components:
   streamnative_console: true
   # pulsar sql
   sql_worker: false
-  # kop
-  kop: false
   # pulsar detector
   pulsar_detector: true
   # superset
@@ -1513,6 +1511,8 @@ toolset:
   labels: {}
   annotations: {}
   tolerations: []
+  kafka:
+    enabled: false
   gracePeriod: 0
   resources:
     requests:
