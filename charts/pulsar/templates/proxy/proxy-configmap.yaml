@@ -32,11 +32,8 @@ data:
   statusFilePath: "{{ template "pulsar.home" . }}/status"
   # prometheus needs to access /metrics endpoint
   webServicePort: "{{ .Values.proxy.ports.http }}"
-  {{- if or (or (not .Values.tls.enabled) (not .Values.tls.proxy.enabled)) .Values.ingress.proxy.plaintext.enabled }}
-  servicePort: "{{ .Values.proxy.ports.pulsar }}"
-  brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }}
-  brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}
-  {{- end }}
+
+  # Configure clients connect to Proxy
   {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
   tlsEnabledInProxy: "true"
   servicePortTls: "{{ .Values.proxy.ports.pulsarssl }}"
@@ -46,7 +43,11 @@ data:
   {{- if .Values.tls.proxy.untrustedCa }}
   tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   {{- end }}
+  {{- else }}
+  servicePort: "{{ .Values.proxy.ports.pulsar }}"
   {{- end }}
+
+  # Configure Proxy connect to Broker
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
   # if broker enables TLS, configure proxy to talk to broker using TLS
   brokerServiceURLTLS: {{ template "pulsar.proxy.broker.service.url.tls" . }}
@@ -54,6 +55,9 @@ data:
   tlsEnabledWithBroker: "true"
   tlsCertRefreshCheckDurationSec: "300"
   brokerClientTrustCertsFilePath: "/pulsar/certs/broker/ca.crt"
+  {{- else }}
+  brokerServiceURL: {{ template "pulsar.proxy.broker.service.url" . }}
+  brokerWebServiceURL: {{ template "pulsar.proxy.web.service.url" . }}
   {{- end }}
 
   # Authentication Settings
