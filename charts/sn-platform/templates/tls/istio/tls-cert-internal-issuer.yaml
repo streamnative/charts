@@ -22,14 +22,18 @@
 {{- if .Values.certs.istio_public_issuer.enabled }}
 {{ fail "Both internal and public issuer for Istio Ingress Gateway are enabled. Please disable one of them." }}
 {{- end }}
-{{- if eq .Values.certs.istio_internal_issuer.type "selfsigning" }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}"
   namespace: {{ template "istio.gateway.namespace" . }}
 spec:
+{{- if eq .Values.certs.istio_internal_issuer.type "selfsigning" }}
   selfSigned: {}
+{{ else if eq .Values.certs.istio_internal_issuer.type "secret" }}
+  ca:
+    secretName: {{ .Values.certs.issuers.secret.secretName }}
+{{- end }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -59,6 +63,5 @@ metadata:
 spec:
   ca:
     secretName: "{{ .Release.Name }}-istio-ca-tls"
-{{- end }}
 {{- end }}
 {{- end }}

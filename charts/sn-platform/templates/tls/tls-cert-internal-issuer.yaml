@@ -18,14 +18,18 @@
 #
 
 {{- if .Values.certs.internal_issuer.enabled }}
-{{- if eq .Values.certs.internal_issuer.type "selfsigning" }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
+{{- if eq .Values.certs.internal_issuer.type "selfsigning" }}
   selfSigned: {}
+{{- else if eq .Values.certs.internal_issuer.type "secret" -}}
+  ca:
+    secretName: {{ .Values.certs.issuers.secret.secretName }}
+{{- end }}
 ---
 
 apiVersion: cert-manager.io/v1
@@ -58,5 +62,4 @@ metadata:
 spec:
   ca:
     secretName: "{{ .Release.Name }}-ca-tls"
-{{- end }}
 {{- end }}
