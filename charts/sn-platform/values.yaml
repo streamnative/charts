@@ -440,6 +440,7 @@ certs:
     # Type options are selfsigning, secret
     #  selfsigning doesn't need another configure
     #  secret depends on certs.issuers.secret.secretName
+    #  custom depends on certs.issuers.custom
     type: selfsigning
 
   istio_public_issuer:
