@@ -159,25 +159,6 @@ spec:
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 6 }}
 {{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 6 }}
   autoRecovery:
-    {{- if and .Values.components.autoscaling .Values.autorecovery.autoscaling.maxReplicas }}
-    autoScalingPolicy:
-      maxReplicas: {{ .Values.autorecovery.autoscaling.maxReplicas }}
-      {{- if .Values.autorecovery.autoscaling.minReplicas }}
-      minReplicas: {{ .Values.autorecovery.autoscaling.minReplicas }}
-      {{- end }}
-      {{- if .Values.autorecovery.autoscaling.metrics }}
-      metrics:
-{{- with .Values.autorecovery.autoscaling.metrics }}
-{{ toYaml . | indent 8 }}
-{{- end }}
-      {{- end }}
-      {{- if .Values.autorecovery.autoscaling.behavior }}
-      behavior:
-{{- with .Values.autorecovery.autoscaling.behavior }}
-{{ toYaml . | indent 8 }}
-{{- end }}
-      {{- end }}
-    {{- end }}
     {{- if .Values.components.autorecovery }}
     replicas: {{ .Values.autorecovery.replicaCount }}
     {{- else }}
@@ -230,25 +211,6 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
-  {{- if and .Values.components.autoscaling .Values.bookkeeper.autoscaling.maxReplicas }}
-  autoScalingPolicy:
-    maxReplicas: {{ .Values.bookkeeper.autoscaling.maxReplicas }}
-    {{- if .Values.bookkeeper.autoscaling.minReplicas }}
-    minReplicas: {{ .Values.bookkeeper.autoscaling.minReplicas }}
-    {{- end }}
-    {{- if .Values.bookkeeper.autoscaling.metrics }}
-    metrics:
-{{- with .Values.bookkeeper.autoscaling.metrics }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-    {{- if .Values.bookkeeper.autoscaling.behavior }}
-    behavior:
-{{- with .Values.bookkeeper.autoscaling.behavior }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-  {{- end }}
   apiObjects:
     clientService: {}
     headlessService:

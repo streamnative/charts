@@ -72,7 +72,7 @@ data:
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
 {{ (.Files.Glob "conf/toolset/log4j2.yaml").AsConfig | indent 2 }}
   kafka.properties: |
-{{- if and .Values.tls.broker.enabled .Values.components.kop }}
+{{- if and .Values.tls.broker.enabled .Values.toolset.kafka.enabled }}
 {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }}
     security.protocol=SASL_SSL
     sasl.mechanism=PLAIN

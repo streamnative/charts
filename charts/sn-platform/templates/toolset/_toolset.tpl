@@ -16,7 +16,7 @@ ${HOSTNAME}.{{ template "pulsar.toolset.service" . }}.{{ template "pulsar.namesp
 Define toolset zookeeper client tls settings
 */}}
 {{- define "pulsar.toolset.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.broker.kop.enabled)) }}
 /pulsar/keytool/keytool.sh toolset {{ template "pulsar.toolset.hostname" . }} true;
 {{- end -}}
 {{- end }}
@@ -25,7 +25,7 @@ Define toolset zookeeper client tls settings
 Define toolset kafka settings
 */}}
 {{- define "pulsar.toolset.kafka.settings" -}}
-{{- if and .Values.tls.enabled (and .Values.tls.broker.enabled .Values.components.kop) }}
+{{- if and .Values.tls.enabled (and .Values.tls.broker.enabled .Values.broker.kop.enabled) }}
 cp conf/kafka.properties.template conf/kafka.properties;
 echo "ssl.truststore.password=$(cat conf/password)" >> conf/kafka.properties;
 {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }}
@@ -76,7 +76,7 @@ Define toolset tls certs mounts
 - name: ca
   mountPath: "/pulsar/certs/ca"
   readOnly: true
-{{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop) }}
+{{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.toolset.kafka.enabled) }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
   subPath: keytool.sh
@@ -110,7 +110,7 @@ Define toolset tls certs volumes
     items:
     - key: ca.crt
       path: ca.crt
-{{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop) }}
+{{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.toolset.kafka.enabled) }}
 - name: keytool
   configMap:
     name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
@@ -158,7 +158,7 @@ Define toolset log volumes
 Define toolset kafka conf mounts
 */}}
 {{- define "pulsar.toolset.kafka.conf.volumeMounts" -}}
-{{- if and .Values.tls.broker.enabled .Values.components.kop }}
+{{- if and .Values.tls.broker.enabled .Values.toolset.kafka.enabled }}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-kafka-conf"
   mountPath: "{{ template "pulsar.home" . }}/conf/kafka.properties.template"
   subPath: kafka.properties
@@ -169,7 +169,7 @@ Define toolset kafka conf mounts
 Define toolset log volumes
 */}}
 {{- define "pulsar.toolset.kafka.conf.volumes" -}}
-{{- if and .Values.tls.broker.enabled .Values.components.kop }}
+{{- if and .Values.tls.broker.enabled .Values.toolset.kafka.enabled }}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-kafka-conf"
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
