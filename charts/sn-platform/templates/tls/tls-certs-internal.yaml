@@ -60,7 +60,7 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
-  {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+  {{- if or .Values.broker.kop.enabled .Values.broker.kop.enabled }}
   {{- if .Values.broker.kop.tls.enabled }}
   {{- if not .Values.broker.kop.tls.passwordSecretRef }}
   keystores:
@@ -105,7 +105,7 @@ spec:
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
-  {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+  {{- if .Values.broker.kop.enabled }}
   {{- if .Values.broker.kop.tls.enabled }}
   keystores:
     jks:
@@ -164,7 +164,7 @@ spec:
   {{- else }}
     - "*.{{ .Values.domain.suffix }}"
   {{- end }}
-  {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+  {{- if .Values.broker.kop.enabled }}
   {{- if .Values.broker.kop.tls.enabled }}
   keystores:
     jks:
