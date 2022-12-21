@@ -45,5 +45,5 @@ jobs:
       - name: Run chart-testing (upgrade)
         env:
           UPGRADE: true
-          K8S_VERSION: v1.18.15
+          K8S_VERSION: v1.20.15
         run: .ci/chart_test.sh .ci/clusters/values-upgrade.yaml ${PWD}/apache-charts
