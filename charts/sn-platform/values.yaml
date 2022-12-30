@@ -424,6 +424,10 @@ certs:
   internal_issuer:
     enabled: false
     component: internal-cert-issuer
+    # Type options are selfsigning, secret, custom
+    #  selfsigning doesn't need another configure
+    #  secret depends on certs.issuers.secret.secretName
+    #  custom depends on certs.issuers.custom
     type: selfsigning
   public_issuer:
     enabled: false
@@ -433,6 +437,10 @@ certs:
   istio_internal_issuer:
     enabled: false
     component: istio-internal-cert-issuer
+    # Type options are selfsigning, secret
+    #  selfsigning doesn't need another configure
+    #  secret depends on certs.issuers.secret.secretName
+    #  custom depends on certs.issuers.custom
     type: selfsigning
 
   istio_public_issuer:
@@ -442,6 +450,9 @@ certs:
 
   issuers:
     selfsigning:
+    secret:
+      secretName: ca-keypair
+    custom: {}
     acme:
       # You must replace this email address with your own.
       # Let's Encrypt will use this to contact you about expiring
