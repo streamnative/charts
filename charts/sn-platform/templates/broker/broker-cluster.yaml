@@ -26,12 +26,18 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
+    {{- with .Values.broker.pulsarBroker.annotations -}}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
 {{- with .Values.broker.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+    {{- with .Values.broker.pulsarBroker.labels -}}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   replicas: {{ .Values.broker.replicaCount }}

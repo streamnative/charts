@@ -609,6 +609,13 @@ common:
 ## templates/zookeeper-statefulset.yaml
 ##
 zookeeper:
+  # zookeeperCluster indicates the setup for the CR(CustomResource) of the ZookeeperCluster
+  zookeeperCluster:
+    # labels that will be added on the ZookeeperCluster CR only.
+    labels: {}
+    # annotations that will be added on the ZookeeperCluster CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
@@ -827,6 +834,13 @@ zookeeper:
 ## templates/bookkeeper-statefulset.yaml
 ##
 bookkeeper:
+  # bookkeeperCluster indicates the setup for the CR(CustomResource) of the BookkeeperCluster
+  bookkeeperCluster:
+    # labels that will be added on the BookkeeperCluster CR only.
+    labels: {}
+    # annotations that will be added on the BookkeeperCluster CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
@@ -1039,6 +1053,13 @@ kop:
 ## templates/broker-statefulset.yaml
 ##
 broker:
+  # pulsarBroker indicates the setup for the CR(CustomResource) of the PulsarBroker
+  pulsarBroker:
+    # labels that will be added on the PulsarBroker CR only.
+    labels: {}
+    # annotations that will be added on the PulsarBroker CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
@@ -1400,6 +1421,13 @@ pulsar_detector:
     annotations: {}
 
 proxy:
+  # pulsarProxy indicates the setup for the CR(CustomResource) of the PulsarProxy
+  pulsarProxy:
+    # labels that will be added on the PulsarProxy CR only.
+    labels: {}
+    # annotations that will be added on the PulsarProxy CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
