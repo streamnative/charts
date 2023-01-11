@@ -26,7 +26,7 @@ metadata:
   annotations:
     "cloud.streamnative.io/ignore-leader-check": "true"
     "cloud.streamnative.io/cluster-force-update": "true"
-    {{- with .Values.zookeeper.zookeeperCluster.annotations -}}
+    {{- with .Values.zookeeper.zooKeeperCluster.annotations -}}
     {{ toYaml . | nindent 4 }}
     {{- end }}
   labels:
@@ -35,7 +35,7 @@ metadata:
 {{- with .Values.zookeeper.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    {{- with .Values.zookeeper.zookeeperCluster.labels -}}
+    {{- with .Values.zookeeper.zooKeeperCluster.labels -}}
     {{ toYaml . | nindent 4 }}
     {{- end }}
 spec:

@@ -609,11 +609,11 @@ common:
 ## templates/zookeeper-statefulset.yaml
 ##
 zookeeper:
-  # zookeeperCluster indicates the setup for the CR(CustomResource) of the ZookeeperCluster
-  zookeeperCluster:
-    # labels that will be added on the ZookeeperCluster CR only.
+  # zooKeeperCluster indicates the setup for the CR(CustomResource) of the ZooKeeperCluster
+  zooKeeperCluster:
+    # labels that will be added on the ZooKeeperCluster CR only.
     labels: {}
-    # annotations that will be added on the ZookeeperCluster CR only.
+    # annotations that will be added on the ZooKeeperCluster CR only.
     annotations: {}
 
   # use a component name that matches your grafana configuration
@@ -834,11 +834,11 @@ zookeeper:
 ## templates/bookkeeper-statefulset.yaml
 ##
 bookkeeper:
-  # bookkeeperCluster indicates the setup for the CR(CustomResource) of the BookkeeperCluster
-  bookkeeperCluster:
-    # labels that will be added on the BookkeeperCluster CR only.
+  # bookKeeperCluster indicates the setup for the CR(CustomResource) of the BookKeeperCluster
+  bookKeeperCluster:
+    # labels that will be added on the BookKeeperCluster CR only.
     labels: {}
-    # annotations that will be added on the BookkeeperCluster CR only.
+    # annotations that will be added on the BookKeeperCluster CR only.
     annotations: {}
 
   # use a component name that matches your grafana configuration

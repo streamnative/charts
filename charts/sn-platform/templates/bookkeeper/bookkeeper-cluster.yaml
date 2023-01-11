@@ -25,7 +25,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
-    {{- with .Values.bookkeeper.bookkeeperCluster.annotations -}}
+    {{- with .Values.bookkeeper.bookKeeperCluster.annotations -}}
     {{ toYaml . | nindent 4 }}
     {{- end }}
   labels:
@@ -34,7 +34,7 @@ metadata:
 {{- with .Values.bookkeeper.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    {{- with .Values.bookkeeper.bookkeeperCluster.labels -}}
+    {{- with .Values.bookkeeper.bookKeeperCluster.labels -}}
     {{ toYaml . | nindent 4 }}
     {{- end }}
 spec:
