@@ -112,8 +112,12 @@ Extra necessary Pod annotations in Istio mode
 */}}
 {{- define "pulsar.istio.pod.annotations" -}}
 {{- if .Values.istio.enabled -}}
+{{- if .Values.istio.mergeMetrics -}}
+prometheus.istio.io/merge-metrics: "true"
+{{- else -}}
 prometheus.istio.io/merge-metrics: "false"
-{{- end }}
+{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
