@@ -35,9 +35,9 @@ metadata:
 {{- with .Values.zookeeper.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    {{- with .Values.zookeeper.zooKeeperCluster.labels -}}
-    {{ toYaml . | nindent 4 }}
-    {{- end }}
+{{- with .Values.zookeeper.zooKeeperCluster.labels -}}
+{{ toYaml . | nindent 4 }}
+{{- end }}
 spec:
   replicas: {{ .Values.zookeeper.replicaCount }}
   image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"

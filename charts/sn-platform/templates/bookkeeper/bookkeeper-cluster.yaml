@@ -34,9 +34,9 @@ metadata:
 {{- with .Values.bookkeeper.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    {{- with .Values.bookkeeper.bookKeeperCluster.labels -}}
-    {{ toYaml . | nindent 4 }}
-    {{- end }}
+{{- with .Values.bookkeeper.bookKeeperCluster.labels -}}
+{{ toYaml . | nindent 4 }}
+{{- end }}
 spec:
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}"
   replicas: {{ .Values.bookkeeper.replicaCount }}
