@@ -22,7 +22,7 @@
 
 {{/* COMMENT */}}
 
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress"
@@ -87,9 +87,12 @@ spec:
           {{- end }}
           {{- if .Values.components.pulsar_manager }}
           - path: /
+            pathType: ImplementationSpecific
             backend:
-              serviceName: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
-              servicePort: {{ .Values.pulsar_manager.ports.frontend }}
+              service:
+                name: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
+                port:
+                  number: {{ .Values.pulsar_manager.ports.frontend }}
           {{- else }}
           - path: /
             backend:
