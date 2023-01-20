@@ -57,8 +57,8 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-  ca:
 {{- if eq .Values.certs.internal_issuer.type "selfsigning" }}
+  ca:
     secretName: "{{ .Release.Name }}-ca-tls"
 {{- else if eq .Values.certs.internal_issuer.type "secret" -}}
   ca:
