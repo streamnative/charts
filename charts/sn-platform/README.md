@@ -79,6 +79,7 @@ To install StreamNative Platform on native Kubernetes clusters, follow these ste
 
     ```
     helm repo add streamnative https://charts.streamnative.io
+    helm repo add function-mesh http://charts.functionmesh.io/
     helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
     helm repo add jetstack https://charts.jetstack.io
     helm repo update
