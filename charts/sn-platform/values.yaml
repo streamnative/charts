@@ -106,6 +106,8 @@ components:
   superset: false
   # custom_metric_server
   custom_metric_server: false
+  # pulsar coordinator
+  pulsar_coordinator: false
 
 ## Monitoring Components
 ##
@@ -2374,3 +2376,10 @@ istio:
       # mode options are SIMPLE, PASSTHROUGH
       mode: SIMPLE
       certSecretName: "[CERTIFICATE SECRET NAME IN ISTIO ROOT NAMESPACE]"
+
+pulsar_coordinator: {}
+  # image:
+  #   repository:
+  #   tag:
+  # placement:
+  #   availability_policy:

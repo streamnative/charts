@@ -17,7 +17,7 @@
 # under the License.
 #
 {{- if .Values.components.pulsar_coordinator }}
-apiVersion: cloud.streamnative.io/v1alpha1
+apiVersion: k8s.streamnative.io/v1alpha1
 kind: PulsarCoordinator
 metadata:
   name: "{{ template "pulsar.fullname" . }}"
@@ -25,9 +25,11 @@ metadata:
   annotations:
     helm.sh/hook: pre-install,pre-upgrade
 spec:
-  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-  {{- if .Values.placement.availability_policy }}
+  {{- if .Values.pulsar_coordinator.image }}
+  image: "{{ .Values.pulsar_coordinator.image.repository }}:{{ .Values.pulsar_coordinator.image.tag }}"
+  {{- end }}
+  {{- if  .Values.pulsar_coordinator.placement }}
   placement:
-    availabilityPolicy: {{ .Values.placement.availability_policy }}
+    availabilityPolicy: {{ .Values.pulsar_coordinator.placement.availability_policy }}
   {{- end }}
 {{- end }}
