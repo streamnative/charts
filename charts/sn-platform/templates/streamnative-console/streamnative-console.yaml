@@ -249,7 +249,7 @@ spec:
       {{- include "pulsar.streamnative_console.data.storage.class" . | nindent 6 }}
   {{- end }}
 {{- end }}
-{{- with .Values.streamnative_console.customization }}
-customization:
-{{- toYaml . | nindent 2 -}}
-{{- end }}
+  {{- with .Values.streamnative_console.customization }}
+  customization:
+  {{- toYaml . | nindent 4 -}}
+  {{- end }}
