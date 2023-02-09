@@ -163,18 +163,29 @@ spec:
     {{- end }}
     {{- if .Values.auth.vault.enabled }}
     - secretName: {{ template "pulsar.vault-secret-key-name" . }}
+      mountPath: ""
     {{- end }}
     {{- if .Values.streamnative_console.login.sso.google.enabled }}
     - secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"
+      mountPath: ""
     {{- end }}
     {{- if .Values.streamnative_console.login.sso.azure.enabled }}
     - secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-azure-oauth2-secret"
+      mountPath: ""
     {{- end }}
     {{- if .Values.streamnative_console.login.sso.okta.enabled }}
     - secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-okta-oauth2-secret"
+      mountPath: ""
     {{- end }}
     {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
     - secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
+      mountPath: ""
+    {{- end }}
+    - secretName: streamnative-console-data
+      mountPath: /data
+    {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+    - secretName: token-keys
+      mountPath: /pulsar-manager/keys
     {{- end }}
   {{- with .Values.streamnative_console.customization }}
   customization:
