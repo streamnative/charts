@@ -21,6 +21,7 @@
 apiVersion: k8s.streamnative.io/v1alpha1
 kind: SNConsole
 metadata:
+  # no need to add component to name here as operator will add
   name: "{{ template "pulsar.fullname" . }}"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
@@ -30,15 +31,6 @@ metadata:
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
-  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
-  replicas: 1
-  selector:
-    matchLabels:
-      {{- include "pulsar.matchLabels" . | nindent 6 }}
-      component: {{ .Values.streamnative_console.component }}
-  updateStrategy:
-    type: RollingUpdate
-  podManagementPolicy: Parallel
   template:
     metadata:
       labels:
