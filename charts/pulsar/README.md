@@ -1,7 +1,7 @@
 
-# Apache Pulsar Helm Chart
+# Apache Pulsar Helm Chart (Deprecated)
 
-> Note: Most of the changes of this chart have been contributed back to https://github.com/apache/pulsar-helm-chart
+> Note: This Apache Pulsar Helm Chart has been deprecated and we recommand to use [streamnative/sn-platform](https://github.com/streamnative/charts/tree/master/charts/sn-platform) to provision and manage the Apache Pulsar on Kubernetes.
 
 This is the officially supported Helm Chart for installing Apache Pulsar on Kubernetes. 
 
