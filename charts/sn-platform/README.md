@@ -18,4 +18,4 @@ Most importantly, StreamNative Platform enables you to:
 - Deploy and manage your platform as a cloud-native system on Kubernetes.
 - Monitor the health and performance of Pulsar clusters using dedicated tools such as Pulsar detector and StreamNative Console.
 
-You can read our complete [documentation](https://docs.streamnative.io/docs/platform-overview). 
+For details, see [StreamNative Platform documentation](https://docs.streamnative.io/docs/platform-overview). 
