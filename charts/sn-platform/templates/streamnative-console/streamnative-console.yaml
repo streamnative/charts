@@ -229,6 +229,12 @@ spec:
           secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_SECRET_KEY }}
           {{- end }}
       {{- end }}
+      {{- if .Values.streamnative_console.securityContext }}
+      securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
+      {{- end }}
+      {{- if .Values.streamnative_console.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
+      {{- end }}
   {{- if or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName }}
   volumeClaimTemplates:
   - metadata:
