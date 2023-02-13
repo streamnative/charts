@@ -31,7 +31,11 @@ metadata:
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
+<<<<<<< Updated upstream
   template:
+=======
+  pod:
+>>>>>>> Stashed changes
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
