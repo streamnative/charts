@@ -31,11 +31,7 @@ metadata:
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
-<<<<<<< Updated upstream
-  template:
-=======
   pod:
->>>>>>> Stashed changes
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
@@ -203,6 +199,10 @@ spec:
             name: token-keys
             readOnly: true
           {{- end }}
+          envFrom:
+          {{- if .Values.auth.vault.enabled }}
+          - secretRef:
+              name: {{ template "pulsar.vault-secret-key-name" . }}
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
       - name: streamnative-console-data
