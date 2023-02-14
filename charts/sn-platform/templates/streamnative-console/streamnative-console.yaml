@@ -250,8 +250,8 @@ spec:
           storage: {{ .Values.streamnative_console.volumes.data.size }}
       {{- include "pulsar.streamnative_console.data.storage.class" . | nindent 6 }}
   {{- end }}
-{{- end }}
   {{- with .Values.streamnative_console.customization }}
   customization:
   {{- toYaml . | nindent 4 -}}
   {{- end }}
+{{- end }}
