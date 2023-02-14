@@ -1969,8 +1969,8 @@ streamnative_console:
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
-      memory: 250Mi
-      cpu: 0.1
+      memory: "250Mi"
+      cpu: "0.1"
     limits: {}
       # memory: "1Gi"
       # cpu: "0.4"
