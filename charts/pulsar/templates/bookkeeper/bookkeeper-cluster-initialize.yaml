@@ -56,13 +56,15 @@ spec:
             {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 12 }}
             {{ if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
             export "$(cat conf/pulsar_env.sh | xargs)";
-            export "OPTS=${PULSAR_EXTRA_OPTS}";
+            export "OPTS=${EXTRA_OPTS}";
             env;
             {{- end }}
             bin/pulsar-metadata-tool cleanup
         env:
           - name: METADATA_TOOL_CONF
             value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+          - name: EXTRA_OPTS
+            value: {{ .Values.zookeeper.customTools.restore.configData.OPTS }}
         volumeMounts:
           - name: cleanup-config
             mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
