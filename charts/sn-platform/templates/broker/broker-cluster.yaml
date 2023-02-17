@@ -74,9 +74,9 @@ spec:
 {{- end }}
 {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
     secretRefs:
-    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
+    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
       {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
-      secretName: {{ default $defaultSecretName .Values.proxy.publicKeySecret }}
+      secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
     {{- if .Values.broker.offload.gcs.secret }}
     - mountPath: /pulsar/srvaccts/gcs.json
       secretName: {{ .Values.broker.offload.gcs.secret }}
