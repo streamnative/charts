@@ -36,7 +36,7 @@ Options:
        -h,--help               prints the usage message
        -n,--name               name of the Kubernetes cluster,default value: kind
        -c,--nodeNum            the count of the cluster nodes,default value: 6
-       -k,--k8sVersion         version of the Kubernetes cluster,default value: v1.12.8
+       -k,--k8sVersion         version of the Kubernetes cluster,default value: v1.20.15
        -v,--volumeNum          the volumes number of each kubernetes node,default value: 9
 Usage:
     $0 --name testCluster --nodeNum 4 --k8sVersion v1.12.9
@@ -228,9 +228,6 @@ spec:
           - tcp-connect:${registryNodeIP}:5000
 EOF
 $KUBECTL_BIN apply -f ${registryFile}
-
-echo "init pulsar  env"
-$KUBECTL_BIN apply -f ${PULSAR_CHART_HOME}/manifests/local-dind/local-volume-provisioner.yaml
 
 docker pull gcr.io/google-containers/kube-scheduler:${k8sVersion}
 docker tag gcr.io/google-containers/kube-scheduler:${k8sVersion} mirantis/hypokube:final
