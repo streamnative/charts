@@ -116,7 +116,7 @@ ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -184,26 +184,18 @@ Define zookeeper data volumes
 {{- end }}
 
 {{- define "pulsar.zookeeper.data.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.zookeeper.volumes.data.storageClass }}
+{{- if  .Values.zookeeper.volumes.data.storageClass }}
 storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-  {{- else if .Values.zookeeper.volumes.data.storageClassName }}
+{{- else if .Values.zookeeper.volumes.data.storageClassName }}
 storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
-  {{- end -}}
 {{- end }}
 {{- end }}
 
 {{- define "pulsar.zookeeper.dataLog.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.dataLog.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
+{{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
 storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
-  {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
+{{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
 storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
-  {{- end -}}
 {{- end }}
 {{- end }}
 
@@ -219,14 +211,10 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.data.size }}
-  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
-    storageClassName: "local-storage"
-  {{- else }}
-    {{- if  .Values.zookeeper.volumes.data.storageClass }}
+  {{- if  .Values.zookeeper.volumes.data.storageClass }}
     storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-    {{- else if .Values.zookeeper.volumes.data.storageClassName }}
+  {{- else if .Values.zookeeper.volumes.data.storageClassName }}
     storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
-    {{- end -}}
   {{- end }}
 {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
 - metadata:
@@ -236,14 +224,10 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.dataLog.size }}
-  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
-    storageClassName: "local-storage"
-  {{- else }}
-    {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
+  {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
     storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
-    {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
+  {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
     storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
-    {{- end -}}
   {{- end }}
 {{- end }}
 {{- end }}

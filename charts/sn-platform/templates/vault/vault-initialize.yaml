@@ -32,6 +32,13 @@ spec:
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
+{{- if .Values.vault.labels }}    
+{{ toYaml .Values.vault.labels | indent 8 }}
+{{- end }}
+      annotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 8 }}
+{{- end }}
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
       {{- if .Values.global.imagePullSecrets }}
@@ -53,7 +60,7 @@ spec:
            echo "vault root token is ready";
            rootToken=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
            echo $rootToken;
-           echo $rootToken > /root/rootToken;
+           echo $rootToken > /vault/rootToken;
            export ROOT_TOKEN=$rootToken;
            vault login $ROOT_TOKEN;
            until [ $? -eq 0 ]; do
@@ -63,7 +70,7 @@ spec:
            done;
            echo "vault is ready~";
 
-           cd /root/pulsar/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ .Release.Name }} -v {{ template "pulsar.vault.url" . }} -r $ROOT_TOKEN && cd /root/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
+           cd /vault/pulsar/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
            echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
         env:
         - name: NAMESPACE
@@ -78,6 +85,10 @@ spec:
           value: {{ template "pulsar.vault.url" . }}
         - name: VAULT_TTL
           value: {{ .Values.vault.oidcToken.ttl | default "12h" }}
+        - name: VERIFICATION_TTL
+          value: {{ .Values.vault.oidcToken.verification_ttl | default "24h" }}
+        - name: ROTATION_PERIOD
+          value: {{ .Values.vault.oidcToken.rotation_period | default "24h" }}
         {{- if and .Values.streamnative_console.username .Values.streamnative_console.password }}
         - name: VAULT_SUPER_USER_NAME
           value: {{ .Values.streamnative_console.username }}
@@ -87,6 +98,9 @@ spec:
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
+        {{- if .Values.vault.resources }}
+        resources: {{- toYaml .Values.vault.resources | nindent 10  }}
+        {{- end }}
       volumes:
       {{- include "pulsar.vault.createPulsarTokens.volumes" . | nindent 6 }}
       {{- include "pulsar.vault.initStreamNativeConsole.volumes" . | nindent 6 }}

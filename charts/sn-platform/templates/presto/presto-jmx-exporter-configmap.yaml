@@ -16,24 +16,26 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-# deploy entities only when `components.entities` is true
-{{- if and .Values.components.entities }}
-{{- range .Values.entities.tenants }}
-apiVersion: pulsar.streamnative.io/v1alpha1
-kind: PulsarTenant
+{{- if and .Values.components.sql_worker .Values.presto.exporter.enabled }}
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}-{{ template "entities.name-suffix" . }}"
-  namespace: {{ template "pulsar.namespace" $ }}
+  name: "{{ template "pulsar.fullname" . }}-presto-jmx-exporter"
+  namespace: {{ template "pulsar.namespace" . }}
   labels:
-    {{- include "pulsar.standardLabels" $ | nindent 4 }}
-    component: {{ $.Values.entities.component }}
-spec:
-  name: {{ .name }}
-  connectionRef:
-    name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}"
-{{- if .config }}
-{{- toYaml .config | nindent 2 }}
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+data:
+  jmx_exporter.yaml: |
+    startDelaySeconds: 0
+    jmxUrl: service:jmx:rmi://localhost:9081/jndi/rmi://localhost:9081/jmxrmi
+    ssl: false
+    whitelistObjectNames:
+{{- with .Values.presto.exporter.whitelist }}
+{{- toYaml . | nindent 4 }}
 {{- end }}
----
+    rules:
+{{- with .Values.presto.exporter.rules }}
+{{- toYaml . | nindent 4 }}
 {{- end }}
+
 {{- end }}

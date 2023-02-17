@@ -27,7 +27,7 @@ KUBECTL=${OUTPUT_BIN}/kubectl
 NAMESPACE=pulsar
 CLUSTER=pulsar-ci
 CLUSTER_ID=$(uuidgen)
-K8S_VERSION=${K8S_VERSION:-"v1.18.15"}
+K8S_VERSION=${K8S_VERSION:-"v1.19.16"}
 
 function ci::create_cluster() {
     echo "Creating a kind cluster ..."
@@ -39,19 +39,6 @@ function ci::delete_cluster() {
     echo "Deleting a kind cluster ..."
     kind delete cluster --name=pulsar-ci-${CLUSTER_ID}
     echo "Successfully delete a kind cluster."
-}
-
-function ci::install_storage_provisioner() {
-    echo "Installing the local storage provisioner ..."
-    ${HELM} install local-storage-provisioner ${CHARTS_HOME}/charts/local-storage-provisioner
-    WC=$(${KUBECTL} get pods --field-selector=status.phase=Running | grep local-storage-provisioner | wc -l)
-    while [[ ${WC} -lt 1 ]]; do
-      echo ${WC};
-      sleep 15
-      ${KUBECTL} get pods --field-selector=status.phase=Running
-      WC=$(${KUBECTL} get pods --field-selector=status.phase=Running | grep local-storage-provisioner | wc -l)
-    done
-    echo "Successfully installed the local storage provisioner."
 }
 
 function ci::install_cert_manager() {

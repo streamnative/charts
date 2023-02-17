@@ -21,9 +21,6 @@ ci::create_cluster
 # delete the cluster
 trap 'ci::delete_cluster' 0
 
-# install storage provisioner
-ci::install_storage_provisioner
-
 extra_opts=""
 if [[ "x${SYMMETRIC}" == "xtrue" ]]; then
     extra_opts="-s"

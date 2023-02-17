@@ -18,43 +18,44 @@
 #
 
 {{- if and .Values.components.sql_worker .Values.istio.enabled }}
-{{- range $i := until (int .Values.presto.coordinator.replicaCount) }}
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
-  name: "{{ template "presto.coordinator" $ }}-{{ $i }}"
+  name: "{{ template "presto.coordinator" . }}"
 spec:
   hosts:
-  - "{{ template "presto.coordinator" $ }}-{{ $i }}.{{ template "presto.hostname" $ }}"
+  - "*.{{ template "presto.hostname" . }}"
   location: MESH_INTERNAL
   ports:
-  {{- if $.Values.tls.presto.enabled }}
+  {{- if .Values.tls.presto.enabled }}
   - name: tls-web
-    number: {{ $.Values.presto.coordinator.ports.https }}
+    number: {{ .Values.presto.coordinator.ports.https }}
     protocol: HTTPS
   {{- else }}
   - name: tcp-web
-    number: {{ $.Values.presto.coordinator.ports.http }}
+    number: {{ .Values.presto.coordinator.ports.http }}
     protocol: HTTP
   {{- end }}
   resolution: DNS
 ---
-{{- end }}
-{{- range $i := until (int .Values.presto.worker.replicaCount) }}
 apiVersion: networking.istio.io/v1beta1
 kind: ServiceEntry
 metadata:
-  name: "{{ template "presto.worker" $ }}-{{ $i }}"
+  name: "{{ template "presto.worker" . }}"
 spec:
   hosts:
-  - "{{ template "presto.worker" $ }}-{{ $i }}.{{ template "presto.worker.hostname" $ }}"
+  - "*.{{ template "presto.worker.hostname" . }}"
   location: MESH_INTERNAL
   ports:
+  {{- if $.Values.tls.presto.enabled }}
+  - name: tls-web
+    number: {{ $.Values.presto.worker.ports.https }}
+    protocol: HTTPS
+  {{- else }}
   - name: tcp-web
-    number: {{ $.Values.presto.worker.ports.http }}
+    number: {{ .Values.presto.worker.ports.http }}
     protocol: HTTP
+  {{- end }}
   resolution: DNS
----
-{{- end }}
 ---
 {{- end }}

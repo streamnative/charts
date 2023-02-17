@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.components.streamnative_console }}
-{{- if .Values.initialize }}
+{{- if and .Values.initialize (not .Values.streamnative_console.configData.INIT_DEFAULT_ENVIRONMENT) }}
 apiVersion: batch/v1
 kind: Job
 metadata:

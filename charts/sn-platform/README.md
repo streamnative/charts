@@ -79,6 +79,7 @@ To install StreamNative Platform on native Kubernetes clusters, follow these ste
 
     ```
     helm repo add streamnative https://charts.streamnative.io
+    helm repo add function-mesh http://charts.functionmesh.io/
     helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
     helm repo add jetstack https://charts.jetstack.io
     helm repo update
@@ -120,7 +121,7 @@ To install StreamNative Platform on native Kubernetes clusters, follow these ste
    [Function Mesh](https://docs.streamnative.io/platform/v1.0.0/concepts/functionmesh-concepts) is a serverless and purpose-built framework for orchestrating multiple [Pulsar Functions](https://docs.streamnative.io/platform/v1.0.0/concepts/pulsar-function-concepts) and [Pulsar IO connectors](https://docs.streamnative.io/platform/v1.0.0/concepts/pulsar-io-concepts) for stream processing applications.
 
     ```
-    helm upgrade --install function-mesh streamnative/function-mesh-operator -n $NAMESPACE 
+    helm upgrade --install function-mesh function-mesh/function-mesh-operator -n $NAMESPACE 
     ```
 
 7. Set the environment variable `PULSAR_CHART`.

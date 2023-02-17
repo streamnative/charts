@@ -22,7 +22,7 @@
 {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
 
 # define the storage class for data directory
-{{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage)) .Values.zookeeper.volumes.data.storageClass }}
+{{- if .Values.zookeeper.volumes.data.storageClass }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -63,7 +63,7 @@ parameters:
 ---
 
 # define the storage class for dataLog directory
-{{- if and (not (and .Values.volumes.local_storage .Values.zookeeper.volumes.dataLog.local_storage)) .Values.zookeeper.volumes.dataLog.storageClass }}
+{{- if .Values.zookeeper.volumes.dataLog.storageClass }}
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:

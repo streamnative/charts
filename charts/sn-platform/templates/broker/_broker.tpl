@@ -79,7 +79,7 @@ Define broker zookeeper client tls settings
 NOTE: `BROKER_ADDRESS` should be set before using this template
 */}}
 {{- define "pulsar.broker.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.broker.kop.enabled)) }}
 /pulsar/keytool/keytool.sh broker ${BROKER_ADDRESS} true;
 {{- end }}
 {{- end }}
@@ -88,7 +88,7 @@ NOTE: `BROKER_ADDRESS` should be set before using this template
 Define broker kop settings
 */}}
 {{- define "pulsar.broker.kop.settings" -}}
-{{- if .Values.components.kop }}
+{{- if .Values.broker.kop.enabled }}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
 export PULSAR_PREFIX_listeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.ssl }}";
 {{- else }}
@@ -102,7 +102,7 @@ Define broker tls certs mounts
 */}}
 {{- define "pulsar.broker.certs.volumeMounts" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-{{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
+{{- if or .Values.tls.zookeeper.enabled .Values.broker.kop.enabled }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
   subPath: keytool.sh
@@ -115,7 +115,7 @@ Define broker tls certs volumes
 */}}
 {{- define "pulsar.broker.certs.volumes" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-{{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
+{{- if or .Values.tls.zookeeper.enabled .Values.broker.kop.enabled }}
 - name: keytool
   configMap:
     name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
@@ -123,61 +123,6 @@ Define broker tls certs volumes
 {{- end }}
 {{- end }}
 {{- end }}
-
-{{/*
-Define broker token mounts
-*/}}
-{{- define "pulsar.broker.token.volumeMounts" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- mountPath: "/pulsar/keys"
-  name: token-keys
-  readOnly: true
-{{- end }}
-- mountPath: "/pulsar/tokens"
-  name: broker-token
-  readOnly: true
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define broker token volumes
-*/}}
-{{- define "pulsar.broker.token.volumes" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- name: token-keys
-  secret:
-    {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-asymmetric-key"
-    {{- end}}
-    {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-symmetric-key"
-    {{- end}}
-    items:
-      {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-      - key: SECRETKEY
-        path: token/secret.key
-      {{- else }}
-      - key: PUBLICKEY
-        path: token/public.key
-      - key: PRIVATEKEY
-        path: token/private.key
-      {{- end}}
-{{- end }}
-- name: broker-token
-  secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
-    items:
-      - key: TOKEN
-        path: broker/token
-{{- end }}
-{{- end }}
-{{- end }}
-
 
 {{/*
 Define broker log mounts
@@ -236,7 +181,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -338,7 +283,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
-      "namespace": "{{ .Values.datadog.namespace }}",
+      namespace: {{ template "pulsar.namespace" . }},
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,

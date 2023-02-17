@@ -16,24 +16,29 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-# deploy entities only when `components.entities` is true
-{{- if and .Values.components.entities }}
-{{- range .Values.entities.topics }}
-apiVersion: pulsar.streamnative.io/v1alpha1
-kind: PulsarTopic
-metadata:
-  name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}-{{ template "entities.name-suffix" . }}"
-  namespace: {{ template "pulsar.namespace" $ }}
-  labels:
-    {{- include "pulsar.standardLabels" $ | nindent 4 }}
-    component: {{ $.Values.entities.component }}
-spec:
-  name: {{ .name }}
-  connectionRef:
-    name: "{{ template "pulsar.fullname" $ }}-{{ $.Values.entities.component }}"
-{{- if .config }}
-{{- toYaml .config | nindent 2 }}
-{{- end }}
----
-{{- end }}
-{{- end }}
+
+components:
+  vault: false
+
+auth:
+  authentication:
+    enabled: true
+    provider: "jwt"
+    jwt:
+      enabled: true
+      usingSecretKey: false
+  vault:
+    enabled: false
+
+streamnative_console:
+  configData:
+    INIT_DEFAULT_ENVIRONMENT: true
+    BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
+  login:
+      pulsarJwt:
+        enabled: true
+        config:
+          AUTHENTICATION_CUSTOM_CLAIM: sub
+          SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: "<release-name>-token--admin"
+          JWT_BROKER_TOKEN_MODE: PRIVATE
+          JWT_BROKER_PUBLIC_PRIVATE_KEY: "<release-name>-token-asymmetric-key"
