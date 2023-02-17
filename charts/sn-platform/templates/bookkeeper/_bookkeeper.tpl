@@ -178,7 +178,11 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.bookkeeper.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
       namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.bookkeeper.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
