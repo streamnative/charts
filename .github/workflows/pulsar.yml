@@ -27,8 +27,43 @@ on:
       - 'charts/pulsar/**'
       - '.github/workflows/pulsar**'
 jobs:
-  lint-test-basic:
-    name: Basic Installation
+  lint-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Basic Installation"
+            values: .ci/clusters/values-local-pv.yaml
+          - name: "ZK TLS Only"
+            values: .ci/clusters/values-zk-tls.yaml
+          - name: "BK TLS Only"
+            values: .ci/clusters/values-bk-tls.yaml
+          - name: "ZK & BK TLS Only"
+            values: .ci/clusters/values-zkbk-tls.yaml
+          - name: "TLS Installation"
+            values: .ci/clusters/values-tls.yaml
+          - name: "Broker & Proxy TLS Installation"
+            values: .ci/clusters/values-broker-tls.yaml
+          - name: "Advertise Broker IP Address"
+            values: .ci/clusters/values-broker-ip.yaml
+          - name: "JWT Secret Key Installation"
+            values: .ci/clusters/values-jwt-symmetric.yaml
+            env-symmetric: true
+          - name: "JWT Public/Private Key Installation"
+            values: .ci/clusters/values-jwt-asymmetric.yaml
+            env-symmetric: false
+          - name: "Pulsar Function"
+            values: .ci/clusters/values-function.yaml
+            env-function: true
+          - name: "Service Account"
+            values: .ci/clusters/values-service-account.yaml
+          - name: "Service Account Disabled"
+            values: .ci/clusters/values-sa-disabled.yaml
+          - name: "Use Pulsar Image"
+            values: .ci/clusters/values-pulsar-image.yaml
+          - name: "Use SN Image"
+            values: .ci/clusters/values-sn-image.yaml
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,303 +79,13 @@ jobs:
           command: lint
 
       - name: Install chart
+        if: steps.lint.outputs.changed == 'true' # Only build a kind cluster if there are chart changes to test.
+        env:
+          SYMMETRIC: ${{ matrix.env-symmetric }}
+          FUNCTION: ${{ matrix.env-function }}
         run: |
-          .ci/chart_test.sh .ci/clusters/values-local-pv.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
+          .ci/chart_test.sh ${{ matrix.values }}
 
       - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
         if: failure()
-
-  lint-test-zk-tls:
-    name: ZK TLS Only
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-zk-tls.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-bk-tls:
-    name:  BK TLS Only
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-bk-tls.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-zkbk-tls:
-    name: ZK & BK TLS Only
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-zkbk-tls.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-tls:
-    name: TLS Installation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-tls.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-broker-tls:
-    name: Broker & Proxy TLS Installation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-broker-tls.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-broker-ip:
-    name: Advertise Broker IP Address
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Lint chart
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Install chart
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-broker-ip.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-jwt-asymmetric:
-    name: JWT Secret Key Installation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-jwt-asymmetric.yaml
-        env:
-          SYMMETRIC: "false"
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-jwt-symmetric:
-    name: JWT Public/Private Key Installation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-jwt-symmetric.yaml
-        env:
-          SYMMETRIC: "true"
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-function:
-    name: Pulsar Function
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Lint chart
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Install chart
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-function.yaml
-        env:
-          FUNCTION: "true"
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-sa-disabled:
-    name: Service Account Disabled
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-sa-disabled.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-service-account:
-    name: Service Account
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Run chart-testing (lint)
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Run chart-testing (install)
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-service-account.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-pulsar-image:
-    name: Use Pulsar Image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Lint chart
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Install chart
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-pulsar-image.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
-
-  lint-test-sn-image:
-    name: Use SN Image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Fetch history
-        run: git fetch --prune --unshallow
-
-      - name: Lint chart
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Install chart
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-sn-image.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
+        uses: mxschmitt/action-tmate@v3
