@@ -73,18 +73,3 @@ tls:
 certs:
   internal_issuer:
     enabled: false
-
-# upgrade image tag
-images:
-  zookeeper:
-    tag: 2.9.4.3
-  bookie:
-    tag: 2.9.4.3
-  autorecovery:
-    tag: 2.9.4.3
-  broker:
-    tag: 2.9.4.3
-  functions:
-    tag: 2.9.4.3
-  proxy:
-    tag: 2.9.4.3
