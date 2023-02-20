@@ -73,3 +73,24 @@ tls:
 certs:
   internal_issuer:
     enabled: false
+
+# upgrade image tag
+images:
+  zookeeper:
+    repository: streamnative/sn-pulsar
+    tag: 2.10.0.7
+  bookie:
+    repository: streamnative/sn-pulsar
+    tag: 2.10.0.7
+  autorecovery:
+    repository: streamnative/sn-pulsar
+    tag: 2.10.0.7
+  broker:
+    repository: streamnative/sn-pulsar
+    tag: 2.10.0.7
+  functions:
+    repository: streamnative/sn-pulsar
+    tag: 2.10.0.7
+  proxy:
+    repository: streamnative/sn-pulsar
+    tag: 2.10.0.7

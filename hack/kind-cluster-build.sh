@@ -229,10 +229,6 @@ spec:
 EOF
 $KUBECTL_BIN apply -f ${registryFile}
 
-docker pull gcr.io/google-containers/kube-scheduler:${k8sVersion}
-docker tag gcr.io/google-containers/kube-scheduler:${k8sVersion} mirantis/hypokube:final
-kind load docker-image --name=${clusterName} mirantis/hypokube:final
-
 echo "############# success create cluster:[${clusterName}] #############"
 
 echo "To start using your cluster, run:"
