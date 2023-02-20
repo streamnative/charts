@@ -26,7 +26,7 @@ HELM=${OUTPUT_BIN}/helm
 KUBECTL=${OUTPUT_BIN}/kubectl
 NAMESPACE=pulsar
 CLUSTER=pulsar-ci
-CLUSTER_ID=$(uuidgen)
+CLUSTER_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
 K8S_VERSION=${K8S_VERSION:-"v1.19.16"}
 
 function ci::create_cluster() {

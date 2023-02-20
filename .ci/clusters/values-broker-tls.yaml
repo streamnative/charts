@@ -77,20 +77,14 @@ certs:
 # upgrade image tag
 images:
   zookeeper:
-    repository: streamnative/sn-pulsar
-    tag: 2.10.0.7
+    tag: 2.9.4.3
   bookie:
-    repository: streamnative/sn-pulsar
-    tag: 2.10.0.7
+    tag: 2.9.4.3
   autorecovery:
-    repository: streamnative/sn-pulsar
-    tag: 2.10.0.7
+    tag: 2.9.4.3
   broker:
-    repository: streamnative/sn-pulsar
-    tag: 2.10.0.7
+    tag: 2.9.4.3
   functions:
-    repository: streamnative/sn-pulsar
-    tag: 2.10.0.7
+    tag: 2.9.4.3
   proxy:
-    repository: streamnative/sn-pulsar
-    tag: 2.10.0.7
+    tag: 2.9.4.3
