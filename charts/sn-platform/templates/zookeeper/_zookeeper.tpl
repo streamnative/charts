@@ -116,7 +116,11 @@ ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
       namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,

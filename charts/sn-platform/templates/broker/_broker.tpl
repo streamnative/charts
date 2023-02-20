@@ -181,7 +181,11 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
       namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -283,7 +287,11 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
       namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
