@@ -98,7 +98,7 @@ function upload_server_cert() {
     local component=$1
     local server_cert_secret="${release}-tls-${component}"
     local tls_cert_file="${tlsdir}/servers/${component}/${component}.cert.pem"
-    local tls_key_file="${tlsdir}/servers/${component}/${component}.key.pem"
+    local tls_key_file="${tlsdir}/servers/${component}/${component}.key-pk8.pem"
 
     kubectl create secret generic ${server_cert_secret} \
         -n ${namespace} \
