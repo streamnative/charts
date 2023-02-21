@@ -61,7 +61,7 @@ It includes support for:
 
 ## Install StreamNative Platform
 
-This section describes how to install StreamNative Platform on native Kubernetes clusters. We also provide a guide on deploying StreamNative Platform on AWS. For details, see [here](https://docs.streamnative.io/platform/v1.1.0/operator-guides/deploy/deploy-snp-aws).
+This section describes how to install StreamNative Platform on native Kubernetes clusters. We also provide a guide on deploying StreamNative Platform on AWS. For details, see [here](https://docs.streamnative.io/docs/deploy-snp-aws).
 
 ### Requirements
 
@@ -118,7 +118,7 @@ To install StreamNative Platform on native Kubernetes clusters, follow these ste
 
 6. Install the FunctionMesh operator.
 
-   [Function Mesh](https://docs.streamnative.io/platform/v1.0.0/concepts/functionmesh-concepts) is a serverless and purpose-built framework for orchestrating multiple [Pulsar Functions](https://docs.streamnative.io/platform/v1.0.0/concepts/pulsar-function-concepts) and [Pulsar IO connectors](https://docs.streamnative.io/platform/v1.0.0/concepts/pulsar-io-concepts) for stream processing applications.
+   [Function Mesh](https://docs.streamnative.io/docs/functionmesh-concepts#concepts) is a serverless and purpose-built framework for orchestrating multiple [](https://docs.streamnative.io/docs/pulsar-function-concepts) and [Pulsar IO Connectors](https://docs.streamnative.io/docs/connector-overview) for stream processing applications.
 
     ```
     helm upgrade --install function-mesh function-mesh/function-mesh-operator -n $NAMESPACE 
