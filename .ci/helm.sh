@@ -99,7 +99,8 @@ function ci::wait_pulsar_ready() {
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ "$(curl -L http://pulsar-ci-broker:8080/status.html)" == "OK" ]; do sleep 3; done'
 
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
-    while [[ ${WC} -lt 1 ]]; do
+    SECONDS=0
+    while [[ ${WC} -lt 1 ]] || (( SECONDS < 180 )); do
       echo ${WC};
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE}
