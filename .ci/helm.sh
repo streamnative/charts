@@ -100,8 +100,8 @@ function ci::wait_pulsar_ready() {
 
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     SECONDS=0
-    while [[ ${WC} -lt 1 ]] && (( SECONDS < 180 )); do
-      echo ${WC};
+    while [[ ${WC} -lt 1 ]] && (( ${SECONDS} < 180 )); do
+      echo "@" ${SECONDS}, ${WC};
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE}
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
