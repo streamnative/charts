@@ -40,17 +40,7 @@ affinity:
 zookeeper:
   replicaCount: 1
   configData:
-    PULSAR_GC: >
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      -Dcom.sun.management.jmxremote
-      -Djute.maxbuffer=10485760
-      -XX:+ParallelRefProcEnabled
-      -XX:+UnlockExperimentalVMOptions
-      -XX:+DoEscapeAnalysis
-      -XX:+DisableExplicitGC
-      -XX:+PerfDisableSharedMem
-      -Dzookeeper.forceSync=no
+    PULSAR_GC: null
 
 bookkeeper:
   replicaCount: 3
@@ -59,20 +49,7 @@ bookkeeper:
     diskUsageWarnThreshold: "0.999"
     PULSAR_PREFIX_diskUsageThreshold: "0.999"
     PULSAR_PREFIX_diskUsageWarnThreshold: "0.999"
-    PULSAR_GC: >
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      -XX:+ParallelRefProcEnabled
-      -XX:+UnlockExperimentalVMOptions
-      -XX:+DoEscapeAnalysis
-      -XX:ParallelGCThreads=4
-      -XX:ConcGCThreads=4
-      -XX:G1NewSizePercent=50
-      -XX:+DisableExplicitGC
-      -XX:-ResizePLAB
-      -XX:+ExitOnOutOfMemoryError
-      -XX:+PerfDisableSharedMem
-      -verboseg
+    PULSAR_GC: null
 
 broker:
   replicaCount: 1
@@ -84,57 +61,15 @@ broker:
     managedLedgerDefaultEnsembleSize: "1"
     managedLedgerDefaultWriteQuorum: "1"
     managedLedgerDefaultAckQuorum: "1"
-    PULSAR_GC: >
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      -Dio.netty.leakDetectionLevel=disabled
-      -Dio.netty.recycler.linkCapacity=1024
-      -XX:+ParallelRefProcEnabled
-      -XX:+UnlockExperimentalVMOptions
-      -XX:+DoEscapeAnalysis
-      -XX:ParallelGCThreads=4
-      -XX:ConcGCThreads=4
-      -XX:G1NewSizePercent=50
-      -XX:+DisableExplicitGC
-      -XX:-ResizePLAB
-      -XX:+ExitOnOutOfMemoryError
-      -XX:+PerfDisableSharedMe
+    PULSAR_GC: null
 
 proxy:
   replicaCount: 1
   websocket:
     configData:
-      PULSAR_GC: >
-        -XX:+UseG1GC
-        -XX:MaxGCPauseMillis=10
-        -Dio.netty.leakDetectionLevel=disabled
-        -Dio.netty.recycler.linkCapacity=1024
-        -XX:+ParallelRefProcEnabled
-        -XX:+UnlockExperimentalVMOptions
-        -XX:+DoEscapeAnalysis
-        -XX:ParallelGCThreads=4
-        -XX:ConcGCThreads=4
-        -XX:G1NewSizePercent=50
-        -XX:+DisableExplicitGC
-        -XX:-ResizePLAB
-        -XX:+ExitOnOutOfMemoryError
-        -XX:+PerfDisableSharedMe
+      PULSAR_GC: null
   configData:
-    PULSAR_GC: >
-      -XX:+UseG1GC
-      -XX:MaxGCPauseMillis=10
-      -Dio.netty.leakDetectionLevel=disabled
-      -Dio.netty.recycler.linkCapacity=1024
-      -XX:+ParallelRefProcEnabled
-      -XX:+UnlockExperimentalVMOptions
-      -XX:+DoEscapeAnalysis
-      -XX:ParallelGCThreads=4
-      -XX:ConcGCThreads=4
-      -XX:G1NewSizePercent=50
-      -XX:+DisableExplicitGC
-      -XX:-ResizePLAB
-      -XX:+ExitOnOutOfMemoryError
-      -XX:+PerfDisableSharedMe
+    PULSAR_GC: null
 
 toolset:
   useProxy: false

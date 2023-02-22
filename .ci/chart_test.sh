@@ -19,7 +19,9 @@ source ${CHARTS_HOME}/.ci/helm.sh
 ci::create_cluster
 
 # delete the cluster
-trap 'ci::delete_cluster' 0
+# TODO: Make cluster cleanup as a sepratee steep.
+# We shouldn't cleanup the cluster as we might jump to tmate session.
+#trap 'ci::delete_cluster' 0
 
 extra_opts=""
 if [[ "x${SYMMETRIC}" == "xtrue" ]]; then
