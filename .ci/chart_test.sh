@@ -19,7 +19,7 @@ source ${CHARTS_HOME}/.ci/helm.sh
 ci::create_cluster
 
 # delete the cluster
-# TODO: Make cluster cleanup as a separate steep.
+# TODO: Make cluster cleanup as a separate step.
 # We shouldn't cleanup the cluster as we might jump to tmate session.
 #trap 'ci::delete_cluster' 0
 
