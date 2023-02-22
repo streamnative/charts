@@ -20,10 +20,6 @@
 initialize: false
 
 monitoring:
-  prometheus: false
-  grafana: false
-  node_exporter: false
-  alert_manager: false
   loki: false
 
 images:
@@ -35,26 +31,12 @@ images:
 
 zookeeper:
   replicaCount: 1
-  resources:
-    requests:
-      memory: 256Mi
-      cpu: 0.1
-    limits:
-      memory: 256Mi
-      cpu: 0.1
   volumes:
     data:
       size: 20Gi
 
 bookkeeper:
   replicaCount: 1
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 0.2
-    limits:
-      memory: 512Mi
-      cpu: 0.2
   configData:
     diskUsageThreshold: "0.999"
     diskUsageWarnThreshold: "0.999"
@@ -63,13 +45,6 @@ bookkeeper:
 
 broker:
   replicaCount: 1
-  resources:
-    requests:
-      memory: 512Mi
-      cpu: 0.2
-    limits:
-      memory: 512Mi
-      cpu: 0.2
   configData:
     autoSkipNonRecoverableData: "true"
     managedLedgerDefaultEnsembleSize: "1"
@@ -78,13 +53,6 @@ broker:
 
 proxy:
   replicaCount: 1
-  resources:
-    requests:
-      memory: 128Mi
-      cpu: 0.2
-    limits:
-      memory: 128Mi
-      cpu: 0.2
   service:
     type: LoadBalancer
 
