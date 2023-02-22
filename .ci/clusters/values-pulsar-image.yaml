@@ -39,11 +39,25 @@ affinity:
 
 zookeeper:
   replicaCount: 1
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 0.1
+    limits:
+      memory: 256Mi
+      cpu: 0.1
   configData:
     PULSAR_GC: null
 
 bookkeeper:
   replicaCount: 3
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 0.2
+    limits:
+      memory: 512Mi
+      cpu: 0.2
   configData:
     diskUsageThreshold: "0.999"
     diskUsageWarnThreshold: "0.999"
@@ -53,6 +67,13 @@ bookkeeper:
 
 broker:
   replicaCount: 1
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 0.2
+    limits:
+      memory: 512Mi
+      cpu: 0.2
   configData:
     ## Enable `autoSkipNonRecoverableData` since bookkeeper is running
     ## without persistence
@@ -65,6 +86,13 @@ broker:
 
 proxy:
   replicaCount: 1
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 0.2
+    limits:
+      memory: 128Mi
+      cpu: 0.2
   websocket:
     configData:
       PULSAR_GC: null
