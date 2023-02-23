@@ -48,6 +48,15 @@ rules:
   verbs:
   - create
   - patch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
 ---
 kind: {{ template "pulsar.operatorRoleBindingKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
