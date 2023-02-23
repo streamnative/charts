@@ -17,7 +17,7 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart (Basic Installation)
+name: Precommit - Pulsar Helm Chart
 on:
   pull_request:
     branches:
@@ -28,6 +28,42 @@ on:
       - '.github/workflows/pulsar**'
 jobs:
   lint-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "Basic Installation"
+            values: .ci/clusters/values-local-pv.yaml
+          - name: "ZK TLS Only"
+            values: .ci/clusters/values-zk-tls.yaml
+          - name: "BK TLS Only"
+            values: .ci/clusters/values-bk-tls.yaml
+          - name: "ZK & BK TLS Only"
+            values: .ci/clusters/values-zkbk-tls.yaml
+          - name: "TLS Installation"
+            values: .ci/clusters/values-tls.yaml
+          - name: "Broker & Proxy TLS Installation"
+            values: .ci/clusters/values-broker-tls.yaml
+          - name: "Advertise Broker IP Address"
+            values: .ci/clusters/values-broker-ip.yaml
+          - name: "JWT Secret Key Installation"
+            values: .ci/clusters/values-jwt-symmetric.yaml
+            env-symmetric: true
+          - name: "JWT Public/Private Key Installation"
+            values: .ci/clusters/values-jwt-asymmetric.yaml
+            env-symmetric: false
+          - name: "Pulsar Function"
+            values: .ci/clusters/values-function.yaml
+            env-function: true
+          - name: "Service Account"
+            values: .ci/clusters/values-service-account.yaml
+          - name: "Service Account Disabled"
+            values: .ci/clusters/values-sa-disabled.yaml
+          - name: "Use Pulsar Image"
+            values: .ci/clusters/values-pulsar-image.yaml
+          - name: "Use SN Image"
+            values: .ci/clusters/values-sn-image.yaml
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,11 +79,13 @@ jobs:
           command: lint
 
       - name: Install chart
+        if: steps.lint.outputs.changed == 'true' # Only build a kind cluster if there are chart changes to test.
+        env:
+          SYMMETRIC: ${{ matrix.env-symmetric }}
+          FUNCTION: ${{ matrix.env-function }}
         run: |
-          .ci/chart_test.sh .ci/clusters/values-local-pv.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
+          .ci/chart_test.sh ${{ matrix.values }}
 
       - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
         if: failure()
+        uses: mxschmitt/action-tmate@v3
