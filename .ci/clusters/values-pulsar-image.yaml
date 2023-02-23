@@ -21,6 +21,7 @@ components:
   pulsar_manager: false
   # disable auto recovery
   autorecovery: false
+  sql_worker: false
 
 monitoring:
   prometheus: false
@@ -38,6 +39,8 @@ affinity:
 
 zookeeper:
   replicaCount: 1
+  configData:
+    PULSAR_GC: null
 
 bookkeeper:
   replicaCount: 3
@@ -46,10 +49,7 @@ bookkeeper:
     diskUsageWarnThreshold: "0.999"
     PULSAR_PREFIX_diskUsageThreshold: "0.999"
     PULSAR_PREFIX_diskUsageWarnThreshold: "0.999"
-  metadata:
-    image:
-      repository: apachepulsar/pulsar-all
-      tag: 2.6.1
+    PULSAR_GC: null
 
 broker:
   replicaCount: 1
@@ -61,9 +61,15 @@ broker:
     managedLedgerDefaultEnsembleSize: "1"
     managedLedgerDefaultWriteQuorum: "1"
     managedLedgerDefaultAckQuorum: "1"
+    PULSAR_GC: null
 
 proxy:
   replicaCount: 1
+  websocket:
+    configData:
+      PULSAR_GC: null
+  configData:
+    PULSAR_GC: null
 
 toolset:
   useProxy: false

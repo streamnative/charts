@@ -36,7 +36,7 @@ Options:
        -h,--help               prints the usage message
        -n,--name               name of the Kubernetes cluster,default value: kind
        -c,--nodeNum            the count of the cluster nodes,default value: 6
-       -k,--k8sVersion         version of the Kubernetes cluster,default value: v1.12.8
+       -k,--k8sVersion         version of the Kubernetes cluster,default value: v1.20.15
        -v,--volumeNum          the volumes number of each kubernetes node,default value: 9
 Usage:
     $0 --name testCluster --nodeNum 4 --k8sVersion v1.12.9
@@ -102,6 +102,12 @@ do
     fi
 done
 
+matchedCluster=$(kind get clusters --quiet | grep ${clusterName})
+if [[ "${matchedCluster}" == "${clusterName}" ]]; then
+    echo "############# Cleanup existing cluster:[${clusterName}] #############"
+    kind delete cluster --name=${clusterName}
+fi
+
 echo "############# start create cluster:[${clusterName}] #############"
 workDir=${HOME}/kind/${clusterName}
 mkdir -p ${workDir}
@@ -120,11 +126,6 @@ kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 nodes:
 - role: control-plane
-  extraPortMappings:
-  - containerPort: 5000
-    hostPort: 5000
-    listenAddress: 127.0.0.1
-    protocol: TCP
 EOF
 
 for ((i=0;i<${nodeNum};i++))
@@ -144,100 +145,12 @@ EOF
     done
 done
 
-matchedCluster=$(kind get clusters | grep ${clusterName})
-if [[ "${matchedCluster}" == "${clusterName}" ]]; then
-    echo "Kind cluster ${clusterName} already exists"
-    kind delete cluster --name=${clusterName}
-fi
 echo "start to create k8s cluster"
 kind create cluster --config ${configFile} --image kindest/node:${k8sVersion} --name=${clusterName}
 export KUBECONFIG=${workDir}/kubeconfig.yaml
 kind get kubeconfig --name=${clusterName} > ${KUBECONFIG}
 
-echo "deploy docker registry in kind"
-registryNode=${clusterName}-control-plane
-registryNodeIP=$($KUBECTL_BIN get nodes ${registryNode} -o template --template='{{range.status.addresses}}{{if eq .type "InternalIP"}}{{.address}}{{end}}{{end}}')
-registryFile=${workDir}/registry.yaml
-
-cat <<EOF >${registryFile}
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: registry
-spec:
-  selector:
-    matchLabels:
-      app: registry
-  template:
-    metadata:
-      labels:
-        app: registry
-    spec:
-      hostNetwork: true
-      nodeSelector:
-        kubernetes.io/hostname: ${registryNode}
-      tolerations:
-      - key: node-role.kubernetes.io/master
-        operator: "Equal"
-        effect: "NoSchedule"
-      containers:
-      - name: registry
-        image: registry:2
-        volumeMounts:
-        - name: data
-          mountPath: /data
-      volumes:
-      - name: data
-        hostPath:
-          path: /data
----
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: registry-proxy
-  labels:
-    app: registry-proxy
-spec:
-  selector:
-    matchLabels:
-      app: registry-proxy
-  template:
-    metadata:
-      labels:
-        app: registry-proxy
-    spec:
-      hostNetwork: true
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: NotIn
-                values:
-                  - ${registryNode}
-      tolerations:
-      - key: node-role.kubernetes.io/master
-        operator: "Equal"
-        effect: "NoSchedule"
-      containers:
-        - name: socat
-          image: alpine/socat:1.0.5
-          args:
-          - tcp-listen:5000,fork,reuseaddr
-          - tcp-connect:${registryNodeIP}:5000
-EOF
-$KUBECTL_BIN apply -f ${registryFile}
-
-echo "init pulsar  env"
-$KUBECTL_BIN apply -f ${PULSAR_CHART_HOME}/manifests/local-dind/local-volume-provisioner.yaml
-
-docker pull gcr.io/google-containers/kube-scheduler:${k8sVersion}
-docker tag gcr.io/google-containers/kube-scheduler:${k8sVersion} mirantis/hypokube:final
-kind load docker-image --name=${clusterName} mirantis/hypokube:final
-
 echo "############# success create cluster:[${clusterName}] #############"
-
 echo "To start using your cluster, run:"
 echo "    export KUBECONFIG=${KUBECONFIG}"
 echo ""

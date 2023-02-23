@@ -24,7 +24,7 @@ on:
       - '*'
     paths:
       - 'charts/sn-platform-detector/**'
-      - '.github/workflows/**'
+      - '.github/workflows/sn-platform-detector.yml'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
