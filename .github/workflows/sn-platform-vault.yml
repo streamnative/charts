@@ -24,7 +24,7 @@ on:
       - '*'
     paths:
       - 'charts/sn-platform-vault/**'
-      - '.github/workflows/**'
+      - '.github/workflows/sn-platform-vault.yml'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
