@@ -56,7 +56,20 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
+<<<<<<< HEAD
   ca:
     secretName: "{{ .Release.Name }}-ca-tls"
+=======
+{{- if eq .Values.certs.internal_issuer.type "selfsigning" }}
+  ca:
+    secretName: "{{ .Release.Name }}-ca-tls"
+{{- else if eq .Values.certs.internal_issuer.type "secret" }}
+  ca:
+    secretName: {{ .Values.certs.issuers.secret.secretName }}
+{{- else if eq .Values.certs.internal_issuer.type "custom" }}
+{{- with .Values.certs.issuers.custom }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+>>>>>>> 1785633 ([charts/sn-platform] - fix repeat ca tag (#939))
 {{- end }}
 {{- end }}
