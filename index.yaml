@@ -909,8 +909,7 @@ entries:
   - apiVersion: v1
     appVersion: "1.0"
     created: "2021-06-14T07:10:56.226381051Z"
-    description: Apache Pulsar 
-    s Helm chart for Kubernetes
+    description: Apache Pulsar Operators Helm chart for Kubernetes
     digest: 9c3a038ca5f73fd2278df351e873133dd214f7b3ec304100b3e094c3cdf3c173
     home: https://streamnative.io
     icon: http://pulsar.apache.org/img/pulsar.svg
