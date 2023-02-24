@@ -26,11 +26,17 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
+    {{- with .Values.broker.pulsarBroker.annotations -}}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
 {{- with .Values.broker.labels }}
 {{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.broker.pulsarBroker.labels -}}
+{{ toYaml . | nindent 4 }}
 {{- end }}
 spec:
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
@@ -68,9 +74,9 @@ spec:
 {{- end }}
 {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
     secretRefs:
-    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
+    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
       {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
-      secretName: {{ default $defaultSecretName .Values.proxy.publicKeySecret }}
+      secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
     {{- if .Values.broker.offload.gcs.secret }}
     - mountPath: /pulsar/srvaccts/gcs.json
       secretName: {{ .Values.broker.offload.gcs.secret }}
@@ -196,9 +202,9 @@ spec:
     serviceURLGenerationPolicy: FQDN
     {{- end }}
     usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
-    {{- if or (or .Values.broker.kop.enabled .Values.components.kop) .Values.broker.aop.enabled .Values.broker.mop.enabled}}
+    {{- if or .Values.broker.kop.enabled .Values.broker.aop.enabled .Values.broker.mop.enabled}}
     protocolHandlers:
-    {{- if or .Values.broker.kop.enabled .Values.components.kop }}
+    {{- if .Values.broker.kop.enabled }}
       kop:
         enabled: true
     {{- if .Values.broker.kop.tls.enabled }}
@@ -325,25 +331,6 @@ spec:
     {{- if .Values.broker.resources }}
     resources: {{- toYaml .Values.broker.resources | nindent 10 }}
     {{- end }}
-  {{- if and .Values.components.autoscaling .Values.broker.autoscaling.maxReplicas }}
-  autoScalingPolicy:
-    maxReplicas: {{ .Values.broker.autoscaling.maxReplicas }}
-    {{- if .Values.broker.autoscaling.minReplicas }}
-    minReplicas: {{ .Values.broker.autoscaling.minReplicas }}
-    {{- end }}
-    {{- if .Values.broker.autoscaling.metrics }}
-    metrics:
-{{- with .Values.broker.autoscaling.metrics }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-    {{- if .Values.broker.autoscaling.behavior }}
-    behavior:
-{{- with .Values.broker.autoscaling.behavior }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-  {{- end }}
   {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
   apiObjects:
     statefulSet:

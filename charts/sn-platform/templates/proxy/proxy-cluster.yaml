@@ -26,11 +26,17 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
+    {{- with .Values.proxy.pulsarProxy.annotations -}}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.proxy.pulsarProxy.labels -}}
+{{ toYaml . | nindent 4 }}
 {{- end }}
 spec:
   brokerAddress: {{ template "pulsar.proxy.broker.service.address" . }}
@@ -193,28 +199,6 @@ spec:
       {{- end }}
   {{- else }}
       {}
-  {{- end }}
-  {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
-  {{- if .Values.proxy.websocket.enabled }}
-  webSocketServiceEnabled: true
-  {{- end }}
-  autoScalingPolicy:
-    maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
-    {{- if .Values.proxy.autoscaling.minReplicas }}
-    minReplicas: {{ .Values.proxy.autoscaling.minReplicas }}
-    {{- end }}
-    {{- if .Values.proxy.autoscaling.metrics }}
-    metrics:
-{{- with .Values.proxy.autoscaling.metrics }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-    {{- if .Values.proxy.autoscaling.behavior }}
-    behavior:
-{{- with .Values.proxy.autoscaling.behavior }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
   {{- end }}
   {{- with .Values.proxy.customization }}
   customization:

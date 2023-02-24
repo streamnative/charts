@@ -79,7 +79,7 @@ Define broker zookeeper client tls settings
 NOTE: `BROKER_ADDRESS` should be set before using this template
 */}}
 {{- define "pulsar.broker.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop)) }}
+{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.broker.kop.enabled)) }}
 /pulsar/keytool/keytool.sh broker ${BROKER_ADDRESS} true;
 {{- end }}
 {{- end }}
@@ -88,7 +88,7 @@ NOTE: `BROKER_ADDRESS` should be set before using this template
 Define broker kop settings
 */}}
 {{- define "pulsar.broker.kop.settings" -}}
-{{- if .Values.components.kop }}
+{{- if .Values.broker.kop.enabled }}
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
 export PULSAR_PREFIX_listeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.kop.ports.ssl }}";
 {{- else }}
@@ -102,7 +102,7 @@ Define broker tls certs mounts
 */}}
 {{- define "pulsar.broker.certs.volumeMounts" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-{{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
+{{- if or .Values.tls.zookeeper.enabled .Values.broker.kop.enabled }}
 - name: keytool
   mountPath: "/pulsar/keytool/keytool.sh"
   subPath: keytool.sh
@@ -115,7 +115,7 @@ Define broker tls certs volumes
 */}}
 {{- define "pulsar.broker.certs.volumes" -}}
 {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-{{- if or .Values.tls.zookeeper.enabled .Values.components.kop }}
+{{- if or .Values.tls.zookeeper.enabled .Values.broker.kop.enabled }}
 - name: keytool
   configMap:
     name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
@@ -181,7 +181,11 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
       namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -283,7 +287,11 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
       namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.broker.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,

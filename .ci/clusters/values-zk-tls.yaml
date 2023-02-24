@@ -21,6 +21,7 @@ components:
   pulsar_manager: false
   # disable auto recovery
   autorecovery: false
+  sql_worker: false
 
 monitoring:
   prometheus: false
@@ -28,9 +29,6 @@ monitoring:
   node_exporter: false
   alert_manager: false
   loki: false
-
-volumes:
-  local_storage: true
 
 # disabled AntiAffinity
 affinity:

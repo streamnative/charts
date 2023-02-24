@@ -17,33 +17,28 @@
 # under the License.
 #
 
-name: Precommit - Pulsar Helm Chart (Use SN Image)
-on:
-  pull_request:
-    branches:
-      - '*'
-    paths:
-      - 'charts/local-storage-provisioner/**'
-      - 'charts/pulsar/**'
-      - '.github/workflows/**'
-jobs:
-  lint-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+components:
+  vault: false
 
-      - name: Fetch history
-        run: git fetch --prune --unshallow
+auth:
+  authentication:
+    enabled: true
+    provider: "jwt"
+    jwt:
+      enabled: true
+      usingSecretKey: false
+  vault:
+    enabled: false
 
-      - name: Lint chart
-        id: lint
-        uses: helm/chart-testing-action@v1.0.0
-        with:
-          command: lint
-
-      - name: Install chart
-        run: |
-          .ci/chart_test.sh .ci/clusters/values-sn-image.yaml
-        # Only build a kind cluster if there are chart changes to test.
-        if: steps.lint.outputs.changed == 'true'
+streamnative_console:
+  configData:
+    INIT_DEFAULT_ENVIRONMENT: true
+    BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
+  login:
+      pulsarJwt:
+        enabled: true
+        config:
+          AUTHENTICATION_CUSTOM_CLAIM: sub
+          SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: "<release-name>-token--admin"
+          JWT_BROKER_TOKEN_MODE: PRIVATE
+          JWT_BROKER_PUBLIC_PRIVATE_KEY: "<release-name>-token-asymmetric-key"

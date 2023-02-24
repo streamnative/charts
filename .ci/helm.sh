@@ -26,7 +26,7 @@ HELM=${OUTPUT_BIN}/helm
 KUBECTL=${OUTPUT_BIN}/kubectl
 NAMESPACE=pulsar
 CLUSTER=pulsar-ci
-CLUSTER_ID=$(uuidgen)
+CLUSTER_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
 K8S_VERSION=${K8S_VERSION:-"v1.19.16"}
 
 function ci::create_cluster() {
@@ -39,19 +39,6 @@ function ci::delete_cluster() {
     echo "Deleting a kind cluster ..."
     kind delete cluster --name=pulsar-ci-${CLUSTER_ID}
     echo "Successfully delete a kind cluster."
-}
-
-function ci::install_storage_provisioner() {
-    echo "Installing the local storage provisioner ..."
-    ${HELM} install local-storage-provisioner ${CHARTS_HOME}/charts/local-storage-provisioner
-    WC=$(${KUBECTL} get pods --field-selector=status.phase=Running | grep local-storage-provisioner | wc -l)
-    while [[ ${WC} -lt 1 ]]; do
-      echo ${WC};
-      sleep 15
-      ${KUBECTL} get pods --field-selector=status.phase=Running
-      WC=$(${KUBECTL} get pods --field-selector=status.phase=Running | grep local-storage-provisioner | wc -l)
-    done
-    echo "Successfully installed the local storage provisioner."
 }
 
 function ci::install_cert_manager() {
@@ -88,17 +75,18 @@ function ci::install_pulsar_chart() {
 
     echo ${HELM} install -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
     ${HELM} template -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
-    ${HELM} install -n ${NAMESPACE} --set initialize=true --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
+    ${HELM} upgrade --install -n ${NAMESPACE} --set initialize=true --values ${value_file} ${CLUSTER} ${chart_home}/charts/pulsar
 
     ci::wait_pulsar_ready
     # ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ "$(curl -L http://pulsar-ci-proxy:8080/status.html)" == "OK" ]; do sleep 3; done'
 }
 
 function ci::wait_pulsar_ready() {
-    echo "wait until broker is alive"
+    echo "Wait until broker is ready"
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
-    while [[ ${WC} -lt 1 ]]; do
-      echo ${WC};
+    SECONDS=0
+    while [[ ${WC} -lt 1 ]] && (( ${SECONDS} < 600 )); do
+      echo "@" ${SECONDS}, ${WC};
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE}
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} | grep ${CLUSTER}-broker | wc -l)
@@ -108,17 +96,20 @@ function ci::wait_pulsar_ready() {
       fi
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-broker | wc -l)
     done
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-broker; do sleep 3; done'
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until [ "$(curl -L http://pulsar-ci-broker:8080/status.html)" == "OK" ]; do sleep 3; done'
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- timeout 10m bash -c 'until nslookup pulsar-ci-broker; do sleep 3; done'
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- timeout 10m bash -c 'until [ "$(curl -L http://pulsar-ci-broker:8080/status.html)" == "OK" ]; do sleep 3; done'
 
+    # TODO: Handle when proxy is disabled
+    echo "Wait until proxy is ready"
     WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
-    while [[ ${WC} -lt 1 ]]; do
-      echo ${WC};
+    SECONDS=0
+    while [[ ${WC} -lt 1 ]] && (( ${SECONDS} < 600 )); do
+      echo "@" ${SECONDS}, ${WC};
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE}
       WC=$(${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running | grep ${CLUSTER}-proxy | wc -l)
     done
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- timeout 5m bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'
 
     ${KUBECTL} get service -n ${NAMESPACE}
 }
@@ -158,6 +149,7 @@ function ci::wait_message_processed() {
 }
 
 function ci::test_pulsar_function() {
+    echo "@Test Pulsar Function"
     sleep 120
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-broker; do sleep 3; done'
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'until nslookup pulsar-ci-proxy; do sleep 3; done'

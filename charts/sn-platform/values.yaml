@@ -100,8 +100,6 @@ components:
   streamnative_console: true
   # pulsar sql
   sql_worker: false
-  # kop
-  kop: false
   # pulsar detector
   pulsar_detector: true
   # superset
@@ -132,22 +130,22 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.1.11"
+        tag: "2.10.2.4"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.1.11"
+        tag: "2.10.2.4"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
     exporter:
       repository: bitnami/jmx-exporter
@@ -156,40 +154,40 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.10.1.11
+  #   tag: 2.10.2.4
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
-      tag: "7.0.1"
+      tag: "7.3.1"
       pullPolicy: IfNotPresent
     busybox:
       repository: busybox
@@ -205,11 +203,11 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: "0.0.17"
+    tag: "0.0.18"
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/sn-platform-console
-    tag: "v1.14.1"
+    tag: "v1.14.7"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -241,7 +239,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.10.1.11"
+    tag: "2.10.2.4"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -426,6 +424,10 @@ certs:
   internal_issuer:
     enabled: false
     component: internal-cert-issuer
+    # Type options are selfsigning, secret, custom
+    #  selfsigning doesn't need another configure
+    #  secret depends on certs.issuers.secret.secretName
+    #  custom depends on certs.issuers.custom
     type: selfsigning
   public_issuer:
     enabled: false
@@ -435,6 +437,10 @@ certs:
   istio_internal_issuer:
     enabled: false
     component: istio-internal-cert-issuer
+    # Type options are selfsigning, secret
+    #  selfsigning doesn't need another configure
+    #  secret depends on certs.issuers.secret.secretName
+    #  custom depends on certs.issuers.custom
     type: selfsigning
 
   istio_public_issuer:
@@ -444,6 +450,9 @@ certs:
 
   issuers:
     selfsigning:
+    secret:
+      secretName: ca-keypair
+    custom: {}
     acme:
       # You must replace this email address with your own.
       # Let's Encrypt will use this to contact you about expiring
@@ -600,6 +609,13 @@ common:
 ## templates/zookeeper-statefulset.yaml
 ##
 zookeeper:
+  # zooKeeperCluster indicates the setup for the CR(CustomResource) of the ZooKeeperCluster
+  zooKeeperCluster:
+    # labels that will be added on the ZooKeeperCluster CR only.
+    labels: {}
+    # annotations that will be added on the ZooKeeperCluster CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
@@ -814,6 +830,13 @@ zookeeper:
 ## templates/bookkeeper-statefulset.yaml
 ##
 bookkeeper:
+  # bookKeeperCluster indicates the setup for the CR(CustomResource) of the BookKeeperCluster
+  bookKeeperCluster:
+    # labels that will be added on the BookKeeperCluster CR only.
+    labels: {}
+    # annotations that will be added on the BookKeeperCluster CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
@@ -821,8 +844,6 @@ bookkeeper:
   # The minimum number of bookies is three for self-verifying according to the docs
   # https://bookkeeper.apache.org/archives/docs/master/bookkeeperConfig.html
   replicaCount: 3
-  autoscaling:
-    maxReplicas: 4
   ports:
     http: 8000
     bookie: 3181
@@ -950,8 +971,6 @@ autorecovery:
   # so the metrics are correctly rendered in grafana dashboard
   component: recovery
   replicaCount: 1
-  autoscaling:
-    maxReplicas: 1
   ports:
     http: 8000
   # nodeSelector:
@@ -1019,12 +1038,17 @@ kop:
 ## templates/broker-statefulset.yaml
 ##
 broker:
+  # pulsarBroker indicates the setup for the CR(CustomResource) of the PulsarBroker
+  pulsarBroker:
+    # labels that will be added on the PulsarBroker CR only.
+    labels: {}
+    # annotations that will be added on the PulsarBroker CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: broker
   replicaCount: 1
-  autoscaling:
-    maxReplicas: 3
   ports:
     http: 8080
     https: 8443
@@ -1376,12 +1400,17 @@ pulsar_detector:
     annotations: {}
 
 proxy:
+  # pulsarProxy indicates the setup for the CR(CustomResource) of the PulsarProxy
+  pulsarProxy:
+    # labels that will be added on the PulsarProxy CR only.
+    labels: {}
+    # annotations that will be added on the PulsarProxy CR only.
+    annotations: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
   replicaCount: 1
-  autoscaling:
-    maxReplicas: 3
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   affinity:
@@ -1486,6 +1515,8 @@ toolset:
   labels: {}
   annotations: {}
   tolerations: []
+  kafka:
+    enabled: false
   gracePeriod: 0
   resources:
     requests:
@@ -1681,6 +1712,9 @@ prometheus:
 
 datadog:
   component: datadog
+  ## Datadog <METRICS_NAMESPACE_PREFIX_FOR_DATADOG> configuration. Set namespace to be prefixed to every metric when viewed in Datadog.
+  ## https://docs.datadoghq.com/containers/kubernetes/prometheus/?tab=kubernetesadv2
+  namespace: {}
   components:
     zookeeper:
       enabled: false
@@ -2305,6 +2339,8 @@ istio:
   enabled: false
   # istio labels used to inject sidecars if it's not `sidecar.istio.io/inject: "true"`
   labels: {}
+  # If you're using the prometheus in this chart, please keep mergeMetrics disabled.
+  mergeMetrics: false
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
