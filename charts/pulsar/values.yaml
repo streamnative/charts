@@ -68,6 +68,13 @@ volumes:
 affinity:
   anti_affinity: true
 
+## Deployment type
+##
+## Control what configurations of Apache Pulsar to deploy for a specified environment type
+deployment:
+  # This option will configure specific resources/object for a deployment on openshift
+  openshift: false
+
 ## Components
 ##
 ## Control what components of Apache Pulsar to deploy for the cluster
@@ -89,7 +96,7 @@ components:
   # pulsar manager
   pulsar_manager: true
   # pulsar sql
-  sql_worker: false
+  sql_worker: true
   # kop
   kop: false
   # mop
@@ -122,49 +129,61 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.7.2.8
+  #   tag: 2.9.2.12
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.7.2.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   pulsar_detector:
-    repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    repository: streamnative/sn-platform
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-pulsar
-    tag: 2.8.0.8
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_java:
+    repository: streamnative/pulsar-functions-java-runner
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_go:
+    repository: streamnative/pulsar-functions-go-runner
+    tag: 2.9.2.12
+    pullPolicy: IfNotPresent
+  function_runner_python:
+    repository: streamnative/pulsar-functions-python-runner
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.7.0.4
+  #   tag: 2.9.2.12
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -176,7 +195,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: 0.0.16
+    tag: 0.0.17
     pullPolicy: IfNotPresent
   pulsar_manager:
     repository: streamnative/pulsar-manager
@@ -188,8 +207,8 @@ images:
     tag: v0.16.0
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
-    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
-    tag: 0.26.2
+    repository: k8s.gcr.io/ingress-nginx/controller
+    tag: v1.1.1
     pullPolicy: "IfNotPresent"
 
 ## TLS
@@ -208,12 +227,14 @@ tls:
     organization:
       - pulsar
     keySize: 4096
-    keyAlgorithm: rsa
-    keyEncoding: pkcs8
+    keyAlgorithm: RSA
+    keyEncoding: PKCS8
+    caSecretName:
   # settings for generating certs for proxy
   proxy:
     enabled: false
     cert_name: tls-proxy
+    certSecretName:
     untrustedCa: true
   # settings for generating certs for proxy
   pulsar_detector:
@@ -223,9 +244,13 @@ tls:
   broker:
     enabled: false
     cert_name: tls-broker
+    certSecretName:
+  brokerClient:
+    enabled: false
   functions:
     enabled: false
     cert_name: tls-function
+    certSecretName:
   # settings for generating certs for kop
   kop:
     enabled: false
@@ -236,22 +261,28 @@ tls:
   bookie:
     enabled: false
     cert_name: tls-bookie
+    certSecretName:
   # settings for generating certs for zookeeper
   zookeeper:
     enabled: false
     cert_name: tls-zookeeper
+    certSecretName:
   # settings for generating certs for recovery
   autorecovery:
     cert_name: tls-recovery
+    certSecretName:
   # settings for generating certs for toolset
   toolset:
     cert_name: tls-toolset
+    certSecretName:
   pulsar_manager:
     enabled: false
     cert_name: tls-pulsar-manager
+    certSecretName:
   presto:
     enabled: false
     cert_name: tls-presto
+    certSecretName:
 
 # Enable or disable broker authentication and authorization.
 auth:
@@ -321,11 +352,17 @@ certs:
         #     name: "[NAME OF SECRET]"
         #     key: "[KEY OF SECRET]"
         #   role: "[ASSUME A ROLE]"
+        # cloudflare:
+        #   email: "[YOUR ACCOUNT EMAIL]"
+        #   apiTokenSecretRef:
+        #     name: "[NAME OF SECRET]"
+        #     key: "[KEY OF SECRET]"
   lets_encrypt:
     ca_ref:
       secretName: "[SECRET STORES lets encrypt CA]"
       keyName: "[KEY IN THE SECRET STORES let encrypt CA]"
-
+  ca:
+    annotations: {}
 ## External DNS
 ## templates/external-dns.yaml
 ## templates/external-dns-rbac.yaml
@@ -379,6 +416,8 @@ ingress:
       pulsarssl: true
       websocket: true
       websockettls: true
+      portNumbers:
+        https: 443
     type: LoadBalancer
     annotations: {}
     extraSpec: {}
@@ -497,11 +536,13 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 5
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 5
     startup:
       enabled: false
       failureThreshold: 30
@@ -598,6 +639,8 @@ zookeeper:
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
       -Dzookeeper.forceSync=no
+  statefulset:
+    annotations: {}
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
   ##
@@ -621,7 +664,7 @@ zookeeper:
       component: "backup"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-2"
+      tag: "2.9.2.12"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
@@ -647,7 +690,7 @@ zookeeper:
       component: "restore"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.7.0-2"
+      tag: "2.9.2.12"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
@@ -811,6 +854,8 @@ bookkeeper:
       -XX:+ExitOnOutOfMemoryError
       -XX:+PerfDisableSharedMem
       -verbosegc
+  statefulset:
+    annotations: {}
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -865,6 +910,8 @@ autorecovery:
   configData:
     BOOKIE_MEM: >
       -Xms64m -Xmx64m
+  statefulset:
+    annotations: {}
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
@@ -879,7 +926,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/pulsar-all
-    tag: 2.7.1.3
+    tag: 2.9.2.12
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -1026,6 +1073,8 @@ broker:
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
+  statefulset:
+    annotations: {}
   ## Broker service
   ## templates/broker-service.yaml
   ##
@@ -1044,7 +1093,6 @@ broker:
     annotations: {}
   offload:
     enabled: false
-    use: true
     managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
@@ -1078,6 +1126,9 @@ broker:
       ioSeqfileCompressBlocksize: "1000000"
       ioSeqFileCompressionType: "BLOCK"
       ioMapIndexInteval: "128"
+  packagesManagement:
+    storageProvider: "org.apache.pulsar.packages.management.storage.bookkeeper.BookKeeperPackagesStorageProvider"
+    ledgerRootPath: "/ledgers"
 
 ## Pulsar: Functions Worker
 ## templates/function-worker-configmap.yaml
@@ -1085,6 +1136,10 @@ broker:
 functions:
   component: functions-worker
   useDedicatedRunner: false
+  functionMesh: false
+  functionMeshName: "function-mesh"
+  functionMeshServiceAccount: "default"
+  builtinConnectorConfigmap: ""
   replicaCount: 1
   functionState: false
   enableCustomizerRuntime: false
@@ -1092,6 +1147,7 @@ functions:
   pulsarExtraClasspath: "extraLibs"
   # Specify the namespace to run pulsar functions
   authenticationProviders: []
+  authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
   jobNamespace: ""
   # Specify the pulsar root directory
   pulsarRootDir: ""
@@ -1145,6 +1201,8 @@ functions:
       failureThreshold: 30
       initialDelaySeconds: 60
       periodSeconds: 10
+  statefulset:
+    annotations: {}
   service:
     annotations: {}
   affinity:
@@ -1185,7 +1243,10 @@ pulsar_detector:
 
   gracePeriod: 30
   port: 9000
-
+  waitZkReady: true
+  # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+  # tolerations: []
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1200,6 +1261,8 @@ pulsar_detector:
     # annotations to apply to the serviceAccount.
     annotations: {}
 
+  statefulset:
+    annotations: {}
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -1334,10 +1397,13 @@ proxy:
   ports:
     http: 8080
     https: 443
+    # httpsServicePort:
     pulsar: 6650
     pulsarssl: 6651
     websocket: 9090
     websockettls: 9443
+  statefulset:
+    annotations: {}
   service:
     annotations: {}
     type: ClusterIP
@@ -1372,11 +1438,14 @@ toolset:
   autoRollDeployment: true
   # pulsarAdminUrlOverride:
   # pulsarServiceUrlOverride:
+  extraEnv: []
   configData:
     PULSAR_MEM: >
       -Xms64M
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
+  statefulset:
+    annotations: {}
 
 #############################################################
 ### Monitoring Stack : Prometheus / Grafana
@@ -1523,6 +1592,7 @@ prometheus:
       initialDelaySeconds: 30
       periodSeconds: 10
   customRelabelConfigs: []
+  extraScrapeConfigs: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
@@ -1602,6 +1672,7 @@ grafana:
   tolerations: []
   gracePeriod: 0
   port: 3000
+  localRenderCallback: false
   resources:
     requests:
       memory: 250Mi
@@ -1770,6 +1841,8 @@ pulsar_manager:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+  statefulset:
+    annotations: {}
   ## Pulsar manager service
   ## templates/pulsar-manager-service.yaml
   ##
@@ -1893,6 +1966,7 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
+      jdk11: true
     log:
       presto:
         level: DEBUG
@@ -1942,6 +2016,7 @@ presto:
         maxTotalMemoryPerNode: "256MB"
     jvm:
       memory: 2G
+      jdk11: true
     log:
       presto:
         level: DEBUG
@@ -1963,6 +2038,8 @@ presto:
       bookkeeperNumWorkerThreads: "8"
       mlNumWorkerThreads: "8"
       mlNumSchedulerThreads: "8"
+  statefulset:
+    annotations: {}
   service:
     spec:
       type: ClusterIP

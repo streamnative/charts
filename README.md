@@ -27,13 +27,12 @@ This repository includes the officially supported Helm Charts.
 
 | Chart | Description | Usage |
 | --- | --- | --- |
-| [`charts/pulsar`](https://github.com/streamnative/charts/tree/master/charts/pulsar) | The officially supported Helm Chart used for deploying Apache Pulsar to Kubernetes clusters. | For details about how to use it, see [here](charts/pulsar/README.md). |  
-| [`charts/sn-platform`](https://github.com/streamnative/charts/tree/master/charts/sn-platform) | The officially supported Helm Chart used for deploying StreamNative Platform to Kubernetes clusters. | For how to use it, see [here](charts/sn-platform/README.md).
-| [`charts/pulsar-operator`](https://github.com/streamnative/charts/tree/master/charts/pulsar-operator)  | The officially supported Helm Chart for installing the Pulsar operator to provide Customer Resource Definitions (CRDs) and Controllers to manage and run Pulsar clusters in a more resilient way. | For details about how to use it, see [here](charts/pulsar-operator/README.md). |
-| [`charts/function-mesh-operator`](https://github.com/streamnative/charts/tree/master/charts/function-mesh-operator) | The officially supported Helm Chart for installing FunctionMesh to manage Pulsar Functions and Pulsar IO connectors on Kubernetes. | For details about how to use it, see [here](charts/function-mesh-operator/README.md). | 
-| [`charts/local-storage-provisioner`](https://github.com/streamnative/charts/tree/master/charts/local-storage-provisioner) | The officially supported Helm Chart for installing the local storage provisioner use local persistent volumes as the persistent storage. | For details about how to use it, see [here](charts/local-storage-provisioner/README.md). |
-| [`charts/image-puller`](https://github.com/streamnative/charts/tree/master/charts/image-puller) | The officially supported Helm Chart for installing an Image Puller which pulls docker images required for deploying Apache Pulsar or StreamNative Platform. | For details about how to use it, see [here](charts/image-puller/README.md). |
-
+| [`pulsar-operator`](https://github.com/streamnative/charts/tree/master/charts/pulsar-operator)  | The officially supported Helm Chart for installing the Pulsar operator to provide Customer Resource Definitions (CRDs) and Controllers to manage and run Pulsar clusters in a more resilient way. | For details about how to use it, see [here](charts/pulsar-operator/README.md). |
+| [`sn-platform`](https://github.com/streamnative/charts/tree/master/charts/sn-platform) | The officially supported Helm Chart used for deploying StreamNative Platform to Kubernetes clusters. | For details about how to use it, see [here](charts/sn-platform/README.md).
+| [`function-mesh-operator`(Migrated)](https://github.com/streamnative/function-mesh/tree/master/charts/function-mesh-operator) | The officially supported Helm Chart for installing FunctionMesh to manage Pulsar Functions and Pulsar IO connectors on Kubernetes. | For details about how to use it, see [here](https://functionmesh.io/docs/). | 
+| [`pulsar`(Deprecated)](https://github.com/streamnative/charts/tree/master/charts/pulsar) | The officially supported Helm Chart used for deploying Apache Pulsar to Kubernetes clusters. | For details about how to use it, see [here](charts/pulsar/README.md). |  
+| [`local-storage-provisioner`](https://github.com/streamnative/charts/tree/master/charts/local-storage-provisioner) | The officially supported Helm Chart for installing the local storage provisioner to use local persistent volumes as persistent storage. | For details about how to use it, see [here](charts/local-storage-provisioner/README.md). |
+| [`image-puller`](https://github.com/streamnative/charts/tree/master/charts/image-puller) | The officially supported Helm Chart for installing an Image Puller which pulls required docker images for deploying Apache Pulsar or StreamNative Platform. | For details about how to use it, see [here](charts/image-puller/README.md). |
 
 
 ## Troubleshooting
@@ -43,3 +42,9 @@ occasionally troubles do surface outside of our control. We've collected
 tips and tricks for troubleshooting common issues. Please examine these first before raising an [issue](https://github.com/streamnative/charts/issues/new/choose), and feel free to add to them by raising a [Pull Request](https://github.com/streamnative/charts/compare)!
 
 
+## Release Process
+
+- Open https://github.com/streamnative/charts/actions/workflows/release.yml
+- Click the `Run workflow` button which is in the right side
+- Choose the name of chart you want to release, input its base branch version and release version
+- Click `Run workflow`

@@ -36,8 +36,19 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.pulsar.component }}
+        {{- if .Values.pulsar.podLabels }}
+{{ toYaml .Values.pulsar.podLabels | indent 8 }}
+        {{- end }}
+      {{- if .Values.pulsar.podAnnotations }}
+      annotations:
+{{ toYaml .Values.pulsar.podAnnotations | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 6}}
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.component }}"
         image: {{template "pulsar.image" . }}
@@ -45,6 +56,9 @@ spec:
         args:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election
+        {{- if or .Values.watchNamespace (not .Values.pulsar.serviceAccount.clusterRole)}}
+        - --watch-namespace={{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+        {{- end }}
         command:
         - /manager
         ports:
@@ -55,6 +69,13 @@ spec:
           value: "{{ .Values.pulsar.workers }}"
         - name: WATCH_CERT_MANAGER_CRDS
           value: "{{ .Values.pulsar.watchCertManagerCRDs }}"
+        {{- if not .Values.pulsar.serviceAccount.clusterRole }}
+        - name: FUNCTION_ROLE_TYPE
+          value: "Role"
+        {{- end}}
+        {{- with .Values.pulsar.extraEnv }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.pulsar.resources }}
         resources:
 {{ toYaml .Values.pulsar.resources | indent 10 }}
@@ -63,6 +84,10 @@ spec:
       nodeSelector:
 {{ toYaml .Values.pulsar.nodeSelector | indent 8 }}
       {{- end }}
+      {{- if .Values.pulsar.containerSecurityContext }}
+        securityContext:
+{{ toYaml .Values.pulsar.containerSecurityContext | indent 10 }}
+        {{- end }}
       {{- if .Values.pulsar.affinity }}
       affinity:
 {{ toYaml .Values.pulsar.affinity | indent 8 }}
@@ -74,5 +99,9 @@ spec:
       {{- if .Values.pulsar.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds:
 {{ toYaml .Values.pulsar.terminationGracePeriodSeconds | indent 8 }}
+      {{- end }}
+      {{- if .Values.pulsar.podSecurityContext }}
+      securityContext:
+{{ toYaml .Values.pulsar.podSecurityContext | indent 8 }}
       {{- end }}
 {{- end }}

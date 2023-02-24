@@ -21,17 +21,22 @@
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if .Values.tls.enabled }}
 {{- if .Values.tls.proxy.enabled }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.proxy.cert_name }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
+  {{- if .Values.ingress.proxy.external_domain }}
+  commonName: {{ .Values.ingress.proxy.external_domain }}
+  {{- end }}
   # Secret names are always required.
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
   dnsNames:
     - "{{ template "pulsar.service_domain" . }}"
+    {{- if .Values.ingress.proxy.wildcardDomain }}
     - "*.{{ template "pulsar.service_domain" . }}"
+    {{- end }}    
     {{- if .Values.ingress.kop.enabled }}
     - "{{ .Values.ingress.kop.external_domain }}"
     - "*.{{ .Values.ingress.kop.external_domain }}"

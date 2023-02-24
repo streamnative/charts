@@ -18,6 +18,7 @@
 #
 
 {{- if .Values.components.vault }}
+{{- if .Values.initialize }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -28,6 +29,16 @@ metadata:
     component: "{{ .Values.bookkeeper.component }}-init"
 spec:
   template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+{{- if .Values.vault.labels }}    
+{{ toYaml .Values.vault.labels | indent 8 }}
+{{- end }}
+      annotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 8 }}
+{{- end }}
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
       containers:
@@ -46,7 +57,7 @@ spec:
            echo "vault root token is ready";
            rootToken=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
            echo $rootToken;
-           echo $rootToken > /root/rootToken;
+           echo $rootToken > /vault/rootToken;
            export ROOT_TOKEN=$rootToken;
            vault login $ROOT_TOKEN;
            until [ $? -eq 0 ]; do
@@ -58,8 +69,16 @@ spec:
            echo "Start init public key to secret";
            publicKey=$(wget -qO- http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200/v1/identity/oidc/.well-known/keys | base64 | tr -d \\n);
            kubectl patch secret {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key --type='json' -p='[{"op":"replace","path":"/data/publicKey","value":"'$publicKey'"}]' -n {{ template "pulsar.namespace" . }};
+           echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
         env:
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}
+        {{- if .Values.vault.resources }}
+        resources: {{- toYaml .Values.vault.resources | nindent 10  }}
+        {{- end }}
       restartPolicy: Never
+      {{- if .Values.vault.securityContext }}
+      securityContext: {{- toYaml .Values.vault.securityContext | nindent 8 }}
+      {{- end }}
+{{- end }}
 {{- end }}

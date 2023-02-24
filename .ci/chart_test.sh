@@ -19,10 +19,9 @@ source ${CHARTS_HOME}/.ci/helm.sh
 ci::create_cluster
 
 # delete the cluster
-trap 'ci::delete_cluster' 0
-
-# install storage provisioner
-ci::install_storage_provisioner
+# TODO: Make cluster cleanup as a separate step.
+# We shouldn't cleanup the cluster as we might jump to tmate session.
+#trap 'ci::delete_cluster' 0
 
 extra_opts=""
 if [[ "x${SYMMETRIC}" == "xtrue" ]]; then
@@ -44,6 +43,6 @@ if [[ "x${FUNCTION}" == "xtrue" ]]; then
     ci::test_pulsar_function
 fi
 
-if [[ "x${UPGRADE}" == "xtrue" ]]; then
-    ci::upgrade_pulsar_chart  ${CHARTS_HOME}/${VALUES_FILE}
-fi
+# if [[ "x${UPGRADE}" == "xtrue" ]]; then
+#     ci::upgrade_pulsar_chart  ${CHARTS_HOME}/${VALUES_FILE}
+# fi

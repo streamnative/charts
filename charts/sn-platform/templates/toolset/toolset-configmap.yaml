@@ -32,22 +32,22 @@ data:
   {{- if not .Values.toolset.useProxy }}
   # talk to broker
   {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
-  webServiceUrl: "https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}/"
-  brokerServiceUrl: "pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsarssl }}/"
+  webServiceUrl: "https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless:{{ .Values.broker.ports.https }}/"
+  brokerServiceUrl: "pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless:{{ .Values.broker.ports.pulsarssl }}/"
   useTls: "true"
   tlsAllowInsecureConnection: "false"
   tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   tlsEnableHostnameVerification: "false"
   {{- else }}
-  webServiceUrl: "http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}/"
-  brokerServiceUrl: "pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.pulsar }}/"
+  webServiceUrl: "http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless:{{ .Values.broker.ports.http }}/"
+  brokerServiceUrl: "pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless:{{ .Values.broker.ports.pulsar }}/"
   {{- end }}
   {{- end }}
   {{- if .Values.toolset.useProxy }}
   # talk to proxy
   {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  webServiceUrl: "https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}/"
-  brokerServiceUrl: "pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsarssl }}/"
+  webServiceUrl: "https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless:{{ .Values.proxy.ports.https }}/"
+  brokerServiceUrl: "pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless:{{ .Values.proxy.ports.pulsarssl }}/"
   useTls: "true"
   tlsAllowInsecureConnection: "false"
   {{- if .Values.tls.proxy.untrustedCa }}
@@ -56,8 +56,8 @@ data:
   tlsEnableHostnameVerification: "false"
   {{- end }}
   {{- if not (and .Values.tls.enabled .Values.tls.proxy.enabled) }}
-  webServiceUrl: "http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}/"
-  brokerServiceUrl: "pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.pulsar }}/"
+  webServiceUrl: "http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless:{{ .Values.proxy.ports.http }}/"
+  brokerServiceUrl: "pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless:{{ .Values.proxy.ports.pulsar }}/"
   {{- end }}
   {{- end }}
   # Authentication Settings
@@ -72,7 +72,7 @@ data:
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
 {{ (.Files.Glob "conf/toolset/log4j2.yaml").AsConfig | indent 2 }}
   kafka.properties: |
-{{- if and .Values.tls.broker.enabled .Values.components.kop }}
+{{- if and .Values.tls.broker.enabled .Values.toolset.kafka.enabled }}
 {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }}
     security.protocol=SASL_SSL
     sasl.mechanism=PLAIN
@@ -82,4 +82,34 @@ data:
     ssl.truststore.location=/pulsar/toolset.truststore.jks
     ssl.endpoint.identification.algorithm=
 {{- end }}
+  # pulsarctl configs
+  pulsarctl.config: |
+    auth-info:
+      default:
+        locationoforigin: /root/.config/pulsar/config
+        {{- if not .Values.toolset.useProxy }}
+        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        tls_trust_certs_file_path: "/pulsar/certs/ca/ca.crt"
+        {{- end }}
+        {{- else }}
+        {{- if and .Values.tls.enabled (and .Values.tls.proxy.enabled .Values.tls.proxy.untrustedCa) }}
+        tls_trust_certs_file_path: "/pulsar/certs/proxy-ca/ca.crt"
+        {{- end }}
+        {{- end }}
+        tls_allow_insecure_connection: false
+        token: ""
+        {{- if .Values.auth.authentication.enabled }}
+        {{- if eq .Values.auth.authentication.provider "jwt" }}
+        tokenFile: "/pulsar/tokens/client/token"
+        {{- end }}
+        {{- end }}
+        issuer_endpoint: ""
+        client_id: ""
+        audience: ""
+        key_file: ""
+    contexts:
+      default:
+        admin-service-url: "{{ template "toolset.web.service.url" . }}"
+        bookie-service-url: "http://{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}:{{ .Values.bookkeeper.ports.http }}"
+    current-context: default
 {{- end }}

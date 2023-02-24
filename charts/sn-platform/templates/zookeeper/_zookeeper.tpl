@@ -62,7 +62,7 @@ Define zookeeper certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: zookeeper-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}"
+    secretName: "{{ template "pulsar.zookeeper.tls.secret.name" . }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -70,7 +70,7 @@ Define zookeeper certs volumes
         path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -100,18 +100,27 @@ Define zookeeper log volumes
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
 {{- end }}
 
+{{/*Define zookeeper pod name*/}}
+{{- define "pulsar.zookeeper.podName" -}}
+{{- print "zookeeper" -}}
+{{- end -}}
+
 {{/*Define zookeeper datadog annotation*/}}
 {{- define "pulsar.zookeeper.datadog.annotation"}}
 {{- if .Values.datadog.components.zookeeper.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
+      {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
+      namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
@@ -178,6 +187,22 @@ Define zookeeper data volumes
 {{- end }}
 {{- end }}
 
+{{- define "pulsar.zookeeper.data.storage.class" -}}
+{{- if  .Values.zookeeper.volumes.data.storageClass }}
+storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
+{{- else if .Values.zookeeper.volumes.data.storageClassName }}
+storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
+{{- end }}
+{{- end }}
+
+{{- define "pulsar.zookeeper.dataLog.storage.class" -}}
+{{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
+storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
+{{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
+storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
+{{- end }}
+{{- end }}
+
 {{/*
 Define zookeeper data volumes
 */}}
@@ -190,14 +215,10 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.data.size }}
-  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
-    storageClassName: "local-storage"
-  {{- else }}
-    {{- if  .Values.zookeeper.volumes.data.storageClass }}
+  {{- if  .Values.zookeeper.volumes.data.storageClass }}
     storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.data.name }}"
-    {{- else if .Values.zookeeper.volumes.data.storageClassName }}
+  {{- else if .Values.zookeeper.volumes.data.storageClassName }}
     storageClassName: {{ .Values.zookeeper.volumes.data.storageClassName }}
-    {{- end -}}
   {{- end }}
 {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}
 - metadata:
@@ -207,14 +228,10 @@ Define zookeeper data volumes
     resources:
       requests:
         storage: {{ .Values.zookeeper.volumes.dataLog.size }}
-  {{- if and .Values.volumes.local_storage .Values.zookeeper.volumes.data.local_storage }}
-    storageClassName: "local-storage"
-  {{- else }}
-    {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
+  {{- if  .Values.zookeeper.volumes.dataLog.storageClass }}
     storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.volumes.dataLog.name }}"
-    {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
+  {{- else if .Values.zookeeper.volumes.dataLog.storageClassName }}
     storageClassName: {{ .Values.zookeeper.volumes.dataLog.storageClassName }}
-    {{- end -}}
   {{- end }}
 {{- end }}
 {{- end }}
@@ -238,3 +255,27 @@ Define zookeeper gen-zk-conf volumes
     name: "{{ template "pulsar.fullname" . }}-genzkconf-configmap"
     defaultMode: 0755
 {{- end }}
+
+{{/*Define zookeeper service account*/}}
+{{- define "pulsar.zookeeper.serviceAccount" -}}
+{{- if .Values.zookeeper.serviceAccount.create -}}
+    {{- if .Values.zookeeper.serviceAccount.name -}}
+{{ .Values.zookeeper.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.zookeeper.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define ZooKeeper TLS certificate secret name
+*/}}
+{{- define "pulsar.zookeeper.tls.secret.name" -}}
+{{- if .Values.tls.zookeeper.certSecretName -}}
+{{- .Values.tls.zookeeper.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}
+{{- end -}}
+{{- end -}}

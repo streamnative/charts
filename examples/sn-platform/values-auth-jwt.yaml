@@ -1,0 +1,44 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+components:
+  vault: false
+
+auth:
+  authentication:
+    enabled: true
+    provider: "jwt"
+    jwt:
+      enabled: true
+      usingSecretKey: false
+  vault:
+    enabled: false
+
+streamnative_console:
+  configData:
+    INIT_DEFAULT_ENVIRONMENT: true
+    BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
+  login:
+      pulsarJwt:
+        enabled: true
+        config:
+          AUTHENTICATION_CUSTOM_CLAIM: sub
+          SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: "<release-name>-token--admin"
+          JWT_BROKER_TOKEN_MODE: PRIVATE
+          JWT_BROKER_PUBLIC_PRIVATE_KEY: "<release-name>-token-asymmetric-key"

@@ -1,0 +1,13 @@
+monitoring:
+ # monitoring - prometheus
+ prometheus: false
+ # monitoring - grafana
+ grafana: false
+ # monitoring - node_exporter
+ node_exporter: false
+ # alerting - alert-manager
+ alert_manager: false
+ # monitoring - loki
+ loki: false
+ # monitoring - datadog
+ datadog: false

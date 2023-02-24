@@ -33,15 +33,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  #organization:
-#{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
   isCA: false
-  #keySize: {{ .Values.tls.common.keySize }}
-  #keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  #keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -58,12 +60,18 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+  {{- if or .Values.broker.kop.enabled .Values.broker.kop.enabled }}
+  {{- if .Values.broker.kop.tls.enabled }}
+  {{- if not .Values.broker.kop.tls.passwordSecretRef }}
   keystores:
     jks:
       create: true
       passwordSecretRef:
         name: cert-jks-passwd
         key: password
+  {{- end }}
+  {{- end }}
+  {{- end }}
 ---
 {{- end }}
 {{- end }}
@@ -79,15 +87,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -95,6 +105,80 @@ spec:
   dnsNames:
     -  "*.{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local"
     -  "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+  {{- if .Values.broker.kop.enabled }}
+  {{- if .Values.broker.kop.tls.enabled }}
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+  {{- if .Values.broker.kop.tls.passwordSecretRef }}
+        name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+        key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
+  {{ else }}
+        name: cert-jks-passwd
+        key: password
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  # Issuer references are always required.
+  issuerRef:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: Issuer
+    # This is optional since cert-manager will default to this value however
+    # if you are using an external issuer, change this to that issuer group.
+    group: cert-manager.io
+---
+{{- end }}
+
+{{- if and .Values.istio.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.tls.broker.gateway.cert_name }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  # Secret names are always required.
+  secretName: "{{ .Release.Name }}-{{ .Values.tls.broker.gateway.cert_name }}"
+  duration: "{{ .Values.tls.common.duration }}"
+  renewBefore: "{{ .Values.tls.common.renewBefore }}"
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
+  # The use of the common name field has been deprecated since 2000 and is
+  # discouraged from being used.
+  commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+  isCA: false
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
+  usages:
+    - server auth
+    - client auth
+  # At least one of a DNS Name, USI SAN, or IP address is required.
+  dnsNames:
+  {{- if .Values.domain.enabled }}
+    - "*.{{ .Release.Name }}.{{ .Values.domain.suffix }}"
+  {{- else }}
+    - "*.{{ .Values.domain.suffix }}"
+  {{- end }}
+  {{- if .Values.broker.kop.enabled }}
+  {{- if .Values.broker.kop.tls.enabled }}
+  keystores:
+    jks:
+      create: true
+      passwordSecretRef:
+  {{- if .Values.broker.kop.tls.passwordSecretRef }}
+        name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+        key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
+  {{ else }}
+        name: cert-jks-passwd
+        key: password
+  {{- end }}
+  {{- end }}
+  {{- end }}
   # Issuer references are always required.
   issuerRef:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
@@ -118,15 +202,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.bookie.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -156,15 +242,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.autorecovery.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -191,15 +279,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -229,15 +319,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.streamnative_console.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth
@@ -257,7 +349,7 @@ spec:
 ---
 {{- end }}
 
-{{- if or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.components.kop) }}
+{{- if or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -268,15 +360,17 @@ spec:
   secretName: "{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}"
   duration: "{{ .Values.tls.common.duration }}"
   renewBefore: "{{ .Values.tls.common.renewBefore }}"
-  organization:
-{{ toYaml .Values.tls.common.organization | indent 2 }}
+  subject:
+    organizations:
+{{ toYaml .Values.tls.common.subject.organizations | indent 4 }}
   # The use of the common name field has been deprecated since 2000 and is
   # discouraged from being used.
   commonName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   isCA: false
-  keySize: {{ .Values.tls.common.keySize }}
-  keyAlgorithm: {{ .Values.tls.common.keyAlgorithm }}
-  keyEncoding: {{ .Values.tls.common.keyEncoding }}
+  privateKey:
+    size: {{ .Values.tls.common.privateKey.size }}
+    algorithm: {{ .Values.tls.common.privateKey.algorithm }}
+    encoding: {{ .Values.tls.common.privateKey.encoding }}
   usages:
     - server auth
     - client auth

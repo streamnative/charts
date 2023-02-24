@@ -24,6 +24,11 @@ kind: StatefulSet
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   namespace: {{ template "pulsar.namespace" . }}
+{{- with .Values.zookeeper.statefulset.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
@@ -36,7 +41,7 @@ spec:
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
     type: {{ .Values.zookeeper.updateStrategy }}
-  podManagementPolicy: OrderedReady
+  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy | default "OrderedReady" }}
   template:
     metadata:
       labels:
@@ -72,6 +77,10 @@ spec:
       tolerations:
 {{ toYaml .Values.zookeeper.tolerations | indent 8 }}
     {{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.zookeeper.custom_affinity}}
+      affinity:
+{{ toYaml .Values.zookeeper.custom_affinity | indent 8 }}
+    {{ else }}  
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity}}
         podAntiAffinity:
@@ -112,6 +121,7 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
       {{- if .Values.zookeeper.customTools.restore.enable }}
@@ -205,6 +215,7 @@ spec:
           initialDelaySeconds: {{ .Values.zookeeper.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.zookeeper.probe.readiness.periodSeconds }}
           failureThreshold: {{ .Values.zookeeper.probe.readiness.failureThreshold }}
+          timeoutSeconds: {{ .Values.zookeeper.probe.readiness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.zookeeper.probe.liveness.enabled }}
         livenessProbe:
@@ -214,6 +225,7 @@ spec:
           initialDelaySeconds: {{ .Values.zookeeper.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.zookeeper.probe.liveness.periodSeconds }}
           failureThreshold: {{ .Values.zookeeper.probe.liveness.failureThreshold }}
+          timeoutSeconds: {{ .Values.zookeeper.probe.liveness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.zookeeper.probe.startup.enabled }}
         startupProbe:

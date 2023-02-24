@@ -23,21 +23,17 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-{{ .Values.streamnative_console.volumes.data.name }}"
+  name: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   resources:
     requests:
       storage: {{ .Values.streamnative_console.volumes.data.size }}
   accessModes: [ "ReadWriteOnce" ]
-{{- if and .Values.volumes.local_storage .Values.streamnative_console.volumes.data.local_storage }}
-  storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.streamnative_console.volumes.data.storageClass }}
-  storageClassName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-{{ .Values.streamnative_console.volumes.data.name }}"
-  {{- else if .Values.streamnative_console.volumes.data.storageClassName }}
+{{- if  .Values.streamnative_console.volumes.data.storageClass }}
+  storageClassName: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
+{{- else if .Values.streamnative_console.volumes.data.storageClassName }}
   storageClassName: {{ .Values.streamnative_console.volumes.data.storageClassName }}
-  {{- end -}}
 {{- end }}
 {{- end }}
 {{- end }}

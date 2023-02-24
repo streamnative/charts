@@ -24,6 +24,11 @@
 namespace: ""
 namespaceCreate: false
 
+## Namespace to watch resources
+# -- Namespace that the controller watches to reconcile pulsar objects.
+# If it's empty, the controller watches for pulsar objects across all namespaces.
+watchNamespace: ""
+
 ## Components
 ##
 ## Control what components of Apache Pulsar Operators
@@ -39,30 +44,30 @@ components:
 ##
 ## Control what images to use for each component
 images:
-  registry: "docker.io"
-  tag: "v0.8.21"
+  registry: "docker.cloudsmith.io"
+  tag: "v0.14.0"
 
   zookeeper:
     registry: ""
-    repository: streamnative/zookeeper-operator
+    repository: streamnative/operators/zookeeper-operator
     tag: ""
     pullPolicy: IfNotPresent
 
   bookkeeper:
     registry: ""
-    repository: streamnative/bookkeeper-operator
+    repository: streamnative/operators/bookkeeper-operator
     tag: ""
     pullPolicy: IfNotPresent
 
   pulsar:
     registry: ""
-    repository: streamnative/pulsar-operator
+    repository: streamnative/operators/pulsar-operator
     tag: ""
     pullPolicy: IfNotPresent
 
-global:
-  # Lists the secrets you need to use to pull operators image from a private registry.
-  imagePullSecrets: []
+# Lists the secrets you need to use to pull operators image from a private registry.
+imagePullSecrets:
+# - name: sn-gcr-req
 
 zookeeper:
   component: zookeeper-controller-manager
@@ -79,6 +84,9 @@ zookeeper:
   serviceAccount:
     create: true
     name: zookeeper-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
@@ -111,6 +119,9 @@ bookkeeper:
   serviceAccount:
     create: true
     name: bookkeeper-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
@@ -145,9 +156,13 @@ pulsar:
   serviceAccount:
     create: true
     name: pulsar-controller-manager
+    # -- clusterRole controls to create ClusterRole or Role for this service account
+    # disable it when the operator watches a specific namespace
+    clusterRole: true
   ## Whether to create the CRD.
   crd:
     create: false
+  extraEnv: []
   ## Operator pod resources
   resources:
     limits:

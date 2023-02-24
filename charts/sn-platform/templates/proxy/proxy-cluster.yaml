@@ -17,20 +17,26 @@
 # under the License.
 #
 # deploy PulsarProxy only when `components.proxy and operator.enabled` is true
-{{- if and .Values.components.proxy .Values.proxy.operator.enabled }}
+{{- if .Values.components.proxy }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarProxy
 metadata:
-  # no need to append component name to pod name here as operator will add 
+  # no need to append component name to pod name here as operator will add
   name: "{{ template "pulsar.fullname" . }}"
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
+    {{- with .Values.proxy.pulsarProxy.annotations -}}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.proxy.pulsarProxy.labels -}}
+{{ toYaml . | nindent 4 }}
 {{- end }}
 spec:
   brokerAddress: {{ template "pulsar.proxy.broker.service.address" . }}
@@ -38,96 +44,67 @@ spec:
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
   imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
   pod:
+    {{- with .Values.proxy.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.proxy.serviceAccount.use }}
+    serviceAccountName: {{ include "pulsar.proxy.serviceAccount" . }}
+    {{- end }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.proxy.component }}
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.proxy.datadog.annotation" . | nindent 6 }}
       {{- end }}
+{{- if (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.proxy.ports.http }}"
+{{- end }}
 {{- with .Values.proxy.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-    {{- if .Values.proxy.readPublicKeyFromFile }}
+{{- end }}
+{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
     secretRefs:
-    {{- if .Values.proxy.publicKeyPath }}
-    - mountPath: {{ .Values.proxy.publicKeyPath }}
-    {{- else }}
-    - mountPath: /pulsar/vault/v1/identity/oidc/.well-known/keys
+    {{- if .Values.proxy.readPublicKeyFromFile }}
+    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
+      {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
+      secretName: {{ default $defaultSecretName .Values.proxy.publicKeySecret }}
     {{- end }}
-      {{- if .Values.proxy.publicKeySecret }}
-      secretName: {{ .Values.proxy.publicKeySecret }}
-      {{- else }}
-      secretName: {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key
-      {{- end }}
+{{- with .Values.proxy.extraSecretRefs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
+    {{- if .Values.tls.proxy.enabled }}
+    volumes:
+    {{- include "pulsar.proxy.certs.volumes" . | nindent 4 }}
     {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.proxy.affinity.anti_affinity }}
     affinity:
-      podAntiAffinity:
-        {{ .Values.proxy.affinity.type }}:
-          {{ if eq .Values.proxy.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.proxy.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.proxy.component }}
-              topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-    {{- end }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.proxy.affinity "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
-    - name: PULSAR_PREFIX_OIDCTokenAudienceID
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: PULSAR_PREFIX_OIDCTokenAudienceID
-    - name: brokerClientAuthenticationParameters
-      valueFrom:
-          secretKeyRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-            key: brokerClientAuthenticationParameters
+{{- include "pulsar.authEnvironment" . | indent 4 }}
     {{- end }}
-    #envFrom:
-    #- secretRef:
-    #    name: {{ template "pulsar.vault-secret-key-name" . }}
+{{- with .Values.proxy.extraEnv}}
+{{ toYaml . | indent 4 }}
+{{- end }}
     {{- if .Values.proxy.resources }}
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.proxy.securityContext }}
-    securityContext: {{ .Values.proxy.securityContext }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+    secretRefs:
+{{- include "pulsar.authSecret" . | indent 4 }}
+    {{- end }}
+    {{- with .Values.proxy.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.proxy.nodeSelector }}
     nodeSelector:
@@ -138,65 +115,41 @@ spec:
 {{ toYaml .Values.proxy.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.proxy.gracePeriod }}
-    jvmOptions:
-      extraOptions: []
-      memoryOptions:
-        - {{ .Values.proxy.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.proxy.configData.PULSAR_GC }}
-      gcLoggingOptions: []
+    {{- include "pulsar.jvm.options" .Values.proxy | nindent 4 }}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
+  {{- if .Values.istio.enabled }}
+  istio:
+    enabled: true
+    {{- if eq .Values.ingress.proxy.type "IstioGateway" }}
+    gateway:
+      selector:
+{{- include "pulsar.istio.gateway.selector" . | indent 8 }}
+      tls:
+        certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
+        mode: "simple"
+    {{- end }}
+  {{- end }}
   config:
+    {{- if .Values.pulsar_metadata.clusterName }}
+    clusterName: {{ .Values.pulsar_metadata.clusterName }}
+    {{- end }}
+    usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
     custom:
-{{ toYaml .Values.proxy.configData | indent 6 }}
-      {{- if and (.Values.auth.vault.enabled) (.Values.auth.oauth.enabled) }}
+{{- with .Values.proxy.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+      {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken,{{ .Values.auth.oauth.authenticationProvider }}"
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_chainAuthenticationEnabled: "true"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.proxy.readPublicKeyFromFile }}
-      {{- if .Values.proxy.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.proxy.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-      {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
-      PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
-      PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
-      PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
-      PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
-      PULSAR_PREFIX_oauthScopeClaim: "{{ .Values.auth.oauth.oauthScopeClaim }}"
-      PULSAR_PREFIX_oauthAuthzRoleClaim: "{{ .Values.auth.oauth.oauthAuthzRoleClaim }}"
-      PULSAR_PREFIX_oauthAuthzAdminRole: "{{ .Values.auth.oauth.oauthAuthzAdminRole }}"
-      superUserRoles: "admin"
-      {{- else if .Values.auth.authentication.enabled }}
-      authenticationEnabled: "true"
-      authenticationProviders: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken"
-      brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-      PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-      {{- if .Values.proxy.readPublicKeyFromFile }}
-      {{- if .Values.proxy.publicKeyPath }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file://{{ .Values.proxy.publicKeyPath }}/publicKey"
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "file:///pulsar/vault/v1/identity/oidc/.well-known/keys/publicKey"
-      {{- end }}
-      {{- else }}
-      PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-      {{- end  }}
-      superUserRoles: "admin"
-      {{- end }}
-      {{- if and (.Values.auth.authorization.enabled) (.Values.auth.oauth.enabled) }}
-      authorizationEnabled: "false"
+      authenticateOriginalAuthData: "true"
       forwardAuthorizationCredentials: "true"
-      authorizationProvider: "{{ .Values.auth.oauth.authorizationProvider }}"
-      {{- else if .Values.auth.authorization.enabled }}
-      authorizationEnabled: "false"
-      forwardAuthorizationCredentials: "true"
-      authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider"
+      authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
+{{- include "pulsar.authConfiguration" . | indent 6 }}
+      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}
@@ -205,23 +158,24 @@ spec:
       {{- end }}
       {{- end }}
   dnsNames:
-  {{- if .Values.domain.enabled }}
-    - {{ template "pulsar.service_domain" . }}
+  {{- if or .Values.domain.enabled (and .Values.ingress.proxy.enabled .Values.ingress.proxy.external_domain) }}
+    - "{{ template "pulsar.service_domain" . }}"
   {{- else }}
     []
   {{- end }}
   issuerRef:
     name: ""
   {{ if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  {{ if .Values.proxy.tlsSecretName }}
-  certSecretName: {{ .Values.proxy.tlsSecretName }}
-  {{ else }}
-  certSecretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
-  {{- end }}
+  certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   {{- end }}
   apiObjects:
+    {{- if .Values.tls.proxy.enabled }}
+    statefulSet:
+      volumeMounts:
+    {{- include "pulsar.proxy.certs.volumeMounts" . | nindent 6 }}
+    {{- end }}
     externalService:
-  {{- if .Values.ingress.proxy.enabled }}
+  {{- if and .Values.ingress.proxy.enabled (ne .Values.ingress.proxy.type "IstioGateway") }}
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-ingress"
         {{- if .Values.ingress.proxy.annotations }}
@@ -230,35 +184,24 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- end }}
+      {{- if .Values.ingress.proxy.httpPortOverride }}
+      ports:
+      - port: {{ .Values.ingress.proxy.httpPortOverride }}
+        name: "http"
+      {{- end }}
       {{- if ne .Values.ingress.proxy.type "LoadBalancer" }}
       type: {{ .Values.ingress.proxy.type }}
       {{ else }}
       {{- if and .Values.ingress.proxy.tls.enabled (not .Values.tls.enabled) (not .Values.tls.proxy.enabled)}}
       type: LoadBalancer
-      exposeSSLPort: true 
+      exposeSSLPort: true
       {{- end }}
       {{- end }}
-
   {{- else }}
       {}
   {{- end }}
-  {{- if and .Values.components.autoscaling .Values.proxy.autoscaling.maxReplicas }}
-  autoScalingPolicy:
-    maxReplicas: {{ .Values.proxy.autoscaling.maxReplicas }}
-    {{- if .Values.proxy.autoscaling.minReplicas }}
-    minReplicas: {{ .Values.proxy.autoscaling.minReplicas }}
-    {{- end }}
-    {{- if .Values.proxy.autoscaling.metrics }}
-    metrics:
-{{- with .Values.proxy.autoscaling.metrics }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-    {{- if .Values.proxy.autoscaling.behavior }}
-    behavior:
-{{- with .Values.proxy.autoscaling.behavior }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
+  {{- with .Values.proxy.customization }}
+  customization:
+  {{- toYaml . | nindent 2 -}}
   {{- end }}
 {{- end }}

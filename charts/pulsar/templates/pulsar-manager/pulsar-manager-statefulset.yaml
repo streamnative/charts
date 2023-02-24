@@ -26,6 +26,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.pulsar_manager.component }}
+{{- with .Values.pulsar_manager.statefulset.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_manager.component }}"
   replicas: 1
@@ -50,6 +54,10 @@ spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      {{- if .Values.pulsar_manager.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.pulsar_manager.imagePullSecrets }}
       {{- end }}
     {{- if .Values.pulsar_manager.nodeSelector }}
       nodeSelector:

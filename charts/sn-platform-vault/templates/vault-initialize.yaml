@@ -1,0 +1,94 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-init"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: "{{ .Values.vault.component }}-init"
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ template "vault.serviceAccount" . }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+      {{- end }}
+      containers:
+      - name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}-init"
+        image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"
+        imagePullPolicy: {{ .Values.images.vault.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+           tokenLen=$(kubectl get secret {{ template "vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|wc -m);
+           until [ ${tokenLen} -gt 1 ]; do
+             echo "current token is empty ! wait another 10s~"
+             sleep 10;
+             tokenLen=$(kubectl get secret {{ template "vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|wc -m);
+           done;
+           echo "vault root token is ready";
+           rootToken=$(kubectl get secret {{ template "vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
+           echo $rootToken;
+           echo $rootToken > /root/rootToken;
+           export ROOT_TOKEN=$rootToken;
+           vault login $ROOT_TOKEN;
+           until [ $? -eq 0 ]; do
+              echo "vault is not ready now, wait another 5s~";
+              sleep 5;
+              vault login $ROOT_TOKEN;
+           done;
+           echo "vault is ready~";
+
+           cd /root/{{ template "pulsar.name" . }}/create_pulsar_tokens && /usr/local/bin/zsh create_pulsar_tokens.sh -n {{ template "pulsar.namespace" . }} -k {{ template "vault.secetPrefix" . }} -v {{ template "vault.url" . }} -r $ROOT_TOKEN && cd /root/{{ template "pulsar.name" . }}/init_vault_streamnative_console && /usr/local/bin/zsh startup.sh;
+           echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
+        env:
+        - name: NAMESPACE
+          value: {{ template "pulsar.namespace" . }}
+        - name: VAULT_SECRET_KEY_NAME
+          value: {{ template "pulsar.vault-secret-key-name" . }}
+        - name: VAULT_TTL
+          value: {{ .Values.vault.oidcToken.ttl | default "12h" }}
+        - name: VERIFICATION_TTL
+          value: {{ .Values.vault.oidcToken.verification_ttl | default "24h" }}
+        - name: ROTATION_PERIOD
+          value: {{ .Values.vault.oidcToken.rotation_period | default "24h" }}
+        - name: CONSOLE_SECRET_KEY_NAME
+          value: {{ template "console-secret-key-name" . }}
+        - name: TOOLSET_TOKEN_SECRET_NAME
+          value: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
+        - name: VAULT_ADDR
+          value: {{ template "vault.url" . }}
+        volumeMounts:
+        {{- include "vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
+        {{- include "vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
+      volumes:
+      {{- include "vault.createPulsarTokens.volumes" . | nindent 6 }}
+      {{- include "vault.initStreamNativeConsole.volumes" . | nindent 6 }}
+      restartPolicy: Never

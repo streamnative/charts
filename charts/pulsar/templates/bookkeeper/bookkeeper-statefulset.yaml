@@ -26,6 +26,10 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
+{{- with .Values.bookkeeper.statefulset.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   replicas: {{ .Values.bookkeeper.replicaCount }}
@@ -73,6 +77,10 @@ spec:
       tolerations:
 {{ toYaml .Values.bookkeeper.tolerations | indent 8 }}
     {{- end }}
+    {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.custom_affinity}}
+      affinity:
+{{ toYaml .Values.bookkeeper.custom_affinity | indent 8 }}
+    {{ else }}  
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity}}
         podAntiAffinity:
@@ -113,6 +121,7 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
           {{ end }}
         {{- end }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.bookkeeper.gracePeriod }}
       initContainers:
       # This initContainer will wait for bookkeeper initnewcluster to complete

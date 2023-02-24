@@ -17,7 +17,7 @@
 # under the License.
 #
 # deploy BookKeeperCluster only when `components.bookkeeper and operator.enabled` is true
-{{- if and .Values.components.bookkeeper .Values.bookkeeper.operator.enabled }}
+{{- if .Values.components.bookkeeper }}
 apiVersion: bookkeeper.streamnative.io/v1alpha1
 kind: BookKeeperCluster
 metadata:
@@ -25,11 +25,17 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
+    {{- with .Values.bookkeeper.bookKeeperCluster.annotations -}}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
 {{- with .Values.bookkeeper.labels }}
 {{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.bookkeeper.bookKeeperCluster.labels -}}
+{{ toYaml . | nindent 4 }}
 {{- end }}
 spec:
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}"
@@ -37,67 +43,42 @@ spec:
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
   imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
   pod:
+    {{- with .Values.bookkeeper.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.bookkeeper.serviceAccount.use }}
+    serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
+    {{- end }}
     labels:
       {{- include "pulsar.template.labels" . | nindent 6 }}
       component: {{ .Values.bookkeeper.component }}
 {{- with .Values.bookkeeper.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+{{- if or .Values.monitoring.datadog (and .Values.prometheus.scrape.bookkeeper .Values.prometheus.scrape.enabled) .Values.bookkeeper.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.bookkeeper.datadog.annotation" . | nindent 6 }}
       {{- end }}
+{{- if (and .Values.prometheus.scrape.bookkeeper .Values.prometheus.scrape.enabled) }}
       prometheus.io/scrape: "true"
       prometheus.io/port: "{{ .Values.bookkeeper.ports.http }}"
+{{- end }}
+      {{- include "pulsar.istio.pod.annotations" . | nindent 6 }}
 {{- with .Values.bookkeeper.annotations }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-    {{- if and .Values.affinity.anti_affinity .Values.bookkeeper.affinity.anti_affinity }}
+{{- end }}
     affinity:
-      podAntiAffinity:
-        {{ .Values.bookkeeper.affinity.type }}:
-          {{ if eq .Values.bookkeeper.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-          - labelSelector:
-              matchExpressions:
-                - key: "app"
-                  operator: In
-                  values:
-                    - "{{ template "pulsar.name" . }}"
-                - key: "release"
-                  operator: In
-                  values:
-                    - {{ .Release.Name }}
-                - key: "component"
-                  operator: In
-                  values:
-                    - {{ .Values.bookkeeper.component }}
-            topologyKey: "kubernetes.io/hostname"
-          {{ else }}
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.bookkeeper.component }}
-              topologyKey: "kubernetes.io/hostname"
-          {{ end }}
-    {{- end }}
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.bookkeeper.affinity "Component" .Values.bookkeeper.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.bookkeeper.resources }}
     resources:
 {{ toYaml .Values.bookkeeper.resources | indent 6 }}
     {{- end }}
-    {{- if .Values.bookkeeper.securityContext }}
-    securityContext: {{ .Values.bookkeeper.securityContext }}
+    {{- with .Values.bookkeeper.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
     {{- end }}
     {{- if .Values.bookkeeper.nodeSelector }}
     nodeSelector:
@@ -108,14 +89,31 @@ spec:
 {{ toYaml .Values.bookkeeper.tolerations | indent 6 }}
     {{- end }}
     terminationGracePeriodSeconds: {{ .Values.bookkeeper.gracePeriod }}
-    jvmOptions:
-      memoryOptions:
-        - {{ .Values.bookkeeper.configData.PULSAR_MEM }}
-      gcOptions:
-        - {{ .Values.bookkeeper.configData.PULSAR_GC }}
+    {{- include "pulsar.jvm.options" .Values.bookkeeper | nindent 4 }}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
+    {{- if .Values.bookkeeper.operator.adopt_existing }}
+    volumes:
+    {{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+      emptyDir: {}
+    - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+      emptyDir: {}
+    {{- end }}
+    {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
+    {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
+    {{- end }}
+    {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+    volumes:
+    {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
+    {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
     journal:
+      numVolumes: {{ .Values.bookkeeper.volumes.journal.numVolumes | default 1 }}
+      numDirsPerVolume: {{ .Values.bookkeeper.volumes.journal.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
@@ -124,6 +122,8 @@ spec:
             storage: {{ .Values.bookkeeper.volumes.journal.size }}
         {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 8 }}
     ledger:
+      numVolumes: {{ .Values.bookkeeper.volumes.ledgers.numVolumes | default 1 }}
+      numDirsPerVolume: {{ .Values.bookkeeper.volumes.ledgers.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
           - ReadWriteOnce
@@ -131,57 +131,41 @@ spec:
           requests:
             storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
         {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 8 }}
-    reclaimPolicy: Delete
+    reclaimPolicy: {{ .Values.bookkeeper.volumes.reclaimPolicy | default "Delete" }}
   {{- end }}
-  {{- if .Values.bookkeeper.custom }}
   config:
     custom:
-{{ toYaml .Values.bookkeeper.custom | indent 6 }}
-  {{- end }}
-  conf:
-    zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
-    # enable bookkeeper http server
-    httpServerEnabled: "true"
-    httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
-    # config the stats provider
-    statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
-    # use hostname as the bookie id
-    useHostNameAsBookieID: "true"
-    {{- if .Values.components.autorecovery }}
-    # disable auto recovery on bookies since we will start AutoRecovery in separated pods
-    autoRecoveryDaemonEnabled: "false"
-    {{- end }}
-    # Do not retain journal files as it increase the disk utilization
-    journalMaxBackups: "0"
-    {{- if .Values.bookkeeper.operator.adopt_existing }}
-    # if adopting existing bk cluster then also keep existing ledger/journal dir setting
-    PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
-    PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
-    {{- end }}
-    BOOKIE_MEM: {{ .Values.bookkeeper.configData.BOOKIE_MEM }}
-{{- include "pulsar.bookkeeper.config.tls" . | nindent 4 }}
-{{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 4 }}
+{{- with .Values.bookkeeper.custom }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.bookkeeper.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+      zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+      # enable bookkeeper http server
+      httpServerEnabled: "true"
+      httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
+      # config the stats provider
+      statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
+      # use hostname as the bookie id
+      useHostNameAsBookieID: "true"
+      {{- if .Values.components.autorecovery }}
+      # disable auto recovery on bookies since we will start AutoRecovery in separated pods
+      autoRecoveryDaemonEnabled: "false"
+      {{- end }}
+      # Do not retain journal files as it increase the disk utilization
+      journalMaxBackups: "0"
+      {{- if .Values.bookkeeper.operator.adopt_existing }}
+      # if adopting existing bk cluster then also keep existing ledger/journal dir setting
+      journalDirectories: "/pulsar/data/bookkeeper/journal"
+      PULSAR_PREFIX_journalDirectories: "/pulsar/data/bookkeeper/journal"
+      ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+      PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
+      {{- end }}
+{{- include "pulsar.bookkeeper.config.tls" . | nindent 6 }}
+{{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 6 }}
   autoRecovery:
-    {{- if and .Values.components.autoscaling .Values.autorecovery.autoscaling.maxReplicas }}
-    autoScalingPolicy:
-      maxReplicas: {{ .Values.autorecovery.autoscaling.maxReplicas }}
-      {{- if .Values.autorecovery.autoscaling.minReplicas }}
-      minReplicas: {{ .Values.autorecovery.autoscaling.minReplicas }}
-      {{- end }}
-      {{- if .Values.autorecovery.autoscaling.metrics }}
-      metrics:
-{{- with .Values.autorecovery.autoscaling.metrics }}
-{{ toYaml . | indent 8 }}
-{{- end }}
-      {{- end }}
-      {{- if .Values.autorecovery.autoscaling.behavior }}
-      behavior:
-{{- with .Values.autorecovery.autoscaling.behavior }}
-{{ toYaml . | indent 8 }}
-{{- end }}
-      {{- end }}
-    {{- end }}
-    {{- if and .Values.components.autorecovery .Values.autorecovery.operator.enabled }}
+    {{- if .Values.components.autorecovery }}
     replicas: {{ .Values.autorecovery.replicaCount }}
     {{- else }}
     replicas: 0
@@ -190,14 +174,23 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.autorecovery.component }}
+{{- with .Values.autorecovery.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- if or (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) .Values.autorecovery.annotations }}
       annotations:
+{{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
+{{- end }}
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-      {{- if .Values.autorecovery.securityContext }}
-      securityContext: {{ .Values.autorecovery.securityContext }}
+{{- end }}
+      {{- with .Values.autorecovery.securityContext }}
+      securityContext:
+{{ toYaml . | indent 8 }}
       {{- end }}
       {{- if .Values.autorecovery.nodeSelector }}
       nodeSelector:
@@ -208,73 +201,22 @@ spec:
 {{ toYaml .Values.autorecovery.tolerations | indent 8 }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.autorecovery.gracePeriod }}
-      {{- if and .Values.affinity.anti_affinity .Values.autorecovery.affinity.anti_affinity}}
       affinity:
-        podAntiAffinity:
-          {{ .Values.autorecovery.affinity.type }}:
-            {{ if eq .Values.autorecovery.affinity.type "requiredDuringSchedulingIgnoredDuringExecution" }}
-            - labelSelector:
-                matchExpressions:
-                  - key: "app"
-                    operator: In
-                    values:
-                      - "{{ template "pulsar.name" . }}"
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
-                  - key: "component"
-                    operator: In
-                    values:
-                      - {{ .Values.autorecovery.component }}
-              topologyKey: "kubernetes.io/hostname"
-            {{ else }}
-            - weight: 100
-              podAffinityTerm:
-                labelSelector:
-                  matchExpressions:
-                    - key: "app"
-                      operator: In
-                      values:
-                        - "{{ template "pulsar.name" . }}"
-                    - key: "release"
-                      operator: In
-                      values:
-                        - {{ .Release.Name }}
-                    - key: "component"
-                      operator: In
-                      values:
-                        - {{ .Values.autorecovery.component }}
-                topologyKey: "kubernetes.io/hostname"
-            {{ end }}
-      {{- end }}
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.autorecovery.affinity "Component" .Values.autorecovery.component "Release" .Release "Chart" .Chart) | indent 8 }}
       {{- if .Values.autorecovery.resources }}
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
       {{- end }}
+      {{- if .Values.bookkeeper.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
+      {{- end }}
+      {{- include "pulsar.jvm.options" .Values.autorecovery | nindent 6 }}
     conf:
       {{- include "pulsar.bookkeeper.config.common" . | nindent 6 }}
-{{ toYaml .Values.autorecovery.configData | indent 6 }}
+{{- with .Values.autorecovery.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
 {{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
-  {{- if and .Values.components.autoscaling .Values.bookkeeper.autoscaling.maxReplicas }}
-  autoScalingPolicy:
-    maxReplicas: {{ .Values.bookkeeper.autoscaling.maxReplicas }}
-    {{- if .Values.bookkeeper.autoscaling.minReplicas }}
-    minReplicas: {{ .Values.bookkeeper.autoscaling.minReplicas }}
-    {{- end }}
-    {{- if .Values.bookkeeper.autoscaling.metrics }}
-    metrics:
-{{- with .Values.bookkeeper.autoscaling.metrics }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-    {{- if .Values.bookkeeper.autoscaling.behavior }}
-    behavior:
-{{- with .Values.bookkeeper.autoscaling.behavior }}
-{{ toYaml . | indent 6 }}
-{{- end }}
-    {{- end }}
-  {{- end }}
   apiObjects:
     clientService: {}
     headlessService:
@@ -291,6 +233,38 @@ spec:
       {{ .Values.bookkeeper.operator.updatePolicy }}
       {{- else }}
         - all
+      {{- end }}
+      {{- if .Values.bookkeeper.operator.adopt_existing }}
+      {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
+      volumeClaimTemplates:
+      - metadata:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: {{ .Values.bookkeeper.volumes.journal.size }}
+          {{- include "pulsar.bookkeeper.journal.storage.class" . | nindent 10 }}
+      - metadata:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
+          {{- include "pulsar.bookkeeper.ledgers.storage.class" . | nindent 10 }}
+      {{- end }}
+      volumeMounts:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}"
+        mountPath: /pulsar/data/bookkeeper/journal
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}"
+        mountPath: /pulsar/data/bookkeeper/ledgers
+      {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
+      {{- include "pulsar.bookkeeper.log.volumeMounts" . | nindent 6 }}
+      {{- end }}
+      {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+      volumeMounts:
+      {{- include "pulsar.bookkeeper.certs.volumeMounts" . | nindent 6 }}
       {{- end }}
     autoRecoveryStatefulSet:
       metadata:
@@ -310,4 +284,8 @@ spec:
     pdb:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+  {{- with .Values.bookkeeper.customization }}
+  customization:
+  {{- toYaml . | nindent 2 -}}
+  {{- end }}
 {{- end }}

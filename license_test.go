@@ -18,7 +18,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -67,7 +66,8 @@ var otherCheck = regexp.MustCompile(`#
 
 var skip = map[string]bool{
 	"charts/function-mesh-operator/crds": true,
-	"charts/pulsar-operator/crds": true,
+	"charts/pulsar-operator/crds":        true,
+	"test-values":                        true,
 }
 
 func TestLicense(t *testing.T) {
@@ -89,7 +89,7 @@ func TestLicense(t *testing.T) {
 
 		switch filepath.Ext(path) {
 		case ".go":
-			src, err := ioutil.ReadFile(path)
+			src, err := os.ReadFile(path)
 			if err != nil {
 				return nil
 			}
@@ -102,7 +102,7 @@ func TestLicense(t *testing.T) {
 		case ".yaml":
 			fallthrough
 		case ".conf":
-			src, err := ioutil.ReadFile(path)
+			src, err := os.ReadFile(path)
 			if err != nil {
 				return nil
 			}

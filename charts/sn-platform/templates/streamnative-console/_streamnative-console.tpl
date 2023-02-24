@@ -80,13 +80,22 @@ Define streamnative-console token volumes
 {{- end }}
 
 {{- define "pulsar.streamnative_console.data.storage.class" -}}
-{{- if and .Values.volumes.local_storage .Values.streamnative_console.volumes.data.local_storage }}
-storageClassName: "local-storage"
-{{- else }}
-  {{- if  .Values.streamnative_console.volumes.data.storageClass }}
+{{- if  .Values.streamnative_console.volumes.data.storageClass }}
 storageClassName: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
-  {{- else if .Values.streamnative_console.volumes.data.storageClassName }}
+{{- else if .Values.streamnative_console.volumes.data.storageClassName }}
 storageClassName: "{{ .Values.streamnative_console.volumes.data.storageClassName }}"
-  {{- end -}}
 {{- end }}
 {{- end }}
+
+{{/*Define service account*/}}
+{{- define "pulsar.streamnative_console.serviceAccount" -}}
+{{- if .Values.streamnative_console.serviceAccount.create -}}
+    {{- if .Values.streamnative_console.serviceAccount.name -}}
+{{ .Values.streamnative_console.serviceAccount.name }}
+    {{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-acct
+    {{- end -}}
+{{- else -}}
+{{ .Values.streamnative_console.serviceAccount.name }}
+{{- end -}}
+{{- end -}}

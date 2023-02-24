@@ -52,3 +52,14 @@ image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
 imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
 {{- end }}
 {{- end }}
+
+{{/*
+Define Presto TLS certificate secret name
+*/}}
+{{- define "pulsar.presto.tls.secret.name" -}}
+{{- if .Values.tls.presto.certSecretName -}}
+{{- .Values.tls.presto.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.presto.cert_name }}
+{{- end -}}
+{{- end -}}

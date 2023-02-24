@@ -13,10 +13,19 @@
 # limitations under the License.
 #
 
+if [ -n "$VAULT_SUPER_USER_NAME" ];then
+    export VAULT_SUPER_USER_NAME=$VAULT_SUPER_USER_NAME
+else
+    export VAULT_SUPER_USER_NAME=admin
+fi
+if [ -n "$VAULT_SUPER_USER_PASSWORD" ]; then
+    export VAULT_SUPER_USER_PASSWORD=$VAULT_SUPER_USER_PASSWORD
+else
+    export VAULT_SUPER_USER_PASSWORD=$(cat /dev/urandom | base64 | tr -dc '0-9a-zA-Z' | head -c12)
+fi
+
 export VAULT_APPROLE_SUPER_NAME=apachepulsar
-export VAULT_SUPER_USER_NAME=admin
 # generate console password
-export VAULT_SUPER_USER_PASSWORD=$(cat /dev/urandom | base64 | tr -dc '0-9a-zA-Z' | head -c12)
 #export VAULT_ADDR="http://127.0.0.1:8200"
 
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -45,10 +54,10 @@ vault policy write service-account $TMP_DIR/service-account.hcl
 vault write identity/entity name="service-account" policies="service-account"
 canonicalId=$(vault read identity/entity/name/service-account | grep -v _id | grep id | awk '{print $2}')
 vault write identity/entity-alias name="service-account"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='service-account'
-vault write identity/oidc/key/service-account name=service-account rotation_period=24h verification_ttl=24h
-vault write identity/oidc/role/service-account key=service-account ttl=12h template=@$TMP_DIR/service-account-template.json
+vault write identity/oidc/key/service-account name=service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
+vault write identity/oidc/role/service-account key=service-account ttl=$VAULT_TTL template=@$TMP_DIR/service-account-template.json
 serviceAccountClientId=$(vault read identity/oidc/role/service-account | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/service-account name=service-account rotation_period=24h verification_ttl=24h allowed_client_ids=$serviceAccountClientId
+vault write identity/oidc/key/service-account name=service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$serviceAccountClientId
 
 superApproleName=$VAULT_APPROLE_SUPER_NAME
 vault policy write super-service-account $TMP_DIR/super-service-account.hcl
@@ -56,10 +65,10 @@ vault write identity/entity name="super-service-account" policies="super-service
 vault write identity/entity name=$superApproleName policies="super-service-account" metadata=system=true
 canonicalId=$(vault read identity/entity/name/super-service-account | grep -v _id | grep id | awk '{print $2}')
 vault write identity/entity-alias name="super-service-account"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='super-service-account'
-vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=24h verification_ttl=24h
-vault write identity/oidc/role/super-service-account key=super-service-account ttl=12h template=@$TMP_DIR/super-service-account-template.json
+vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
+vault write identity/oidc/role/super-service-account key=super-service-account ttl=$VAULT_TTL template=@$TMP_DIR/super-service-account-template.json
 superServiceAccountClientId=$(vault read identity/oidc/role/super-service-account | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=24h verification_ttl=24h allowed_client_ids=$superServiceAccountClientId
+vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$superServiceAccountClientId
 
 
 vault write auth/approle/role/$superApproleName policies=super-service-account
@@ -73,17 +82,17 @@ vault policy write super-user $TMP_DIR/super-user.hcl
 vault write auth/userpass/users/$superUser password="$superPassword" policies="super-user"
 vault write identity/entity name="super-user" policies="super-user"
 vault write identity/entity name=$superUser policies="super-user" metadata=system=true
-vault write identity/oidc/key/super-user name=super-user rotation_period=24h verification_ttl=24h
-vault write identity/oidc/role/super-user key=super-user ttl=12h template=@$TMP_DIR/super-user-template.json
+vault write identity/oidc/key/super-user name=super-user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
+vault write identity/oidc/role/super-user key=super-user ttl=$VAULT_TTL template=@$TMP_DIR/super-user-template.json
 superUserClientId=$(vault read identity/oidc/role/super-user | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/super-user name=super-user rotation_period=24h verification_ttl=24h allowed_client_ids=$superUserClientId
+vault write identity/oidc/key/super-user name=super-user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$superUserClientId
 
 vault policy write user $TMP_DIR/user.hcl
 vault write identity/entity name="user" policies="user"
-vault write identity/oidc/key/user name=user rotation_period=24h verification_ttl=24h
-vault write identity/oidc/role/user key=user ttl=12h template=@$TMP_DIR/user-template.json
+vault write identity/oidc/key/user name=user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
+vault write identity/oidc/role/user key=user ttl=$VAULT_TTL template=@$TMP_DIR/user-template.json
 userClientId=$(vault read identity/oidc/role/user | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/user name=user rotation_period=24h verification_ttl=24h allowed_client_ids=$userClientId
+vault write identity/oidc/key/user name=user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$userClientId
 loginInfo=$(vault login -method=userpass username=$superUser password=$superPassword)
 superToken=$(echo "$loginInfo" | grep  -v '_' | grep 'token  ' | awk '{print $2}')
 export VAULT_SUPER_USER_TOKEN=$superToken

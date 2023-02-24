@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.toolset.component }}
+{{- with .Values.toolset.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   replicas: {{ .Values.toolset.replicaCount }}
@@ -41,6 +44,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.toolset.component }}
+{{- with .Values.toolset.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.toolset.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/toolset/toolset-configmap.yaml") . | sha256sum }}
@@ -49,6 +55,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
+    {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 8 }}
+    {{- end }}
     {{- if .Values.toolset.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.toolset.nodeSelector | indent 8 }}
@@ -58,6 +68,24 @@ spec:
 {{ toYaml .Values.toolset.tolerations | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.toolset.gracePeriod }}
+      initContainers:
+      - name: busybox
+        image: "{{ .Values.images.toolset.busybox.repository }}:{{ .Values.images.toolset.busybox.tag }}"
+        imagePullPolicy: {{ .Values.images.toolset.busybox.pullPolicy }}
+      {{- if .Values.toolset.resources }}
+        resources:
+{{ toYaml .Values.toolset.resources | indent 10 }}
+      {{- end }}
+        command: ["sh", "-c"]
+        args:
+        - |
+          mkdir binaries;
+          busybox --install -s binaries;
+          cp binaries/* /tmp/binaries;
+          cp /bin/busybox /tmp/binaries;
+        volumeMounts:
+        - name: binaries
+          mountPath: /tmp/binaries
       containers:
       - name: "pulsar"
         {{- include "pulsar.toolset.image" . | nindent 8 }}
@@ -71,15 +99,33 @@ spec:
           bin/apply-config-from-env.py conf/client.conf;
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 10 }}
+          echo "Configuring pulsarctl context ...";
+          mkdir -p /root/.config/pulsar;
+          cp {{ template "pulsar.home" . }}/conf/pulsarctl.config /root/.config/pulsar/config;
+          echo "Successfully configured pulsarctl context.";
           sleep 10000000000
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+        env:
+{{- with .Values.toolset.extraEnv}}
+{{ toYaml . | indent 8 }}
+{{- end }}
         volumeMounts:
+        - name: binaries
+          mountPath: /bin/busybox
+          subPath: busybox
+        - name: binaries
+          mountPath: /bin/vi
+          subPath: vi
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.log.volumeMounts" . | nindent 8 }}
-      {{- if .Values.components.kop }}
+        {{- include "pulsar.toolset.pulsarctl.conf.volumeMounts" . | nindent 8 }}
+{{- with .Values.toolset.extraVolumeMounts }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+      {{- if .Values.toolset.kafka.enabled }}
       - name: "kafka"
         image: "{{ .Values.images.toolset.kafka.repository }}:{{ .Values.images.toolset.kafka.tag }}"
         imagePullPolicy: {{ .Values.images.toolset.kafka.pullPolicy }}
@@ -97,14 +143,33 @@ spec:
         envFrom:
         - configMapRef:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+        env:
+{{- with .Values.toolset.extraEnv}}
+{{ toYaml . | indent 8 }}
+{{- end }}
         volumeMounts:
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.kafka.conf.volumeMounts" . | nindent 8 }}
+{{- with .Values.toolset.extraVolumeMounts }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       {{- end }}
       volumes:
+      - name: binaries
+        emptyDir: {}
       {{- include "pulsar.toolset.certs.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.token.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.log.volumes" . | nindent 6 }}
       {{- include "pulsar.toolset.kafka.conf.volumes" . | nindent 6 }}
+      {{- include "pulsar.toolset.pulsarctl.conf.volumes" . | nindent 6 }}
+{{- with .Values.toolset.extraVolumes }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+      {{- if .Values.toolset.securityContext }}
+      securityContext: {{- toYaml .Values.toolset.securityContext | nindent 8 }}
+      {{- end }}
+      {{- if .Values.toolset.serviceAccount.use }}
+      serviceAccountName: {{ include "pulsar.toolset.serviceAccount" . }}
+      {{- end }}
 {{- end }}

@@ -37,8 +37,19 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
+        {{- if .Values.zookeeper.podLabels }}
+{{ toYaml .Values.zookeeper.podLabels | indent 8 }}
+        {{- end }}
+      {{- if .Values.zookeeper.podAnnotations }}
+      annotations:
+{{ toYaml .Values.zookeeper.podAnnotations | indent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: '{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.serviceAccount.name }}'
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 6}}
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
         image: {{template "zookeeper.image" . }}
@@ -46,6 +57,9 @@ spec:
         args:
         - --metrics-addr=127.0.0.1:8080
         - --enable-leader-election
+        {{- if or .Values.watchNamespace (not .Values.zookeeper.serviceAccount.clusterRole)}}
+        - --watch-namespace={{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+        {{- end }}
         command:
         - /manager
         ports:
@@ -57,6 +71,10 @@ spec:
         {{- if .Values.zookeeper.resources }}
         resources:
 {{ toYaml .Values.zookeeper.resources | indent 10 }}
+        {{- end }}
+        {{- if .Values.zookeeper.containerSecurityContext }}
+        securityContext:
+{{ toYaml .Values.zookeeper.containerSecurityContext | indent 10 }}
         {{- end }}
       {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:
@@ -73,5 +91,9 @@ spec:
       {{- if .Values.zookeeper.terminationGracePeriodSeconds }}
       terminationGracePeriodSeconds:
 {{ toYaml .Values.zookeeper.terminationGracePeriodSeconds | indent 8 }}
+      {{- end }}
+      {{- if .Values.zookeeper.podSecurityContext }}
+      securityContext:
+{{ toYaml .Values.zookeeper.podSecurityContext | indent 8 }}
       {{- end }}
 {{- end }}

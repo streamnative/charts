@@ -16,58 +16,6 @@ pulsar service domain
 {{- end -}}
 
 {{/*
-Define proxy token mounts
-*/}}
-{{- define "pulsar.proxy.token.volumeMounts" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- mountPath: "/pulsar/keys"
-  name: token-keys
-  readOnly: true
-{{- end }}
-- mountPath: "/pulsar/tokens"
-  name: proxy-token
-  readOnly: true
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define proxy token volumes
-*/}}
-{{- define "pulsar.proxy.token.volumes" -}}
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
-- name: token-keys
-  secret:
-    {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-asymmetric-key"
-    {{- end}}
-    {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-    secretName: "{{ .Release.Name }}-token-symmetric-key"
-    {{- end}}
-    items:
-      {{- if .Values.auth.authentication.jwt.usingSecretKey }}
-      - key: SECRETKEY
-        path: token/secret.key
-      {{- else }}
-      - key: PUBLICKEY
-        path: token/public.key
-      {{- end}}
-{{- end }}
-- name: proxy-token
-  secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.proxy }}"
-    items:
-      - key: TOKEN
-        path: proxy/token
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
 Define proxy certs mounts
 */}}
 {{- define "pulsar.proxy.certs.volumeMounts" -}}
@@ -104,7 +52,7 @@ Define proxy certs volumes
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -112,7 +60,7 @@ Define proxy certs volumes
   {{- end }}
 - name: proxy-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}"
+    secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -122,7 +70,7 @@ Define proxy certs volumes
 {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
 - name: broker-ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -146,26 +94,37 @@ Define proxy log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
 {{- end }}
+
+{{/*Define proxy pod name*/}}
+{{- define "pulsar.proxy.podName" -}}
+{{- print "pulsar-proxy" -}}
+{{- end -}}
+
 {{/*
 Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.check_names: |
+{{- if eq (.Values.datadog.components.proxy.checkType | default "openmetrics") "openmetrics" }}
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
+      namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -176,6 +135,75 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }
       ]
     }
   ]
+{{- else if (.Values.datadog.components.proxy.checkType | default "openmetrics") "native" }}
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
+  ["pulsar"]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
+  [
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      "enable_health_service_check": true,
+      "timeout": 300,
+{{- if .Values.auth.authentication.enabled }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
+      "extra_headers": {
+          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
+      },
+{{- end }}
+{{- end }}
+      "tags": [
+        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+      ]
+    }
+  ]
+{{- else if (.Values.datadog.components.proxy.checkType | default "openmetrics") "both" }}
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
+  ["openmetrics", "pulsar"]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
+  [{}, {}]
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
+  [
+    {
+      "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
+      namespace: {{ template "pulsar.namespace" . }},
+      {{ end -}}
+      "metrics": {{ .Values.datadog.components.proxy.metrics }},
+      "health_service_check": true,
+      "prometheus_timeout": 1000,
+      "max_returned_metrics": 1000000,
+{{- if .Values.auth.authentication.enabled }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
+      "extra_headers": {
+          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
+      },
+{{- end }}
+{{- end }}
+      "tags": [
+        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+      ]
+    },
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      "enable_health_service_check": true,
+      "timeout": 300,
+{{- if .Values.auth.authentication.enabled }}
+{{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
+      "extra_headers": {
+          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
+      },
+{{- end }}
+{{- end }}
+      "tags": [
+        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
+      ]
+    }
+  ]
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -291,5 +319,16 @@ https://{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}:{{ 
     {{- end -}}
 {{- else -}}
 {{ .Values.proxy.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define Proxy TLS certificate secret name
+*/}}
+{{- define "pulsar.proxy.tls.secret.name" -}}
+{{- if .Values.tls.proxy.certSecretName -}}
+{{- .Values.tls.proxy.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.proxy.cert_name }}
 {{- end -}}
 {{- end -}}

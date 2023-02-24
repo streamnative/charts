@@ -46,9 +46,6 @@ data:
       static_configs:
       - targets:
         - '127.0.0.1:{{ .Values.prometheus.port }}'
-        {{- if .Values.components.pulsar_detector }}
-        - '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}:{{ .Values.pulsar_detector.port }}'
-        {{- end }}
       metrics_path: {{ template "pulsar.control_center_path.prometheus" . }}/metrics
     - job_name: 'kubernetes-pods'
 {{- if .Values.auth.authentication.enabled }}
@@ -61,12 +58,32 @@ data:
 {{- end }}
       kubernetes_sd_configs:
       - role: pod
-{{- if eq .Values.prometheus.serviceAccount.clusterRole false }}
+{{- if or .Values.istio.enabled (not .Values.prometheus.serviceAccount.clusterRole) }}
         namespaces:
           names:
-            - {{ .Values.namespace }}
+            - {{ template "pulsar.namespace" . }}
+{{- end }}
+{{- if .Values.istio.enabled }}
+      scheme: https
+      # Disable http2 for Prometheus issue: https://github.com/prometheus/prometheus/issues/10213
+      enable_http2: false
+      tls_config:
+        ca_file: /etc/prom-certs/root-cert.pem
+        cert_file: /etc/prom-certs/cert-chain.pem
+        key_file: /etc/prom-certs/key.pem
+        insecure_skip_verify: true
 {{- end }}
       relabel_configs:
+{{- if .Values.istio.enabled }}
+      # ignore job generated pod
+      - source_labels: [__meta_kubernetes_pod_label_job_name]
+        action: drop
+        regex: ".+"
+      # ignore prometheus,grafana,toolset,console
+      - source_labels: [__meta_kubernetes_pod_label_component]
+        action: drop
+        regex: "{{ .Values.prometheus.component }}|{{ .Values.grafana.component }}|{{ .Values.toolset.component }}|{{ .Values.streamnative_console.component }}"
+{{- end }}
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
         regex: true
@@ -96,7 +113,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if eq .Values.prometheus.serviceAccount.clusterRole true }}
+{{- if and (eq .Values.prometheus.serviceAccount.clusterRole true) (ne .Values.istio.enabled true) }}
     - job_name: 'kubernetes-nodes'
       scheme: https
       kubernetes_sd_configs:
@@ -133,6 +150,11 @@ data:
           regex: (.+)
           target_label: __metrics_path__
           replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+{{- end }}
+{{- if .Values.prometheus.extraScrapeConfigs -}}
+{{- with .Values.prometheus.extraScrapeConfigs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 {{- end }}
   rules.yml: |
 {{- if .Values.monitoring.alert_manager -}}

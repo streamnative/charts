@@ -23,6 +23,13 @@ Define the pulsar zookeeper
 {{- end -}}
 
 {{/*
+Define the pulsar zookeeper plaintext connect
+*/}}
+{{- define "pulsar.zookeeper.connect.plaintext" -}}
+{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
+{{- end -}}
+
+{{/*
 Define the zookeeper hostname
 */}}
 {{- define "pulsar.zookeeper.hostname" -}}
@@ -62,7 +69,7 @@ Define zookeeper certs volumes
 {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
 - name: zookeeper-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}"
+    secretName: "{{ template "pulsar.zookeeper.tls.secret.name" . }}"
     items:
       - key: tls.crt
         path: tls.crt
@@ -70,7 +77,7 @@ Define zookeeper certs volumes
         path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -238,3 +245,14 @@ Define zookeeper gen-zk-conf volumes
     name: "{{ template "pulsar.fullname" . }}-genzkconf-configmap"
     defaultMode: 0755
 {{- end }}
+
+{{/*
+Define Zookeeper TLS certificate secret name
+*/}}
+{{- define "pulsar.zookeeper.tls.secret.name" -}}
+{{- if .Values.tls.zookeeper.certSecretName -}}
+{{- .Values.tls.zookeeper.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.zookeeper.cert_name }}
+{{- end -}}
+{{- end -}}

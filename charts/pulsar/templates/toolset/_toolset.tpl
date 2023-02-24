@@ -98,7 +98,7 @@ Define toolset tls certs volumes
 {{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled) }}
 - name: toolset-certs
   secret:
-    secretName: "{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}"
+    secretName: "{{ template "pulsar.toolset.tls.secret.name" . }}"
     items:
     - key: tls.crt
       path: tls.crt
@@ -106,7 +106,7 @@ Define toolset tls certs volumes
       path: tls.key
 - name: ca
   secret:
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
     - key: ca.crt
       path: ca.crt
@@ -127,7 +127,7 @@ Define toolset tls certs volumes
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
-    secretName: "{{ .Release.Name }}-ca-tls"
+    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
     items:
       - key: ca.crt
         path: ca.crt
@@ -204,7 +204,7 @@ http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Val
 {{- end -}}
 {{- else -}}
 {{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.httpsServicePort | default .Values.proxy.ports.https }}
 {{- else -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
 {{- end -}}
@@ -253,3 +253,13 @@ Define toolset pulsarctl config volumes
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
 {{- end }}
 
+{{/*
+Define toolset TLS certificate secret name
+*/}}
+{{- define "pulsar.toolset.tls.secret.name" -}}
+{{- if .Values.tls.toolset.certSecretName -}}
+{{- .Values.tls.toolset.certSecretName -}}
+{{- else -}}
+{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}
+{{- end -}}
+{{- end -}}

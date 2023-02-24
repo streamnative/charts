@@ -104,6 +104,9 @@ spec:
 {{ toYaml .Values.prometheus.resources | indent 10 }}
       {{- end }}
         args:
+          {{- if .Values.prometheus.args.logLevel }}
+          - --log.level={{ .Values.prometheus.args.logLevel }}
+          {{- end }}
           - --config.file=/etc/config/prometheus.yml
           {{- if .Values.prometheus.args.retention }}
           - --storage.tsdb.retention.time={{ .Values.prometheus.args.retention }}
@@ -115,7 +118,7 @@ spec:
           - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.prometheus" . }}/
   {{- end }}
           - --web.enable-lifecycle
-  {{ if .Values.prometheus.maxQuerySamples }}
+  {{- if .Values.prometheus.maxQuerySamples }}
           - --query.max-samples={{.Values.prometheus.maxQuerySamples }}
   {{- end }}
         ports:

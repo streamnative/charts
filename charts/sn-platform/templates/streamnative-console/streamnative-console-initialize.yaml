@@ -17,8 +17,8 @@
 # under the License.
 #
 
-{{- if .Values.initialize }}
 {{- if .Values.components.streamnative_console }}
+{{- if and .Values.initialize (not .Values.streamnative_console.configData.INIT_DEFAULT_ENVIRONMENT) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -29,7 +29,14 @@ metadata:
     component: {{ .Values.streamnative_console.component }}
 spec:
   template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- if not .Values.istio.enabled }}
       initContainers:
         # This init container will wait for broker to be ready before
         # deploying the pulsar manager init job
@@ -41,6 +48,10 @@ spec:
             - >
               set -e; while [ "$(curl -s -o /dev/null -w '%{http_code}' {{ template "pulsar.proxy.web.service.url" . }}/status.html)" -ne "200" ]; do echo "pulsar cluster isn't initialized yet..."; sleep 5; done;
               echo "broker cluster is ready";
+          {{- if .Values.streamnative_console.resources }}
+          resources: {{- toYaml .Values.streamnative_console.resources | nindent 12 }}
+          {{- end }}
+      {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
         image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
@@ -53,16 +64,24 @@ spec:
         - name: INSTANCE_NAME
           value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
         - name: WEB_SERVICE_URL
-          value: {{ template "pulsar.web.service.url" . }}
+          value: {{ template "pulsar.web.internal.service.url" . }}
         {{- if .Values.broker.kop.enabled }}
         - name: KOP_SERVICE_URL
           value: {{ template "pulsar.broker.kop.service.url" .}}
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
-          value: http://{{ template "pulsar.streamnative_console.service" . }}:7750
+          value: http://{{ template "pulsar.streamnative_console.service" . }}:{{ .Values.streamnative_console.service.ports.backend }}
+        {{- if not .Values.auth.vault.enabled }}
+        - name: SUPER_USER_NAME
+          value: admin
+        - name: SUPER_USER_PASSWORD
+          value: apachepulsar
+        {{- end }}
+        {{- if .Values.auth.vault.enabled }}
         envFrom:
         - secretRef:
             name: {{ template "pulsar.vault-secret-key-name" . }}
+        {{- end }}
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
           mountPath: "/root/init_instance/"
@@ -76,10 +95,18 @@ spec:
               python3 /root/init_instance/init_instance.py 2>/dev/null;
             done;
             echo "StreamNative Console is ready to use~";
+            curl -sf -XPOST http://127.0.0.1:15020/quitquitquit || true;
       restartPolicy: Never
+      {{- if .Values.streamnative_console.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
+      {{- end }}
       volumes:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
           configMap:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+      {{- if .Values.streamnative_console.securityContext }}
+      securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
+      {{- end }}
 {{- end }}
 {{- end }}
+
