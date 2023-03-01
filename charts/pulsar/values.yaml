@@ -207,7 +207,7 @@ images:
     tag: v0.16.0
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
-    repository: k8s.gcr.io/ingress-nginx/controller
+    repository: registry.k8s.io/ingress-nginx/controller
     tag: v1.1.1
     pullPolicy: "IfNotPresent"
 
