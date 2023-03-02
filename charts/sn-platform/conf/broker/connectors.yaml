@@ -138,4 +138,13 @@
   version: 2.10.1.10
   imageTag: 2.10.1.10
   sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
-  sourceTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord  
+  sourceTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+- id: pulsar-io-snowflake
+  name: snowflake
+  description: Snowflake Sink
+  sinkClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConnector
+  sinkConfigClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConfig
+  imageRepository: streamnative/pulsar-io-snowflake
+  version: 2.10.3.4
+  imageTag: 2.10.3.4
+  typeClassName: org.apache.pulsar.client.api.schema.GenericObject
