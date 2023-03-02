@@ -101,3 +101,27 @@ spec:
       runAsNonRoot: true
   replicas: 2
   zkServers: zookeepers-zk:2181
+---
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarProxy
+metadata:
+  name: proxys
+  namespace: pulsar
+spec:
+  image: "streamnative/sn-platform-slim:2.10.3.4"
+  pod:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    securityContext:
+      runAsNonRoot: true
+  brokerAddress: brokers-broker
+  replicas: 2
+  config:
+    tls:
+      enabled: false
+  dnsNames:
+    []
+  issuerRef:
+    name: ""
