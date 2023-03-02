@@ -145,6 +145,6 @@
   sinkClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConnector
   sinkConfigClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConfig
   imageRepository: streamnative/pulsar-io-snowflake
-  version: 2.9.4.1
-  imageTag: 2.9.4.1
+  version: 2.10.3.4
+  imageTag: 2.10.3.4
   typeClassName: org.apache.pulsar.client.api.schema.GenericObject
