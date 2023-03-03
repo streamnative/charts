@@ -86,7 +86,7 @@ To use the `pulsar-operator` chart to deploy BookKeeper Controller, ZooKeeper Co
     zookeepers-zk-2                                                  1/1     Running   0          3m17s
     ```
 
-7. Clean up environment
+7. Clean up the environment.
 
     ```
     kubectl delete -f https://raw.githubusercontent.com/streamnative/charts/master/examples/pulsar-operators/quick-start.yaml
