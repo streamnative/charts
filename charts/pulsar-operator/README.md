@@ -62,7 +62,7 @@ To use the `pulsar-operator` chart to deploy BookKeeper Controller, ZooKeeper Co
     pulsar-operator-zookeeper-controller-manager-56db9d5649-76dqm    1/1     Running             0          15h
     ```
 
-6. Verify that the pulsar cluster pods are running. 
+6. Verify that the Pulsar cluster Pods are running. 
 
     ```
     kubectl get po -n pulsar
