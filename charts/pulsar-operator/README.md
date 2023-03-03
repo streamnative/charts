@@ -109,7 +109,7 @@ To use the `pulsar-operator` chart to deploy BookKeeper Controller, ZooKeeper Co
 * [StreamNative Pulsar Operator Tutorial Part 3](https://yuweisung.medium.com/streamnative-pulsar-operator-tutorial-part-3-2bb2cf67d0a0)
 
 ## Note
-1. As helm won't upgrade CRD when doing `helm upgrade`, please manually apply the pulsar-operator [CRDs](https://github.com/streamnative/charts/tree/master/charts/pulsar-operator/crds) before upgrading pulsar-operator chart version. 
+1. As Helm won't upgrade CRD when doing `helm upgrade`, please manually apply the pulsar-operator [CRDs](https://github.com/streamnative/charts/tree/master/charts/pulsar-operator/crds) before upgrading pulsar-operator chart version. 
 
 2. When upgrading the CRD from `apiextensions.k8s.io/v1beta1` to `apiextensions.k8s.io/v1` we might get exceptions like: 
 
