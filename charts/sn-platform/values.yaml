@@ -130,22 +130,22 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.2.4"
+        tag: "2.10.3.4"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.2.4"
+        tag: "2.10.3.4"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
     exporter:
       repository: bitnami/jmx-exporter
@@ -154,36 +154,36 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.10.2.4
+  #   tag: 2.10.3.4
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
@@ -239,7 +239,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.3.4"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
