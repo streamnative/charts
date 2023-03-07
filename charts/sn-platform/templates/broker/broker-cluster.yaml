@@ -265,6 +265,9 @@ spec:
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
       superUserRoles: "{{ .Values.auth.superUsers.broker }}"
+      {{- if .Values.auth.superUsers.proxyRolesEnabled }}
+      proxyRoles: {{ .Values.auth.superUsers.proxy }}
+      {{- end }}
       {{- end }}
       {{- if .Values.auth.authorization.enabled }}
 {{- include "pulsar.authorizationProvider" . | indent 6 }}

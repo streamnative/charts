@@ -89,7 +89,7 @@ spec:
       {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.proxy.affinity "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
-{{- include "pulsar.authEnvironment" . | indent 4 }}
+{{- include "pulsar.authEnvironment" (dict "Values" .Values "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 4 }}
     {{- end }}
 {{- with .Values.proxy.extraEnv}}
 {{ toYaml . | indent 4 }}
@@ -149,7 +149,7 @@ spec:
       forwardAuthorizationCredentials: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
-      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
+      superUserRoles: "{{ .Values.auth.superUsers.proxy }}"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}

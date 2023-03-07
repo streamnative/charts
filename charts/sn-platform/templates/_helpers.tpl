@@ -245,18 +245,34 @@ Define function for get authenticaiton environment variable
       secretKeyRef:
         name: {{ template "pulsar.vault-secret-key-name" . }}
         key: PULSAR_PREFIX_OIDCTokenAudienceID
+{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
+- name: brokerClientAuthenticationParameters
+  valueFrom:
+      secretKeyRef:
+        name: {{ template "pulsar.vault-secret-key-name" . }}
+        key: PROXY_brokerClientAuthenticationParameters
+{{- else }}
 - name: brokerClientAuthenticationParameters
   valueFrom:
       secretKeyRef:
         name: {{ template "pulsar.vault-secret-key-name" . }}
         key: brokerClientAuthenticationParameters
 {{- end }}
+{{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
+{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
+- name: brokerClientAuthenticationParameters
+  valueFrom:
+      secretKeyRef:
+        name: {{ .Release.Name }}-token-proxy-admin
+        key: TOKEN
+{{- else }}
 - name: brokerClientAuthenticationParameters
   valueFrom:
       secretKeyRef:
         name: {{ .Release.Name }}-token-admin
         key: TOKEN
+{{- end }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
 - name: tokenSecretKey
   value: "file:///mnt/secrets/SECRETKEY"
