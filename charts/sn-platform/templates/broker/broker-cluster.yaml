@@ -202,7 +202,7 @@ spec:
     serviceURLGenerationPolicy: FQDN
     {{- end }}
     usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
-    {{- if .Values.broker.restapi.enabled }}
+    {{- if .Values.broker.pulsarRestMessaging.enabled }}
     pulsarRestMessagingServiceEnabled: true
     {{- end }}
     {{- if or .Values.broker.kop.enabled .Values.broker.aop.enabled .Values.broker.mop.enabled}}

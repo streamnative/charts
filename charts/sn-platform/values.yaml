@@ -1118,7 +1118,7 @@ broker:
     authorizationEnabled: false
   functionmesh:
     enabled: true
-  restapi:
+  pulsarRestMessaging:
     enabled: false
   # Resources requests/limits for both init containers and app containers
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
