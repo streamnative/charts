@@ -364,7 +364,7 @@ auth:
     enabled: true
   superUsers:
     # broker to broker communication
-    broker: "admin,broker-admin,admin-approle,pulsar-manager-admin"
+    broker: "admin,proxy-admin,broker-admin,admin-approle,pulsar-manager-admin"
     # if it is enabled, the roles configured in the proxy will not be used by the client
     proxyRolesEnabled: false
     # proxy to broker communication
