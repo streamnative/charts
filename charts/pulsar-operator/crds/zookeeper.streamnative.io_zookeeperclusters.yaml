@@ -2757,29 +2757,34 @@ spec:
                     type: array
                   jvmOptions:
                     description: JvmOptions defines the Jvm options passed to the
-                      proxy
+                      container
                     properties:
                       extraOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcLoggingOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       memoryOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                     type: object
+                    x-kubernetes-map-type: granular
                   labels:
                     additionalProperties:
                       type: string
@@ -4081,10 +4086,13 @@ spec:
                     type: array
                 type: object
               replicas:
+                default: 3
                 description: Replicas is the expected size of the zookeeper cluster.
                   The zookeeper operator will eventually make the size of the running
-                  cluster equal to the expected size.
+                  cluster equal to the expected size. If unspecified, defaults to
+                  3.
                 format: int32
+                minimum: 0
                 type: integer
             type: object
           status:

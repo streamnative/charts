@@ -3366,29 +3366,34 @@ spec:
                         type: array
                       jvmOptions:
                         description: JvmOptions defines the Jvm options passed to
-                          the proxy
+                          the container
                         properties:
                           extraOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                           gcLoggingOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                           gcOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                           memoryOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                         type: object
+                        x-kubernetes-map-type: granular
                       labels:
                         additionalProperties:
                           type: string
@@ -5368,6 +5373,18 @@ spec:
               config:
                 description: Config defines the bookkeeper configuration
                 properties:
+                  bookieIDPolicy:
+                    description: BookieIDPolicy defines how should the bookieID be
+                      generated For backward compatibility, the operator will just
+                      set `useHostNameAsBookieID` to `true` when `bookieIDPolicy`
+                      is an empty string or set to `UseHostNameAsBookieID`. When `bookieIDPolicy`
+                      is set to `HostNamePort`, the operator will set `bookieId` as
+                      `{{HostName}}:{{Port}}` which should be able be compatible with
+                      `useHostNameAsBookieID` but decouples the bookie physical address
+                      from the logical address. The default value might be changed
+                      in the future. See https://bookkeeper.apache.org/bps/BP-41-bookieid/
+                      for more details
+                    type: string
                   compactionRateByBytes:
                     description: "CompactionRateByBytes is the rate at which compaction
                       will read entries. The unit is adds per second. \n The default
@@ -7155,29 +7172,34 @@ spec:
                     type: array
                   jvmOptions:
                     description: JvmOptions defines the Jvm options passed to the
-                      proxy
+                      container
                     properties:
                       extraOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcLoggingOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       memoryOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                     type: object
+                    x-kubernetes-map-type: granular
                   labels:
                     additionalProperties:
                       type: string
@@ -8479,10 +8501,12 @@ spec:
                     type: array
                 type: object
               replicas:
+                default: 3
                 description: Replicas is the expected size of the bookkeeper cluster.
                   The bookkeeper operator will eventually make the size of the running
                   cluster equal to the expected size. Use a pointer to distinguish
-                  between a specified zero or unspecified.
+                  between a specified zero or unspecified. If unspecified, defaults
+                  to 3.
                 format: int32
                 minimum: 0
                 type: integer
