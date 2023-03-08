@@ -16,22 +16,37 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-{{- if and .Values.istio.enabled }}
-apiVersion: security.istio.io/v1beta1
-kind: AuthorizationPolicy
+
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
 metadata:
-  name: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}"
-  namespace: {{ template "pulsar.namespace" . }}
+  name: zookeeper-operator
+  namespace: operators
 spec:
-  rules:
-  - to:
-    - operation:
-        ports:
-        - "8200"
-        - "8201"
-        - "9091"
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: vault
-      vault_cr: "{{ template "pulsar.fullname" . }}{{ template "vault.component" . }}"
-{{- end }}
+  channel: stable
+  name: zookeeper-operator
+  source: operatorhubio-catalog
+  sourceNamespace: olm
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: bookkeeper-operator
+  namespace: operators
+spec:
+  channel: stable
+  name: bookkeeper-operator
+  source: operatorhubio-catalog
+  sourceNamespace: olm
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: pulsar-operator
+  namespace: operators
+spec:
+  channel: stable
+  name: pulsar-operator
+  source: operatorhubio-catalog
+  sourceNamespace: olm

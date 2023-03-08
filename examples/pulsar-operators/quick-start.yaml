@@ -1,0 +1,103 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+---
+apiVersion: zookeeper.streamnative.io/v1alpha1
+kind: ZooKeeperCluster
+metadata:
+  name: zookeepers
+  namespace: pulsar
+spec:
+  image: streamnative/sn-platform-slim:2.10.3.4
+  pod:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+    securityContext:
+      runAsNonRoot: true
+  persistence:
+    data:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 8Gi
+    dataLog:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+    reclaimPolicy: Delete
+  replicas: 3
+---
+apiVersion: bookkeeper.streamnative.io/v1alpha1
+kind: BookKeeperCluster
+metadata:
+  name: bookies
+  namespace: pulsar
+spec:
+  image: streamnative/sn-platform-slim:2.10.3.4
+  replicas: 3
+  pod:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    securityContext:
+      runAsNonRoot: true
+  storage:
+    journal:
+      numDirsPerVolume: 1
+      numVolumes: 1
+      volumeClaimTemplate:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+    ledger:
+      numDirsPerVolume: 1
+      numVolumes: 1
+      volumeClaimTemplate:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 16Gi
+    reclaimPolicy: Delete
+  zkServers: zookeepers-zk:2181
+---
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarBroker
+metadata:
+  name: brokers
+  namespace: pulsar
+spec:
+  image: streamnative/sn-platform-slim:2.10.3.4
+  pod:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+    securityContext:
+      runAsNonRoot: true
+  replicas: 2
+  zkServers: zookeepers-zk:2181
