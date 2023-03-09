@@ -1773,6 +1773,9 @@ datadog:
       tags: {}
     prometheus:
       enabled: false
+      metrics: [
+        "\"_*\""
+      ]
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-statefulset.yaml
