@@ -54,7 +54,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
-      namespace: {{ template "pulsar.namespace" . }},
+      "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.prometheus.metrics }},
       "health_service_check": true,
