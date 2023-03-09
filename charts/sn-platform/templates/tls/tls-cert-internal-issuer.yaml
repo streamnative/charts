@@ -48,6 +48,7 @@ spec:
     # This is optional since cert-manager will default to this value however
     # if you are using an external issuer, change this to that issuer group.
     group: cert-manager.io
+{{- end }}
 ---
 
 apiVersion: cert-manager.io/v1
@@ -56,10 +57,6 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.internal_issuer.component }}-ca-issuer"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-<<<<<<< HEAD
-  ca:
-    secretName: "{{ .Release.Name }}-ca-tls"
-=======
 {{- if eq .Values.certs.internal_issuer.type "selfsigning" }}
   ca:
     secretName: "{{ .Release.Name }}-ca-tls"
@@ -70,6 +67,5 @@ spec:
 {{- with .Values.certs.issuers.custom }}
 {{ toYaml . | indent 2 }}
 {{- end }}
->>>>>>> 1785633 ([charts/sn-platform] - fix repeat ca tag (#939))
 {{- end }}
 {{- end }}
