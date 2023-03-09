@@ -18,8 +18,8 @@
 #
 
 apiVersion: v1
-version: 0.14.0
-appVersion: "0.14.0"
+version: 0.15.0
+appVersion: "0.15.2"
 kubeVersion: ">= 1.16.0-0 < 1.26.0"
 description: Apache Pulsar Operators Helm chart for Kubernetes
 name: pulsar-operator
