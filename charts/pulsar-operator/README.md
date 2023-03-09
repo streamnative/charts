@@ -1,7 +1,7 @@
-# StreamNative Pulsar Operators
+# StreamNative Operators for Apache Pulsar
 
-The Pulsar Operators bring the specific controllers for Kubernetes by providing specific Custom Resource Definition (CRD) which is developed and maintained by StreamNative Inc.
-Installing the Pulsar Operators means you agree to and are in compliance with the [StreamNative Community License](https://streamnative.io/community-licence).
+The StreamNative Operators for Apache Pulsar bring the specific controllers for Kubernetes by providing specific Custom Resource Definition (CRD) which is developed and maintained by StreamNative Inc.
+Installing the StreamNative Operators for Apache Pulsar means you agree to and are in compliance with the [StreamNative Community License](https://streamnative.io/community-licence).
 
 ## Requirements
 
