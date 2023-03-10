@@ -195,7 +195,7 @@ images:
       pullPolicy: IfNotPresent
   prometheus:
     repository: quay.io/prometheus/prometheus
-    tag: "v2.24.0"
+    tag: "v2.41.0"
     pullPolicy: IfNotPresent
   alert_manager:
     repository: quay.io/prometheus/alertmanager
