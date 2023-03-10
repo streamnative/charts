@@ -3105,29 +3105,34 @@ spec:
                     type: array
                   jvmOptions:
                     description: JvmOptions defines the Jvm options passed to the
-                      proxy
+                      container
                     properties:
                       extraOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcLoggingOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       memoryOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                     type: object
+                    x-kubernetes-map-type: granular
                   labels:
                     additionalProperties:
                       type: string
@@ -4429,8 +4434,11 @@ spec:
                     type: array
                 type: object
               replicas:
-                description: Replicas is the expected size of the pulsar proxy
+                default: 3
+                description: Replicas is the expected size of the pulsar proxy If
+                  unspecified, defaults to 3.
                 format: int32
+                minimum: 0
                 type: integer
               webSocketServiceEnabled:
                 description: WebSocketServiceEnabled defines whether WebSocket will
