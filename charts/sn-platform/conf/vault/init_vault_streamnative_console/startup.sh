@@ -25,7 +25,6 @@ else
 fi
 
 export VAULT_APPROLE_SUPER_NAME=apachepulsar
-export VAULT_APPROLE_SUPER_PROXY_NAME=proxy-admin
 # generate console password
 #export VAULT_ADDR="http://127.0.0.1:8200"
 
