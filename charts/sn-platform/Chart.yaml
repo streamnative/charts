@@ -25,7 +25,7 @@ version: 1.9.0
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/tree/master/charts/sn-platform
-icon: https://streamnative.io/uploads/images/platform/sn-platform-header-element.svg
+icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
 maintainers:
 - name: StreamNative Support
   email: support@streamnative.io
