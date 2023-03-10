@@ -181,7 +181,7 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
-      namespace: {{ template "pulsar.namespace" . }},
+      "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.bookkeeper.metrics }},
       "health_service_check": true,

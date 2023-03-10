@@ -119,7 +119,7 @@ ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
-      namespace: {{ template "pulsar.namespace" . }},
+      "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
       "health_service_check": true,

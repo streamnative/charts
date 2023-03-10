@@ -117,7 +117,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
-      namespace: {{ template "pulsar.namespace" . }},
+      "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
@@ -170,7 +170,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
-      namespace: {{ template "pulsar.namespace" . }},
+      "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
