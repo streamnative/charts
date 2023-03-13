@@ -363,11 +363,13 @@ auth:
   authorization:
     enabled: true
   superUsers:
-    # broker to broker communication
+    # broker to broker communication, broker superUserRoles
     broker: "admin,proxy-admin,broker-admin,admin-approle,pulsar-manager-admin"
     # if it is enabled, the roles configured in the proxy will not be used by the client
     proxyRolesEnabled: false
-    # proxy to broker communication, if proxyRolesEnabled is set to true, be sure to keep only the porxy-admin role here
+    # if proxyRolesEnabled is set to true, this role is only available to proxy connection brokers, please make sure the client does not use this role
+    proxyRoles: proxy-admin
+    # proxy to broker communication, proxy superUserRoles
     proxy: "admin,proxy-admin,admin-approle,pulsar-manager-admin"
     # websocket proxy to broker communication
     websocket: "admin,ws-admin,admin-approle,pulsar-manager-admin"
