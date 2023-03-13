@@ -60,7 +60,7 @@ spec:
     resources:
       requests:
         cpu: 200m
-        memory: 256Mi
+        memory: 512Mi
     securityContext:
       runAsNonRoot: true
   storage:
@@ -96,12 +96,13 @@ spec:
     resources:
       requests:
         cpu: 200m
-        memory: 256Mi
+        memory: 512Mi
     securityContext:
       runAsNonRoot: true
   config:
     protocolHandlers:
       mop:
         enabled: true
+        proxyEnabled: true
   replicas: 2
   zkServers: zookeepers-zk:2181
