@@ -194,12 +194,12 @@ images:
       tag: "1.35.0"
       pullPolicy: IfNotPresent
   prometheus:
-    repository: prom/prometheus
-    tag: "v2.36.1"
+    repository: quay.io/prometheus/prometheus
+    tag: "v2.41.0"
     pullPolicy: IfNotPresent
   alert_manager:
-    repository: prom/alertmanager
-    tag: "v0.24.0"
+    repository: quay.io/prometheus/alertmanager
+    tag: "v0.25.0"
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
@@ -211,16 +211,16 @@ images:
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
-    repository: prom/node-exporter
-    tag: "v1.4.0"
+    repository: quay.io/prometheus/node-exporter
+    tag: "v1.5.0"
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: "0.26.2"
     pullPolicy: "IfNotPresent"
   vault:
-    repository: vault
-    tag: "1.10.4"
+    repository: hashicorp/vault
+    tag: "1.12.4"
     pullPolicy: "IfNotPresent"
   bank_vaults:
     repository: ghcr.io/banzaicloud/bank-vaults
@@ -230,8 +230,8 @@ images:
     repository: streamnative/pulsar_vault_init
     tag: "v1.0.6"
   custom_metric_server_prometheus:
-    repository: prom/prometheus
-    tag: "v2.39.1"
+    repository: quay.io/prometheus/prometheus
+    tag: "v2.41.0"
     pullPolicy: IfNotPresent
   custom_metric_server:
     repository: registry.k8s.io/prometheus-adapter/prometheus-adapter
