@@ -269,7 +269,7 @@ spec:
 {{- include "pulsar.authConfiguration" . | indent 6 }}
       superUserRoles: "{{ .Values.auth.superUsers.broker }}"
       {{- if .Values.auth.superUsers.proxyRolesEnabled }}
-      proxyRoles: .Values.auth.superUsers.proxyRoles
+      proxyRoles: {{ .Values.auth.superUsers.proxyRoles }}
       {{- end }}
       {{- end }}
       {{- if .Values.auth.authorization.enabled }}
