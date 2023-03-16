@@ -96,7 +96,7 @@ spec:
       {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.broker.affinity "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
     vars:
-    {{- include "pulsar.authEnvironment" . | indent 4 }}
+    {{- include "pulsar.authEnvironment" (dict "Values" .Values "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 4 }}
     {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
     - name: AWS_ACCESS_KEY_ID
       valueFrom:
@@ -268,6 +268,9 @@ spec:
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
       superUserRoles: "{{ .Values.auth.superUsers.broker }}"
+      {{- if .Values.auth.superUsers.proxyRolesEnabled }}
+      proxyRoles: {{ .Values.auth.superUsers.proxyRoles }}
+      {{- end }}
       {{- end }}
       {{- if .Values.auth.authorization.enabled }}
 {{- include "pulsar.authorizationProvider" . | indent 6 }}
