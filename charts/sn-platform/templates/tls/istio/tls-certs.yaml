@@ -46,7 +46,7 @@ spec:
   # by the *.{{ .Values.domain.suffix }} if they are defined.
   issuerRef:
 {{- if .Values.certs.istio_internal_issuer.enabled }} 
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}"
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}-ca-issuer"
 {{- else if .Values.certs.istio_public_issuer.enabled }}  
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
 {{- end }}
