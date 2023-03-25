@@ -1118,7 +1118,7 @@ broker:
 ##
 functions:
   component: functions-worker
-  useDedicatedRunner: false
+  useDedicatedRunner: true
   functionMesh: false
   functionMeshName: "function-mesh"
   functionMeshServiceAccount: "default"
@@ -1138,7 +1138,11 @@ functions:
   # pulsarServiceUrlOverride:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  securityContext: {}
+  securityContext:
+    fsGroup: 0
+    runAsGroup: 0
+    runAsNonRoot: false
+    runAsUser: 0
   tolerations: []
   extraVolumes: []
   extraVolumeMounts: []
