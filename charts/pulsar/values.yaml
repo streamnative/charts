@@ -129,61 +129,61 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.9.2.12
+  #   tag: 2.10.3.6
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_runner_java:
     repository: streamnative/pulsar-functions-java-runner
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_runner_go:
     repository: streamnative/pulsar-functions-go-runner
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_runner_python:
     repository: streamnative/pulsar-functions-python-runner
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.9.2.12
+  #   tag: 2.10.3.6
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -551,7 +551,9 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
-  securityContext: {}
+  securityContext: 
+    fsGroup: 0
+    fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
   gracePeriod: 30
   resources:
@@ -658,7 +660,7 @@ zookeeper:
       component: "backup"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.12"
+      tag: "2.10.3.6"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
@@ -684,7 +686,7 @@ zookeeper:
       component: "restore"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.12"
+      tag: "2.10.3.6"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
@@ -745,7 +747,9 @@ bookkeeper:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext: {}
+  securityContext: 
+    fsGroup: 0
+    fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
   gracePeriod: 30
   resources:
@@ -876,7 +880,9 @@ autorecovery:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext: {}
+  securityContext: 
+    fsGroup: 0
+    fsGroupChangePolicy: "OnRootMismatch"
   # tolerations: []
   gracePeriod: 30
   resources:
@@ -908,7 +914,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -972,16 +978,19 @@ broker:
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
+      timeoutSeconds: 5
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
+      timeoutSeconds: 5
     startup:
       enabled: false
       failureThreshold: 30
       initialDelaySeconds: 60
       periodSeconds: 10
+      timeoutSeconds: 5
   affinity:
     anti_affinity: true
     # Set the anti affinity type. Valid values:
@@ -1269,16 +1278,19 @@ proxy:
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
+      timeoutSeconds: 5
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 30
       periodSeconds: 10
+      timeoutSeconds: 5
     startup:
       enabled: false
       failureThreshold: 30
       initialDelaySeconds: 60
       periodSeconds: 10
+      timeoutSeconds: 5
   affinity:
     anti_affinity: true
     # Set the anti affinity type. Valid values:

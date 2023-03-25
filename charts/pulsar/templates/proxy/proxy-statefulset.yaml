@@ -192,6 +192,7 @@ spec:
           initialDelaySeconds: {{ .Values.proxy.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.proxy.probe.liveness.periodSeconds }}
           failureThreshold: {{ .Values.proxy.probe.liveness.failureThreshold }}
+          timeoutSeconds: {{ .Values.proxy.probe.liveness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.proxy.probe.readiness.enabled }}
         readinessProbe:
@@ -201,6 +202,7 @@ spec:
           initialDelaySeconds: {{ .Values.proxy.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.proxy.probe.readiness.periodSeconds }}
           failureThreshold: {{ .Values.proxy.probe.readiness.failureThreshold }}
+          timeoutSeconds: {{ .Values.proxy.probe.readiness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.proxy.probe.startup.enabled }}
         startupProbe:
@@ -210,6 +212,7 @@ spec:
           initialDelaySeconds: {{ .Values.proxy.probe.startup.initialDelaySeconds }}
           periodSeconds: {{ .Values.proxy.probe.startup.periodSeconds }}
           failureThreshold: {{ .Values.proxy.probe.startup.failureThreshold }}
+          timeoutSeconds: {{ .Values.proxy.probe.startup.timeoutSeconds }}
         {{- end }}
       {{- if .Values.proxy.resources }}
         resources:
