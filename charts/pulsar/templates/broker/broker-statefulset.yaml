@@ -219,7 +219,6 @@ spec:
           initialDelaySeconds: {{ .Values.broker.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.broker.probe.liveness.periodSeconds }}
           failureThreshold: {{ .Values.broker.probe.liveness.failureThreshold }}
-          timeoutSeconds: {{ .Values.broker.probe.liveness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.broker.probe.readiness.enabled }}
         readinessProbe:
@@ -229,7 +228,6 @@ spec:
           initialDelaySeconds: {{ .Values.broker.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.broker.probe.readiness.periodSeconds }}
           failureThreshold: {{ .Values.broker.probe.readiness.failureThreshold }}
-          timeoutSeconds: {{ .Values.broker.probe.readiness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.broker.probe.startup.enabled }}
         startupProbe:
@@ -239,7 +237,6 @@ spec:
           initialDelaySeconds: {{ .Values.broker.probe.startup.initialDelaySeconds }}
           periodSeconds: {{ .Values.broker.probe.startup.periodSeconds }}
           failureThreshold: {{ .Values.broker.probe.startup.failureThreshold }}
-          timeoutSeconds: {{ .Values.broker.probe.startup.timeoutSeconds }}
         {{- end }}
       {{- if .Values.broker.resources }}
         resources:
