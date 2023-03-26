@@ -385,7 +385,7 @@ external_dns:
       zoneType: public
   serviceAcct:
     annotations: {}
-  securityContext: {}
+  securityContext:{}
   extraMounts: []
   extraEnv: []
 
@@ -552,7 +552,7 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
-  securityContext: 
+  securityContext:
     fsGroup: 0
     fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
@@ -748,7 +748,7 @@ bookkeeper:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext: 
+  securityContext:
     fsGroup: 0
     fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
@@ -881,7 +881,7 @@ autorecovery:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext: 
+  securityContext:
     fsGroup: 0
     fsGroupChangePolicy: "OnRootMismatch"
   # tolerations: []
@@ -997,7 +997,7 @@ broker:
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
   tolerations: []
-  securityContext: {}
+  securityContext:{}
   gracePeriod: 30
   # flag to advertise pod ip address
   advertisedPodIP: false
@@ -1297,7 +1297,7 @@ proxy:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext: {}
+  securityContext:{}
   tolerations: []
   gracePeriod: 30
   resources:
