@@ -385,7 +385,7 @@ external_dns:
       zoneType: public
   serviceAcct:
     annotations: {}
-  securityContext:{}
+  securityContext: {}
   extraMounts: []
   extraEnv: []
 
@@ -997,7 +997,7 @@ broker:
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
   tolerations: []
-  securityContext:{}
+  securityContext: {}
   gracePeriod: 30
   # flag to advertise pod ip address
   advertisedPodIP: false
@@ -1297,7 +1297,7 @@ proxy:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext:{}
+  securityContext: {}
   tolerations: []
   gracePeriod: 30
   resources:
