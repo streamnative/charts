@@ -36,7 +36,7 @@ spec:
       component: {{ .Values.zookeeper.component }}
   updateStrategy:
     type: {{ .Values.zookeeper.updateStrategy }}
-  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy | default "OrderedReady" }}
+  podManagementPolicy: {{ .Values.zookeeper.podManagementPolicy | default "Parallel" }}
   template:
     metadata:
       labels:
@@ -228,6 +228,7 @@ spec:
           initialDelaySeconds: {{ .Values.zookeeper.probe.startup.initialDelaySeconds }}
           periodSeconds: {{ .Values.zookeeper.probe.startup.periodSeconds }}
           failureThreshold: {{ .Values.zookeeper.probe.startup.failureThreshold }}
+          timeoutSeconds: {{ .Values.zookeeper.probe.startup.timeoutSeconds }}
         {{- end }}
         volumeMounts:
         {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
