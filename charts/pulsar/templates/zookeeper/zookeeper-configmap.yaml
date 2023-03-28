@@ -34,8 +34,8 @@ data:
   PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
   {{- end }}
   {{- if .Values.zookeeper.useNettyIO }}
-  PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
-  serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+  PULSAR_PREFIX_serverCnxnFactory: org.apache.zookeeper.server.NIOServerCnxnFactory
+  serverCnxnFactory: org.apache.zookeeper.server.NIOServerCnxnFactory
   {{- end }}
   # enable zookeeper tls
   {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
