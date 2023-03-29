@@ -29,6 +29,9 @@ metadata:
     component: {{ .Values.functions.component }}
 data:
   functions_worker.yml: |
+    {{- if .Values.functions.customFunctionWorkerConfig }}
+{{ toYaml .Values.functions.customFunctionWorkerConfig | indent 4 }}
+    {{- else }}
     {{- if .Values.functions.config }}
 {{ toYaml .Values.functions.config | indent 4 }}
     {{- end }}
@@ -157,3 +160,4 @@ data:
     {{- end }}
 {{ toYaml .Values.functions.configData | indent 4 }}
 {{- end }}
+    {{- end }}

@@ -62,6 +62,18 @@ rules:
     - create
     - delete
     - patch
+- apiGroups:
+  - compute.functionmesh.io
+  resources:
+  - '*'
+  verbs:
+  - list
+  - watch
+  - get
+  - update
+  - create
+  - delete
+  - patch
 ---
 
 {{- end }}
