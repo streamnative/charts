@@ -1400,21 +1400,6 @@ entries:
   pulsar-resources-operator:
   - apiVersion: v2
     appVersion: v0.2.0
-    created: "2023-03-29T14:51:34.819525107Z"
-    description: Pulsar Resources Operator Helm chart for Pulsar Resources Management
-      on Kubernetes
-    digest: 4a947b11ade06ec6e2748dbc195c39271b5a1eb6adc627849ac75b7d93ba6368
-    icon: https://pulsar.apache.org/img/pulsar.svg
-    kubeVersion: '>= 1.16.0-0 < 1.26.0-0'
-    name: pulsar-resources-operator
-    sources:
-    - https://github.com/streamnative/pulsar-resources-operator
-    type: application
-    urls:
-    - https://github.com/streamnative/pulsar-resources-operator/releases/download/pulsar-resources-operator-v0.3.0/pulsar-resources-operator-v0.3.0.tgz
-    version: v0.3.0
-  - apiVersion: v2
-    appVersion: v0.2.0
     created: "2023-02-28T09:26:08.079625707Z"
     description: Pulsar Resources Operator Helm chart for Pulsar Resources Management
       on Kubernetes
