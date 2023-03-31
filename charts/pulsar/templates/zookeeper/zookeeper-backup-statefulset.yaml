@@ -58,19 +58,19 @@ spec:
       - name: {{ .Values.imagePullSecrets }}
       {{- end }}
       securityContext:
-      {{- with .Values.zookeeper.securityContext }}
-      {{ toYaml . | indent 8 }}
-      {{- end }}
+{{- with .Values.zookeeper.securityContext }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       {{- if .Values.zookeeper.customTools.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.zookeeper.backup.serviceAccount" . }}
       {{- end }}
       {{- if .Values.zookeeper.nodeSelector }}
       nodeSelector:
-      {{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
+{{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
       {{- end }}
       {{- if .Values.zookeeper.tolerations }}
       tolerations:
-      {{ toYaml .Values.zookeeper.tolerations | indent 8 }}
+{{ toYaml .Values.zookeeper.tolerations | indent 8 }}
       {{- end }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity}}
@@ -114,12 +114,12 @@ spec:
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
-      {{- with .Values.common.extraInitContainers }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
-      {{- with .Values.zookeeper.extraInitContainers }}
-      {{ toYaml . | indent 6 }}
-      {{- end }}
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.zookeeper.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
       {{- if .Values.zookeeper.customTools.backup.enable }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
