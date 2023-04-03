@@ -62,10 +62,10 @@ spec:
       serviceAccountName: {{ template "pulsar.zookeeper.backup.serviceAccount" . }}
       {{- end }}
       {{- if .Values.zookeeper.nodeSelector }}
-      nodeSelector: {{ toYaml .Values.zookeeper.nodeSelector | nindent 8 }}
+      nodeSelector: {{- toYaml .Values.zookeeper.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if .Values.zookeeper.tolerations }}
-      tolerations: {{ toYaml .Values.zookeeper.tolerations | nindent 8 }}
+      tolerations: {{- toYaml .Values.zookeeper.tolerations | nindent 8 }}
       {{- end }}
       affinity:
         {{- if and .Values.affinity.anti_affinity .Values.zookeeper.affinity.anti_affinity}}
@@ -109,9 +109,8 @@ spec:
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
-{{- toYaml .Values.common.extraInitContainers | indent 8 }}
-{{- toYaml .Values.zookeeper.extraInitContainers | indent 8}}
-{{- end }}
+        {{- toYaml .Values.common.extraInitContainers | nindent 8 }}
+        {{- toYaml .Values.zookeeper.extraInitContainers | nindent 8}}
       {{- if .Values.zookeeper.customTools.backup.enable }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
@@ -153,7 +152,7 @@ spec:
         imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
       {{- if .Values.zookeeper.resources }}
         resources:
-{{ toYaml .Values.zookeeper.resources | indent 10 }}
+          {{- toYaml .Values.zookeeper.resources | indent 10 }}
       {{- end }}
         command: ["sh", "-c"]
         args:
