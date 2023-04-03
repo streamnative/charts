@@ -152,7 +152,7 @@ spec:
         imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
       {{- if .Values.zookeeper.resources }}
         resources:
-          {{- toYaml .Values.zookeeper.resources | indent 10 }}
+          {{- toYaml .Values.zookeeper.resources | nindent 10 }}
       {{- end }}
         command: ["sh", "-c"]
         args:
