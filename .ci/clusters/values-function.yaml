@@ -63,3 +63,6 @@ proxy:
 
 toolset:
   useProxy: false
+
+functions:
+  useDedicatedRunner: false
