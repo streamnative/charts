@@ -129,22 +129,22 @@ function ci::test_pulsar_producer() {
 }
 
 function ci::wait_function_running() {
-    num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions status --tenant public --namespace test --name test-function | bin/jq .numRunning') 
+    num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions status --tenant public --namespace test --name test-function | ./jq .numRunning')
     while [[ ${num_running} -lt 1 ]]; do
       echo ${num_running}
       sleep 15
       ${KUBECTL} get pods -n ${NAMESPACE} --field-selector=status.phase=Running
-      num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions status --tenant public --namespace test --name test-function | bin/jq .numRunning') 
+      num_running=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions status --tenant public --namespace test --name test-function | ./jq .numRunning')
     done
 }
 
 function ci::wait_message_processed() {
-    num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions stats --tenant public --namespace test --name test-function | bin/jq .processedSuccessfullyTotal') 
+    num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions stats --tenant public --namespace test --name test-function | ./jq .processedSuccessfullyTotal')
     while [[ ${num_processed} -lt 1 ]]; do
       echo ${num_processed}
       sleep 15
       ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bin/pulsar-admin functions stats --tenant public --namespace test --name test-function
-      num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions stats --tenant public --namespace test --name test-function | bin/jq .processedSuccessfullyTotal') 
+      num_processed=$(${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bash -c 'bin/pulsar-admin functions stats --tenant public --namespace test --name test-function | ./jq .processedSuccessfullyTotal')
     done
 }
 
@@ -156,8 +156,8 @@ function ci::test_pulsar_function() {
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-bookie-0 -- df -h
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bin/bookkeeper shell listbookies -rw
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bin/bookkeeper shell listbookies -ro
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- curl --retry 10 -L -o bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- chmod +x bin/jq
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- curl --retry 10 -L -o jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+    ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- chmod +x jq
     ${KUBECTL} exec -n ${NAMESPACE} ${CLUSTER}-toolset-0 -- bin/pulsar-admin functions create --tenant public --namespace test --name test-function --inputs "public/test/test_input" --output "public/test/test_output" --parallelism 1 --classname org.apache.pulsar.functions.api.examples.ExclamationFunction --jar /pulsar/examples/api-examples.jar
 
     # wait until the function is running
