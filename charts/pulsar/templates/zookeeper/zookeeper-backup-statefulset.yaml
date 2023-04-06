@@ -109,8 +109,12 @@ spec:
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
       initContainers:
+        {{- if .Values.common.extraInitContainers }}
         {{- toYaml .Values.common.extraInitContainers | nindent 8 }}
-        {{- toYaml .Values.zookeeper.extraInitContainers | nindent 8}}
+        {{- end }}
+        {{- if .Values.zookeeper.extraInitContainers }}
+        {{- toYaml .Values.zookeeper.extraInitContainers | nindent 8 }}
+        {{- end }}
       {{- if .Values.zookeeper.customTools.backup.enable }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
