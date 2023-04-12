@@ -28,7 +28,7 @@ initialize: false
 # NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
 #       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
 #       a higher control structure that is not part of the application.
-namespace: ""
+namespace: "snp"
 namespaceCreate: false
 
 ###
@@ -2299,6 +2299,13 @@ vault:
     prometheus.io/port: "9091"
   labels: {}
   volumeClaimTemplates: []
+  affinity:
+    anti_affinity: true
+    zone_anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: requiredDuringSchedulingIgnoredDuringExecution
   unsealConfig: {}
   volumeMounts:
   - name: vault-raft
