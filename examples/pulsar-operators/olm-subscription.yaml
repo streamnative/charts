@@ -24,7 +24,7 @@ metadata:
   name: zookeeper-operator
   namespace: operators
 spec:
-  channel: stable
+  channel: alpha
   name: zookeeper-operator
   source: operatorhubio-catalog
   sourceNamespace: olm
@@ -35,7 +35,7 @@ metadata:
   name: bookkeeper-operator
   namespace: operators
 spec:
-  channel: stable
+  channel: alpha
   name: bookkeeper-operator
   source: operatorhubio-catalog
   sourceNamespace: olm
@@ -46,7 +46,7 @@ metadata:
   name: pulsar-operator
   namespace: operators
 spec:
-  channel: stable
+  channel: alpha
   name: pulsar-operator
   source: operatorhubio-catalog
   sourceNamespace: olm
