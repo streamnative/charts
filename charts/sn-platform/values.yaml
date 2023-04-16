@@ -2299,6 +2299,13 @@ vault:
     prometheus.io/port: "9091"
   labels: {}
   volumeClaimTemplates: []
+  affinity:
+    anti_affinity: true
+    zone_anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: preferredDuringSchedulingIgnoredDuringExecution
   unsealConfig: {}
   volumeMounts:
   - name: vault-raft
