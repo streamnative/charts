@@ -57,6 +57,8 @@ spec:
   nodeSelector:
 {{ toYaml .Values.vault.nodeSelector | indent 4 }}
   {{- end }}
+  affinity:
+    {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.vault.affinity "Component" .Values.vault.component "Release" .Release "Chart" .Chart) | indent 4 }}
   {{- if .Values.vault.envsConfig }}
   vaultEnvsConfig:
 {{ toYaml .Values.vault.envsConfig | indent 4 }}
