@@ -1,0 +1,73 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.istio.enabled }}
+{{- if .Values.certs.istio_internal_issuer.enabled }}
+{{- if .Values.certs.istio_public_issuer.enabled }}
+{{ fail "Both internal and public issuer for Istio Ingress Gateway are enabled. Please disable one of them." }}
+{{- end }}
+{{- if eq .Values.certs.istio_internal_issuer.type "selfsigning" }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}"
+  namespace: {{ template "istio.gateway.namespace" . }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-istio-ca"
+  namespace: {{ template "istio.gateway.namespace" . }}
+spec:
+  secretName: "{{ .Release.Name }}-istio-ca-tls"
+  commonName: "{{ template "istio.gateway.namespace" . }}.svc.cluster.local"
+  usages:
+    - server auth
+    - client auth
+  isCA: true
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}"
+    kind: Issuer
+    group: cert-manager.io
+{{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}-ca-issuer"
+  namespace: {{ template "istio.gateway.namespace" . }}
+spec:
+{{- if eq .Values.certs.istio_internal_issuer.type "selfsigning" }}
+  ca:
+    secretName: "{{ .Release.Name }}-istio-ca-tls"
+{{ else if eq .Values.certs.istio_internal_issuer.type "secret" }}
+  ca:
+    secretName: {{ .Values.certs.issuers.secret.secretName }}
+{{ else if eq .Values.certs.istio_internal_issuer.type "custom" }}
+{{- with .Values.certs.issuers.custom }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

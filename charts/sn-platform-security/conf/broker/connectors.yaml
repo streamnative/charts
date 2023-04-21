@@ -1,0 +1,150 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+- id: pulsar-io-data-generator
+  name: data-generator
+  description: Test data generator connector
+  sourceClass: org.apache.pulsar.io.datagenerator.DataGeneratorSource
+  sourceConfigClass: org.apache.pulsar.io.datagenerator.DataGeneratorSourceConfig
+  sinkClass: org.apache.pulsar.io.datagenerator.DataGeneratorPrintSink
+  imageRepository: streamnative/pulsar-io-data-generator
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  typeClassName: org.apache.pulsar.io.datagenerator.Person
+- id: pulsar-io-kinesis
+  name: kinesis
+  description: Kinesis connectors
+  sinkClass: org.apache.pulsar.io.kinesis.KinesisSink
+  sourceClass: org.apache.pulsar.io.kinesis.KinesisSource
+  sourceConfigClass: org.apache.pulsar.io.kinesis.KinesisSourceConfig
+  sinkConfigClass: org.apache.pulsar.io.kinesis.KinesisSinkConfig
+  imageRepository: streamnative/pulsar-io-kinesis
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+- id: pulsar-io-sqs
+  name: sqs
+  description: SQS connectors
+  imageRepository: streamnative/pulsar-io-sqs
+  sourceClass: org.apache.pulsar.ecosystem.io.sqs.SQSSource
+  sourceConfigClass: org.apache.pulsar.ecosystem.io.sqs.SQSConnectorConfig
+  sinkClass: org.apache.pulsar.ecosystem.io.sqs.SQSSink
+  sinkConfigClass: org.apache.pulsar.ecosystem.io.sqs.SQSConnectorConfig
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+  sourceTypeClassName: java.lang.String
+- id: pulsar-io-cloud-storage
+  name: cloud-storage
+  description: Cloud storage Sink
+  sinkClass: org.apache.pulsar.io.jcloud.sink.CloudStorageGenericRecordSink
+  sinkConfigClass: org.apache.pulsar.io.jcloud.sink.CloudStorageSinkConfig
+  imageRepository: streamnative/pulsar-io-cloud-storage
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  typeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+- id: pulsar-io-amqp1_0
+  name: amqp1_0
+  description: AMQP1_0 connectors
+  sourceClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSource
+  sinkClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSink
+  sinkConfigClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSinkConfig
+  sourceConfigClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSourceConfig
+  imageRepository: streamnative/pulsar-io-amqp-1-0
+  version: 2.8.2.4
+  imageTag: 2.8.2.4
+  typeClassName: java.nio.ByteBuffer
+  defaultSchemaType: org.apache.pulsar.client.impl.schema.ByteBufferSchema
+- id: pulsar-io-debezium-mysql
+  name: debezium-mysql
+  description: Debezium MySql Source
+  sourceClass: org.apache.pulsar.io.debezium.mysql.DebeziumMysqlSource
+  imageRepository: streamnative/pulsar-io-debezium-mysql
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-debezium-postgres
+  name: debezium-postgres  
+  description: Debezium Postgres Source  
+  sourceClass: org.apache.pulsar.io.debezium.postgres.DebeziumPostgresSource
+  imageRepository: streamnative/pulsar-io-debezium-postgres
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-debezium-mongodb
+  name: debezium-mongodb  
+  description: Debezium MongoDb Source  
+  sourceClass: org.apache.pulsar.io.debezium.mongodb.DebeziumMongoDbSource  
+  imageRepository: streamnative/pulsar-io-debezium-mongodb
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-debezium-mssql
+  name: debezium-mssql
+  description: Debezium Microsoft SQL Server Source
+  sourceClass: org.apache.pulsar.io.debezium.mssql.DebeziumMsSqlSource
+  imageRepository: streamnative/pulsar-io-debezium-mssql
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  typeClassName: org.apache.pulsar.common.schema.KeyValue
+- id: pulsar-io-kafka
+  name: kafka
+  description: Kafka Source
+  sourceClass: org.apache.pulsar.io.kafka.KafkaBytesSource
+  imageRepository: streamnative/pulsar-io-kafka
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+  sourceConfigClass: org.apache.pulsar.io.kafka.KafkaSourceConfig
+  sourceTypeClassName: java.nio.ByteBuffer
+- id: pulsar-io-elastic-search
+  name: elasticsearch
+  description: Elasticsearch Sink
+  sinkClass: org.apache.pulsar.io.elasticsearch.ElasticSearchSink
+  sinkConfigClass: org.apache.pulsar.io.elasticsearch.ElasticSearchConfig
+  imageRepository: streamnative/pulsar-io-elastic-search
+  version: 2.10.0.3
+  imageTag: 2.10.0.3
+  typeClassName: org.apache.pulsar.client.api.schema.GenericObject
+- id: pulsar-io-aws-lambda
+  name: aws-lambda
+  description: AWS Lambda Sink
+  sinkClass: org.apache.pulsar.ecosystem.io.aws.lambda.AWSLambdaBytesSink
+  sinkConfigClass: org.apache.pulsar.ecosystem.io.aws.lambda.AWSLambdaConnectorConfig
+  imageRepository: streamnative/pulsar-io-aws-lambda
+  version: 2.9.2.17
+  imageTag: 2.9.2.17
+- id: pulsar-io-bigquery
+  name: bigquery
+  description: Google BigQuery connectors
+  sinkClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySink
+  sinkConfigClass: org.apache.pulsar.ecosystem.io.bigquery.BigQueryConfig
+  sourceClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySource
+  sourceConfigClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySourceConfig
+  imageRepository: streamnative/pulsar-io-bigquery
+  version: 2.10.1.10
+  imageTag: 2.10.1.10
+  sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
+  sourceTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+- id: pulsar-io-snowflake
+  name: snowflake
+  description: Snowflake Sink
+  sinkClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConnector
+  sinkConfigClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConfig
+  imageRepository: streamnative/pulsar-io-snowflake
+  version: 2.10.3.4
+  imageTag: 2.10.3.4
+  typeClassName: org.apache.pulsar.client.api.schema.GenericObject

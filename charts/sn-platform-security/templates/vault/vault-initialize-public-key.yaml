@@ -1,0 +1,84 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.components.vault }}
+{{- if .Values.initialize }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init-public-key"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: "{{ .Values.bookkeeper.component }}-init"
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+{{- if .Values.vault.labels }}    
+{{ toYaml .Values.vault.labels | indent 8 }}
+{{- end }}
+      annotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 8 }}
+{{- end }}
+    spec:
+      serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
+      containers:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"
+        image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"
+        imagePullPolicy: {{ .Values.images.vault.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+           tokenLen=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|wc -m);
+           until [ ${tokenLen} -gt 1 ]; do
+             echo "current token is empty ! wait another 10s~"
+             sleep 10;
+             tokenLen=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|wc -m);
+           done;
+           echo "vault root token is ready";
+           rootToken=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
+           echo $rootToken;
+           echo $rootToken > /vault/rootToken;
+           export ROOT_TOKEN=$rootToken;
+           vault login $ROOT_TOKEN;
+           until [ $? -eq 0 ]; do
+              echo "vault is not ready now, wait another 5s~";
+              sleep 5;
+              vault login $ROOT_TOKEN;
+           done;
+           echo "vault is ready~";
+           echo "Start init public key to secret";
+           publicKey=$(wget -qO- http://{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}:8200/v1/identity/oidc/.well-known/keys | base64 | tr -d \\n);
+           kubectl patch secret {{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-public-key --type='json' -p='[{"op":"replace","path":"/data/publicKey","value":"'$publicKey'"}]' -n {{ template "pulsar.namespace" . }};
+           echo -ne "POST /quitquitquit HTTP/1.1\r\nHost: 127.0.0.1:15020\r\nUser-Agent: curl/7.68.0\r\nAccept: */*\r\n\r\n"|nc 127.0.0.1:15020 || true;
+        env:
+        - name: VAULT_ADDR
+          value: {{ template "pulsar.vault.url" . }}
+        {{- if .Values.vault.resources }}
+        resources: {{- toYaml .Values.vault.resources | nindent 10  }}
+        {{- end }}
+      restartPolicy: Never
+      {{- if .Values.vault.securityContext }}
+      securityContext: {{- toYaml .Values.vault.securityContext | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

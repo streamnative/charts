@@ -1,0 +1,202 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+# deploy zookeeper only when `zookeeper.customTools.backup.enable` is true
+{{- if .Values.zookeeper.customTools.backup.enable }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.zookeeper.component }}
+spec:
+  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.zookeeper.customTools.backup.component }}
+  updateStrategy:
+    type: {{ .Values.zookeeper.updateStrategy }}
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.zookeeper.customTools.backup.component }}
+      annotations:
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.zookeeper.autoRollDeployment }}
+        checksum/config: {{ include (print $.Template.BasePath "/zookeeper/zookeeper-backup-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{- with .Values.zookeeper.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- with .Values.zookeeper.securityContext }}
+      {{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- if .Values.zookeeper.customTools.serviceAccount.use }}
+      serviceAccountName: {{ template "pulsar.zookeeper.backup.serviceAccount" . }}
+      {{- end }}
+      {{- if .Values.zookeeper.nodeSelector }}
+      nodeSelector:
+      {{ toYaml .Values.zookeeper.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.zookeeper.tolerations }}
+      tolerations:
+      {{ toYaml .Values.zookeeper.tolerations | indent 8 }}
+      {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.zookeeper.affinity "Component" .Values.zookeeper.component "Release" .Release "Chart" .Chart) | indent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.zookeeper.gracePeriod }}
+      initContainers:
+{{- with .Values.common.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- with .Values.zookeeper.extraInitContainers }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+      {{- if .Values.zookeeper.customTools.backup.enable }}
+      containers:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
+        image: "{{ .Values.images.zookeeper.customTools.backup.repository }}:{{ .Values.images.zookeeper.customTools.backup.tag }}"
+        imagePullPolicy: {{ .Values.zookeeper.customTools.backup.pullPolicy }}
+        command: ["sh", "-c"]
+        args:
+          - >
+            bin/pulsar-metadata-tool backup
+        volumeMounts:
+        {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
+        - name: backup-config
+          mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+        env:
+        {{- if .Values.zookeeper.customTools.backup.secrets.use }}
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.backup.secrets.aws.secretName }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.zookeeper.customTools.backup.secrets.aws.secretName }}
+                key: AWS_SECRET_ACCESS_KEY
+        {{- end }}
+          - name: METADATA_TOOL_CONF
+            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        ports:
+          - name: metrics
+            containerPort: {{ .Values.zookeeper.customTools.backup.webServerPort }}
+        {{- end }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
+        image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
+        imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+      {{- if .Values.zookeeper.resources }}
+        resources:
+{{ toYaml .Values.zookeeper.resources | indent 10 }}
+      {{- end }}
+        command: ["sh", "-c"]
+        args:
+        - >
+          bin/apply-config-from-env.py conf/zookeeper.conf;
+          {{- include "pulsar.zookeeper.tls.settings" . | nindent 10 }}
+          {{- range $server := .Values.zookeeper.reconfig.staticServerList }}
+          echo "{{ $server }}" >> conf/zookeeper.conf;
+          {{- end }}
+          bin/gen-zk-conf.sh conf/zookeeper.conf {{ .Values.zookeeper.initialMyId }} {{ .Values.zookeeper.peerType }};
+          cat conf/zookeeper.conf;
+          bin/pulsar zookeeper;
+        ports:
+        - name: metrics
+          containerPort: {{ .Values.zookeeper.ports.metrics }}
+        - name: client
+          containerPort: {{ .Values.zookeeper.ports.client }}
+        - name: follower
+          containerPort: {{ .Values.zookeeper.ports.follower }}
+        {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
+        - name: client-tls
+          containerPort: {{ .Values.zookeeper.ports.clientTls }}
+        {{- end }}
+        env:
+        - name: ZOOKEEPER_DOMAIN
+          value: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+        - name: OBSERVER_SERVER
+          value: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-0"
+        - name: ZOOKEEPER_SERVERS
+          value:
+            {{- $global := . }}
+            {{ range $i, $e := until (.Values.zookeeper.replicaCount | int) }}{{ if ne $i 0 }},{{ end }}{{ template "pulsar.fullname" $global }}-{{ $global.Values.zookeeper.component }}-{{ printf "%d" $i }}{{ end }}
+        envFrom:
+        - configMapRef:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+        {{- if .Values.zookeeper.probe.readiness.enabled }}
+        readinessProbe:
+          exec:
+            command:
+            - bin/pulsar-zookeeper-ruok.sh
+          initialDelaySeconds: {{ .Values.zookeeper.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.zookeeper.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.zookeeper.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.zookeeper.probe.liveness.enabled }}
+        livenessProbe:
+          exec:
+            command:
+            - bin/pulsar-zookeeper-ruok.sh
+          initialDelaySeconds: {{ .Values.zookeeper.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.zookeeper.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.zookeeper.probe.liveness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.zookeeper.probe.startup.enabled }}
+        startupProbe:
+          exec:
+            command:
+            - bin/pulsar-zookeeper-ruok.sh
+          initialDelaySeconds: {{ .Values.zookeeper.probe.startup.initialDelaySeconds }}
+          periodSeconds: {{ .Values.zookeeper.probe.startup.periodSeconds }}
+          failureThreshold: {{ .Values.zookeeper.probe.startup.failureThreshold }}
+        {{- end }}
+        volumeMounts:
+        {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
+        {{- include "pulsar.zookeeper.genzkconf.volumeMounts" . | nindent 8 }}
+      volumes:
+      {{- include "pulsar.zookeeper.data.volumes" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.certs.volumes" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.log.volumes" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.genzkconf.volumes" . | nindent 6 }}
+      {{- if .Values.zookeeper.customTools.backup.enable }}
+      - name: backup-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
+      {{- end }}
+  volumeClaimTemplates:
+  {{- include "pulsar.zookeeper.data.volumeClaimTemplates" . | nindent 2 }}
+{{- end }}

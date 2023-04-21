@@ -1,0 +1,65 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if and .Values.components.broker .Values.istio.enabled }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  rules:
+  - to:
+    - operation:
+        ports:
+        - "6650"
+        - "8080"
+        - "9092"
+        - "5682"
+        {{- if .Values.tls.broker.enabled }}
+        - "6651"
+        {{- end }}
+        {{- if or .Values.tls.broker.enabled (eq .Values.istio.gateway.tls.mode "PASSTHROUGH") }}
+        - "8443"
+        {{- end }}
+        {{- if and .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
+        - "9093"
+        {{- end }}
+        {{- if .Values.broker.aop.enabled }}
+        - "5672"
+        - "5673"
+        {{- end }}
+        {{- if eq .Values.istio.gateway.tls.mode "SIMPLE" }}
+        - "6652"
+        {{- if .Values.broker.kop.enabled }}
+        - "9094"
+        {{- end }}
+        {{- else }}
+        - "6653"
+        {{- if .Values.broker.kop.enabled }}
+        - "9095"
+        {{- end }}
+        {{- end }}
+  action: ALLOW
+  selector:
+    matchLabels:
+      cloud.streamnative.io/app: pulsar
+      cloud.streamnative.io/component: broker
+      cloud.streamnative.io/cluster: "{{ template "pulsar.fullname" . }}"
+{{- end }}
