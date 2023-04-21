@@ -157,6 +157,11 @@ spec:
       tlsTrustCertsFilePath: "/etc/tls/pulsar-proxy-tls/ca.crt"
       {{- end }}
       {{- end }}
+      {{- if .Values.proxy.authenticateMetricsEndpoint.enabled }}
+      PULSAR_PREFIX_authenticateMetricsEndpoint: "true"
+      {{- else }}
+      PULSAR_PREFIX_authenticateMetricsEndpoint: "false"
+      {{- end }}
   dnsNames:
   {{- if or .Values.domain.enabled (and .Values.ingress.proxy.enabled .Values.ingress.proxy.external_domain) }}
     - "{{ template "pulsar.service_domain" . }}"

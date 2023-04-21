@@ -1488,6 +1488,8 @@ proxy:
   brokerWebServiceURL: ""
   brokerServiceURLTLS: ""
   brokerWebServiceURLTLS: ""
+  authenticateMetricsEndpoint:
+    enabled: true
   jvm:
     memoryOptions:
     - >
