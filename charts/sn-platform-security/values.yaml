@@ -98,8 +98,6 @@ components:
   toolset: true
   # streamnative console
   streamnative_console: true
-  # pulsar sql
-  sql_worker: false
   # pulsar detector
   pulsar_detector: true
   # superset
@@ -143,19 +141,6 @@ images:
     repository: streamnative/sn-platform
     tag: "2.10.2.4"
     pullPolicy: IfNotPresent
-  presto:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
-    pullPolicy: IfNotPresent
-    exporter:
-      repository: bitnami/jmx-exporter
-      tag: "0.17.0"
-      pullPolicy: IfNotPresent
-  # NOTE: allow overriding the presto worker image
-  # presto_worker:
-  #   repository: streamnative/sn-platform
-  #   tag: 2.10.2.4
-  #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
     tag: "2.10.2.4"
@@ -331,17 +316,6 @@ tls:
     # name of chart generated certificate
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
-  presto:
-    enabled: false
-    # name of chart generated certificate
-    cert_name: tls-presto
-    # specify name of secret contain certificate if using pre-generated certificate
-    certSecretName:
-    trustCertsEnabled: false
-    # use "changeit" as password if not set passwordSecretRef
-    # passwordSecretRef:
-    #   key: password
-    #   name: ""
   streamnative_console:
     enabled: false
     # name of chart generated certificate
@@ -551,21 +525,6 @@ ingress:
     extraSpec: {}
     # Set external domain of the broker
     # external_domain: your.external.broker.domain
-  ## templates/presto-service-ingress.yaml
-  ##
-  ## Ingresses for exposing presto service publicly
-  presto:
-    enabled: false
-    # Set external domain of the presto
-    # external_domain: your.external.presto.domain
-    tls:
-      enabled: true
-    type: LoadBalancer
-    annotations: {}
-    extraSpec: {}
-    ports:
-      http: 80
-      https: 443
   ## templates/control-center-ingress.yaml
   ##
   ## Ingresses for exposing monitoring/management services publicly
@@ -2102,180 +2061,6 @@ rbac:
   enable: true
   roleName: pulsar-operator
   roleBindingName: pulsar-operator-cluster-role-binding
-
-# Deploy pulsar sql
-presto:
-  security:
-    authentication:
-      password:
-        enabled: false
-        # a K8S secret that stores the password file
-        #
-        # a) generate the password file `password.db`:
-        #    $ touch password.db
-        #    $ htpasswd -B -C 10 password.db <username>
-        #
-        # b) generate the secret: `kubectl -n pulsar create secret generic [PASSWORD FILE SECRET NAME] --from-file=password=password.db`
-        #    example: kubectl -n pulsar create secret generic prod-pulsar-presto-password --from-file=password=password.db
-        passwordFileName: "password.db"
-        passwordFileSecret: '[PASSWORD FILE SECRET NAME]'
-        passwordFileSecretKey: 'password'
-      jwt:
-        enabled: false
-        publicKeyFileName: "public.key"
-        publicKeyConfigMapName: '[PUBLIC KEY CM NAME]'
-        # the public key stored in the configmap should be persisted in PEM format.
-        # presto prefers the PEM format. If you generate the public key using `pulsar tokens` CLI,
-        # you can use `openssl rsa -pubin -in <public key file> -inform DER -pubout -out <public key file in PEM format> -outform PEM`
-        # to convert the public key file to a public key file in PEM format.
-        publicKeyConfigMapKey: 'public.key'
-      tls:
-        enabled: false
-    rules: >
-      {
-        "rules": [
-        ]
-      }
-  coordinator:
-    component: coordinator
-    replicaCount: 1
-    tolerations: []
-    affinity:
-      anti_affinity: true
-      zone_anti_affinity: true
-      # Set the anti affinity type. Valid values:
-      # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
-      # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
-      type: preferredDuringSchedulingIgnoredDuringExecution
-    labels: {}
-    annotations: {}
-    gracePeriod: 10
-    ports:
-      http: 8081
-      https: 8443
-    resources:
-      requests:
-        memory: 4Gi
-        cpu: 2
-    # nodeSelector:
-      # cloud.google.com/gke-nodepool: default-pool
-    probe:
-      liveness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-        path: "/v1/status"
-      readiness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-        path: "/v1/status"
-      startup:
-        enabled: false
-        failureThreshold: 30
-        initialDelaySeconds: 10
-        periodSeconds: 30
-    config:
-      http:
-        port: 8081
-      query:
-        maxMemory: "1GB"
-        maxMemoryPerNode: "128MB"
-        maxTotalMemoryPerNode: "256MB"
-      # Add custom configs to config.properties
-      custom:
-        # To add custom config `sql.forced-session-time-zone=America/New_York`
-        # sql.forced-session-time-zone: America/New_York
-    jvm:
-      memory: 2G
-    log:
-      presto:
-        level: DEBUG
-  worker:
-    service:
-      spec:
-        type: ClusterIP
-        clusterIP: None
-    component: worker
-    replicaCount: 2
-    tolerations: []
-    affinity:
-      anti_affinity: true
-      zone_anti_affinity: true
-      # Set the anti affinity type. Valid values:
-      # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
-      # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
-      type: preferredDuringSchedulingIgnoredDuringExecution
-    labels: {}
-    annotations: {}
-    gracePeriod: 10
-    ports:
-      http: 8081
-      https: 8443
-    resources:
-      requests:
-        memory: 4Gi
-        cpu: 2
-    # nodeSelector:
-      # cloud.google.com/gke-nodepool: default-pool
-    probe:
-      liveness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-      readiness:
-        enabled: true
-        failureThreshold: 10
-        initialDelaySeconds: 10
-        periodSeconds: 30
-      startup:
-        enabled: false
-        failureThreshold: 30
-        initialDelaySeconds: 10
-        periodSeconds: 30
-    config:
-      query:
-        maxMemory: "1GB"
-        maxMemoryPerNode: "128MB"
-        maxTotalMemoryPerNode: "256MB"
-      # Add custom configs to config.properties
-      custom:
-        # To add custom config `sql.forced-session-time-zone=America/New_York`
-        # sql.forced-session-time-zone: America/New_York
-    jvm:
-      memory: 2G
-    log:
-      presto:
-        level: DEBUG
-  node:
-    environment: production
-  read_offload:
-    enabled: false
-  catalog:
-    pulsar:
-      maxEntryReadBatchSize: "100"
-      targetNumSplits: "16"
-      maxSplitMessageQueueSize: "10000"
-      maxSplitEntryQueueSize: "1000"
-      namespaceDelimiterRewriteEnable: "true"
-      rewriteNamespaceDelimiter: "/"
-      bookkeeperThrottleValue: "0"
-      managedLedgerCacheSizeMB: "0"
-      bookkeeperNumIOThreads: "8"
-      bookkeeperNumWorkerThreads: "8"
-      mlNumWorkerThreads: "8"
-      mlNumSchedulerThreads: "8"
-  service:
-    spec:
-      type: ClusterIP
-      clusterIP: None
-  exporter:
-    enabled: false
-    whitelist: []
-    rules: []
 
 vault:
   component: "vault"
