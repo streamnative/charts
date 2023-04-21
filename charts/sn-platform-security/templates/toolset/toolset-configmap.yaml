@@ -71,17 +71,6 @@ data:
   # Include log configuration file, If you want to configure the log level and other configuration
   # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
 {{ (.Files.Glob "conf/toolset/log4j2.yaml").AsConfig | indent 2 }}
-  kafka.properties: |
-{{- if and .Values.tls.broker.enabled .Values.toolset.kafka.enabled }}
-{{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }}
-    security.protocol=SASL_SSL
-    sasl.mechanism=PLAIN
-{{- else }}
-    security.protocol=SSL
-{{- end }}
-    ssl.truststore.location=/pulsar/toolset.truststore.jks
-    ssl.endpoint.identification.algorithm=
-{{- end }}
   # pulsarctl configs
   pulsarctl.config: |
     auth-info:
