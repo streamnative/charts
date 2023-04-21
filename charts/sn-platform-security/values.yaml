@@ -119,8 +119,6 @@ monitoring:
   node_exporter: true
   # alerting - alert-manager
   alert_manager: true
-  # monitoring - loki
-  loki: false
   # monitoring - datadog
   datadog: false
 
@@ -1872,8 +1870,6 @@ grafana:
     # spec:
     # type: clusterIP
     annotations: {}
-  datasources:
-    loki: loki
   admin:
     user: pulsar
     password: pulsar

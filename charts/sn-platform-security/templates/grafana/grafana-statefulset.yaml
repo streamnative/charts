@@ -84,10 +84,6 @@ spec:
           value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/{{ template "pulsar.control_center_path.prometheus" . }}
         - name: PULSAR_CLUSTER
           value: {{ template "pulsar.fullname" . }}
-        - name: GF_LOKI_URL
-          value: http://{{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}.{{ .Release.Namespace }}.svc.cluster.local:3100/
-        - name: GF_LOKI_DATASOURCE_NAME
-          value: {{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}
         {{- if .Values.grafana.azureAuthEnabled }}
         - name: GF_AUTH_AZUREAD_ENABLED
           value: "true"
