@@ -1,0 +1,361 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# deploy PulsarBroker only when `components.broker and operator.enabled` is true
+{{- if .Values.components.broker }}
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarBroker
+metadata:
+  # no need to add component to name here as operator will add
+  name: "{{ template "pulsar.fullname" . }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  annotations:
+    "cloud.streamnative.io/enable-config-prefix": "false"
+    {{- with .Values.broker.pulsarBroker.annotations -}}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.broker.component }}
+{{- with .Values.broker.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.broker.pulsarBroker.labels -}}
+{{ toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+  replicas: {{ .Values.broker.replicaCount }}
+  image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
+  imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+  pod:
+    {{- with .Values.broker.topologySpreadConstraints }}
+    topologySpreadConstraints:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.broker.serviceAccount.use }}
+    serviceAccountName: {{ template "pulsar.broker.serviceAccount" . }}
+    {{- end }}
+    labels:
+      {{- include "pulsar.template.labels" . | nindent 6 }}
+      component: {{ .Values.broker.component }}
+{{- with .Values.broker.labels }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- if or (and .Values.prometheus.scrape.broker .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.broker.annotations }}
+    annotations:
+      {{- if .Values.monitoring.datadog }}
+      {{- include "pulsar.broker.datadog.annotation" . | nindent 6 }}
+      {{- end }}
+{{- if (and .Values.prometheus.scrape.broker .Values.prometheus.scrape.enabled) }}
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.broker.ports.http }}"
+      prometheus.io/path: "/metrics/"
+{{- end }}
+      {{- include "pulsar.istio.pod.annotations" . | nindent 6 }}
+{{- with .Values.broker.annotations }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- end }}
+{{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
+    secretRefs:
+    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
+      {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
+      secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
+    {{- if .Values.broker.offload.gcs.secret }}
+    - mountPath: /pulsar/srvaccts/gcs.json
+      secretName: {{ .Values.broker.offload.gcs.secret }}
+    {{- end }}
+{{- with .Values.broker.extraSecretRefs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
+    {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumes }}
+    volumes:
+    {{- include "pulsar.broker.certs.volumes" . | nindent 4 }}
+{{- with .Values.broker.extraVolumes }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+    {{- end }}
+    affinity:
+      {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.broker.affinity "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 6 }}
+    {{- if or .Values.auth.authentication.enabled (and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret) (and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret) }}
+    vars:
+    {{- include "pulsar.authEnvironment" (dict "Values" .Values "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 4 }}
+    {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.s3.secret }}
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.s3.secret }}
+          key: AWS_SECRET_ACCESS_KEY
+    {{- end }}
+    {{- if and .Values.broker.offload.azureblob.enabled .Values.broker.offload.azureblob.secret }}
+    - name: AZURE_STORAGE_ACCOUNT
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.azureblob.secret }}
+          key: AZURE_STORAGE_ACCOUNT
+    - name: AZURE_STORAGE_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.broker.offload.azureblob.secret }}
+          key: AZURE_STORAGE_ACCESS_KEY
+    {{- end }}
+    {{- end }}
+{{- with .Values.broker.extraEnv}}
+{{ toYaml . | indent 4 }}
+{{- end }}
+    # not support envFrom currently
+    #envFrom:
+    #- secretRef:
+    #    name: {{ template "pulsar.vault-secret-key-name" . }}
+    {{- if .Values.broker.resources }}
+    resources:
+{{ toYaml .Values.broker.resources | indent 6 }}
+    {{- end }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+    secretRefs:
+{{- include "pulsar.authSecret" . | indent 4 }}
+    {{- end }}
+    {{- with .Values.broker.securityContext }}
+    securityContext:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- if .Values.broker.nodeSelector }}
+    nodeSelector:
+{{ toYaml .Values.broker.nodeSelector | indent 6 }}
+    {{- end }}
+    {{- if .Values.broker.tolerations }}
+    tolerations:
+{{ toYaml .Values.broker.tolerations | indent 6 }}
+    {{- end }}
+    terminationGracePeriodSeconds: {{ .Values.broker.gracePeriod }}
+    {{- include "pulsar.jvm.options" .Values.broker | nindent 4 }}
+    {{- if .Values.global.imagePullSecrets }}
+    imagePullSecrets:
+{{ toYaml .Values.global.imagePullSecrets | indent 6 }}
+    {{- end }}
+  {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+  tls:
+    enabled: true
+    certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    trustCertsEnabled: {{ .Values.tls.broker.trustCertsEnabled }}
+  {{- end }}
+  {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
+  istio:
+    enabled: true
+    gateway:
+      selector:
+{{- include "pulsar.istio.gateway.selector" . | indent 8 }}
+      tls:
+      {{- if eq .Values.istio.gateway.tls.mode "SIMPLE" }}
+        certSecretName: {{ .Values.istio.gateway.tls.certSecretName | quote }}
+        mode: "simple"
+      {{- else }}
+        certSecretName: "{{ template "pulsar.broker.gateway.tls.secret.name" . }}"
+        trustCertsEnabled: {{ .Values.tls.broker.gateway.trustCertsEnabled }}
+        mode: "passthrough"
+      {{- end }}
+  {{- end }}
+  {{- if .Values.broker.dnsNames }}
+  dnsNames:
+{{ toYaml .Values.broker.dnsNames | indent 2}}
+  {{- end }}
+  config:
+    {{- if .Values.pulsar_metadata.clusterName }}
+    clusterName: {{ .Values.pulsar_metadata.clusterName }}
+    {{- end }}
+    {{- if .Values.broker.functionmesh.enabled }}
+    function:
+      enabled: true
+      mesh:
+        builtinConnectorsRef:
+          name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
+        functionEnabled: true
+        sinkEnabled: true
+        sourceEnabled: true
+        uploadEnabled: true
+      type: FunctionMesh
+    {{- end }}
+    {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
+    advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
+    serviceURLGenerationPolicy: FQDN
+    {{- end }}
+    usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
+    {{- if .Values.broker.pulsarRestMessaging.enabled }}
+    pulsarRestMessagingServiceEnabled: true
+    {{- end }}
+    {{- if or .Values.broker.kop.enabled .Values.broker.aop.enabled .Values.broker.mop.enabled}}
+    protocolHandlers:
+    {{- if .Values.broker.kop.enabled }}
+      kop:
+        enabled: true
+    {{- if .Values.broker.kop.tls.enabled }}
+        tls:
+          enabled: {{ .Values.broker.kop.tls.enabled }}
+          trustCertsEnabled: {{ .Values.broker.kop.tls.trustCertsEnabled }}
+    {{- if .Values.certs.public_issuer.enabled }}
+          trustStoreEnabled: false
+    {{- end }}
+    {{- if .Values.broker.kop.tls.certSecretName }}
+          certSecretName: "{{ .Values.broker.kop.tls.certSecretName }}"
+    {{- else if .Values.istio.enabled }}
+          certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
+    {{- else }}
+          certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}
+    {{- end }}
+    {{- if .Values.broker.kop.tls.passwordSecretRef }}
+          passwordSecretRef:
+            key: {{ .Values.broker.kop.tls.passwordSecretRef.key }}
+            name: {{ .Values.broker.kop.tls.passwordSecretRef.name }}
+    {{ else }}
+          passwordSecretRef:
+            name: cert-jks-passwd
+            key: password
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.broker.aop.enabled }}
+      aop:
+        enabled: true
+        {{- if .Values.broker.aop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.aop.proxyEnabled }}
+        {{- end }}
+    {{- end }}
+    {{- if .Values.broker.mop.enabled }}
+      mop:
+        enabled: true
+        {{- if .Values.broker.mop.proxyEnabled }}
+        proxyEnabled: {{ .Values.broker.mop.proxyEnabled }}
+        {{- end }}
+        {{- if .Values.broker.mop.authenticationEnabled }}
+        authenticationEnabled: {{ .Values.broker.mop.authenticationEnabled }}
+        {{- end }}
+        {{- if .Values.broker.mop.authorizationEnabled }}
+        authorizationEnabled: {{ .Values.broker.mop.authorizationEnabled }}
+        {{- end }}
+    {{- end }}
+
+    {{- end }}
+    custom:
+      PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
+{{- with .Values.broker.configData }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+      {{- if .Values.auth.authentication.enabled }}
+      authenticationEnabled: "true"
+      authenticateOriginalAuthData: "true"
+      authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
+{{- include "pulsar.authConfiguration" . | indent 6 }}
+      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
+      {{- if .Values.auth.superUsers.proxyRolesEnabled }}
+      proxyRoles: {{ .Values.auth.superUsers.proxyRoles }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.auth.authorization.enabled }}
+{{- include "pulsar.authorizationProvider" . | indent 6 }}
+      {{- end }}
+      {{- if .Values.broker.kop.enabled }}
+      PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
+      {{- if .Values.kop.auth.enabled }}
+      PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
+      {{- end }}
+      {{- end }}
+      ## Offloading settings
+      {{- if .Values.broker.offload.enabled }}
+      offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
+      managedLedgerMinLedgerRolloverTimeMinutes: "{{ .Values.broker.offload.managedLedgerMinLedgerRolloverTimeMinutes }}"
+      managedLedgerMaxEntriesPerLedger: "{{ .Values.broker.offload.managedLedgerMaxEntriesPerLedger }}"
+      managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+
+      {{- if .Values.broker.offload.gcs.enabled }}
+      # gcs
+      gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadRegion }}
+      gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadBucket }}
+      gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
+      gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
+      ## Authentication with GCS
+      gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
+      {{- end }}
+      {{- if .Values.broker.offload.s3.enabled }}
+      # aws-s3
+      s3ManagedLedgerOffloadRegion: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}
+      s3ManagedLedgerOffloadBucket: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}
+      s3ManagedLedgerOffloadServiceEndpoint: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}
+      s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
+      s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
+      {{- end }}
+      {{- if .Values.broker.offload.azureblob.enabled }}
+      # azureblob configuration from https://pulsar.apache.org/docs/en/tiered-storage-azure/
+      PULSAR_PREFIX_managedLedgerOffloadBucket: {{ .Values.broker.offload.azureblob.managedLedgerOffloadBucket }}
+      PULSAR_PREFIX_managedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadMaxBlockSizeInBytes }}"
+      PULSAR_PREFIX_managedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadReadBufferSizeInBytes }}"
+      PULSAR_PREFIX_managedLedgerOffloadServiceEndpoint: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadServiceEndpoint }}"
+      {{- end}}
+      {{- end }}
+  initJobPod:
+    {{- if .Values.zookeeper.customTools.restore.enable }}
+    initContainers:
+      - name: cleanup
+        image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
+        command:
+          - bash
+          - '-c'
+        args:
+          - "bin/pulsar-metadata-tool cleanup"
+        env:
+          - name: METADATA_TOOL_CONF
+            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        volumeMounts:
+          - name: cleanup-config
+            mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+    volumes:
+      - name: cleanup-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+    {{- end }}
+    {{- if .Values.broker.resources }}
+    resources: {{- toYaml .Values.broker.resources | nindent 10 }}
+    {{- end }}
+  {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
+  apiObjects:
+    statefulSet:
+{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
+      volumeMounts:
+      {{- include "pulsar.broker.certs.volumeMounts" . | nindent 6 }}
+{{- with .Values.broker.extraVolumeMounts }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- end }}
+{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
+      volumeClaimTemplates:
+{{- with .Values.broker.extraVolumeClaimTemplates }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+{{- end }}
+  {{- end }}
+  {{- with .Values.broker.customization }}
+  customization:
+  {{- toYaml . | nindent 2 -}}
+  {{- end }}
+{{- end }}

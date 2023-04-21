@@ -1,0 +1,166 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.monitoring.grafana }}
+{{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.grafana.component }}
+spec:
+  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+  replicas: {{ .Values.grafana.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.grafana.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: OrderedReady
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.grafana.component }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/grafana/grafana-configmap.yaml") . | sha256sum }}
+{{- with .Values.grafana.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+    {{- if .Values.grafana.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.grafana.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.grafana.tolerations }}
+      tolerations:
+{{ toYaml .Values.grafana.tolerations | indent 8 }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.grafana.gracePeriod }}
+      {{- if .Values.grafana.volumes.securityContext }}
+      securityContext:
+{{ toYaml .Values.grafana.volumes.securityContext | indent 8 }}
+      {{- end }}
+      containers:
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+        image: "{{ .Values.images.grafana.repository }}:{{ .Values.images.grafana.tag }}"
+        imagePullPolicy: {{ .Values.images.grafana.pullPolicy }}
+      {{- if .Values.grafana.resources }}
+        resources:
+{{ toYaml .Values.grafana.resources | indent 10 }}
+      {{- end }}
+        ports:
+        - name: server
+          containerPort: {{ .Values.grafana.port }}
+        env:
+        # for supporting apachepulsar/pulsar-grafana
+        - name: PROMETHEUS_URL
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/{{ template "pulsar.control_center_path.prometheus" . }}
+        # for supporting streamnative/apache-pulsar-grafana-dashboard
+        - name: PULSAR_PROMETHEUS_URL
+          value: http://{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}:9090/{{ template "pulsar.control_center_path.prometheus" . }}
+        - name: PULSAR_CLUSTER
+          value: {{ template "pulsar.fullname" . }}
+        - name: GF_LOKI_URL
+          value: http://{{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}.{{ .Release.Namespace }}.svc.cluster.local:3100/
+        - name: GF_LOKI_DATASOURCE_NAME
+          value: {{ .Release.Name }}-{{ .Values.grafana.datasources.loki }}
+        {{- if .Values.grafana.azureAuthEnabled }}
+        - name: GF_AUTH_AZUREAD_ENABLED
+          value: "true"
+        - name: GF_AUTH_AZUREAD_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-azuread-secret"
+              key: GF_AUTH_AZUREAD_CLIENT_ID
+        - name: GF_AUTH_AZUREAD_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-azuread-secret"
+              key: GF_AUTH_AZUREAD_CLIENT_SECRET
+        {{- end }}
+        - name: GRAFANA_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-secret"
+              key: GRAFANA_ADMIN_USER
+        - name: GRAFANA_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-secret"
+              key: GRAFANA_ADMIN_PASSWORD
+        - name: GRAFANA_CFG_FILE
+          value: {{ template "pulsar.home" . }}/conf/grafana.ini
+        {{- range .Values.grafana.volumes.env }}
+        - name: {{ .name }}
+          value: {{ .value }}
+        {{- end }}
+{{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.grafana }}
+        - name: GRAFANA_DOMAIN
+          value: {{ template "pulsar.control_center_domain" . }}
+        - name: GRAFANA_ROOT_URL
+          value: {{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.grafana" . }}/
+        - name: GRAFANA_SERVE_FROM_SUB_PATH
+          value: "true"
+{{- else }}
+        - name: GRAFANA_DOMAIN
+          value: localhost 
+        - name: GRAFANA_ROOT_URL
+          value: http://localhost:3000
+        - name: GRAFANA_SERVE_FROM_SUB_PATH
+          value: "false"
+{{- end }}
+        volumeMounts:
+        - name: "cfg"
+          mountPath: "{{ template "pulsar.home" . }}/conf/grafana.ini"
+          subPath: grafana.ini
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}-{{ .Values.grafana.volumes.data.name }}"
+          mountPath: {{ .Values.grafana.volumes.mountPath }}
+      volumes:
+      - name: "cfg"
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.grafana.component }}"
+      {{- if and .Values.volumes.persistence .Values.grafana.volumes.persistence }}
+      {{- if not (or .Values.grafana.volumes.data.storageClass .Values.grafana.volumes.data.storageClassName) }}
+      - name: "{{ template "pulsar.grafana.volumes.pvc.name" . }}"
+        persistentVolumeClaim:
+          claimName: "{{ template "pulsar.grafana.volumes.pvc.name" . }}"
+      {{- end }}
+      {{- end }}
+  {{- if or .Values.grafana.volumes.data.storageClass .Values.grafana.volumes.data.storageClassName }}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.grafana.volumes.pvc.name" . }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.grafana.volumes.data.size }}
+      {{- include "pulsar.grafana.volumes.storage.class" . | nindent 6 }}
+  {{- end }}
+{{- end }}
+{{- end }}
+

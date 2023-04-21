@@ -1,0 +1,56 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+{{- if .Values.istio.enabled }}
+{{- if or .Values.certs.istio_internal_issuer.enabled .Values.certs.istio_public_issuer.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: "{{ .Values.istio.gateway.tls.certSecretName }}"
+  namespace: {{ template "istio.gateway.namespace" . }}
+spec:
+  secretName: "{{ .Values.istio.gateway.tls.certSecretName }}"
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  usages:
+    - server auth
+    - client auth
+  dnsNames:
+  {{- if .Values.domain.enabled }}
+    - "*.{{ .Release.Name }}.{{ .Values.domain.suffix }}"
+  {{- else }}
+    - "*.{{ .Values.domain.suffix }}"
+  {{- end }}
+  # NOTE: Since PulsarBroker generates Pod DNSName based on advertisedDomain(domain of Broker), 
+  # there's a limit that broker.external_domain and control_center.external_domain must be covered 
+  # by the *.{{ .Values.domain.suffix }} if they are defined.
+  issuerRef:
+{{- if .Values.certs.istio_internal_issuer.enabled }} 
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_internal_issuer.component }}-ca-issuer"
+{{- else if .Values.certs.istio_public_issuer.enabled }}  
+    name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.istio_public_issuer.component }}"
+{{- end }}
+    kind: Issuer
+    group: cert-manager.io
+{{- end }}
+{{- end }}

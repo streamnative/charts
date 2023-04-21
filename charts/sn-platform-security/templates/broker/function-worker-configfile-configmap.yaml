@@ -1,0 +1,119 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.components.functions }}
+## function config map
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-configfile"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.functions.component }}
+data:
+  functions_worker.yml: |
+    # Function package management
+    workerPort: {{ .Values.functions.ports.http }}
+    {{- if and .Values.tls.enabled .Values.tls.functions.enabled }}
+    # TLS Settings
+    # `tlsEnabled` and `workerPortTls` are required to set to true in order to make HTTPS work for functions REST api
+    workerPortTls: {{ .Values.functions.ports.https }}
+    tlsEnabled: true
+    tlsCertificateFilePath: "/pulsar/certs/function/tls.crt"
+    tlsKeyFilePath: "/pulsar/certs/function/tls.key"
+    {{- if .Values.tls.functions.trustCertsEnabled }}
+    tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+    {{- end }}
+    {{- end }}
+    numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
+    pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
+    functionRuntimeFactoryConfigs:
+      jobNamespace: {{ template "pulsar.functions.namespace" . }}
+      pulsarDockerImageName: "{{ .Values.images.functions.repository }}:{{ .Values.images.functions.tag }}"
+      pulsarRootDir: {{ template "pulsar.functions.pulsarRootDir" . }}
+      {{- if eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory" }}
+      {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+      pulsarAdminUrl: {{ template "pulsar.function.web.service.url.tls" . }}
+      pulsarServiceUrl: {{ template "pulsar.function.broker.service.url.tls" . }}
+      {{- else }}
+      pulsarAdminUrl: {{ template "pulsar.function.web.service.url" . }}
+      pulsarServiceUrl: {{ template "pulsar.function.broker.service.url" . }}
+      {{- end }}
+      {{- end }}
+      changeConfigMap: "{{ template "pulsar.fullname" . }}-{{ .Values.functions.component }}-config"
+      changeConfigMapNamespace: {{ template "pulsar.namespace" . }}
+      submittingInsidePod: true
+      installUserCodeDependencies: true
+{{- with .Values.functions.functionRuntimeFactoryConfigs }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    # runtime customizer
+    {{- if .Values.functions.enableCustomizerRuntime }}
+    runtimeCustomizerClassName: {{ .Values.functions.runtimeCustomizerClassName }}
+    {{- end }}
+    {{- if .Values.functions.useDedicatedRunner}}
+    workerHostname: {{template "pulsar.function.service" . }}
+    {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+    # if broker enables TLS, configure function to talk to broker using TLS
+    useTLS: true
+    pulsarServiceUrl: {{ template "pulsar.function.broker.service.url.tls" . }}
+    pulsarWebServiceUrl: {{ template "pulsar.function.web.service.url.tls" . }}
+    brokerClientTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
+    {{- else }}
+    pulsarServiceUrl: {{template "pulsar.function.broker.service.url" . }}
+    pulsarWebServiceUrl: {{template "pulsar.function.web.service.url" . }}
+    {{- end }}
+
+    {{- if .Values.pulsar_metadata.configurationStore }}
+    configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStore }}{{ .Values.pulsar_metadata.configurationStoreMetadataPrefix }}"
+    {{- end }}
+    {{- if not .Values.pulsar_metadata.configurationStore }}
+    configurationStoreServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
+    {{- end }}
+    {{- if .Values.auth.authorization.enabled }}
+    authorizationEnabled: "true"
+    authorizationProvider: {{ .Values.functions.authorizationProvider }}
+    superUserRoles:
+      - {{ .Values.auth.superUsers.broker }}
+      - {{ .Values.auth.superUsers.proxy }}
+      - {{ .Values.auth.superUsers.websocket }}
+      - {{ .Values.auth.superUsers.client }}
+      - {{ .Values.auth.superUsers.pulsar_manager }}
+    {{- end }}
+    {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }}
+    # token authentication configuration
+    {{- if eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory" }}
+    functionAuthProviderClassName: org.apache.pulsar.functions.auth.KubernetesSecretsTokenAuthProvider
+    {{- end }}
+    brokerClientAuthenticationEnabled: "true"
+    clientAuthenticationParameters: "file:///pulsar/tokens/function/token"
+    clientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+    brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+    brokerClientAuthenticationParameters: "file:///pulsar/tokens/function/token"
+    authenticationEnabled: "true"
+    authenticationProviders:
+{{- with .Values.functions.authenticationProviders }}
+{{ toYaml . | indent 6 }}
+{{- end }}
+    authenticateMetricsEndpoint: "false"
+    {{- end }}
+    {{- end }}
+{{ toYaml .Values.functions.configData | indent 4 }}
+{{- end }}
