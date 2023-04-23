@@ -168,9 +168,6 @@ Define function for save authenticaiton provider list
 */}}
 {{- define "pulsar.authenticationProviders" }}
 {{- $authenticationProviders := list -}}
-{{- if .Values.auth.vault.enabled }}
-{{- $authenticationProviders = append $authenticationProviders "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOIDCToken" }}
-{{- end }}
 {{- if .Values.auth.authentication.tls.enabled }}
 {{- $authenticationProviders = append $authenticationProviders "org.apache.pulsar.broker.authentication.AuthenticationProviderTls" }}
 {{- end }}
@@ -199,16 +196,6 @@ authorizationProvider: "org.apache.pulsar.broker.authorization.PulsarAuthorizati
 Define function for save authenticaiton configuration
 */}}
 {{- define "pulsar.authConfiguration" }}
-{{- if .Values.auth.vault.enabled }}
-brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-PULSAR_PREFIX_chainAuthenticationEnabled: "true"
-PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
-{{- if .Values.broker.readPublicKeyFromFile }}
-PULSAR_PREFIX_OIDCPublicKeyPath: file://{{ .Values.broker.publicKeyPath | default "/pulsar/vault/v1/identity/oidc/.well-known/keys" }}/publicKey
-{{- else }}
-PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
-{{- end }}
-{{- end }}
 {{- if .Values.auth.oauth.enabled }}
 PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
 PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
@@ -239,26 +226,6 @@ brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.Authentica
 Define function for get authenticaiton environment variable
 */}}
 {{- define "pulsar.authEnvironment" }}
-{{- if .Values.auth.vault.enabled }}
-- name: PULSAR_PREFIX_OIDCTokenAudienceID
-  valueFrom:
-      secretKeyRef:
-        name: {{ template "pulsar.vault-secret-key-name" . }}
-        key: PULSAR_PREFIX_OIDCTokenAudienceID
-{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
-- name: brokerClientAuthenticationParameters
-  valueFrom:
-      secretKeyRef:
-        name: {{ template "pulsar.vault-secret-key-name" . }}
-        key: PROXY_brokerClientAuthenticationParameters
-{{- else }}
-- name: brokerClientAuthenticationParameters
-  valueFrom:
-      secretKeyRef:
-        name: {{ template "pulsar.vault-secret-key-name" . }}
-        key: brokerClientAuthenticationParameters
-{{- end }}
-{{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
 - name: brokerClientAuthenticationParameters

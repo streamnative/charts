@@ -72,11 +72,8 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
+{{- if or (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
     secretRefs:
-    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
-      {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
-      secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
     {{- if .Values.broker.offload.gcs.secret }}
     - mountPath: /pulsar/srvaccts/gcs.json
       secretName: {{ .Values.broker.offload.gcs.secret }}
@@ -125,10 +122,6 @@ spec:
 {{- with .Values.broker.extraEnv}}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    # not support envFrom currently
-    #envFrom:
-    #- secretRef:
-    #    name: {{ template "pulsar.vault-secret-key-name" . }}
     {{- if .Values.broker.resources }}
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
