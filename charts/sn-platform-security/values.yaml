@@ -117,8 +117,6 @@ monitoring:
   node_exporter: true
   # alerting - alert-manager
   alert_manager: true
-  # monitoring - loki
-  loki: false
   # monitoring - datadog
   datadog: false
 
@@ -183,10 +181,6 @@ images:
     repository: streamnative/sn-platform
     tag: "2.10.2.4"
     pullPolicy: IfNotPresent
-    kafka:
-      repository: confluentinc/cp-kafka
-      tag: "7.3.1"
-      pullPolicy: IfNotPresent
     busybox:
       repository: busybox
       tag: "1.35.0"
@@ -1536,8 +1530,6 @@ toolset:
   labels: {}
   annotations: {}
   tolerations: []
-  kafka:
-    enabled: false
   gracePeriod: 0
   resources:
     requests:
@@ -1862,8 +1854,6 @@ grafana:
     # spec:
     # type: clusterIP
     annotations: {}
-  datasources:
-    loki: loki
   admin:
     user: pulsar
     password: pulsar
