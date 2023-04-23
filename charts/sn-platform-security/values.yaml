@@ -331,6 +331,7 @@ tls:
 # Enable or disable broker authentication and authorization.
 auth:
   authentication:
+    # Default disabled
     enabled: false
     provider: "jwt"
     jwt:
@@ -342,6 +343,7 @@ auth:
     tls:
       enabled: false
   authorization:
+    # Default disabled
     enabled: false
   superUsers:
     # broker to broker communication, broker superUserRoles
