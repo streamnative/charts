@@ -331,7 +331,6 @@ tls:
 # Enable or disable broker authentication and authorization.
 auth:
   authentication:
-    # Default disabled
     enabled: false
     provider: "jwt"
     jwt:
@@ -343,7 +342,6 @@ auth:
     tls:
       enabled: false
   authorization:
-    # Default disabled
     enabled: false
   superUsers:
     # broker to broker communication, broker superUserRoles
@@ -360,10 +358,6 @@ auth:
     client: "admin"
     # streamnative-console
     streamnative-console: "super,pulsar-manager-admin"
-  # Enable vault based authentication
-  # Deprecated
-  vault:
-    enabled: false
   oauth:
     enabled: false
     oauthIssuerUrl: "https://login.microsoftonline.com/your-tenant-id/v2.0"
