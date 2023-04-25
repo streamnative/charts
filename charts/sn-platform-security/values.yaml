@@ -1636,7 +1636,6 @@ prometheus:
     node_exporter: true
     proxy: true
     zookeeper: true
-    # Deprecated
     vault: false
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
