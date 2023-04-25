@@ -25,7 +25,7 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.vault.component }}
+    component: {{ .Values.functions.component }}
 data:
 {{ (.Files.Glob "conf/broker/connectors.yaml").AsConfig | indent 2 }}
 

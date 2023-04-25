@@ -80,8 +80,6 @@ affinity:
 ##
 ## Control what components of Apache Pulsar to deploy for the cluster
 components:
-  # vault
-  vault: true
   # zookeeper
   zookeeper: true
   # bookkeeper
@@ -212,17 +210,6 @@ images:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: "0.26.2"
     pullPolicy: "IfNotPresent"
-  vault:
-    repository: hashicorp/vault
-    tag: "1.11.8"
-    pullPolicy: "IfNotPresent"
-  bank_vaults:
-    repository: ghcr.io/banzaicloud/bank-vaults
-    tag: "1.16.0"
-    pullPolicy: "IfNotPresent"
-  vault_init:
-    repository: streamnative/pulsar_vault_init
-    tag: "v1.0.6"
   custom_metric_server_prometheus:
     repository: quay.io/prometheus/prometheus
     tag: "v2.43.0"
@@ -344,7 +331,7 @@ tls:
 # Enable or disable broker authentication and authorization.
 auth:
   authentication:
-    enabled: true
+    enabled: false
     provider: "jwt"
     jwt:
       enabled: false
@@ -355,7 +342,7 @@ auth:
     tls:
       enabled: false
   authorization:
-    enabled: true
+    enabled: false
   superUsers:
     # broker to broker communication, broker superUserRoles
     broker: "admin,proxy-admin,broker-admin,admin-approle,pulsar-manager-admin"
@@ -371,9 +358,6 @@ auth:
     client: "admin"
     # streamnative-console
     streamnative-console: "super,pulsar-manager-admin"
-  # Enable vault based authentication
-  vault:
-    enabled: true
   oauth:
     enabled: false
     oauthIssuerUrl: "https://login.microsoftonline.com/your-tenant-id/v2.0"
@@ -1652,7 +1636,6 @@ prometheus:
     node_exporter: true
     proxy: true
     zookeeper: true
-    vault: true
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   labels: {}
@@ -1761,6 +1744,7 @@ datadog:
       metrics: [
         "\"_*\""
       ]
+    # Deprecated
     vault:
       enabled: false
       auth:
@@ -2266,83 +2250,6 @@ presto:
     enabled: false
     whitelist: []
     rules: []
-
-vault:
-  component: "vault"
-  # -- replicaCount indicates the number of vault pod
-  replicaCount: 3
-  serviceAccount:
-    created: true
-    name: ""
-  oidcToken:
-    # verification_ttl cannot be longer than 10x rotation_period
-    rotation_period: 24h
-    # verification_ttl should be greater than the value of ttl below
-    # https://developer.hashicorp.com/vault/api-docs/secret/identity/tokens#verification_ttl
-    verification_ttl: 24h
-    # time to live for service-account and user
-    ttl: 12h
-  serviceType: "ClusterIP"
-  tolerations: []
-  nodeSelector: {}
-  annotations:
-    prometheus.io/port: "9091"
-  labels: {}
-  volumeClaimTemplates: []
-  affinity:
-    anti_affinity: true
-    zone_anti_affinity: true
-    # Set the anti affinity type. Valid values:
-    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
-    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
-    type: preferredDuringSchedulingIgnoredDuringExecution
-  unsealConfig: {}
-  volumeMounts:
-  - name: vault-raft
-    mountPath: /vault/file
-    # use raft protocol for a vault cluster
-  envsConfig: {}
-  config:
-    storage:
-      raft:
-        path: "/vault/file"
-    listener:
-      tcp:
-        tls_disable: true
-        address: "0.0.0.0:8200"
-        telemetry:
-          unauthenticated_metrics_access: true
-    api_addr: "http://${.Env.POD_NAME}:8200"
-    cluster_addr: "http://${.Env.POD_NAME}:8201"
-    ui: true
-    telemetry:
-      statsd_address: ""
-    bankVaults:
-      probe:
-        readinessProbe: {}
-        #  Note: To use readinessProbe, you can uncomment below configs
-        #  If you want to use readinessProbe with Istio enabled, you have to change port from "api-port" to "http-api-port"
-        #
-        #  failureThreshold: 2
-        #  httpGet:
-        #    path: "/v1/sys/init"
-        #    port: "api-port"
-        #    scheme: "HTTP"
-        startupProbe: {}
-        livenessProbe: {}
-  resources:
-    limits:
-      memory: "512Mi"
-      cpu: "200m"
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-  volume:
-    persistence: true
-    name: "vault-volume"
-    size: 10Gi
-    # storageClassName: ""
-  securityContext: {}
 
 # Support the addition of arbitrary resources to be deployed
 # This is simply an array of raw manifests

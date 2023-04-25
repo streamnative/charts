@@ -71,19 +71,8 @@ spec:
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
           value: http://{{ template "pulsar.streamnative_console.service" . }}:{{ .Values.streamnative_console.service.ports.backend }}
-        {{- if not .Values.auth.vault.enabled }}
-        - name: SUPER_USER_NAME
-          value: admin
-        - name: SUPER_USER_PASSWORD
-          value: apachepulsar
-        {{- end }}
-        {{- if .Values.auth.vault.enabled }}
-        envFrom:
-        - secretRef:
-            name: {{ template "pulsar.vault-secret-key-name" . }}
-        {{- end }}
         volumeMounts:
-        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
           mountPath: "/root/init_instance/"
         command: ["sh", "-c"]
         args:
@@ -101,9 +90,9 @@ spec:
       serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
       {{- end }}
       volumes:
-        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
           configMap:
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
       {{- if .Values.streamnative_console.securityContext }}
       securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
       {{- end }}

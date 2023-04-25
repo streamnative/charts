@@ -165,10 +165,8 @@ spec:
           - name: REDIRECT_PORT
             value: "{{ .Values.streamnative_console.configData.REDIRECT_PORT }}"
           {{- end }}
-          {{- if not .Values.auth.vault.enabled }}
           - name: VAULT_ENABLED
             value: "false"
-          {{ end }}
           {{- if .Values.streamnative_console.configData.GRAFANA_AUTH_PROXY }}
           - name: GRAFANA_AUTH_PROXY_USER
             value: {{ .Values.streamnative_console.configData.GRAFANA_AUTH_PROXY_USER | default "pulsar" }}
@@ -221,12 +219,8 @@ spec:
             value: /pulsar-manager/keys/token/secret.key
           {{- end }}
           {{- end }}
-          {{- if or .Values.auth.vault.enabled .Values.streamnative_console.login.sso.google.enabled .Values.streamnative_console.login.sso.azure.enabled .Values.streamnative_console.login.sso.okta.enabled .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+          {{- if or .Values.streamnative_console.login.sso.google.enabled .Values.streamnative_console.login.sso.azure.enabled .Values.streamnative_console.login.sso.okta.enabled .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
           envFrom:
-          {{- end }}
-          {{- if .Values.auth.vault.enabled }}
-          - secretRef:
-              name: {{ template "pulsar.vault-secret-key-name" . }}
           {{- end }}
           {{- if .Values.streamnative_console.login.sso.google.enabled }}
           - secretRef:
