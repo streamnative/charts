@@ -102,8 +102,6 @@ components:
   pulsar_detector: true
   # superset
   superset: false
-  # custom_metric_server
-  custom_metric_server: false
 
 ## Monitoring Components
 ##
@@ -210,14 +208,6 @@ images:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: "0.26.2"
     pullPolicy: "IfNotPresent"
-  custom_metric_server_prometheus:
-    repository: quay.io/prometheus/prometheus
-    tag: "v2.43.0"
-    pullPolicy: IfNotPresent
-  custom_metric_server:
-    repository: registry.k8s.io/prometheus-adapter/prometheus-adapter
-    tag: "v0.9.0"
-    pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
     tag: "2.10.2.4"
@@ -2254,26 +2244,6 @@ presto:
 # Support the addition of arbitrary resources to be deployed
 # This is simply an array of raw manifests
 extraResources: []
-
-custom_metric_server:
-  component: "custom-metric-server"
-  cert_secret_name: "cert-secret"
-  enabled: true
-  prometheus_url:
-  relist_interval: "1m"
-  prometheus:
-    enabled: true
-    replicas: 1
-    resources:
-      limits:
-        memory: "1G"
-        cpu: "200m"
-      requests:
-        memory: "1G"
-        cpu: "200m"
-    retention: "2h"
-    evaluationInterval: "30s"
-    scrapeInterval: "15s"
 
 istio:
   enabled: false
