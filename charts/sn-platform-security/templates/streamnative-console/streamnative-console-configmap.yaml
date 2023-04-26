@@ -21,7 +21,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
   namespace: {{ template "pulsar.namespace" . }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}

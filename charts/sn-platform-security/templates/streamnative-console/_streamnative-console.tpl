@@ -19,11 +19,9 @@ Define streamnative_console token mounts
 {{- define "pulsar.streamnative_console.token.volumeMounts" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
 - mountPath: "/pulsar/keys"
   name: token-keys
   readOnly: true
-{{- end }}
 - mountPath: "/pulsar/tokens"
   name: streamnative-console-token
   readOnly: true
@@ -37,7 +35,6 @@ Define streamnative-console token volumes
 {{- define "pulsar.streamnative_console.token.volumes" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
 - name: token-keys
   secret:
     {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
@@ -56,7 +53,6 @@ Define streamnative-console token volumes
       - key: PRIVATEKEY
         path: token/private.key
       {{- end}}
-{{- end }}
 - name: streamnative-console-token
   secret:
     secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.streamnative_console }}"
@@ -64,14 +60,6 @@ Define streamnative-console token volumes
       - key: TOKEN
         path: streamnative_console/token
 {{- end }}
-{{- end }}
-{{- if .Values.streamnative_console.force_vault }}
-- name: streamnative-console-token
-  secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.streamnative_console }}"
-    items:
-      - key: TOKEN
-        path: streamnative_console/token
 {{- end }}
 {{- end }}
 
