@@ -1,5 +1,0 @@
-{
-  "username": {{identity.entity.aliases.MOUNT_ACCESSOR.name}},
-  "id": {{identity.entity.aliases.MOUNT_ACCESSOR.id}},
-   "type": "user"
-}
