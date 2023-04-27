@@ -182,7 +182,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
-    tag: "v2.1.0"
+    tag: "v2.1.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
