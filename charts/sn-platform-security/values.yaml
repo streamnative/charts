@@ -1744,13 +1744,6 @@ datadog:
       metrics: [
         "\"_*\""
       ]
-    # Deprecated
-    vault:
-      enabled: false
-      auth:
-        enabled: false
-        token: ""
-      tags: {}
     prometheus:
       enabled: false
       metrics: [
