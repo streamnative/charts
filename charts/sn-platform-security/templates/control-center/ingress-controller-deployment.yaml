@@ -1,0 +1,128 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.ingress.controller.enabled }}
+{{- $isKubeVersionLessThanV122 := eq (include "pulsar.kubeVersion.isLessThanV122" .) "true" }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.controller.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.ingress.controller.component }}
+spec:
+  replicas: {{ .Values.ingress.controller.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.ingress.controller.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.ingress.controller.component }}
+{{- if and .Values.prometheus.scrape.ingress_controller .Values.prometheus.scrape.enabled }}
+      annotations:
+        prometheus.io/port: "10254"
+        prometheus.io/scrape: "true"
+{{- end }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+    {{- if .Values.ingress.controller.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.ingress.controller.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.ingress.controller.tolerations }}
+      tolerations:
+{{ toYaml .Values.ingress.controller.tolerations | indent 8 }}
+    {{- end }}
+    {{- if .Values.rbac.enable }}
+      serviceAccount: "{{ template "pulsar.fullname" . }}-nginx-ingress-serviceaccount"
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.ingress.controller.gracePeriod }}
+      containers:
+      - name: nginx-ingress-controller
+        image: {{ include "pulsar.ingress.image" .}}
+        imagePullPolicy: {{ .Values.images.nginx_ingress_controller.pullPolicy }}
+        args:
+        - /nginx-ingress-controller
+        - --configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-nginx-configuration
+        - --tcp-services-configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-tcp-services
+        - --udp-services-configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-udp-services
+        - --publish-service={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-{{ .Values.ingress.controller.component }}
+        - --annotations-prefix=nginx.ingress.kubernetes.io
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            drop:
+              - ALL
+            add:
+              - NET_BIND_SERVICE
+          {{- if $isKubeVersionLessThanV122 }}
+          # www-data -> 33
+          runAsUser: 33
+          {{- else }}
+          # www-data -> 101, use image v1.1.1 will need this user permission
+          runAsUser: 101
+          {{- end }}
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+          - name: http
+            containerPort: {{ .Values.ingress.controller.ports.http }}
+            protocol: TCP
+          - name: https
+            containerPort: {{ .Values.ingress.controller.ports.https }}
+            protocol: TCP
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - /wait-shutdown
+{{- end }}

@@ -195,7 +195,7 @@ images:
       pullPolicy: IfNotPresent
   prometheus:
     repository: quay.io/prometheus/prometheus
-    tag: "v2.41.0"
+    tag: "v2.43.0"
     pullPolicy: IfNotPresent
   alert_manager:
     repository: quay.io/prometheus/alertmanager
@@ -231,7 +231,7 @@ images:
     tag: "v1.0.6"
   custom_metric_server_prometheus:
     repository: quay.io/prometheus/prometheus
-    tag: "v2.41.0"
+    tag: "v2.43.0"
     pullPolicy: IfNotPresent
   custom_metric_server:
     repository: registry.k8s.io/prometheus-adapter/prometheus-adapter

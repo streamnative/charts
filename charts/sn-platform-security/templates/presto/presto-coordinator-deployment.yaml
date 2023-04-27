@@ -1,0 +1,309 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.components.sql_worker }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "presto.coordinator" . }}
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.presto.coordinator.component }}
+{{- with .Values.presto.coordinator.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.presto.coordinator.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.presto.coordinator.component }}
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.presto.coordinator.component }}
+{{- with .Values.presto.coordinator.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+      annotations:
+        prometheus.io/scrape: "{{ .Values.presto.exporter.enabled }}"
+        prometheus.io/port: "5556"
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
+        checksum/config: {{ include (print $.Template.BasePath "/presto/presto-coordinator-configmap.yaml") . | sha256sum }}
+        {{- if .Values.presto.exporter.enabled }}
+        checksum/exporter-config: {{ include (print $.Template.BasePath "/presto/presto-jmx-exporter-configmap.yaml") . | sha256sum }}
+        {{- end }}
+{{- with .Values.presto.coordinator.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+    spec:
+      {{- with .Values.presto.coordinator.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.presto.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.presto.coordinator.affinity "Component" .Values.presto.coordinator.component "Release" .Release "Chart" .Chart) | indent 8 }}
+      terminationGracePeriodSeconds: {{ .Values.presto.coordinator.gracePeriod }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}-coordinator
+          image: "{{ .Values.images.presto.repository }}:{{ .Values.images.presto.tag }}"
+          imagePullPolicy: {{ .Values.images.presto.pullPolicy }}
+          {{- if .Values.presto.coordinator.probe.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              {{- if .Values.tls.presto.enabled }}
+              {{- if .Values.presto.security.authentication.tls.enabled }}
+              path: /
+              {{- else }}
+              path: {{ .Values.presto.coordinator.probe.liveness.path }}
+              {{- end }}
+              port: {{ .Values.presto.coordinator.ports.https }}
+              scheme: HTTPS
+              {{- else }}
+              path: {{ .Values.presto.coordinator.probe.liveness.path }}
+              port: {{ .Values.presto.coordinator.ports.http }}
+              {{- end }}
+            initialDelaySeconds: {{ .Values.presto.coordinator.probe.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.presto.coordinator.probe.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.presto.coordinator.probe.liveness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.presto.coordinator.probe.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              {{- if .Values.tls.presto.enabled }}
+              {{- if .Values.presto.security.authentication.tls.enabled }}
+              path: /
+              {{- else }}
+              path: {{ .Values.presto.coordinator.probe.liveness.path }}
+              {{- end }}
+              port: {{ .Values.presto.coordinator.ports.https }}
+              scheme: HTTPS
+              {{- else }}
+              path: {{ .Values.presto.coordinator.probe.readiness.path }}
+              port: {{ .Values.presto.coordinator.ports.http }}
+              {{- end }}
+            initialDelaySeconds: {{ .Values.presto.coordinator.probe.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.presto.coordinator.probe.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.presto.coordinator.probe.readiness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.presto.coordinator.resources }}
+          resources:
+{{ toYaml .Values.presto.coordinator.resources | indent 12 }}
+          {{- end }}
+          command: ["sh", "-c"]
+          args:
+            - >-
+              cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
+              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              echo "node.internal-address=$(echo ${POD_IP} | tr "." "-").{{ template "presto.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
+              ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
+              {{- if .Values.tls.presto.enabled }}
+              set -ex;
+              mkdir -p /pulsar/jks;
+              openssl pkcs12 -export -in /pulsar/certs/presto/tls.crt -inkey /pulsar/certs/presto/tls.key -out /pulsar/jks/server-cert.p12 -name presto-coordinator -passout "pass:{{ template "pulsar.presto.jks.password" . }}";
+              keytool -importkeystore -srckeystore /pulsar/jks/server-cert.p12 -srcstoretype PKCS12 -srcstorepass "{{ template "pulsar.presto.jks.password" . }}" -alias presto-coordinator -destkeystore /pulsar/jks/presto.keystore.jks -deststorepass "{{ template "pulsar.presto.jks.password" . }}";
+              {{- if .Values.tls.presto.trustCertsEnabled }}
+              echo "y" | keytool -import -alias selfsigned -file /pulsar/certs/presto/ca.crt -keystore /pulsar/jks/trust.jks -trustcacerts -storepass "{{ template "pulsar.presto.jks.password" . }}"; 
+              {{- end }}
+              {{- end }}
+              bin/pulsar sql-worker run \
+                --etc-dir={{ template "pulsar.home" . }}/conf/presto \
+                --data-dir={{ template "pulsar.home" . }}/data;
+          env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+          {{- if and .Values.broker.offload.s3.enabled .Values.broker.offload.s3.secret }}
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.broker.offload.s3.secret }}
+                key: AWS_SECRET_ACCESS_KEY
+          {{- end }}
+          volumeMounts:
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
+              name: config-volume
+              subPath: node.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/log.properties
+              name: config-volume
+              subPath: log.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/jvm.config
+              name: config-volume
+              subPath: jvm.config
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/config.properties
+              name: config-volume
+              subPath: config.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/catalog/pulsar.properties
+              name: config-volume
+              subPath: pulsar.properties
+            {{- if or .Values.presto.security.authentication.jwt.enabled .Values.presto.security.authentication.password.enabled }}
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/rules.json
+              name: config-volume
+              subPath: rules.json
+            {{- end}}
+            {{- if .Values.presto.security.authentication.password.enabled }}
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/password-authenticator.properties
+              name: config-volume
+              subPath: password-authenticator.properties
+            - mountPath: {{ template "pulsar.home" . }}/presto
+              name: password-file-volume
+            {{- end}}
+            {{- if .Values.presto.security.authentication.jwt.enabled }}
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/access-control.properties
+              name: config-volume
+              subPath: access-control.properties
+            - mountPath: {{ template "pulsar.home" . }}/conf/presto/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
+              name: public-key-volume
+              subPath: {{ .Values.presto.security.authentication.jwt.publicKeyConfigMapKey  }}
+            {{- end}}
+            {{- if .Values.auth.authentication.enabled }}
+            {{- if eq .Values.auth.authentication.provider "jwt" }}
+            - mountPath: "/pulsar/tokens"
+              name: client-token
+              readOnly: true
+            {{- end }}
+            {{- end }}
+            {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+            - mountPath: "/pulsar/certs/ca"
+              name: ca
+              readOnly: true
+            {{- end}}
+            {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
+            - name: presto-certs
+              mountPath: "/pulsar/certs/presto"
+              readOnly: true
+            {{- end}}
+            {{- if and .Values.tls.presto.enabled .Values.tls.presto.passwordSecretRef }}
+            - name: presto-password
+              mountPath: "/pulsar/jks-password"
+              readOnly: true
+            {{- end }}
+{{- with .Values.presto.extraVolumeMounts }}
+{{ toYaml . | indent 12 }}
+{{- end }}            
+          ports:
+{{- if .Values.tls.presto.enabled }}
+            - name: https
+              containerPort: {{ .Values.presto.coordinator.ports.https }}
+              protocol: TCP
+{{- else }}
+            - name: http
+              containerPort: {{ .Values.presto.coordinator.ports.http }}
+              protocol: TCP
+{{- end }}
+        {{- if .Values.presto.exporter.enabled }}
+        - name: jmx-exporter
+          image: "bitnami/jmx-exporter:0.17.0"
+          image: "{{ .Values.images.presto.exporter.repository }}:{{ .Values.images.presto.exporter.tag }}"
+          imagePullPolicy: {{ .Values.images.presto.exporter.pullPolicy }}
+          command:
+            - java
+            - -jar
+            - jmx_prometheus_httpserver.jar
+            - "0.0.0.0:5556"
+            - /jmx_config/jmx_exporter.yaml
+          ports:
+          - containerPort: 5556
+            protocol: TCP
+          volumeMounts:
+            - mountPath: /jmx_config/jmx_exporter.yaml
+              name: jmx-exporter-config-volume
+              subPath: jmx_exporter.yaml
+        {{- end }}
+      volumes:
+        {{- if .Values.auth.authentication.enabled }}
+        {{- if eq .Values.auth.authentication.provider "jwt" }}
+        - name: client-token
+          secret:
+            secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
+            items:
+              - key: TOKEN
+                path: client/token
+        {{- end}}
+        {{- end}}
+        {{- if and .Values.tls.enabled .Values.tls.broker.enabled }}
+        - name: ca
+          secret:
+            secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
+            items:
+              - key: ca.crt
+                path: ca.crt
+        {{- end}}
+        {{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.zookeeper.enabled .Values.tls.bookie.enabled)) }}
+        - name: presto-certs
+          secret:
+            secretName: "{{ template "pulsar.presto.tls.secret.name" . }}"
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+              {{- if .Values.tls.presto.trustCertsEnabled }}
+              - key: ca.crt
+                path: ca.crt
+              {{- end }}
+        {{- end }}
+        {{- if and .Values.tls.presto.enabled .Values.tls.presto.passwordSecretRef }}
+        - name: presto-password
+          secret:
+            secretName: "{{ .Values.tls.presto.passwordSecretRef.name }}"
+            items:
+              - key: "{{ .Values.tls.presto.passwordSecretRef.key }}"
+                path: password
+        {{- end }}
+        - name: config-volume
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-{{ .Values.presto.coordinator.component }}"
+        {{- if .Values.presto.security.authentication.jwt.enabled }}
+        - name: public-key-volume
+          configMap:
+            name: {{ .Values.presto.security.authentication.jwt.publicKeyConfigMapName  }}
+        {{- end}}
+        {{- if .Values.presto.security.authentication.password.enabled }}
+        - name: password-file-volume
+          secret:
+            secretName: {{ .Values.presto.security.authentication.password.passwordFileSecret }}
+            items:
+            - key: {{ .Values.presto.security.authentication.password.passwordFileSecretKey }}
+              path: {{ .Values.presto.security.authentication.password.passwordFileName }}
+        {{- end}}
+        {{- if .Values.presto.exporter.enabled }}
+        - name: jmx-exporter-config-volume
+          configMap:
+            name: "{{ template "pulsar.fullname" . }}-presto-jmx-exporter"
+        {{- end }}
+{{- with .Values.presto.extraVolumes }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- end }}
