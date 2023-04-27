@@ -113,11 +113,9 @@ Define function token mounts
 {{- define "pulsar.function.token.volumeMounts" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
 - mountPath: "/pulsar/keys"
   name: token-keys
   readOnly: true
-{{- end }}
 - mountPath: "/pulsar/tokens"
   name: function-token
   readOnly: true
@@ -131,7 +129,6 @@ Define function token volumes
 {{- define "pulsar.function.token.volumes" -}}
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
-{{- if not .Values.auth.vault.enabled }}
 - name: token-keys
   secret:
     {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
@@ -148,7 +145,6 @@ Define function token volumes
       - key: PUBLICKEY
         path: token/public.key
       {{- end}}
-{{- end }}
 - name: function-token
   secret:
     secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"

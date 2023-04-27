@@ -181,8 +181,8 @@ images:
     tag: "0.0.18"
     pullPolicy: IfNotPresent
   streamnative_console:
-    repository: streamnative/sn-platform-console
-    tag: "v1.14.10"
+    repository: streamnative/private-cloud-console
+    tag: "v2.1.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:

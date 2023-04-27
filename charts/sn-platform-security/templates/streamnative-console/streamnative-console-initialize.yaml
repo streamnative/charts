@@ -70,7 +70,7 @@ spec:
           value: {{ template "pulsar.broker.kop.service.url" .}}
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
-          value: http://{{ template "pulsar.streamnative_console.service" . }}:{{ .Values.streamnative_console.service.ports.backend }}
+          value: http://{{ template "pulsar.streamnative_console.service" . }}:8850
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
           mountPath: "/root/init_instance/"
