@@ -98,8 +98,6 @@ components:
   streamnative_console: true
   # pulsar detector
   pulsar_detector: true
-  # superset
-  superset: false
 
 ## Monitoring Components
 ##
@@ -110,9 +108,9 @@ monitoring:
   # monitoring - grafana
   grafana: true
   # monitoring - node_exporter
-  node_exporter: true
+  node_exporter: false
   # alerting - alert-manager
-  alert_manager: true
+  alert_manager: false
   # monitoring - datadog
   datadog: false
 
@@ -121,48 +119,48 @@ monitoring:
 ## Control what images to use for each component
 images:
   zookeeper:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.2.4"
+        tag: "2.10.4.1"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.2.4"
+        tag: "2.10.4.1"
   bookie:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   autorecovery:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   broker:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   proxy:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   pulsar_detector:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   functions:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   function_worker:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
     busybox:
       repository: busybox
@@ -194,8 +192,8 @@ images:
     tag: "0.26.2"
     pullPolicy: "IfNotPresent"
   pulsar_metadata:
-    repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    repository: streamnative/sn-platform-slim
+    tag: "2.10.4.1"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -1048,7 +1046,7 @@ broker:
     # -- enable authorization
     authorizationEnabled: false
   functionmesh:
-    enabled: true
+    enabled: false
   pulsarRestMessaging:
     enabled: false
   # Resources requests/limits for both init containers and app containers
