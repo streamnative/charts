@@ -1,5 +1,7 @@
 # What is StreamNative Platform Slim
 
+> NOTE: Installing the StreamNative Platform you agree to and are in compliance with the [StreamNative Cloud Subscription Agreement](https://streamnative.io/cloud-terms-and-conditions).  Please [contact StreamNative](https://streamnative.io/contact) to learn more or request access to a trial license.
+
 StreamNative Platform Slim is based on the [StreamNative Platform](https://github.com/streamnative/charts/blob/master/charts/sn-platform/README.md) chart but enhances the security control by removing most third-party componenets:
 - Presto
 - Vault
