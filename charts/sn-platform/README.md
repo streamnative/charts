@@ -1,5 +1,7 @@
 # What is StreamNative Platform
 
+> NOTE: Installing the StreamNative Platform you agree to and are in compliance with the [StreamNative Cloud Subscription Agreement](https://streamnative.io/cloud-terms-and-conditions).  Please [contact StreamNative](https://streamnative.io/contact) to learn more or request access to a trial license.
+
 StreamNative Platform is a cloud-native messaging and event-streaming platform that enables you to build a real-time application and data infrastructure for both real-time and historical events. Founded by the original developers of [Apache Pulsar](https://pulsar.apache.org/) and [Apache BookKeeper](https://bookkeeper.apache.org/), [StreamNative](https://streamnative.io/) offers a complete, self-managed platform for continuously streaming data across your organization to power rich customer experiences and data-driven operations. You can deploy StreamNative Platform on-premise or in-cloud.
 
 Powered by Apache Pulsar, StreamNative Platform makes it easy to build mission-critical messaging and streaming applications and real-time data pipelines by integrating data from multiple sources into a single, central messaging and event streaming platform for your company. StreamNative Platform lets you focus on how to maximize business value from real-time data rather than worrying about the underlying mechanisms such as how data is messaged between various systems and how data is stored reliably for processing.
