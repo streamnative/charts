@@ -1033,18 +1033,19 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
-  ## set an existing configuration store
-  # configurationStore:
-  configurationStoreMetadataPrefix: ""
+  # set the cluster name. if empty or not specified,
+  # it will use helm release name to generate a cluster name.
+  clusterName: ""
 
   ## optional, you can provide your own zookeeper metadata store for other components
   # to use this, you should explicit set components.zookeeper to false
   #
   # userProvidedZookeepers: "zk01.example.com:2181,zk02.example.com:2181"
 
-  # set the cluster name. if empty or not specified,
-  # it will use helm release name to generate a cluster name.
-  clusterName: ""
+  ## optional, you can provide your own configuration store for other components
+  # to use this, you should explicit set components.zookeeper to false
+  #
+  # configurationStoreServers: "zk01.example.com:2181,zk02.example.com:2181"
 
 ## Pulsar: KoP Protocol Handler
 kop:

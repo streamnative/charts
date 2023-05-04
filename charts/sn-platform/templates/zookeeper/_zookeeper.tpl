@@ -23,6 +23,23 @@ Define the pulsar zookeeper
 {{- end -}}
 
 {{/*
+Define the pulsar configurationStore
+*/}}
+{{- define "pulsar.configurationStore.connect" -}}
+{{$configurationStore:=.Values.pulsar_metadata.configurationStoreServers}}
+{{- if and (not .Values.components.configurationStore) $configurationStore }}
+{{- $configurationStore -}}
+{{ else }}
+{{- if not (and .Values.tls.enabled .Values.tls.zookeeper.enabled) -}}
+{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
+{{- end -}}
+{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}}
+{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.clientTls }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Define the zookeeper hostname
 */}}
 {{- define "pulsar.zookeeper.hostname" -}}
