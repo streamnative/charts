@@ -80,9 +80,7 @@ data:
     pulsarServiceUrl: {{template "pulsar.function.broker.service.url" . }}
     pulsarWebServiceUrl: {{template "pulsar.function.web.service.url" . }}
     {{- end }}
-    {{- if .Values.pulsar_metadata.configurationStoreServers }}
-    configurationStoreServers: "{{ .Values.pulsar_metadata.configurationStoreServers }}"
-    {{- end }}
+    configurationStoreServers: "{{ template "pulsar.configurationStore.connect" . }}{{ .Values.metadataPrefix }}"
     {{- if .Values.auth.authorization.enabled }}
     authorizationEnabled: "true"
     authorizationProvider: {{ .Values.functions.authorizationProvider }}

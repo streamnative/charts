@@ -28,7 +28,7 @@ initialize: false
 # NOTE: Make the default namespace as empty. So it will fallback to use the namespace used for installing the helm
 #       chart. Helm does not position it self as a namespace manager, as namespaces in kubernetes are considered as
 #       a higher control structure that is not part of the application.
-namespace: ""
+namespace: "snp"
 namespaceCreate: false
 
 ###
@@ -1040,12 +1040,12 @@ pulsar_metadata:
   ## optional, you can provide your own zookeeper metadata store for other components
   # to use this, you should explicit set components.zookeeper to false
   #
-  # userProvidedZookeepers: "zk01.example.com:2181,zk02.example.com:2181"
+  # userProvidedZookeepers: "zk01:2181,zk02:2181,zk03:2181"
 
   ## optional, you can provide your own configuration store for other components
   # to use this, you should explicit set components.zookeeper to false
   #
-  # configurationStoreServers: "zk01.example.com:2181,zk02.example.com:2181"
+  # configurationStoreServers: "zk04:2181,zk05:2181,zk06:2181"
 
 ## Pulsar: KoP Protocol Handler
 kop:

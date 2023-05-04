@@ -27,7 +27,7 @@ Define the pulsar configurationStore
 */}}
 {{- define "pulsar.configurationStore.connect" -}}
 {{$configurationStore:=.Values.pulsar_metadata.configurationStoreServers}}
-{{- if and (not .Values.components.configurationStore) $configurationStore }}
+{{- if and (not .Values.components.zookeeper) $configurationStore }}
 {{- $configurationStore -}}
 {{ else }}
 {{- if not (and .Values.tls.enabled .Values.tls.zookeeper.enabled) -}}
