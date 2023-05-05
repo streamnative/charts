@@ -57,7 +57,7 @@ spec:
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.annotations }}
+{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.annotations .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.proxy.datadog.annotation" . | nindent 6 }}
@@ -80,6 +80,9 @@ spec:
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+{{- include "pulsar.authSecret" . | indent 4 }}
+    {{- end }}
 {{- end }}
     {{- if .Values.tls.proxy.enabled }}
     volumes:
