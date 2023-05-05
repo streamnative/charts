@@ -72,7 +72,7 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if or (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs }}
+{{- if or (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
     {{- if .Values.broker.offload.gcs.secret }}
     - mountPath: /pulsar/srvaccts/gcs.json
@@ -81,6 +81,9 @@ spec:
 {{- with .Values.broker.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+{{- include "pulsar.authSecret" . | indent 4 }}
+    {{- end }}
 {{- end }}
     {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumes }}
     volumes:
@@ -125,10 +128,6 @@ spec:
     {{- if .Values.broker.resources }}
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
-    {{- end }}
-    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
-    secretRefs:
-{{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
     {{- with .Values.broker.securityContext }}
     securityContext:
