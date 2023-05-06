@@ -125,12 +125,6 @@ spec:
 {{- with .Values.toolset.extraVolumeMounts }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-        volumeMounts:
-        {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
-        {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
-{{- with .Values.toolset.extraVolumeMounts }}
-{{ toYaml . | indent 8 }}
-{{- end }}
       volumes:
       - name: binaries
         emptyDir: {}
