@@ -26,7 +26,7 @@ version: 2.10.0
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/pulsar
-icon: http://pulsar.apache.org/img/pulsar.svg
+icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
 maintainers:
 - name: StreamNative Support
   email: support@streamnative.io
