@@ -57,7 +57,7 @@ spec:
 {{- with .Values.proxy.labels }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.annotations .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+{{- if or (and .Values.prometheus.scrape.proxy .Values.prometheus.scrape.enabled) .Values.monitoring.datadog .Values.proxy.annotations }}
     annotations:
       {{- if .Values.monitoring.datadog }}
       {{- include "pulsar.proxy.datadog.annotation" . | nindent 6 }}
@@ -70,7 +70,7 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
+{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs  .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
     {{- if .Values.proxy.readPublicKeyFromFile }}
     - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
