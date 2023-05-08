@@ -101,10 +101,6 @@ spec:
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
-    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
-    secretRefs:
-{{- include "pulsar.authSecret" . | indent 4 }}
-    {{- end }}
     {{- with .Values.proxy.securityContext }}
     securityContext:
 {{ toYaml . | indent 6 }}
