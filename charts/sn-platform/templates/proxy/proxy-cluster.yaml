@@ -70,7 +70,7 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
+{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs  .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
     {{- if .Values.proxy.readPublicKeyFromFile }}
     - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
@@ -80,6 +80,9 @@ spec:
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+{{- include "pulsar.authSecret" . | indent 4 }}
+    {{- end }}
 {{- end }}
     {{- if .Values.tls.proxy.enabled }}
     volumes:
@@ -97,10 +100,6 @@ spec:
     {{- if .Values.proxy.resources }}
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
-    {{- end }}
-    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
-    secretRefs:
-{{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
     {{- with .Values.proxy.securityContext }}
     securityContext:
