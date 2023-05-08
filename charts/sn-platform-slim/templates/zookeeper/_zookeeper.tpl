@@ -12,12 +12,10 @@ Define the pulsar zookeeper
 {{$zk:=.Values.pulsar_metadata.userProvidedZookeepers}}
 {{- if and (not .Values.components.zookeeper) $zk }}
 {{- $zk -}}
-{{ else }}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}} 
+{{- else if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}} 
 {{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.clientTls }}
-{{ else }}
+{{- else -}}
 {{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 
@@ -28,12 +26,10 @@ Define the pulsar configurationStore
 {{$configurationStore:=.Values.pulsar_metadata.configurationStoreServers}}
 {{- if and (not .Values.components.zookeeper) $configurationStore }}
 {{- $configurationStore -}}
-{{ else }}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}} 
+{{- else if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}} 
 {{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.clientTls }}
-{{ else }}
+{{- else -}}
 {{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 
