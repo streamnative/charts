@@ -123,6 +123,10 @@ spec:
             value: {{ .Values.login.sso.azure.config.AZURE_REDIRECT_URI }}
           - name: AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME
             value: {{ .Values.login.sso.azure.config.AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME }}
+          - name: SERVICE_ACCOUNT_OAUTH2_AUDIENCE
+            value: {{ .Values.login.sso.azure.config.SERVICE_ACCOUNT_OAUTH2_AUDIENCE }}
+          - name: SERVICE_ACCOUNT_OAUTH2_SCOPE
+            value: {{ .Values.login.sso.azure.config.SERVICE_ACCOUNT_OAUTH2_SCOPE }}
           {{- end }}
           {{- if .Values.login.sso.okta.enabled }}
           - name: OKTA_OAUTH2_ENABLED
