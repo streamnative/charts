@@ -1,0 +1,18 @@
+broker:
+  functionmesh:
+    enabled: true
+    mesh:
+      uploadEnabled: false
+    labels:
+      test: asd
+      test2: asd2
+      test3: asd3
+    custom:
+      assignmentWriteMaxRetries: "90"
+    customWorkerConfig: |-
+      pulsarFunctionsNamespace: "public/def"
+      rescheduleTimeoutMs: 70000
+    runnerImages:
+      go: streamnative/pulsar-functions-go-runner:2.11.1.11
+      java: streamnative/pulsar-functions-java-runner:2.9.1.11
+      python: streamnative/pulsar-functions-python-runner:2.12.1.11
