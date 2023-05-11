@@ -188,10 +188,23 @@ spec:
       mesh:
         builtinConnectorsRef:
           name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
-        functionEnabled: true
-        sinkEnabled: true
-        sourceEnabled: true
-        uploadEnabled: true
+        functionEnabled: {{ .Values.broker.functionmesh.mesh.functionEnabled }}
+        sinkEnabled: {{ .Values.broker.functionmesh.mesh.sinkEnabled }}
+        sourceEnabled: {{ .Values.broker.functionmesh.mesh.sourceEnabled }}
+        uploadEnabled: {{ .Values.broker.functionmesh.mesh.uploadEnabled }}
+      customWorkerConfig: {{ .Values.broker.functionmesh.customWorkerConfig | quote }}
+      {{- if .Values.broker.functionmesh.custom }}
+      custom:
+  {{ toYaml .Values.broker.functionmesh.custom | indent 8 }}
+  {{- end }}
+      {{- if .Values.broker.functionmesh.labels }}
+      labels:
+  {{ toYaml .Values.broker.functionmesh.labels | indent 8 }}
+  {{- end }}
+      {{- if .Values.broker.functionmesh.runnerImages }}
+      functionRunnerImages:
+{{ toYaml .Values.broker.functionmesh.runnerImages | indent 8 }}
+      {{- end }}
       type: FunctionMesh
     {{- end }}
     {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}

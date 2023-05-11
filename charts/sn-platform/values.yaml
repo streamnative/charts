@@ -1123,6 +1123,15 @@ broker:
     authorizationEnabled: false
   functionmesh:
     enabled: false
+    mesh:
+      uploadEnabled: true
+      functionEnabled: true
+      sourceEnabled: true
+      sinkEnabled: true
+    customWorkerConfig:
+    runnerImages:
+    labels:
+    custom:
   pulsarRestMessaging:
     enabled: false
   # Resources requests/limits for both init containers and app containers
