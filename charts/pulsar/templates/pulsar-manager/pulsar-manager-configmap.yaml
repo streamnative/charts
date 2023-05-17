@@ -49,7 +49,7 @@ data:
     {{ .Values.pulsar_manager.scripts.backend_entrypoint.command }} \
       --spring.datasource.initialization-mode=never \
       --spring.datasource.driver-class-name=org.postgresql.Driver \
-      --spring.datasource.url=jdbc:postgresql://127.0.0.1:5432/pulsar_manager \
+      --spring.datasource.url=jdbc:postgresql://127.0.0.1:5688/pulsar_manager \
       --spring.datasource.username={{ .Values.pulsar_manager.spring.datasource.username }} \
       --spring.datasource.password={{ .Values.pulsar_manager.spring.datasource.password }} \
       --pagehelper.helperDialect=postgresql \
