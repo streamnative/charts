@@ -75,9 +75,6 @@ spec:
 {{- end }}
 {{- if or .Values.broker.readPublicKeyFromFile (and .Values.broker.offload.gcs.enabled .Values.broker.offload.gcs.secret) .Values.broker.extraSecretRefs .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
-    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
-      {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
-      secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
     {{- if .Values.broker.offload.gcs.secret }}
     - mountPath: /pulsar/srvaccts/gcs.json
       secretName: {{ .Values.broker.offload.gcs.secret }}
@@ -85,7 +82,7 @@ spec:
 {{- with .Values.broker.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
-    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled .Values.auth.vault.enabled }}
 {{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
 {{- end }}

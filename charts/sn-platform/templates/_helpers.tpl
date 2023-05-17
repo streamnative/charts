@@ -289,8 +289,13 @@ Define function for get authenticaiton secret
 {{- define "pulsar.authSecret" }}
 {{- if .Values.auth.authentication.enabled }}
 {{- if and .Values.auth.oauth.enabled .Values.auth.oauth.brokerClientCredentialSecret }}
-- mountPath: /mnt/secrets
+- mountPath: /mnt/secrets/oauth
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
+{{- end }}
+{{- if and .Values.auth.vault.enabled (or .Values.broker.readPublicKeyFromFile .Values.proxy.readPublicKeyFromFile) }}
+- mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
+  {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
+  secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
