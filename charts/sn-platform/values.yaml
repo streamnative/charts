@@ -18,7 +18,7 @@
 #
 
 # Flag to control whether to run initialize job
-initialize: false
+initialize: true
 
 ###
 ### K8S Settings
