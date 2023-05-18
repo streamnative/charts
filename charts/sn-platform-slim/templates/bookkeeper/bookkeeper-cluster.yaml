@@ -38,6 +38,9 @@ metadata:
 {{ toYaml . | nindent 4 }}
 {{- end }}
 spec:
+{{- if not .Values.initialize }}
+  initialized: true
+{{- end }}
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}"
   replicas: {{ .Values.bookkeeper.replicaCount }}
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
