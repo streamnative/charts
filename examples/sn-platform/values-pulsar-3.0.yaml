@@ -80,6 +80,20 @@ bookkeeper:
       -verbosegc
 
 broker:
+  configData:
+    managedLedgerDefaultEnsembleSize: "3"
+    managedLedgerDefaultWriteQuorum: "3"
+    managedLedgerDefaultAckQuorum: "2"
+    PULSAR_PREFIX_systemTopicEnabled: "true"
+    PULSAR_PREFIX_topicLevelPoliciesEnabled: "true"
+    # Enable the new Load Balancer
+    loadManagerClassName: "org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerImpl"
+    loadBalancerLoadSheddingStrategy: "org.apache.pulsar.broker.loadbalance.extensions.scheduler.TransferShedder"
+    # Enable the new delayed message
+    delayedDeliveryTrackerFactoryClassName: "org.apache.pulsar.broker.delayed.BucketDelayedDeliveryTrackerFactory"
+    # Enable transaction buffer segmented snapshot
+    transactionBufferSegmentedSnapshotEnabled: "true"
+    transactionBufferSnapshotSegmentSize: "262144"
   jvm:
     gcOptions:
       - >
