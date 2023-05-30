@@ -893,6 +893,10 @@ spec:
                     description: Revision defines which Istio control plane inject
                       sidecar
                     type: string
+                  trustDomain:
+                    description: TrustDomain corresponds to the trust root of a system
+                      and is part of a workload identity
+                    type: string
                 type: object
               labels:
                 additionalProperties:
