@@ -529,7 +529,6 @@ zookeeper:
     prometheus.io/port: "8000"
   securityContext:
     fsGroup: 0
-    fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
   gracePeriod: 30
   resources:
@@ -723,7 +722,6 @@ bookkeeper:
   annotations: {}
   securityContext:
     fsGroup: 0
-    fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
   gracePeriod: 30
   resources:
@@ -854,7 +852,6 @@ autorecovery:
   annotations: {}
   securityContext:
     fsGroup: 0
-    fsGroupChangePolicy: "OnRootMismatch"
   # tolerations: []
   gracePeriod: 30
   resources:
