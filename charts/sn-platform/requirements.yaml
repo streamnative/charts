@@ -23,6 +23,6 @@ dependencies:
   repository: https://grafana.github.io/helm-charts
   condition: monitoring.loki
 #- name: superset
-#  version: 0.10.0
+#  version: 0.1.1
 #  repository:  https://apache.github.io/superset
 #  condition: components.superset
