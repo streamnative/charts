@@ -62,6 +62,9 @@ zookeeper:
       -Dzookeeper.forceSync=no
 
 bookkeeper:
+  configData:
+    # Enable DirectIO by default
+    PULSAR_PREFIX_dbStorage_directIOEntryLogger: "true"
   jvm:
     gcOptions:
     - >
