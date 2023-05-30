@@ -529,6 +529,7 @@ zookeeper:
     prometheus.io/port: "8000"
   securityContext:
     fsGroup: 0
+    fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
   gracePeriod: 30
   resources:
