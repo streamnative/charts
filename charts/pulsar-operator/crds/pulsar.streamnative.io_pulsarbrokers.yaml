@@ -1497,6 +1497,14 @@ spec:
                                   uid?'
                                 type: string
                             type: object
+                          disabledRuntimes:
+                            description: DisabledRuntimes defines the list of disabled
+                              runtimes
+                            items:
+                              type: string
+                            nullable: true
+                            type: array
+                            x-kubernetes-list-type: set
                           functionEnabled:
                             description: FunctionEnabled defines whether to enable
                               function APIs
@@ -1574,6 +1582,10 @@ spec:
                         properties:
                           enabled:
                             description: Enabled defines whether to enable KoP
+                            type: boolean
+                          schemaRegistryEnabled:
+                            description: SchemaRegistryEnabled define whether to enable
+                              schema registry
                             type: boolean
                           tls:
                             description: TLS defines the TLS configuration on the
@@ -4863,6 +4875,10 @@ spec:
                     default: default
                     description: Revision defines which Istio control plane inject
                       sidecar
+                    type: string
+                  trustDomain:
+                    description: TrustDomain corresponds to the trust root of a system
+                      and is part of a workload identity
                     type: string
                 type: object
               labels:
