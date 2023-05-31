@@ -62,6 +62,19 @@ rules:
     - create
     - delete
     - patch
+{{- if .Values.broker.functionmesh.enabled}}
+- apiGroups: ["compute.functionmesh.io"]
+  resources:
+    - '*'
+  verbs:
+    - list
+    - watch
+    - get
+    - update
+    - create
+    - delete
+    - patch
+{{- end }}
 ---
 
 {{- end }}
