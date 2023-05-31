@@ -39,6 +39,9 @@ metadata:
 {{ toYaml . | nindent 4 }}
 {{- end }}
 spec:
+{{- if not .Values.initialize }}
+  initialized: true
+{{- end }}
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   configurationStoreServers: "{{ template "pulsar.configurationStore.connect" . }}{{ .Values.metadataPrefix }}"
   replicas: {{ .Values.broker.replicaCount }}
