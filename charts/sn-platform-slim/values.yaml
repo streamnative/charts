@@ -1657,6 +1657,7 @@ prometheus:
       periodSeconds: 10
   customRelabelConfigs: []
   extraScrapeConfigs: []
+  extraRemoteWrite: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml

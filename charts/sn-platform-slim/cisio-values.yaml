@@ -1,0 +1,1219 @@
+COMPUTED VALUES:
+affinity:
+  anti_affinity: true
+  zone_anti_affinity: false
+  zone_anti_affinity_weight: 100
+alert_manager:
+  annotations: {}
+  component: alert-manager
+  config:
+    global:
+      resolve_timeout: 1m
+    receivers:
+    - name: pagerduty-notifications
+      pagerduty_configs:
+      - send_resolved: true
+        service_key: '[PAGER DUTRY SERVICE KEY]'
+    route:
+      group_interval: 1m
+      receiver: pagerduty-notifications
+      repeat_interval: 10m
+  gracePeriod: 0
+  labels: {}
+  port: 9093
+  probe:
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 250Mi
+  rules:
+    groups: null
+  securityContext:
+    fsGroup: 65534
+    runAsGroup: 65534
+    runAsNonRoot: true
+    runAsUser: 65534
+  service:
+    annotations: {}
+auth:
+  authentication:
+    enabled: true
+    jwt:
+      enabled: true
+      usingSecretKey: true
+    provider: jwt
+    tls:
+      enabled: false
+  authorization:
+    enabled: true
+  oauth:
+    authenticationProvider: io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth
+    authorizationProvider: io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth
+    enabled: false
+    oauthAudience: your-application-id
+    oauthAuthzAdminRole: ""
+    oauthAuthzRoleClaim: roles
+    oauthIssuerUrl: https://login.microsoftonline.com/your-tenant-id/v2.0
+    oauthScopeClaim: scp
+    oauthSubjectClaim: oid
+  superUsers:
+    broker: admin,broker-admin,admin-approle,pulsar-manager-admin,pperf
+    client: admin
+    proxy: admin,proxy-admin,admin-approle,pulsar-manager-admin,pperf
+    proxyRoles: proxy-admin
+    proxyRolesEnabled: false
+    streamnative-console: super,pulsar-manager-admin
+    websocket: admin,ws-admin,admin-approle,pulsar-manager-admin
+  vault:
+    enabled: false
+autorecovery:
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+    zone_anti_affinity: true
+  annotations: {}
+  component: recovery
+  configData: {}
+  gracePeriod: 30
+  jvm:
+    extraOptions: []
+    gcLoggingOptions: []
+    gcOptions: []
+    memoryOptions:
+    - -Xms128m -Xmx256m
+  labels: {}
+  operator:
+    adopt_existing: false
+    updatePolicy: []
+  ports:
+    http: 8000
+  replicaCount: 1
+  resourcePolicy:
+    keep: false
+  resources:
+    requests:
+      cpu: "0.2"
+      memory: 512Mi
+  securityContext:
+    runAsNonRoot: true
+bookkeeper:
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+    zone_anti_affinity: true
+  annotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  bookKeeperCluster:
+    annotations: {}
+    labels: {}
+  component: bookie
+  configData:
+    PULSAR_PREFIX_allowMultipleDirsUnderSameDiskPartition: "true"
+    PULSAR_PREFIX_gcWaitTime: "60000"
+    PULSAR_PREFIX_isForceGCAllowWhenNoSpace: "true"
+    PULSAR_PREFIX_majorCompactionInterval: "300"
+    PULSAR_PREFIX_majorCompactionThreshold: "0.2"
+    PULSAR_PREFIX_managedLedgerMaxLedgerRolloverTimeMinutes: "5"
+    PULSAR_PREFIX_managedLedgerMinLedgerRolloverTimeMinutes: "1"
+    PULSAR_PREFIX_minorCompactionInterval: "120"
+    PULSAR_PREFIX_minorCompactionThreshold: "0.1"
+    PULSAR_PREFIX_pageLimit: "-1"
+    PULSAR_PREFIX_pageSize: "8192"
+  custom: {}
+  gracePeriod: 30
+  jvm:
+    extraOptions:
+    - |
+      -XX:+ExitOnOutOfMemoryError
+    gcLoggingOptions:
+    - |
+      -XX:+DisableExplicitGC
+    gcOptions:
+    - |
+      -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem -verbosegc
+    memoryOptions:
+    - |
+      -Xms512m -Xmx1g -XX:MaxDirectMemorySize=256m
+  labels: {}
+  operator:
+    adopt_existing: false
+    updatePolicy: |
+      - finalizers
+  ports:
+    bookie: 3181
+    http: 8000
+  replicaCount: 3
+  resourcePolicy:
+    keep: false
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+  securityContext:
+    runAsNonRoot: true
+  serviceAccount:
+    annotations: {}
+    clusterRole: true
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  topologySpreadConstraints: []
+  volumes:
+    journal:
+      name: journal
+      numDirsPerVolume: 1
+      numVolumes: 1
+      size: 1Gi
+      storageClassName: ontap-nas-ssd-delete
+    ledgers:
+      name: ledgers
+      numDirsPerVolume: 1
+      numVolumes: 1
+      size: 5Gi
+      storageClassName: ontap-nas-hdd-delete
+    persistence: true
+    reclaimPolicy: Delete
+broker:
+  advertisedDomain: ""
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+    zone_anti_affinity: true
+  annotations:
+    iotcc.cisco.com/cc-cert-webhook: pulsar-broker
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  aop:
+    enabled: false
+    proxyEnabled: false
+  component: broker
+  configData:
+    PULSAR_PREFIX_brokerPublisherThrottlingMaxByteRate: "10000000"
+    PULSAR_PREFIX_brokerPublisherThrottlingMaxMessageRate: "10000"
+    PULSAR_PREFIX_defaultNumberOfNamespaceBundles: "4"
+    PULSAR_PREFIX_defaultRetentionSizeInMB: "0"
+    PULSAR_PREFIX_defualtRetentionTimeInMinutes: "0"
+    PULSAR_PREFIX_enableReplicatedSubscriptions: "true"
+    PULSAR_PREFIX_managedLedgerDefaultAckQuorum: "1"
+    PULSAR_PREFIX_managedLedgerDefaultEnsembleSize: "2"
+    PULSAR_PREFIX_managedLedgerDefaultWriteQuorum: "2"
+    PULSAR_PREFIX_managedLedgerMaxEntriesPerLedger: "50000"
+    PULSAR_PREFIX_managedLedgerNumSchedulerThreads: "2"
+    PULSAR_PREFIX_managedLedgerNumWorkerThreads: "2"
+    PULSAR_PREFIX_maxConcurrentLookupRequest: "1000"
+    PULSAR_PREFIX_maxConcurrentTopicLoadRequest: "1000"
+    PULSAR_PREFIX_maxUnackedMessagesPerConsumer: "10000"
+    PULSAR_PREFIX_maxUnackedMessagesPerSubscription: "50000"
+    PULSAR_PREFIX_systemTopicEnabled: "true"
+    PULSAR_PREFIX_topicLevelPoliciesEnabled: "true"
+    managedLedgerDefaultAckQuorum: "2"
+    managedLedgerDefaultEnsembleSize: "3"
+    managedLedgerDefaultWriteQuorum: "3"
+  dnsNames: null
+  extraEnv: []
+  extraSecretRefs: []
+  extraVolumeClaimTemplates: []
+  extraVolumeMounts: []
+  extraVolumes: []
+  functionmesh:
+    enabled: false
+  gracePeriod: 30
+  jvm:
+    extraOptions:
+    - |
+      -XX:+ExitOnOutOfMemoryError
+    gcLoggingOptions:
+    - |
+      -XX:+DisableExplicitGC
+    gcOptions:
+    - |
+      -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem
+    memoryOptions:
+    - |
+      -Xms512m -Xmx1g -XX:MaxDirectMemorySize=256m
+  kop:
+    auth:
+      enabled: true
+    enabled: true
+    tls:
+      enabled: false
+      trustCertsEnabled: false
+  labels: {}
+  mop:
+    authenticationEnabled: false
+    authorizationEnabled: false
+    enabled: false
+    proxyEnabled: false
+  offload:
+    azureblob:
+      enabled: false
+      managedLedgerOffloadBucket: '[YOUR BLOB CONTAINER]'
+      managedLedgerOffloadMaxBlockSizeInBytes: "67108864"
+      managedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      managedLedgerOffloadServiceEndpoint: https://your-container.blob.core.windows.net
+    enabled: false
+    gcs:
+      enabled: false
+      gcsManagedLedgerOffloadBucket: '[YOUR BUCKET OF GCS]'
+      gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
+      gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      gcsManagedLedgerOffloadRegion: '[YOUR REGION OF GCS]'
+    managedLedgerMaxEntriesPerLedger: "50000"
+    managedLedgerMinLedgerRolloverTimeMinutes: "10"
+    managedLedgerOffloadDriver: aws-s3
+    s3:
+      enabled: false
+      s3ManagedLedgerOffloadBucket: '[YOUR BUCKET OF S3]'
+      s3ManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
+      s3ManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      s3ManagedLedgerOffloadRegion: '[YOUR REGION OF S3]'
+      s3ManagedLedgerOffloadServiceEndpoint: http://s3.amazonaws.com
+  operator:
+    adopt_existing: false
+    updatePolicy: |
+      - finalizers
+  ports:
+    http: 8080
+    https: 8443
+    pulsar: 6650
+    pulsarssl: 6651
+  publicKeyPath: ""
+  publicKeySecret: ""
+  pulsarBroker:
+    annotations: {}
+    labels: {}
+  pulsarRestMessaging:
+    enabled: false
+  readPublicKeyFromFile: false
+  replicaCount: 2
+  resourcePolicy:
+    keep: false
+  resources:
+    limits: {}
+    requests:
+      cpu: 1
+      memory: 2Gi
+  securityContext:
+    runAsNonRoot: true
+  service_account:
+    annotations: {}
+  serviceAccount:
+    annotations: {}
+    clusterRole: true
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  topologySpreadConstraints: []
+  usePodIPAsAdvertisedAddress: false
+certs:
+  internal_issuer:
+    component: internal-cert-issuer
+    enabled: false
+    type: selfsigning
+  issuers:
+    acme:
+      email: contact@example.local
+      server: https://acme-staging-v02.api.letsencrypt.org/directory
+      solver: clouddns
+      solvers:
+        clouddns:
+          project: '[YOUR GCP PROJECT ID]'
+          serviceAccountSecretRef:
+            key: '[KEY OF SECRET]'
+            name: '[NAME OF SECRET]'
+    custom: {}
+    secret:
+      secretName: ca-keypair
+    selfsigning: null
+  istio_internal_issuer:
+    component: istio-internal-cert-issuer
+    enabled: false
+    type: selfsigning
+  istio_public_issuer:
+    component: istio-public-cert-issuer
+    enabled: false
+    type: acme
+  lets_encrypt:
+    ca_ref:
+      keyName: '[KEY IN THE SECRET STORES let encrypt CA]'
+      secretName: '[SECRET STORES lets encrypt CA]'
+  public_issuer:
+    component: public-cert-issuer
+    enabled: false
+    type: acme
+common:
+  extraInitContainers: []
+components:
+  aop: false
+  autorecovery: true
+  bookkeeper: true
+  broker: true
+  custom_metric_server: false
+  functions: true
+  proxy: false
+  pulsar_detector: false
+  sql_worker: false
+  streamnative_console: true
+  superset: false
+  toolset: true
+  vault: false
+  zookeeper: true
+configmapReload:
+  alertmanager:
+    enabled: true
+    extraArgs: {}
+    extraConfigmapMounts: []
+    extraVolumeDirs: []
+    name: configmap-reload
+    resources: {}
+  prometheus:
+    enabled: true
+    extraArgs: {}
+    extraConfigmapMounts: []
+    extraVolumeDirs: []
+    name: configmap-reload
+    resources: {}
+datadog:
+  component: datadog
+  components:
+    bookkeeper:
+      enabled: false
+      metrics:
+      - '"_*"'
+    broker:
+      enabled: false
+      metrics:
+      - '"_*"'
+    prometheus:
+      enabled: false
+      metrics:
+      - '"_*"'
+    proxy:
+      enabled: false
+      metrics:
+      - '"_*"'
+    zookeeper:
+      enabled: false
+      metrics:
+      - '"_*"'
+  namespace: null
+domain:
+  enabled: false
+  suffix: apphq.com
+external_dns:
+  component: external-dns
+  domain_filter: pulsar.example.local
+  enabled: false
+  extraEnv: []
+  extraMounts: []
+  owner_id: pulsar
+  policy: upsert-only
+  provider: google
+  providers:
+    aws:
+      zoneType: public
+    google:
+      project: '[GOOGLE PROJECT ID]'
+  registry: dockerhub.cisco.com/smi-fuse-docker-internal/3rdparty
+  securityContext: {}
+  serviceAcct:
+    annotations: {}
+extraResources: []
+functions:
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+    zone_anti_affinity: true
+  annotations: {}
+  authenticationProviders: []
+  authorizationProvider: org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider
+  autoRollDeployment: true
+  component: functions-worker
+  configData:
+    assignmentWriteMaxRetries: 60
+    clusterCoordinationTopicName: coordinate
+    connectorsDirectory: ./connectors
+    downloadDirectory: download/pulsar_functions
+    failureCheckFreqMs: 30000
+    functionAssignmentTopicName: assignments
+    functionMetadataTopicName: metadata
+    functionRuntimeFactoryClassName: org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory
+    functionsDirectory: ./functions
+    initialBrokerReconnectMaxRetries: 60
+    instanceLivenessCheckFreqMs: 30000
+    narExtractionDirectory: ""
+    numHttpServerThreads: 8
+    pulsarFunctionsNamespace: public/functions
+    rescheduleTimeoutMs: 60000
+    schedulerClassName: org.apache.pulsar.functions.worker.scheduler.RoundRobinScheduler
+    topicCompactionFrequencySec: 1800
+  enableCustomizerRuntime: false
+  extraEnvs: []
+  extraInitContainers: []
+  extraVolumeMounts: []
+  extraVolumes: []
+  functionRuntimeFactoryConfigs: null
+  gracePeriod: 30
+  jobNamespace: ""
+  nodeSelector: {}
+  ports:
+    http: 8080
+    https: 8443
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 60
+      periodSeconds: 10
+  pulsarExtraClasspath: extraLibs
+  pulsarRootDir: ""
+  replicaCount: 1
+  resources:
+    limits: {}
+    requests:
+      cpu: 0.2
+      memory: 512Mi
+  runtimeCustomizerClassName: org.apache.pulsar.functions.runtime.kubernetes.BasicKubernetesManifestCustomizer
+  securityContext: {}
+  service:
+    annotations: {}
+  serviceAccount:
+    annotations: {}
+    clusterRole: true
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  useDedicatedRunner: false
+global:
+  imagePullSecrets:
+  - name: docker-pull-credentials
+grafana:
+  admin:
+    password: pulsar
+    user: pulsar
+  annotations: {}
+  azureAuthEnabled: false
+  azuread:
+    client_id: AZURE-AD-SSO-CLIENT-ID
+    client_secret: AZURE-AD-SSO-CLIENT-SECRET
+  component: grafana
+  gracePeriod: 0
+  grafana.ini:
+    analytics:
+      check_for_updates: true
+    auth.azuread:
+      allow_sign_up: true
+      allowed_domains: ""
+      allowed_groups: ""
+      auth_url: ""
+      client_id: ""
+      client_secret: ""
+      enabled: false
+      name: Azure AD
+      role_attribute_strict: true
+      scopes: openid email profile
+      token_url: ""
+    grafana_com:
+      url: https://grafana.com
+    log:
+      mode: console
+    log.file:
+      format: text
+      level: info
+    paths:
+      data: /var/lib/grafana/pulsar/data
+      plugins: /var/lib/grafana/pulsar/plugins
+      provisioning: /var/lib/grafana/pulsar_provisioning
+    security:
+      admin_password: '{{ GRAFANA_ADMIN_PASSWORD }}'
+      admin_user: '{{ GRAFANA_ADMIN_USER }}'
+    server:
+      domain: '{{ GRAFANA_DOMAIN }}'
+      root_url: '{{ GRAFANA_ROOT_URL }}'
+      serve_from_sub_path: '{{ GRAFANA_SERVE_FROM_SUB_PATH }}'
+  labels: {}
+  port: 3000
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 250Mi
+  service:
+    annotations:
+      metallb.universe.tf/allow-shared-ip: shared
+    type: LoadBalancer
+  tolerations: []
+  volumes:
+    data:
+      name: data
+      size: 1Gi
+      storageClassName: ontap-nas-hdd-delete
+    env:
+    - name: GF_PATHS_DATA
+      value: /var/lib/grafana/pulsar/data
+    - name: GF_PATHS_PLUGINS
+      value: /var/lib/grafana/pulsar/plugin
+    - name: GF_PATHS_PROVISIONING
+      value: /var/lib/grafana/pulsar_provisioning
+    mountPath: /var/lib/grafana/pulsar
+    persistence: true
+    securityContext:
+      fsGroup: 472
+      runAsGroup: 472
+      runAsNonRoot: true
+      runAsUser: 472
+imagePullSecrets: docker-pull-credentials
+images:
+  alert_manager:
+    pullPolicy: IfNotPresent
+    repository: dockerhub.cisco.com/smi-fuse-docker-internal/3rdparty/prometheus/alertmanager
+    tag: 0.25.0
+  autorecovery:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  bookie:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  broker:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  configmapReload:
+    pullPolicy: IfNotPresent
+    repository: dockerhub.cisco.com/smi-fuse-docker-internal/3rdparty/jimmidyson/configmap-reload
+    tag: 0.8.0
+  external_dns:
+    pullPolicy: IfNotPresent
+    repository: dockerhub.cisco.com/smi-fuse-docker-internal/3rdparty/external-dns/external-dns
+    tag: 0.7.3
+  function_worker:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  functions:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  grafana:
+    pullPolicy: IfNotPresent
+    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
+    tag: 0.0.20
+  nginx_ingress_controller:
+    pullPolicy: IfNotPresent
+    repository: kubernetes-ingress-controller/nginx-ingress-controller
+    tag: 0.26.2
+  node_exporter:
+    pullPolicy: IfNotPresent
+    repository: prometheus/node-exporter
+    tag: 1.5.0
+  prometheus:
+    pullPolicy: IfNotPresent
+    repository: prometheus/prometheus
+    tag: 2.43.0
+  proxy:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  pulsar_detector:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  pulsar_metadata:
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  streamnative_console:
+    hasCommand: false
+    pullPolicy: IfNotPresent
+    repository: streamnative/private-cloud-console
+    tag: 2.1.1
+  toolset:
+    busybox:
+      pullPolicy: IfNotPresent
+      repository: busybox
+      tag: 1.35.0
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+  zookeeper:
+    customTools:
+      backup:
+        repository: streamnative/pulsar-metadata-tool
+        tag: 2.10.4.1
+      restore:
+        repository: streamnative/pulsar-metadata-tool
+        tag: 2.10.4.1
+    pullPolicy: IfNotPresent
+    repository: streamnative/sn-platform-slim
+    tag: 2.10.4.1
+ingress:
+  broker:
+    annotations: {}
+    enabled: true
+    external_domain: cck8s1-qscl02-vmtest-0.apphq.com
+    extraSpec: {}
+    type: LoadBalancer
+  control_center:
+    annotations: {}
+    component: control-center
+    enabled: false
+    endpoints:
+      alertmanager: false
+      grafana: true
+      prometheus: false
+    external_domain_scheme: https://
+    tls:
+      enabled: false
+  controller:
+    annotations: {}
+    component: nginx-ingress-controller
+    enabled: false
+    gracePeriod: 300
+    ports:
+      http: 80
+      https: 443
+    rbac: true
+    replicaCount: 1
+    tls:
+      termination: false
+    tolerations: []
+  proxy:
+    annotations: {}
+    enabled: false
+    extraSpec: {}
+    httpPortOverride: ""
+    tls:
+      enabled: true
+    type: LoadBalancer
+initialize: true
+istio:
+  enabled: true
+  gateway:
+    namespace: istio-system
+    selector: {}
+    tls:
+      certSecretName: istio-ingressgateway-tls
+      mode: SIMPLE
+  labels: {}
+  mergeMetrics: true
+kop:
+  auth:
+    enabled: false
+  ports:
+    plaintext: 9092
+    ssl: 9093
+metadataPrefix: ""
+monitoring:
+  alert_manager: false
+  datadog: false
+  grafana: false
+  loki: false
+  node_exporter: false
+  prometheus: false
+namespace: ""
+namespaceCreate: false
+node_exporter:
+  annotations: {}
+  component: node-exporter
+  labels: {}
+  limits:
+    cpu: 10m
+    memory: 50Mi
+  requests:
+    cpu: 10m
+    memory: 50Mi
+openshift:
+  enabled: false
+  scc:
+    create: true
+    enabled: true
+    name: ""
+prometheus:
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+    zone_anti_affinity: true
+  annotations: {}
+  args:
+    retention: 15d
+  component: prometheus
+  customRelabelConfigs: []
+  extraArgs:
+  - --storage.tsdb.wal-compression
+  extraScrapeConfigs: []
+  gracePeriod: 0
+  labels: {}
+  port: 9090
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 256Mi
+  scrape:
+    autorecovery: true
+    bookkeeper: true
+    broker: true
+    enabled: true
+    function_worker: true
+    ingress_controller: true
+    node_exporter: true
+    proxy: true
+    zookeeper: true
+  scrapeInterval: 60s
+  securityContext:
+    fsGroup: 65534
+    runAsGroup: 65534
+    runAsNonRoot: true
+    runAsUser: 65534
+  service:
+    annotations: {}
+  serviceAccount:
+    annotations: {}
+    clusterRole: true
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  volumes:
+    data:
+      name: data
+      size: 5Gi
+      storageClassName: ontap-nas-hdd-delete
+    persistence: true
+proxy:
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+    zone_anti_affinity: true
+  annotations: {}
+  brokerServiceURL: ""
+  brokerServiceURLTLS: ""
+  brokerWebServiceURL: ""
+  brokerWebServiceURLTLS: ""
+  component: proxy
+  configData: {}
+  extraEnv: []
+  extraSecretRefs: []
+  gracePeriod: 30
+  jvm:
+    extraOptions: []
+    gcLoggingOptions: []
+    gcOptions:
+    - |
+      -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dio.netty.leakDetectionLevel=disabled -Dio.netty.recycler.linkCapacity=1024 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC -XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem
+    memoryOptions:
+    - |
+      -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+  labels: {}
+  operator:
+    adopt_existing: false
+    updatePolicy: |
+      - finalizers
+  ports:
+    http: 8080
+    https: 443
+    pulsar: 6650
+    pulsarssl: 6651
+    websocket: 9090
+    websockettls: 9443
+  publicKeyPath: ""
+  publicKeySecret: ""
+  pulsarProxy:
+    annotations: {}
+    labels: {}
+  readPublicKeyFromFile: false
+  replicaCount: 1
+  resourcePolicy:
+    keep: false
+  resources:
+    requests:
+      cpu: "0.2"
+      memory: 128Mi
+  securityContext:
+    runAsNonRoot: true
+  serviceAccount:
+    annotations: {}
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  topologySpreadConstraints: []
+  usePodIPAsAdvertisedAddress: false
+  websocket:
+    component: websocket
+    enabled: false
+pulsar_detector:
+  annotations: {}
+  component: pulsar-detector
+  gracePeriod: 30
+  labels: {}
+  port: 9000
+  replicaCount: 1
+  resources:
+    limits: {}
+    requests:
+      cpu: "0.1"
+      memory: 256Mi
+  service:
+    annotations: {}
+  serviceAccount:
+    annotations: {}
+    create: true
+    name: ""
+    use: true
+pulsar_metadata:
+  clusterName: ""
+  component: pulsar-init
+  configurationStoreMetadataPrefix: ""
+rbac:
+  enable: true
+  roleBindingName: pulsar-operator-cluster-role-binding
+  roleName: pulsar-operator
+smi_images:
+  busybox: busybox:1.35.0
+  private_cloud_console: streamnative/private-cloud-console:2.1.1
+  pulsar_metadata_tool: streamnative/pulsar-metadata-tool:2.10.4.1
+  sn_platform_slim: streamnative/sn-platform-slim:2.10.4.1
+streamnative_console:
+  annotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  component: streamnative-console
+  configData:
+    BACKEND_DEFAULT_SUPER_USER_ROLE: admin,broker-admin,admin-approle,pulsar-manager-admin,pperf
+    CONNECTOR_ENABLED: true
+    DEFAULT_ORGANIZATION: streamnative
+    GLOBAL_RESOURCE_READ_ONLY: false
+    GOOGLE_CLIENT_ID: ""
+    GOOGLE_CLIENT_SECRET: ""
+    GOOGLE_OAUTH2_ENABLED: false
+    GOOGLE_REDIRECT_URI: ""
+    GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+    GRAFANA_AUTH_PROXY: false
+    GRAFANA_AUTH_PROXY_USER: ""
+    INIT_DEFAULT_ENVIRONMENT: true
+    INSTANCE_NAME: pulsar
+    REDIRECT_HOST: ""
+    REDIRECT_PORT: ""
+    REDIRECT_SCHEME: ""
+  gracePeriod: 0
+  labels: {}
+  login:
+    sso:
+      azure:
+        config:
+          AZURE_CLIENT_ID: AZURE_CLIENT_ID
+          AZURE_CLIENT_SECRET: AZURE_CLIENT_SECRET
+          AZURE_REDIRECT_URI: ""
+          AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+          AZURE_TENANT_ID: AZURE_TENANT_ID
+        enabled: false
+      google:
+        config:
+          GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
+          GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
+          GOOGLE_REDIRECT_URI: ""
+          GOOGLE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+        enabled: false
+      okta:
+        config:
+          OKTA_CLIENT_ID: OKTA_CLIENT_ID
+          OKTA_CLIENT_SECRET: OKTA_CLIENT_SECRET
+          OKTA_DOMAIN: OKTA_DOMAIN
+          OKTA_REDIRECT_URI: OKTA_REDIRECT_URI
+          OKTA_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
+        enabled: false
+      pulsarJwt:
+        config:
+          AUTHENTICATION_CUSTOM_CLAIM: sub
+          JWT_BROKER_PUBLIC_PRIVATE_KEY: ""
+          JWT_BROKER_SECRET_KEY: pulsar12-token-symmetric-key
+          JWT_BROKER_TOKEN_MODE: SECRET
+          SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: pulsar12-token-admin
+        enabled: true
+  ports:
+    backend: 7750
+    frontend: 9527
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  replicaCount: 1
+  resources:
+    limits: {}
+    requests:
+      cpu: 0.1
+      memory: 250Mi
+  securityContext: {}
+  service:
+    annotations: {}
+    ports:
+      backend: 7750
+      frontend: 9527
+    spec: {}
+    type: ClusterIP
+  serviceAccount:
+    annotations: {}
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  volumes:
+    data:
+      name: data
+      size: 1Gi
+      storageClassName: ontap-nas-hdd-delete
+    persistence: true
+tls:
+  autorecovery:
+    cert_name: tls-recovery
+    certSecretName: null
+  bookie:
+    cert_name: tls-bookie
+    certSecretName: null
+    enabled: false
+  broker:
+    cert_name: tls-broker
+    certSecretName: null
+    enabled: false
+    gateway:
+      cert_name: tls-broker-gateway
+      certSecretName: null
+      trustCertsEnabled: false
+    trustCertsEnabled: false
+  common:
+    caSecretName: null
+    duration: 2160h
+    privateKey:
+      algorithm: RSA
+      encoding: PKCS8
+      size: 4096
+    renewBefore: 360h
+    subject:
+      organizations:
+      - pulsar
+  enabled: false
+  functions:
+    cert_name: tls-function
+    certSecretName: null
+    enabled: false
+    trustCertsEnabled: false
+  proxy:
+    cert_name: tls-proxy
+    certSecretName: null
+    enabled: false
+    untrustedCa: true
+  pulsar_detector:
+    cert_name: tls-pulsar-detector
+    enabled: false
+  streamnative_console:
+    cert_name: tls-streamnative-console
+    enabled: false
+  toolset:
+    cert_name: tls-toolset
+    certSecretName: null
+  zookeeper:
+    cert_name: tls-zookeeper
+    certSecretName: null
+    enabled: false
+toolset:
+  annotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  autoRollDeployment: true
+  component: toolset
+  configData:
+    PULSAR_MEM: |
+      -Xms64M -Xmx128M -XX:MaxDirectMemorySize=128M
+  extraEnv: []
+  extraVolumeMounts: []
+  extraVolumes: []
+  gracePeriod: 0
+  labels: {}
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 0.1
+      memory: 256Mi
+  securityContext:
+    runAsUser: 0
+  serviceAccount:
+    annotations: {}
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  useProxy: false
+vault:
+  securityContext:
+    fsGroup: 0
+  volume:
+    name: vault-volume
+    size: 1Gi
+    storageClassName: ontap-nas-hdd-delete
+volumes:
+  persistence: true
+zookeeper:
+  advanced: {}
+  affinity:
+    anti_affinity: true
+    type: preferredDuringSchedulingIgnoredDuringExecution
+    zone_anti_affinity: true
+  annotations:
+    proxy.istio.io/config: '{ "holdApplicationUntilProxyStarts": true }'
+  autoRollDeployment: true
+  component: zookeeper
+  configData: {}
+  customTools:
+    backup:
+      backupInterval: "600"
+      backupPrefix: pulsar-backup
+      bucket: s3a://bucket
+      component: backup
+      configData:
+        OPTS: ""
+      enable: false
+      managedLedgerPath: /managed-ledgers
+      secrets:
+        use: false
+      webServerPort: "8088"
+    restore:
+      bucket: s3a://bucket
+      component: restore
+      configData:
+        OPTS: ""
+      enable: false
+      managedLedgerPath: /managed-ledgers
+      restorePoint: ""
+      restoreVersion: "1"
+      secrets:
+        use: false
+    serviceAccount:
+      annotations: {}
+      clusterRole: true
+      create: true
+      name: ""
+      use: true
+  extraInitContainers: []
+  gracePeriod: 30
+  initialMyId: 0
+  jvm:
+    extraOptions: []
+    gcLoggingOptions: []
+    gcOptions:
+    - |
+      -XX:+UseG1GC -XX:MaxGCPauseMillis=10 -Dcom.sun.management.jmxremote -Djute.maxbuffer=10485760 -XX:+ParallelRefProcEnabled -XX:+UnlockExperimentalVMOptions -XX:+AggressiveOpts -XX:+DoEscapeAnalysis -XX:+DisableExplicitGC -XX:+PerfDisableSharedMem -Dzookeeper.forceSync=no
+    memoryOptions:
+    - |
+      -Xms64m -Xmx128m
+  labels: {}
+  operator:
+    adopt_existing: false
+    updatePolicy: []
+  peerType: participant
+  ports:
+    client: 2181
+    clientTls: 2281
+    follower: 2888
+    leaderElection: 3888
+    metrics: 8000
+  probe:
+    liveness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: true
+      failureThreshold: 10
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    startup:
+      enabled: false
+      failureThreshold: 30
+      initialDelaySeconds: 10
+      periodSeconds: 30
+  reconfig:
+    enabled: false
+    staticServerList: []
+  replicaCount: 3
+  resourcePolicy:
+    keep: false
+  resources:
+    limits: {}
+    requests:
+      cpu: 1
+      memory: 256Mi
+  securityContext:
+    runAsNonRoot: true
+  serverCnxnFactory: org.apache.zookeeper.server.NettyServerCnxnFactory
+  service:
+    annotations:
+      service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  serviceAccount:
+    annotations: {}
+    clusterRole: true
+    create: true
+    name: ""
+    use: true
+  tolerations: []
+  topologySpreadConstraints: []
+  updateStrategy: RollingUpdate
+  volumes:
+    data:
+      local_storage: false
+      name: data
+      size: 5Gi
+      storageClassName: ontap-nas-hdd-delete
+    dataLog:
+      local_storage: false
+      name: datalog
+      size: 1Gi
+      storageClassName: ontap-nas-hdd-delete
+    persistence: true
+    reclaimPolicy: Delete
+    useSeparateDiskForTxlog: false
+  zooKeeperCluster:
+    annotations: {}
+    labels: {}

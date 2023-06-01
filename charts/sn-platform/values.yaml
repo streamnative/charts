@@ -116,7 +116,7 @@ monitoring:
   # monitoring - grafana
   grafana: true
   # monitoring - node_exporter
-  node_exporter: true
+  node_exporter: false
   # alerting - alert-manager
   alert_manager: true
   # monitoring - loki
@@ -1737,6 +1737,7 @@ prometheus:
       periodSeconds: 10
   customRelabelConfigs: []
   extraScrapeConfigs: []
+  extraRemoteWrite: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
