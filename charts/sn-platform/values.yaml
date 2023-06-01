@@ -116,7 +116,7 @@ monitoring:
   # monitoring - grafana
   grafana: true
   # monitoring - node_exporter
-  node_exporter: false
+  node_exporter: true
   # alerting - alert-manager
   alert_manager: true
   # monitoring - loki
