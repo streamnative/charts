@@ -191,7 +191,7 @@ images:
       pullPolicy: IfNotPresent
     busybox:
       repository: busybox
-      tag: "1.35.0"
+      tag: "1.36.1"
       pullPolicy: IfNotPresent
   prometheus:
     repository: quay.io/prometheus/prometheus
