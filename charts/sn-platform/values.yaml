@@ -681,6 +681,8 @@ zookeeper:
     limits: {}
       # memory: "1Gi"
       # cpu: "0.4"
+  # extra environment variable to define for the containers
+  extraEnv: []
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -878,6 +880,8 @@ bookkeeper:
     # limits:
     #   memory: "2Gi"
     #   cpu: "0.8"
+  # extra environment variable to define for the containers
+  extraEnv: []
   # Definition of the serviceAccount used to run bookies.
   serviceAccount:
     # Specifies whether to use a service account to run this component

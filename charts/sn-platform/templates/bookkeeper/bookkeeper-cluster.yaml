@@ -79,6 +79,10 @@ spec:
     resources:
 {{ toYaml .Values.bookkeeper.resources | indent 6 }}
     {{- end }}
+    {{- if .Values.bookkeeper.extraEnv }}
+    vars:
+{{ toYaml .Values.bookkeeper.extraEnv | indent 6 }}
+    {{- end }}
     {{- with .Values.bookkeeper.securityContext }}
     securityContext:
 {{ toYaml . | indent 6 }}
