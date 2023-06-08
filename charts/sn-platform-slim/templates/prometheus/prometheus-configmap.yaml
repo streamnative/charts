@@ -156,6 +156,11 @@ data:
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
+{{- if .Values.prometheus.extraCustomArgs -}}
+{{- with .Values.prometheus.extraCustomArgs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
   rules.yml: |
 {{- if .Values.monitoring.alert_manager -}}
 {{- with .Values.alert_manager.rules }}
