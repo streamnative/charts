@@ -156,8 +156,8 @@ data:
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
-{{- if .Values.prometheus.extraRemoteWrite -}}
-{{- with .Values.prometheus.extraRemoteWrite }}
+{{- if .Values.prometheus.extraCustomArgs -}}
+{{- with .Values.prometheus.extraCustomArgs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- end }}
