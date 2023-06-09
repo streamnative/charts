@@ -29,6 +29,10 @@ metadata:
 {{- with .Values.streamnative_console.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+  annotations:
+{{- with .Values.streamnative_console.annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   replicas: 1
