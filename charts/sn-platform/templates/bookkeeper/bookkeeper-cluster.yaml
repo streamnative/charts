@@ -79,6 +79,10 @@ spec:
     resources:
 {{ toYaml .Values.bookkeeper.resources | indent 6 }}
     {{- end }}
+    {{- if .Values.bookkeeper.extraEnv }}
+    vars:
+{{ toYaml .Values.bookkeeper.extraEnv | indent 6 }}
+    {{- end }}
     {{- with .Values.bookkeeper.securityContext }}
     securityContext:
 {{ toYaml . | indent 6 }}
@@ -209,6 +213,10 @@ spec:
       {{- if .Values.autorecovery.resources }}
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
+      {{- end }}
+      {{- if .Values.autorecovery.extraEnv }}
+      vars:
+{{ toYaml .Values.autorecovery.extraEnv | indent 8 }}
       {{- end }}
       {{- if .Values.bookkeeper.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
