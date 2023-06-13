@@ -29,6 +29,10 @@ metadata:
 {{- with .Values.toolset.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+  annotations:
+{{- with .Values.toolset.annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
   replicas: {{ .Values.toolset.replicaCount }}
