@@ -130,22 +130,22 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.4.1"
+        tag: "2.10.4.3"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.4.1"
+        tag: "2.10.4.3"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
     exporter:
       repository: bitnami/jmx-exporter
@@ -154,36 +154,36 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.10.4.1
+  #   tag: 2.10.4.3
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
@@ -207,7 +207,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
-    tag: "v2.1.4"
+    tag: "v2.2.0"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -239,7 +239,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.10.4.1"
+    tag: "2.10.4.3"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
