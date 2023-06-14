@@ -195,7 +195,9 @@ spec:
         sinkEnabled: {{ .Values.broker.functionmesh.mesh.sinkEnabled }}
         sourceEnabled: {{ .Values.broker.functionmesh.mesh.sourceEnabled }}
         uploadEnabled: {{ .Values.broker.functionmesh.mesh.uploadEnabled }}
+      {{- if .Values.broker.functionmesh.customWorkerConfig }}
       customWorkerConfig: {{ .Values.broker.functionmesh.customWorkerConfig | quote }}
+      {{- end }}
       {{- if .Values.broker.functionmesh.custom }}
       custom:
 {{ toYaml .Values.broker.functionmesh.custom | indent 8 }}
