@@ -54,6 +54,9 @@ spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
+      {{- if .Values.pulsar_detector.securityContext }}
+      securityContext: {{- toYaml .Values.pulsar_detector.securityContext | nindent 8 }}
+      {{- end }}
     {{- if .Values.pulsar_detector.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.detector.serviceAccount" . }}
     {{- end }}
