@@ -4,7 +4,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.6.0
+    controller-gen.kubebuilder.io/version: v0.7.0
   creationTimestamp: null
   name: pulsarbrokers.pulsar.streamnative.io
 spec:
@@ -4887,6 +4887,30 @@ spec:
                 description: Labels specifies the labels to attach to the stateful
                   set created by operator for pulsar broker
                 nullable: true
+                type: object
+              logConfig:
+                description: LogConfig defines the log configuration
+                properties:
+                  format:
+                    default: text
+                    description: Format is the log format, value is 'json' or 'text'
+                    enum:
+                    - json
+                    - text
+                    type: string
+                  level:
+                    default: INFO
+                    description: Level is the log level
+                    enum:
+                    - INFO
+                    - DEBUG
+                    - TRACE
+                    - WARN
+                    - ERROR
+                    - FATAL
+                    - ALL
+                    - "OFF"
+                    type: string
                 type: object
               pod:
                 description: Pod defines the policy for creating a broker pod
