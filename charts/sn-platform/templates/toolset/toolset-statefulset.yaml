@@ -83,13 +83,19 @@ spec:
         command: ["sh", "-c"]
         args:
         - |
+          set -ex
+          cd /home
           mkdir binaries;
           busybox --install -s binaries;
-          cp binaries/* /tmp/binaries;
-          cp /bin/busybox /tmp/binaries;
+          cp binaries/* tmp/binaries;
+          cp /bin/busybox tmp/binaries;
+        securityContext:
+          runAsUser: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
         volumeMounts:
         - name: binaries
-          mountPath: /tmp/binaries
+          mountPath: /home/tmp/binaries
       containers:
       - name: "pulsar"
         {{- include "pulsar.toolset.image" . | nindent 8 }}
