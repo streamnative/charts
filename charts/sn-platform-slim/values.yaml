@@ -1485,6 +1485,7 @@ proxy:
 toolset:
   component: toolset
   useProxy: false
+  installBusybox: true
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
