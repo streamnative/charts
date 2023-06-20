@@ -257,9 +257,11 @@ data:
     # running in same sql worker. 0 is represents disable the cache, default is 0.
     pulsar.managed-ledger-cache-size-MB = {{ .Values.presto.catalog.pulsar.managedLedgerCacheSizeMB }}
 
+    {{- if .Values.presto.catalog.pulsar.mlNumWorkerThreads }}
     # Number of threads to be used for managed ledger tasks dispatching,
     # default is Runtime.getRuntime().availableProcessors().
     pulsar.managed-ledger-num-worker-threads = {{ .Values.presto.catalog.pulsar.mlNumWorkerThreads }}
+    {{- end }}
 
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().
