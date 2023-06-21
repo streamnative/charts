@@ -1412,6 +1412,8 @@ pulsar_detector:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   # tolerations: []
+  securityContext:
+    runAsNonRoot: true
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1560,6 +1562,7 @@ proxy:
 toolset:
   component: toolset
   useProxy: false
+  installBusybox: true
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -2289,7 +2292,6 @@ presto:
       managedLedgerCacheSizeMB: "0"
       bookkeeperNumIOThreads: "8"
       bookkeeperNumWorkerThreads: "8"
-      mlNumWorkerThreads: "8"
       mlNumSchedulerThreads: "8"
   service:
     spec:
