@@ -669,9 +669,8 @@ zookeeper:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   jvm:
-    memoryOptions:
-    - >
-      -Xms64m -Xmx128m
+    # ZooKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
@@ -871,11 +870,8 @@ bookkeeper:
         # extraParameters:
         #   iopsPerGB: "50"
   jvm:
-    memoryOptions:
-    - >
-      -Xms128m
-      -Xmx256m
-      -XX:MaxDirectMemorySize=256m
+    # BookKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
@@ -941,8 +937,8 @@ autorecovery:
   # extra environment variable to define for the containers
   extraEnv: []
   jvm:
-    memoryOptions:
-    - -Xms128m -Xmx256m
+    # BookKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions: []
     extraOptions: []
     gcLoggingOptions: []
@@ -1120,9 +1116,8 @@ broker:
     # whether to create a cluster role
     clusterRole: true
   jvm:
-    memoryOptions:
-      - >
-        -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+    # Pulsar Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
       - >
         -XX:+UseG1GC
@@ -1432,9 +1427,8 @@ proxy:
   brokerServiceURLTLS: ""
   brokerWebServiceURLTLS: ""
   jvm:
-    memoryOptions:
-    - >
-      -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+    # Pulsar Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
