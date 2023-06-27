@@ -207,7 +207,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
-    tag: "v2.2.0"
+    tag: "v2.2.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -2022,7 +2022,11 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 1000
+    fsGroup: 1000
+    runAsUser: 1000
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml
