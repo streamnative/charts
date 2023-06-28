@@ -744,9 +744,8 @@ zookeeper:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   jvm:
-    memoryOptions:
-    - >
-      -Xms64m -Xmx128m
+    # ZooKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
@@ -755,7 +754,6 @@ zookeeper:
       -Djute.maxbuffer=10485760
       -XX:+ParallelRefProcEnabled
       -XX:+UnlockExperimentalVMOptions
-      -XX:+AggressiveOpts
       -XX:+DoEscapeAnalysis
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
@@ -946,18 +944,14 @@ bookkeeper:
         # extraParameters:
         #   iopsPerGB: "50"
   jvm:
-    memoryOptions:
-    - >
-      -Xms128m
-      -Xmx256m
-      -XX:MaxDirectMemorySize=256m
+    # BookKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -XX:+ParallelRefProcEnabled
       -XX:+UnlockExperimentalVMOptions
-      -XX:+AggressiveOpts
       -XX:+DoEscapeAnalysis
       -XX:ParallelGCThreads=4
       -XX:ConcGCThreads=4
@@ -1016,8 +1010,8 @@ autorecovery:
   # extra environment variable to define for the containers
   extraEnv: []
   jvm:
-    memoryOptions:
-    - -Xms128m -Xmx256m
+    # BookKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions: []
     extraOptions: []
     gcLoggingOptions: []
@@ -1195,9 +1189,8 @@ broker:
     # whether to create a cluster role
     clusterRole: true
   jvm:
-    memoryOptions:
-      - >
-        -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+    # Pulsar Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
       - >
         -XX:+UseG1GC
@@ -1206,7 +1199,6 @@ broker:
         -Dio.netty.recycler.linkCapacity=1024
         -XX:+ParallelRefProcEnabled
         -XX:+UnlockExperimentalVMOptions
-        -XX:+AggressiveOpts
         -XX:+DoEscapeAnalysis
         -XX:ParallelGCThreads=4
         -XX:ConcGCThreads=4
@@ -1472,7 +1464,7 @@ proxy:
   gracePeriod: 30
   resources:
     requests:
-      memory: "128Mi"
+      memory: "512Mi"
       cpu: "0.2"
     # limits:
     #   memory: "512Mi"
@@ -1507,9 +1499,8 @@ proxy:
   authenticateMetricsEndpoint:
     enabled: true
   jvm:
-    memoryOptions:
-    - >
-      -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+    # Pulsar Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
@@ -1518,7 +1509,6 @@ proxy:
       -Dio.netty.recycler.linkCapacity=1024
       -XX:+ParallelRefProcEnabled
       -XX:+UnlockExperimentalVMOptions
-      -XX:+AggressiveOpts
       -XX:+DoEscapeAnalysis
       -XX:ParallelGCThreads=4
       -XX:ConcGCThreads=4
