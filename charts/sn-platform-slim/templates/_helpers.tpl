@@ -136,11 +136,12 @@ JVM Options
 */}}
 {{- define "pulsar.jvm.options" -}}
 jvmOptions:
-  memoryOptions:
   {{- if .configData.PULSAR_MEM }}
+  memoryOptions:
   - {{ .configData.PULSAR_MEM | quote }}
   {{- else }}
   {{- with .jvm.memoryOptions }}
+  memoryOptions:
   {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
