@@ -1469,7 +1469,7 @@ proxy:
   gracePeriod: 30
   resources:
     requests:
-      memory: "128Mi"
+      memory: "512Mi"
       cpu: "0.2"
     # limits:
     #   memory: "512Mi"
