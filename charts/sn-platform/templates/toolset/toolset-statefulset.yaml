@@ -84,9 +84,19 @@ spec:
         args:
         - |
           mkdir binaries;
+          mkdir -p tmp/binaries;
           busybox --install -s binaries;
+<<<<<<< HEAD
           cp binaries/* /tmp/binaries;
           cp /bin/busybox /tmp/binaries;
+=======
+          cp binaries/* tmp/binaries/;
+          cp /bin/busybox tmp/binaries;
+        securityContext:
+          runAsUser: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+>>>>>>> 667e6e3 ([sn-platform][sn-platform-slim] Fix busybox (#1052))
         volumeMounts:
         - name: binaries
           mountPath: /tmp/binaries
