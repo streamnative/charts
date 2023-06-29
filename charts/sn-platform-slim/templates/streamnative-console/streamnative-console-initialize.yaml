@@ -73,15 +73,15 @@ spec:
           value: http://{{ template "pulsar.streamnative_console.service" . }}:8850
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
-          mountPath: "/root/init_instance/"
+          mountPath: "/pulsar-manager/init_instance/"
         command: ["sh", "-c"]
         args:
           - >
-            python3 /root/init_instance/init_instance.py 2>/dev/null;
+            python3 /pulsar-manager/init_instance/init_instance.py 2>/dev/null;
             until [ $? -eq 0 ]; do
               echo "streamnative console is not ready now! wait another 10s~";
               sleep 10;
-              python3 /root/init_instance/init_instance.py 2>/dev/null;
+              python3 /pulsar-manager/init_instance/init_instance.py 2>/dev/null;
             done;
             echo "StreamNative Console is ready to use~";
             curl -sf -XPOST http://127.0.0.1:15020/quitquitquit || true;
