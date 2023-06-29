@@ -112,10 +112,6 @@ spec:
           bin/apply-config-from-env.py conf/client.conf;
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 10 }}
-          echo "Configuring pulsarctl context ...";
-          mkdir -p /root/.config/pulsar;
-          cp {{ template "pulsar.home" . }}/conf/pulsarctl.config /root/.config/pulsar/config;
-          echo "Successfully configured pulsarctl context.";
           sleep 10000000000
         envFrom:
         - configMapRef:
