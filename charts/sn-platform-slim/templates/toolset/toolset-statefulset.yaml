@@ -87,10 +87,9 @@ spec:
           set -ex
           cd /home
           mkdir binaries;
+          mkdir -p tmp/binaries;
           busybox --install -s binaries;
-          cp binaries/* /tmp/binaries;
-          cp /bin/busybox /tmp/binaries;
-          cp binaries/* tmp/binaries;
+          cp binaries/* tmp/binaries/;
           cp /bin/busybox tmp/binaries;
         securityContext:
           runAsUser: 65534
