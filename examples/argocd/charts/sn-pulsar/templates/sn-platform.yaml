@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sn-platform
+  namespace: argo
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  sources:
+  - repoURL: 'https://charts.streamnative.io'
+    chart: sn-platform
+    targetRevision: {{ .Values.charts.platform.targetRevision }}
+    relaseName: {{ .Values.charts.platform.releaseName }}
+    helm:
+      valueFiles:
+      - $values-repo/{{ .Values.values.path }}/sn-platform.yaml
+  - ref: values-repo
+    repoURL: {{ .Values.values.repoUrl }}
+    targetRevision: {{ .Values.values.targetRevision }}
+  destination:
+    server: {{ .Values.destination.server }}
+    namespace: {{ .Values.charts.platform.releaseNamespace }}
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true

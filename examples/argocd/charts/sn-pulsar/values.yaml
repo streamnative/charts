@@ -1,0 +1,17 @@
+charts:
+  operator:
+    targetRevision: 0.16.3
+    releaseName: pulsar-operator
+    releaseNamespace: sn-pulsar
+  platform:
+    targetRevision: 1.10.3
+    releaseName: sn-platform
+    releaseNamespace: sn-pulsar
+
+values:
+  repoUrl: git@github.com:streamnative/charts
+  path: examples/argocd/values
+  targetRevision: master
+
+destination:
+  server: https://kubernetes.default.svc

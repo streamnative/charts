@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: pulsar-operator
+  namespace: argo
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  sources:
+  - repoURL: 'https://charts.streamnative.io'
+    chart: pulsar-operator
+    targetRevision: {{ .Values.charts.operator.targetRevision }}
+    relaseName: {{ .Values.charts.operator.releaseName }}
+    helm:
+      valueFiles:
+      - $values-repo/{{ .Values.values.path }}/pulsar-operator.yaml
+  - ref: values-repo
+    repoURL: {{ .Values.values.repoUrl }}
+    targetRevision: {{ .Values.values.targetRevision }}
+  destination:
+    server: {{ .Values.destination.server }}
+    namespace: {{ .Values.charts.operator.releaseNamespace }}
+  syncPolicy:
+    syncOptions:
+    - Replace=true
+    - CreateNamespace=true
