@@ -118,10 +118,3 @@ spec:
       runAsNonRoot: true
   brokerAddress: brokers-broker
   replicas: 2
-  config:
-    tls:
-      enabled: false
-  dnsNames:
-    []
-  issuerRef:
-    name: ""
