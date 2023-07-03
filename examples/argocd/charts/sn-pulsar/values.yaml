@@ -9,7 +9,7 @@ charts:
     releaseNamespace: sn-pulsar
 
 values:
-  repoUrl: git@github.com:streamnative/charts
+  repoUrl: https://github.com/streamnative/charts
   path: examples/argocd/values
   targetRevision: master
 
