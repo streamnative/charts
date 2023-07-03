@@ -12,13 +12,9 @@ spec:
   source:
     repoURL: 'https://github.com/streamnative/charts'
     path: examples/argocd/charts/sn-pulsar
-    targetRevision: yscai/argocd-example
+    targetRevision: master
     helm:
       values: |
-        values:
-          targetRevision: yscai/argocd-example
-        destination:
-          server: https://9A3A13559445F1534D5BFB4C532978CE.gr7.us-west-2.eks.amazonaws.com
   project: default
   syncPolicy:
     automated:
