@@ -22,5 +22,6 @@ spec:
     server: {{ .Values.destination.server }}
     namespace: {{ .Values.charts.platform.releaseNamespace }}
   syncPolicy:
+    automated: {}
     syncOptions:
     - CreateNamespace=true
