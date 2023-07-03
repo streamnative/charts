@@ -11,7 +11,7 @@ spec:
   - repoURL: 'https://charts.streamnative.io'
     chart: pulsar-operator
     targetRevision: {{ .Values.charts.operator.targetRevision }}
-    relaseName: {{ .Values.charts.operator.releaseName }}
+    releaseName: {{ .Values.charts.operator.releaseName }}
     helm:
       valueFiles:
       - $values-repo/{{ .Values.values.path }}/pulsar-operator.yaml
