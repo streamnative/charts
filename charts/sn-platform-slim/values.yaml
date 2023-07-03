@@ -1921,7 +1921,11 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 1000
+    fsGroup: 1000
+    runAsUser: 1000
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml
