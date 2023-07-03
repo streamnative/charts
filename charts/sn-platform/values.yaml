@@ -808,13 +808,9 @@ zookeeper:
         OPTS: ""
       secrets:
         use: false
-#        aws:
-#          secretName: "restore-aws-secret"
-  ## Operator Controller
-  ## templates/zookeeper-cluster.yaml
-  operator:
-    adopt_existing: false
-    updatePolicy: []
+        # aws:
+        # secretName: "restore-aws-secret"
+
   ## Retention Policy
   resourcePolicy:
     keep: false
@@ -965,12 +961,6 @@ bookkeeper:
     gcLoggingOptions: []
   custom: {}
   configData: {}
-  ## Operator Controller
-  ## templates/bookkeeper-cluster.yaml
-  operator:
-    adopt_existing: false
-    updatePolicy: >
-      - finalizers
   ## Retention Policy
   resourcePolicy:
     keep: false
@@ -1016,11 +1006,6 @@ autorecovery:
     extraOptions: []
     gcLoggingOptions: []
   configData: {}
-  ## Operator Controller
-  ## templates/bookkeeper-cluster.yaml
-  operator:
-    adopt_existing: false
-    updatePolicy: []
   ## Retention Policy
   resourcePolicy:
     keep: false
@@ -1275,12 +1260,6 @@ broker:
       #   [secret name]
       # ```
       # secret: [k8s secret that stores azure credentials]
-   ## Operator Controller
-  ## templates/broker-cluster.yaml
-  operator:
-    adopt_existing: false
-    updatePolicy: >
-      - finalizers
   ## Retention Policy
   resourcePolicy:
     keep: false
@@ -1532,12 +1511,6 @@ proxy:
     pulsarssl: 6651
     websocket: 9090
     websockettls: 9443
-  ## Operator Controller
-  ## templates/broker-cluster.yaml
-  operator:
-    adopt_existing: false
-    updatePolicy: >
-      - finalizers
   ## Retention Policy
   resourcePolicy:
     keep: false
