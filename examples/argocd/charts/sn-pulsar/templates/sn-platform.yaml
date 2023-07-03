@@ -11,8 +11,8 @@ spec:
   - repoURL: 'https://charts.streamnative.io'
     chart: sn-platform
     targetRevision: {{ .Values.charts.platform.targetRevision }}
-    releaseName: {{ .Values.charts.platform.releaseName }}
     helm:
+      releaseName: {{ .Values.charts.platform.releaseName }}
       valueFiles:
       - $values-repo/{{ .Values.values.path }}/sn-platform.yaml
   - ref: values-repo
