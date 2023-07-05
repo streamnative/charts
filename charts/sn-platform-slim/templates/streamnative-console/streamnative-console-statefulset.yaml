@@ -253,6 +253,10 @@ spec:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-gateway"
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
           imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
+          {{- if .Values.streamnative_console.resources }}
+          resources:
+{{ toYaml .Values.streamnative_console.resources | indent 12 }}
+          {{- end }}
           workingDir: "/pulsar-manager/gateway"
           command: ["/pulsar-manager/gateway/gateway-entrypoint.sh"]
           ports:
