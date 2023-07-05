@@ -1703,14 +1703,14 @@ entries:
   sn-platform:
   - apiVersion: v1
     appVersion: 2.10.4
-    created: "2023-06-28T05:39:58.275952279Z"
+    created: "2023-06-28T05:39:28.186604849Z"
     dependencies:
     - condition: monitoring.loki
       name: loki-stack
       repository: https://grafana.github.io/helm-charts
       version: 0.36.1
     description: StreamNative Platform Chart
-    digest: d24ef8a83eb80cd92e297ab544fdf991ac08c2655211b17fecdesbaf9be7f413
+    digest: 927525640bbc0304d08b1ea422f7d0bdc1c4f017bc4a3d28a910428b982e08f4
     home: https://streamnative.io
     icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
     maintainers:
