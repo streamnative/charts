@@ -72,7 +72,7 @@ spec:
 {{ toYaml .Values.toolset.tolerations | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.toolset.gracePeriod }}
-      {{- if .Values.toolset.installBusybox }}
+    {{- if .Values.toolset.installBusybox }}
       initContainers:
       - name: busybox
         image: "{{ .Values.images.toolset.busybox.repository }}:{{ .Values.images.toolset.busybox.tag }}"
@@ -98,7 +98,7 @@ spec:
         volumeMounts:
         - name: binaries
           mountPath: /home/tmp/binaries
-      {{- end }}
+    {{- end }}
       containers:
       - name: "pulsar"
         {{- include "pulsar.toolset.image" . | nindent 8 }}
@@ -109,7 +109,6 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
-          set -ex
           bin/apply-config-from-env.py conf/client.conf;
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 10 }}
