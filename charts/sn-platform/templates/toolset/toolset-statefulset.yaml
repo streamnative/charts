@@ -83,6 +83,8 @@ spec:
         command: ["sh", "-c"]
         args:
         - |
+          set -ex;
+          cd /home;
           mkdir binaries;
           mkdir -p tmp/binaries;
           busybox --install -s binaries;
@@ -105,6 +107,7 @@ spec:
         command: ["sh", "-c"]
         args:
         - >
+          set -ex;
           bin/apply-config-from-env.py conf/client.conf;
           bin/apply-config-from-env.py conf/bookkeeper.conf;
           {{- include "pulsar.toolset.zookeeper.tls.settings" . | nindent 10 }}
