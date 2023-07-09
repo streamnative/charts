@@ -85,7 +85,6 @@ jobs:
           FUNCTION: ${{ matrix.env-function }}
         run: |
           .ci/chart_test.sh ${{ matrix.values }}
-
       - name: Setup tmate session
         if: failure()
         uses: mxschmitt/action-tmate@v3
