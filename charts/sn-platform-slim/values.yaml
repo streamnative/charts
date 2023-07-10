@@ -1498,7 +1498,7 @@ toolset:
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
   securityContext:
-    runAsUser: 0
+    runAsNonRoot: true
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
