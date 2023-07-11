@@ -39,23 +39,23 @@ spec:
         name: pulsar
         packages: io.prometheus.client.log4j2
 
-        Loggers:
-          Root:
-            {{ if .Level }}
-            level: "{{ .Level }}"
-            {{ else }}
-            level: "INFO"
-            {{ end }}
-            additivity: true
-            AppenderRef:
-              - ref: "${sys:pulsar.log.appender}"
-                {{ if .Level }}
-                level: "{{ .Level }}"
-                {{ else }}
-                level: "INFO"
-                {{ end }}
-              - ref: Prometheus
-          level: info
+        Properties:
+          Property:
+            - name: "pulsar.log.dir"
+              value: "logs"
+            - name: "pulsar.log.file"
+              value: "pulsar.log"
+            - name: "pulsar.log.immediateFlush"
+              value: "false"
+            - name: "pulsar.log.appender"
+              value: "RoutingAppender"
+            - name: "pulsar.log.root.level"
+              value: "info"
+            - name: "pulsar.log.level"
+              value: "info"
+            - name: "pulsar.routing.appender.default"
+              value: "Console"
+
   pod:
     resources:
       requests:
