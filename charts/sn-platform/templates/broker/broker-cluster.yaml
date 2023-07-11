@@ -47,6 +47,13 @@ spec:
   replicas: {{ .Values.broker.replicaCount }}
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+  logConfig:
+    level: {{ .Values.broker.logConfig.level }}
+    format: {{ .Values.broker.logConfig.format }}
+    {{- with .Values.broker.logConfig.template }}
+    template: |
+    {{- toYaml . | nindent 6 -}}
+    {{- end }}
   pod:
     {{- with .Values.broker.topologySpreadConstraints }}
     topologySpreadConstraints:
