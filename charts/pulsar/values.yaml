@@ -552,6 +552,7 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
+  labels: {}
   securityContext:
     fsGroup: 0
     fsGroupChangePolicy: "OnRootMismatch"
@@ -638,6 +639,7 @@ zookeeper:
       -Dzookeeper.forceSync=no
   statefulset:
     annotations: {}
+    labels: {}
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
   ##
@@ -748,6 +750,7 @@ bookkeeper:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
+  labels: {}
   securityContext:
     fsGroup: 0
     fsGroupChangePolicy: "OnRootMismatch"
@@ -849,6 +852,7 @@ bookkeeper:
       -verbosegc
   statefulset:
     annotations: {}
+    labels: {}
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -881,6 +885,7 @@ autorecovery:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
+  labels: {}
   securityContext:
     fsGroup: 0
     fsGroupChangePolicy: "OnRootMismatch"
@@ -901,6 +906,7 @@ autorecovery:
       -Xms64m -Xmx64m
   statefulset:
     annotations: {}
+    labels: {}
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
@@ -996,6 +1002,7 @@ broker:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
+  labels: {}
   tolerations: []
   securityContext: {}
   gracePeriod: 30
@@ -1058,6 +1065,7 @@ broker:
     managedLedgerDefaultAckQuorum: "2"
   statefulset:
     annotations: {}
+    labels: {}
   ## Broker service
   ## templates/broker-service.yaml
   ##
@@ -1165,6 +1173,7 @@ functions:
     clusterRole: true
   autoRollDeployment: true
   annotations: {}
+  labels: {}
   ports:
     http: 8080
     https: 8443
@@ -1190,6 +1199,7 @@ functions:
       periodSeconds: 10
   statefulset:
     annotations: {}
+    labels: {}
   service:
     annotations: {}
   affinity:
@@ -1297,6 +1307,7 @@ proxy:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
+  labels: {}
   securityContext: {}
   tolerations: []
   gracePeriod: 30
@@ -1385,6 +1396,7 @@ proxy:
     websockettls: 9443
   statefulset:
     annotations: {}
+    labels: {}
   service:
     annotations: {}
     type: ClusterIP
