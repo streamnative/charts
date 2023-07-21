@@ -20,8 +20,8 @@
 chart-dirs:
   - charts
 charts:
-  - pulsar-operator
-  - sn-platform
+  - charts/pulsar-operator
+  - charts/sn-platform
 
 debug: true
 helm-extra-args: --timeout 1200
