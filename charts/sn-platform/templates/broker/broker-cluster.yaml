@@ -350,7 +350,7 @@ spec:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
     {{- end }}
     {{- if .Values.broker.resources }}
-    resources: {{- toYaml .Values.broker.resources | nindent 10 }}
+    resources: {{- toYaml .Values.broker.resources | nindent 6 }}
     {{- end }}
   {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
   apiObjects:
