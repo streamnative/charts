@@ -29,9 +29,6 @@ monitoring:
   alert_manager: false
   loki: false
 
-volumes:
-  local_storage: true
-
 # disabled AntiAffinity
 affinity:
   anti_affinity: false
@@ -66,3 +63,6 @@ proxy:
 
 toolset:
   useProxy: false
+
+functions:
+  useDedicatedRunner: false

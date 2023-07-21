@@ -60,6 +60,9 @@ spec:
 {{ toYaml .Values.alert_manager.tolerations | indent 8 }}
      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.alert_manager.gracePeriod }}
+      {{- if .Values.alert_manager.securityContext }}
+      securityContext: {{- toYaml .Values.alert_manager.securityContext | nindent 8 }}
+      {{- end }}
       containers:
       {{- if .Values.configmapReload.alertmanager.enabled }}
       - name: {{ template "pulsar.fullname" . }}-{{ .Values.alert_manager.component }}-{{ .Values.configmapReload.alertmanager.name }}

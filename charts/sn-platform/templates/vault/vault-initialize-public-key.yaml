@@ -32,6 +32,13 @@ spec:
     metadata:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
+{{- if .Values.vault.labels }}    
+{{ toYaml .Values.vault.labels | indent 8 }}
+{{- end }}
+      annotations:
+{{- if .Values.vault.annotations }}    
+{{ toYaml .Values.vault.annotations | indent 8 }}
+{{- end }}
     spec:
       serviceAccountName: {{ template "pulsar.vault.serviceAccount" . }}
       containers:
@@ -50,7 +57,7 @@ spec:
            echo "vault root token is ready";
            rootToken=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|base64 -d);
            echo $rootToken;
-           echo $rootToken > /root/rootToken;
+           echo $rootToken > /vault/rootToken;
            export ROOT_TOKEN=$rootToken;
            vault login $ROOT_TOKEN;
            until [ $? -eq 0 ]; do
@@ -66,6 +73,9 @@ spec:
         env:
         - name: VAULT_ADDR
           value: {{ template "pulsar.vault.url" . }}
+        {{- if .Values.vault.resources }}
+        resources: {{- toYaml .Values.vault.resources | nindent 10  }}
+        {{- end }}
       restartPolicy: Never
       {{- if .Values.vault.securityContext }}
       securityContext: {{- toYaml .Values.vault.securityContext | nindent 8 }}

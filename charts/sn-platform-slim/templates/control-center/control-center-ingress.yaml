@@ -1,0 +1,147 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.ingress.control_center.enabled }}
+{{- $fullName := include "pulsar.fullname" . -}}
+{{- $isIngressAPIStable := eq (include "pulsar.ingress.isStable" .) "true" -}}
+
+{{/* COMMENT */}}
+
+
+
+{{- if $isIngressAPIStable }}
+apiVersion: networking.k8s.io/v1
+{{- else }}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+  annotations:
+{{- if and .Values.ingress.control_center.tls.enabled (not .Values.ingress.controller.tls.termination) }}
+    # don't do ssl-redirect if ssl is already terminated at the load balancer level
+    ingress.kubernetes.io/ssl-redirect: "true"
+{{- if and .Values.certs.public_issuer.enabled }}
+#    kubernetes.io/tls-acme: "true"
+#    cert-manager.io/issuer: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"
+{{- end }}
+{{- else }}
+    ingress.kubernetes.io/ssl-redirect: "false"
+{{- end }}
+    kubernetes.io/ingress.class: nginx
+  {{- with .Values.ingress.control_center.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if and .Values.ingress.control_center.tls.enabled (not .Values.ingress.controller.tls.termination) }}
+  {{- if .Values.domain.enabled }}
+  tls:
+    - hosts:
+        - {{ template "pulsar.control_center_domain" . }}
+{{- if and .Values.tls.enabled .Values.ingress.control_center.tls.enabled }}
+# Use the same cert for proxy which is wildcard type
+      secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
+{{- end }}
+
+  {{- end }}
+{{- end }}
+  rules:
+    - http:
+        paths:
+          {{- if and .Values.monitoring.grafana .Values.ingress.control_center.endpoints.grafana }}
+          - path: /grafana
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.grafana.pathType | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: "{{ $fullName }}-{{ .Values.grafana.component }}"
+                port:
+                  number: {{ .Values.grafana.port }}
+            {{- else }}
+            backend:
+              serviceName: "{{ $fullName }}-{{ .Values.grafana.component }}"
+              servicePort: {{ .Values.grafana.port }}
+            {{- end }}
+          {{- end }}
+          {{- if and .Values.monitoring.alert_manager .Values.ingress.control_center.endpoints.alertmanager }}
+          - path: /alerts
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.alert_manager.pathType | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
+                port:
+                  number: {{ .Values.alert_manager.port }}
+            {{- else }}
+            backend:
+                serviceName: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
+                servicePort: {{ .Values.alert_manager.port }}
+            {{- end }}
+          {{- end }}
+          {{- if and .Values.monitoring.prometheus .Values.ingress.control_center.endpoints.prometheus }}
+          - path: /prometheus
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.prometheus.pathType | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: "{{ $fullName }}-{{ .Values.prometheus.component }}"
+                port:
+                  number: {{ .Values.prometheus.port }}
+            {{- else }}
+            backend:
+              serviceName: "{{ $fullName }}-{{ .Values.prometheus.component }}"
+              servicePort: {{ .Values.prometheus.port }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.components.streamnative_console }}
+          - path: /
+            {{- if $isIngressAPIStable }}
+            pathType: {{ .Values.streamnative_console.pathType | default "ImplementationSpecific" }}
+            backend:
+              service:
+                name: "{{ $fullName }}-{{ .Values.streamnative_console.component }}"
+                port: 
+                  number: {{ .Values.streamnative_console.ports.frontend }}
+            {{- else }}
+            backend:
+              serviceName: "{{ $fullName }}-{{ .Values.streamnative_console.component }}"
+              servicePort: {{ .Values.streamnative_console.ports.frontend }}
+            {{- end }}
+          {{- else }}
+          - path: /
+            {{- if $isIngressAPIStable }}
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: default
+                port: 
+                  number: 80
+            {{- else }}
+            backend:
+              serviceName: default
+              servicePort: 80
+            {{- end }}
+          {{- end }}
+      {{- if .Values.ingress.control_center.external_domain }}
+      host: {{ template "pulsar.control_center_domain" . }}
+      {{- end }}
+{{- end }}

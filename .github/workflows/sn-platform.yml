@@ -24,7 +24,7 @@ on:
       - '*'
     paths:
       - 'charts/sn-platform/**'
-      - '.github/workflows/**'
+      - '.github/workflows/sn-platform.yml'
 jobs:
   lint-test:
     runs-on: ubuntu-latest
@@ -42,8 +42,10 @@ jobs:
           command: lint
 
       - name: Install Helm
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v3
         id: install
+        with:
+          version: 3.7.2
 
       - name: Install chart
         run: |

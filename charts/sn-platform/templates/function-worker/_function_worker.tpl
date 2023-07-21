@@ -27,7 +27,7 @@ Pulsar Web Service URL
 */}}
 {{- define "pulsar.function.web.service.url" -}}
 {{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
-http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.http }}
+http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.http }}
 {{- else -}}
 http://localhost:8080
 {{- end -}}
@@ -38,7 +38,7 @@ Pulsar Broker Service URL TLS
 */}}
 {{- define "pulsar.function.broker.service.url.tls" -}}
 {{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
-{{- if .Values.components.proxy -}}
+{{- if and .Values.components.proxy (not .Values.istio.enabled) -}}
 pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.pulsarssl }}
 {{- else -}}
 pulsar+ssl://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.pulsarssl }}
@@ -53,10 +53,10 @@ Pulsar Web Service URL TLS
 */}}
 {{- define "pulsar.function.web.service.url.tls" -}}
 {{- if or .Values.functions.useDedicatedRunner (eq .Values.functions.configData.functionRuntimeFactoryClassName "org.apache.pulsar.functions.runtime.kubernetes.KubernetesRuntimeFactory") -}}
-{{- if .Values.components.proxy -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.https }}
+{{- if and .Values.components.proxy (not .Values.istio.enabled) -}}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.proxy.ports.https }}
 {{- else -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
+https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless.{{ template "pulsar.namespace" . }}.svc.cluster.local:{{ .Values.broker.ports.https }}
 {{- end -}}
 {{- else -}}
 https://localhost:8443
@@ -151,7 +151,7 @@ Define function token volumes
 {{- end }}
 - name: function-token
   secret:
-    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.broker }}"
+    secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
     items:
       - key: TOKEN
         path: function/token

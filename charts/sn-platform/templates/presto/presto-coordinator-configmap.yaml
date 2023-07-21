@@ -42,6 +42,13 @@ data:
     -XX:+ExitOnOutOfMemoryError
     -Dpresto-temporarily-allow-java8=true
     -Djdk.attach.allowAttachSelf=true
+    {{- if .Values.presto.exporter.enabled }}
+    -Dcom.sun.management.jmxremote.rmi.port=9081
+    -Dcom.sun.management.jmxremote.ssl=false
+    -Dcom.sun.management.jmxremote=true
+    -Dcom.sun.management.jmxremote.port=9081
+    -Dcom.sun.management.jmxremote.authenticate=false
+    {{- end }}
   config.properties: |
     #
     # Licensed to the Apache Software Foundation (ASF) under one
@@ -63,16 +70,28 @@ data:
     #
 
     coordinator=true
+    {{- if .Values.presto.exporter.enabled }}
+    jmx.rmiregistry.port=9081
+    jmx.rmiserver.port=9081
+    {{- end }}
 {{- if .Values.tls.presto.enabled }}
     http-server.http.enabled=false
     http-server.https.enabled=true
     http-server.https.port={{ .Values.presto.coordinator.ports.https }}
-    http-server.https.keystore.path=<keystore path>
-    http-server.https.keystore.key=<keystore password>
-    discovery.uri=https://localhost:{{ .Values.presto.coordinator.ports.https }}
+    http-server.https.keystore.path=/pulsar/jks/presto.keystore.jks
+    http-server.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
     internal-communication.https.required=true
-    internal-communication.https.keystore.path=<keystore path>
-    internal-communication.https.keystore.key=<keystore password>
+    internal-communication.https.keystore.path=/pulsar/jks/presto.keystore.jks
+    internal-communication.https.keystore.key={{ template "pulsar.presto.jks.password" . }}
+    {{- if .Values.tls.presto.trustCertsEnabled }}
+    http-server.https.truststore.path=/pulsar/jks/trust.jks
+    http-server.https.truststore.key={{ template "pulsar.presto.jks.password" . }}
+    {{- end }}
+    discovery.uri=https://localhost:{{ .Values.presto.coordinator.ports.https }}
+    {{- if .Values.presto.security.authentication.tls.enabled }}
+    http-server.authentication.type=CERTIFICATE
+    http-server.authentication.certificate.user-mapping.pattern=CN=([^,]+).*
+    {{- end }}
 {{- else }}
     http-server.https.enabled=false
     internal-communication.https.required=false
@@ -238,9 +257,11 @@ data:
     # running in same sql worker. 0 is represents disable the cache, default is 0.
     pulsar.managed-ledger-cache-size-MB = {{ .Values.presto.catalog.pulsar.managedLedgerCacheSizeMB }}
 
+    {{- if .Values.presto.catalog.pulsar.mlNumWorkerThreads }}
     # Number of threads to be used for managed ledger tasks dispatching,
     # default is Runtime.getRuntime().availableProcessors().
     pulsar.managed-ledger-num-worker-threads = {{ .Values.presto.catalog.pulsar.mlNumWorkerThreads }}
+    {{- end }}
 
     # Number of threads to be used for managed ledger scheduled tasks,
     # default is Runtime.getRuntime().availableProcessors().

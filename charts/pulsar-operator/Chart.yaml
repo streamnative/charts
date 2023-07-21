@@ -18,15 +18,15 @@
 #
 
 apiVersion: v1
-version: 0.12.0
-appVersion: "0.12.0"
-kubeVersion: ">= 1.16.0-0 <= 1.24.0-0"
+version: 0.17.0
+appVersion: "0.17.0"
+kubeVersion: ">= 1.16.0-0 < 1.28.0-0"
 description: Apache Pulsar Operators Helm chart for Kubernetes
 name: pulsar-operator
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/pulsar-operators
-icon: http://pulsar.apache.org/img/pulsar.svg
+icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
 maintainers:
 - name: StreamNative Support
   email: support@streamnative.io

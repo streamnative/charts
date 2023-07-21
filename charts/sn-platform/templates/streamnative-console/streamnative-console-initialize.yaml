@@ -18,7 +18,7 @@
 #
 
 {{- if .Values.components.streamnative_console }}
-{{- if .Values.initialize }}
+{{- if and .Values.initialize (not .Values.streamnative_console.configData.INIT_DEFAULT_ENVIRONMENT) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -70,7 +70,7 @@ spec:
           value: {{ template "pulsar.broker.kop.service.url" .}}
         {{- end }}
         - name: STREAMNATIVE_CONSOLE_BACKEND_URL
-          value: http://{{ template "pulsar.streamnative_console.service" . }}:{{ .Values.streamnative_console.service.ports.backend }}
+          value: http://{{ template "pulsar.streamnative_console.service" . }}:8850
         {{- if not .Values.auth.vault.enabled }}
         - name: SUPER_USER_NAME
           value: admin
@@ -84,15 +84,15 @@ spec:
         {{- end }}
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
-          mountPath: "/root/init_instance/"
+          mountPath: "/pulsar-manager/init_instance/"
         command: ["sh", "-c"]
         args:
           - >
-            python3 /root/init_instance/init_instance.py 2>/dev/null;
+            python3 /pulsar-manager/init_instance/init_instance.py 2>/dev/null;
             until [ $? -eq 0 ]; do
               echo "streamnative console is not ready now! wait another 10s~";
               sleep 10;
-              python3 /root/init_instance/init_instance.py 2>/dev/null;
+              python3 /pulsar-manager/init_instance/init_instance.py 2>/dev/null;
             done;
             echo "StreamNative Console is ready to use~";
             curl -sf -XPOST http://127.0.0.1:15020/quitquitquit || true;

@@ -49,15 +49,14 @@ sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/service-account.h
 sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/super-service-account.hcl > $TMP_DIR/super-service-account.hcl
 sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/super-service-account-template.json > $TMP_DIR/super-service-account-template.json
 
-
 vault policy write service-account $TMP_DIR/service-account.hcl
 vault write identity/entity name="service-account" policies="service-account"
 canonicalId=$(vault read identity/entity/name/service-account | grep -v _id | grep id | awk '{print $2}')
 vault write identity/entity-alias name="service-account"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='service-account'
-vault write identity/oidc/key/service-account name=service-account rotation_period=24h verification_ttl=24h
+vault write identity/oidc/key/service-account name=service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
 vault write identity/oidc/role/service-account key=service-account ttl=$VAULT_TTL template=@$TMP_DIR/service-account-template.json
 serviceAccountClientId=$(vault read identity/oidc/role/service-account | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/service-account name=service-account rotation_period=24h verification_ttl=24h allowed_client_ids=$serviceAccountClientId
+vault write identity/oidc/key/service-account name=service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$serviceAccountClientId
 
 superApproleName=$VAULT_APPROLE_SUPER_NAME
 vault policy write super-service-account $TMP_DIR/super-service-account.hcl
@@ -65,13 +64,14 @@ vault write identity/entity name="super-service-account" policies="super-service
 vault write identity/entity name=$superApproleName policies="super-service-account" metadata=system=true
 canonicalId=$(vault read identity/entity/name/super-service-account | grep -v _id | grep id | awk '{print $2}')
 vault write identity/entity-alias name="super-service-account"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='super-service-account'
-vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=24h verification_ttl=24h
+vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
 vault write identity/oidc/role/super-service-account key=super-service-account ttl=$VAULT_TTL template=@$TMP_DIR/super-service-account-template.json
 superServiceAccountClientId=$(vault read identity/oidc/role/super-service-account | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=24h verification_ttl=24h allowed_client_ids=$superServiceAccountClientId
-
+vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$superServiceAccountClientId
 
 vault write auth/approle/role/$superApproleName policies=super-service-account
+proxyApproleName=proxy-admin
+vault write auth/approle/role/$proxyApproleName policies=service-account
 
 # set a short ttl for approle to avoid vault oom caused by frequent lease generation
 vault auth tune -default-lease-ttl=5m approle/
@@ -82,17 +82,17 @@ vault policy write super-user $TMP_DIR/super-user.hcl
 vault write auth/userpass/users/$superUser password="$superPassword" policies="super-user"
 vault write identity/entity name="super-user" policies="super-user"
 vault write identity/entity name=$superUser policies="super-user" metadata=system=true
-vault write identity/oidc/key/super-user name=super-user rotation_period=24h verification_ttl=24h
+vault write identity/oidc/key/super-user name=super-user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
 vault write identity/oidc/role/super-user key=super-user ttl=$VAULT_TTL template=@$TMP_DIR/super-user-template.json
 superUserClientId=$(vault read identity/oidc/role/super-user | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/super-user name=super-user rotation_period=24h verification_ttl=24h allowed_client_ids=$superUserClientId
+vault write identity/oidc/key/super-user name=super-user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$superUserClientId
 
 vault policy write user $TMP_DIR/user.hcl
 vault write identity/entity name="user" policies="user"
-vault write identity/oidc/key/user name=user rotation_period=24h verification_ttl=24h
+vault write identity/oidc/key/user name=user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL
 vault write identity/oidc/role/user key=user ttl=$VAULT_TTL template=@$TMP_DIR/user-template.json
 userClientId=$(vault read identity/oidc/role/user | grep client_id |  awk '{print $2}')
-vault write identity/oidc/key/user name=user rotation_period=24h verification_ttl=24h allowed_client_ids=$userClientId
+vault write identity/oidc/key/user name=user rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$userClientId
 loginInfo=$(vault login -method=userpass username=$superUser password=$superPassword)
 superToken=$(echo "$loginInfo" | grep  -v '_' | grep 'token  ' | awk '{print $2}')
 export VAULT_SUPER_USER_TOKEN=$superToken
@@ -100,6 +100,8 @@ export VAULT_USERPASS_MOUNT_ACCESSOR=$userMountAccessor
 export VAULT_APPROLE_MOUNT_ACCESSOR=$serviceAccountMountAccessor
 export VAULT_APPROLE_ROLE_ID=$(vault read auth/approle/role/$superApproleName/role-id | grep role_id | awk '{print $2}')
 export VAULT_APPROLE_SECRET_ID=$(vault write -f auth/approle/role/$superApproleName/secret-id | grep -v secret_id_ | grep secret_id | awk '{print $2}')
+export VAULT_PROXY_ROLE_ID=$(vault read auth/approle/role/$proxyApproleName/role-id | grep role_id | awk '{print $2}')
+export VAULT_PROXY_SECRET_ID=$(vault write -f auth/approle/role/$proxyApproleName/secret-id | grep -v secret_id_ | grep secret_id | awk '{print $2}')
 approleLoginInfo=$(vault write auth/approle/login role_id=$VAULT_APPROLE_ROLE_ID secret_id=$VAULT_APPROLE_SECRET_ID)
 export VAULT_APPROLE_SUPER_TOKEN=$(echo "$approleLoginInfo" | grep 'token ' | awk '{print $2}')
 
@@ -114,6 +116,8 @@ echo "VAULT_APPROLE_ROLE_ID: "$VAULT_APPROLE_ROLE_ID
 echo "VAULT_APPROLE_SECRET_ID: "$VAULT_APPROLE_SECRET_ID
 echo "VAULT_APPROLE_SUPER_NAME: "$VAULT_APPROLE_SUPER_NAME
 echo "VAULT_APPROLE_SUPER_TOKEN: "$VAULT_APPROLE_SUPER_TOKEN
+echo "VAULT_PROXY_ROLE_ID: "$VAULT_PROXY_ROLE_ID
+echo "VAULT_PROXY_SECRET_ID: "$VAULT_PROXY_SECRET_ID
 echo "oidc info ====="
 echo "oidc client ids: serviceAccount,superServiceAccount,user,superUser "
 echo $serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId
@@ -137,6 +141,8 @@ echo "VAULT_APPROLE_SUPER_TOKEN="$VAULT_SUPER_USER_TOKEN >> /tmp/pm_env
 # for busybox base64 image, we need to remove \n in the result
 export VAULT_PULSAR_TOKEN=$(echo "$VAULT_APPROLE_ROLE_ID:$VAULT_APPROLE_SECRET_ID"|base64|tr -d \\n)
 echo "brokerClientAuthenticationParameters=$VAULT_PULSAR_TOKEN" >> /tmp/pm_env
+export VAULT_PULSAR_PROXY_TOKEN=$(echo "$VAULT_PROXY_ROLE_ID:$VAULT_PROXY_SECRET_ID"|base64|tr -d \\n)
+echo "PROXY_brokerClientAuthenticationParameters=$VAULT_PULSAR_PROXY_TOKEN" >> /tmp/pm_env
 
 
 echo "create secret for above secrets!"
