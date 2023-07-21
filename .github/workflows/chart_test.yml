@@ -19,9 +19,6 @@
 
 name: Chart Test
 on:
-  push:
-    paths:
-      - '.github/workflows/chart_test.yml'
   pull_request:
     branches:
       - '*'
@@ -30,6 +27,7 @@ on:
       - 'charts/sn-platform-slim'
       - 'charts/pulsar-operator'
       - '.github/workflows/**'
+      - '.ci/ct.yaml'
 
 jobs:
   basic-tests:
