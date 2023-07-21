@@ -67,7 +67,7 @@ jobs:
       - name: Run template test
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          for i in v1.19.0 v1.20.0 v1.21.0 v1.22.0 v1.23.0 v1.24.0
+          for i in v1.20.0 v1.21.0 v1.22.0 v1.23.0 v1.24.0 v1.25.0 v1.26.0 v1.27.0
           do
             helm template test ${{ steps.list-changed.outputs.chart_name }} --kube-version $i> $i.yaml
             yamllint $i.yaml --config-file lintconf.yaml
@@ -78,156 +78,6 @@ jobs:
         run: |
           helm plugin install https://github.com/quintush/helm-unittest
           helm unittest ${{ steps.list-changed.outputs.chart_name }}
-
-  install-on-v1-18:
-    runs-on: ubuntu-latest
-    needs: basic-tests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: clean disk
-        run: |
-          df -h
-          sudo swapoff -a
-          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
-          sudo apt clean
-          docker rmi $(docker images -q) -f
-          df -h
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.12.1
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.4.0
-
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
-          if [[ -n "$changed" ]]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create kind cluster
-        run: |
-          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.18.20
-          docker pull "$SN_IMAGE"
-          kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
-
-        env:
-          KIND_VERSION: 0.20.0
-          SN_IMAGE: streamnative/sn-platform:2.10.4.3
-        if: steps.list-changed.outputs.changed == 'true'
-
-
-      # Install the pulsar operator before testing the sn-platform
-      - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
-        run: |
-          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
-          helm -n sn-system install sn charts/pulsar-operator --create-namespace
-          kubectl -n sn-system get deploy
-          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-pulsar-controller-manager
-          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-zookeeper-controller-manager
-          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-bookkeeper-controller-manager
-          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
-          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/vault-operator
-          df -h
-
-      - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 10
-        if: failure()
-
-
-  install-on-v1-19:
-    runs-on: ubuntu-latest
-    needs: basic-tests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: clean disk
-        run: |
-          df -h
-          sudo swapoff -a
-          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
-          sudo apt clean
-          docker rmi $(docker images -q) -f
-          df -h
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v1
-        with:
-          version: v3.12.1
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.4.0
-
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
-          if [[ -n "$changed" ]]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create kind cluster
-        run: |
-          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.19.11
-          docker pull "$SN_IMAGE"
-          kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
-
-        env:
-          KIND_VERSION: 0.20.0
-          SN_IMAGE: streamnative/sn-platform:2.10.4.3
-        if: steps.list-changed.outputs.changed == 'true'
-
-
-      # Install the pulsar operator before testing the sn-platform
-      - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
-        run: |
-          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
-          helm -n sn-system install sn charts/pulsar-operator --create-namespace
-          kubectl -n sn-system get deploy
-          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-pulsar-controller-manager
-          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-zookeeper-controller-manager
-          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-bookkeeper-controller-manager
-          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
-          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/vault-operator
-          df -h
-
-      - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 10
-        if: failure()
- 
 
   install-on-v1-20:
     runs-on: ubuntu-latest
@@ -271,7 +121,7 @@ jobs:
 
       - name: Create kind cluster
         run: |
-          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.21.12
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.20.15
           docker pull "$SN_IMAGE"
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
@@ -302,6 +152,81 @@ jobs:
         uses: mxschmitt/action-tmate@v3
         timeout-minutes: 10
         if: failure()
+
+  install-on-v1-21:
+    runs-on: ubuntu-latest
+    needs: basic-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: clean disk
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
+          sudo apt clean
+          docker rmi $(docker images -q) -f
+          df -h
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.12.1
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.4.0
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create kind cluster
+        run: |
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.21.14
+          docker pull "$SN_IMAGE"
+          kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
+
+        env:
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
+        if: steps.list-changed.outputs.changed == 'true'
+
+
+      # Install the pulsar operator before testing the sn-platform
+      - name: Install the pulsar operator
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        run: |
+          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+          helm -n sn-system install sn charts/pulsar-operator --create-namespace
+          kubectl -n sn-system get deploy
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-pulsar-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-zookeeper-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-bookkeeper-controller-manager
+          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
+          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/vault-operator
+          df -h
+
+      - name: Run chart-testing (install)
+        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
+        if: failure()
+
   install-on-v1-22:
     runs-on: ubuntu-latest
     needs: basic-tests
@@ -344,7 +269,7 @@ jobs:
 
       - name: Create kind cluster
         run: |
-          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.22.9
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.22.17
           docker pull "$SN_IMAGE"
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
@@ -418,7 +343,7 @@ jobs:
 
       - name: Create kind cluster
         run: |
-          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.23.6
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.23.17
           docker pull "$SN_IMAGE"
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
@@ -492,7 +417,232 @@ jobs:
 
       - name: Create kind cluster
         run: |
-          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.24.0
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.24.15
+          docker pull "$SN_IMAGE"
+          kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
+
+        env:
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
+        if: steps.list-changed.outputs.changed == 'true'
+
+
+      # Install the pulsar operator before testing the sn-platform
+      - name: Install the pulsar operator
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        run: |
+          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+          helm -n sn-system install sn charts/pulsar-operator --create-namespace
+          kubectl -n sn-system get deploy
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-pulsar-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-zookeeper-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-bookkeeper-controller-manager
+          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
+          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/vault-operator
+          df -h
+
+      - name: Run chart-testing (install)
+        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
+        if: failure()
+
+
+  install-on-v1-25:
+    runs-on: ubuntu-latest
+    needs: basic-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: clean disk
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
+          sudo apt clean
+          docker rmi $(docker images -q) -f
+          df -h
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.12.1
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.4.0
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create kind cluster
+        run: |
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.25.11
+          docker pull "$SN_IMAGE"
+          kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
+
+        env:
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
+        if: steps.list-changed.outputs.changed == 'true'
+
+
+      # Install the pulsar operator before testing the sn-platform
+      - name: Install the pulsar operator
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        run: |
+          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+          helm -n sn-system install sn charts/pulsar-operator --create-namespace
+          kubectl -n sn-system get deploy
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-pulsar-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-zookeeper-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-bookkeeper-controller-manager
+          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
+          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/vault-operator
+          df -h
+
+      - name: Run chart-testing (install)
+        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
+        if: failure()
+
+
+  install-on-v1-26:
+    runs-on: ubuntu-latest
+    needs: basic-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: clean disk
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
+          sudo apt clean
+          docker rmi $(docker images -q) -f
+          df -h
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.12.1
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.4.0
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create kind cluster
+        run: |
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.26.6
+          docker pull "$SN_IMAGE"
+          kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
+
+        env:
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
+        if: steps.list-changed.outputs.changed == 'true'
+
+
+      # Install the pulsar operator before testing the sn-platform
+      - name: Install the pulsar operator
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        run: |
+          helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+          helm -n sn-system install sn charts/pulsar-operator --create-namespace
+          kubectl -n sn-system get deploy
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-pulsar-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-zookeeper-controller-manager
+          kubectl -n sn-system wait --for condition=available --timeout=360s deployment/sn-pulsar-operator-bookkeeper-controller-manager
+          helm -n sn-system upgrade --install vault-operator banzaicloud-stable/vault-operator
+          kubectl -nsn-system wait --for condition=available --timeout=360s deployment/vault-operator
+          df -h
+
+      - name: Run chart-testing (install)
+        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
+        if: failure()
+
+
+  install-on-v1-27:
+    runs-on: ubuntu-latest
+    needs: basic-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: clean disk
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -rf /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc "$AGENT_TOOLSDIRECTORY"
+          sudo apt clean
+          docker rmi $(docker images -q) -f
+          df -h
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.12.1
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.4.0
+
+      - name: Run chart-testing (list-changed)
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
+          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create kind cluster
+        run: |
+          ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.27.3
           docker pull "$SN_IMAGE"
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
