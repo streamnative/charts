@@ -112,8 +112,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
@@ -186,8 +186,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
@@ -260,8 +260,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
@@ -334,8 +334,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
@@ -408,8 +408,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
@@ -483,8 +483,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
@@ -558,8 +558,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
@@ -633,8 +633,8 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml)
-          chart_name=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }} --config .ci/ct.yaml | grep -v '>>>')
+          changed=$(ct list-changed  --config .ci/ct.yaml)
+          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
           if [[ -n "$changed" ]]; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
