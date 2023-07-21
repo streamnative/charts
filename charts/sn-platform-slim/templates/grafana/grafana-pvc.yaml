@@ -29,7 +29,8 @@ spec:
   resources:
     requests:
       storage: {{ .Values.grafana.volumes.data.size }}
-  accessModes: [ "ReadWriteOnce" ]
+  accessModes:
+  - "ReadWriteOnce"
 {{- if  .Values.grafana.volumes.data.storageClass }}
   storageClassName: "{{ template "pulsar.grafana.volumes.pvc.name" . }}}"
 {{- else if .Values.grafana.volumes.data.storageClassName }}
