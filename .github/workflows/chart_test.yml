@@ -26,7 +26,9 @@ on:
     branches:
       - '*'
     paths:
-      - 'charts/**'
+      - 'charts/sn-platform'
+      - 'charts/sn-platform-slim'
+      - 'charts/pulsar-operator'
       - '.github/workflows/**'
 
 jobs:
@@ -41,14 +43,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.9.0
+          version: v3.12.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -100,14 +102,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.9.0
+          version: v3.12.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -126,8 +128,8 @@ jobs:
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
         env:
-          KIND_VERSION: 0.14.0
-          SN_IMAGE: streamnative/sn-platform:2.9.2.20
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
         if: steps.list-changed.outputs.changed == 'true'
 
 
@@ -150,6 +152,7 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
         if: failure()
 
 
@@ -174,14 +177,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.9.0
+          version: v3.12.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -200,8 +203,8 @@ jobs:
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
         env:
-          KIND_VERSION: 0.14.0
-          SN_IMAGE: streamnative/sn-platform:2.9.2.20
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
         if: steps.list-changed.outputs.changed == 'true'
 
 
@@ -224,6 +227,7 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
         if: failure()
  
 
@@ -248,14 +252,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.9.0
+          version: v3.12.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -274,8 +278,8 @@ jobs:
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
         env:
-          KIND_VERSION: 0.14.0
-          SN_IMAGE: streamnative/sn-platform:2.9.2.20
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
         if: steps.list-changed.outputs.changed == 'true'
 
 
@@ -298,6 +302,7 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
         if: failure()
   install-on-v1-22:
     runs-on: ubuntu-latest
@@ -320,14 +325,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.9.0
+          version: v3.12.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -346,8 +351,8 @@ jobs:
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
         env:
-          KIND_VERSION: 0.14.0
-          SN_IMAGE: streamnative/sn-platform:2.9.2.20
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
         if: steps.list-changed.outputs.changed == 'true'
 
 
@@ -370,6 +375,7 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
         if: failure()
 
   install-on-v1-23:
@@ -393,14 +399,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.9.0
+          version: v3.12.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -419,8 +425,8 @@ jobs:
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
         env:
-          KIND_VERSION: 0.14.0
-          SN_IMAGE: streamnative/sn-platform:2.9.2.20
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
         if: steps.list-changed.outputs.changed == 'true'
 
 
@@ -443,6 +449,7 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
         if: failure()
       
   install-on-v1-24:
@@ -466,14 +473,14 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.9.0
+          version: v3.12.1
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.2.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -492,8 +499,8 @@ jobs:
           kind load docker-image --name pulsar-dev --nodes pulsar-dev-worker "$SN_IMAGE"
 
         env:
-          KIND_VERSION: 0.14.0
-          SN_IMAGE: streamnative/sn-platform:2.9.2.20
+          KIND_VERSION: 0.20.0
+          SN_IMAGE: streamnative/sn-platform:2.10.4.3
         if: steps.list-changed.outputs.changed == 'true'
 
 
@@ -516,4 +523,5 @@ jobs:
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 10
         if: failure()
