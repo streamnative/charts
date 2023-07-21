@@ -32,6 +32,10 @@ on:
 jobs:
   basic-tests:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.list-changed.outputs.changed }}
+      chart_name: ${{ steps.list-changed.outputs.chart_name }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -109,16 +113,6 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.4.0
 
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed  --config .ci/ct.yaml)
-          chart_name=$(ct list-changed  --config .ci/ct.yaml | grep -v '>>>')
-          if [[ -n "$changed" ]]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "chart_name=$chart_name" >> $GITHUB_OUTPUT
-          fi
-
       - name: Create kind cluster
         run: |
           ./hack/kind-cluster-build.sh --nodeNum 3 --k8sVersion v1.20.15
@@ -128,12 +122,12 @@ jobs:
         env:
           KIND_VERSION: 0.20.0
           SN_IMAGE: streamnative/sn-platform:2.10.4.3
-        if: steps.list-changed.outputs.changed == 'true'
+        if: ${{ needs.basic-tests.outputs.changed }} == 'true'
 
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: ${{ needs.basic-tests.outputs.changed }} == 'true' && ${{ needs.basic-tests.outputs.chart_name}} != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -146,7 +140,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts ${{ needs.basic-tests.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -207,7 +201,7 @@ jobs:
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -220,7 +214,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts {{ steps.list-changed.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -281,7 +275,7 @@ jobs:
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -294,7 +288,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts {{ steps.list-changed.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -355,7 +349,7 @@ jobs:
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -368,7 +362,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts {{ steps.list-changed.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -429,7 +423,7 @@ jobs:
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -442,7 +436,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts {{ steps.list-changed.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -504,7 +498,7 @@ jobs:
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -517,7 +511,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts {{ steps.list-changed.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -579,7 +573,7 @@ jobs:
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -592,7 +586,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts {{ steps.list-changed.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
@@ -654,7 +648,7 @@ jobs:
 
       # Install the pulsar operator before testing the sn-platform
       - name: Install the pulsar operator
-        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name == 'charts/sn-platform'
+        if: steps.list-changed.outputs.changed == 'true' && steps.list-changed.outputs.chart_name != 'charts/pulsar-operator'
         run: |
           helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
           helm -n sn-system install sn charts/pulsar-operator --create-namespace
@@ -667,7 +661,7 @@ jobs:
           df -h
 
       - name: Run chart-testing (install)
-        run: ct install --debug --config ct.yaml --print-config --charts charts/sn-platform
+        run: ct install --debug --config ct.yaml --print-config --charts {{ steps.list-changed.outputs.chart_name }}
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
