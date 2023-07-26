@@ -28,7 +28,7 @@ monitoring:
   grafana: true
 
 prometheus:
-    extraScrapeConfigs: 
+  extraScrapeConfigs: 
     - job_name: kube-state-metrics
       honor_labels: true
       scheme: http
@@ -79,4 +79,3 @@ prometheus:
         replacement: ${1}
       - target_label: endpoint
         replacement: http
-  
