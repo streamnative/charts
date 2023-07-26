@@ -1,0 +1,53 @@
+prometheus:
+    extraScrapeConfigs: 
+    - job_name: kube-state-metrics
+      honor_labels: true
+      scheme: http
+      kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names:
+          - kube-system
+      relabel_configs:
+      - action: keep
+        source_labels:
+        - __meta_kubernetes_service_label_app_kubernetes_io_name
+        regex: kube-state-metrics
+      - action: keep
+        source_labels:
+        - __meta_kubernetes_endpoint_port_name
+        regex: http
+      - separator: ;
+        regex: __meta_kubernetes_pod_label_(.+)
+        replacement: $1
+        action: labelmap
+      - source_labels:
+        - __meta_kubernetes_endpoint_address_target_kind
+        - __meta_kubernetes_endpoint_address_target_name
+        separator: ;
+        regex: Node;(.*)
+        replacement: ${1}
+        target_label: node
+      - source_labels:
+        - __meta_kubernetes_endpoint_address_target_kind
+        - __meta_kubernetes_endpoint_address_target_name
+        separator: ;
+        regex: Pod;(.*)
+        replacement: ${1}
+        target_label: pod
+      - source_labels:
+        - __meta_kubernetes_pod_name
+        target_label: pod
+      - source_labels:
+        - __meta_kubernetes_namespace
+        target_label: namespace
+      - source_labels:
+        - __meta_kubernetes_service_name
+        target_label: service
+      - source_labels:
+        - __meta_kubernetes_service_name
+        target_label: job
+        replacement: ${1}
+      - target_label: endpoint
+        replacement: http
+  
