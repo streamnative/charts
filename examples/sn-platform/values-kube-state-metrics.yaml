@@ -1,3 +1,13 @@
+images:
+  grafana:
+    repository: streamnative/apache-pulsar-grafana-dashboard-k8s
+    tag: "0.0.22"
+    pullPolicy: IfNotPresent
+
+monitoring:
+  prometheus: true
+  grafana: true
+
 prometheus:
     extraScrapeConfigs: 
     - job_name: kube-state-metrics
