@@ -32,7 +32,7 @@ spec:
    # The format field can be used to change the log format of the component. The value can be one of json, text.
     format: json
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
-    template: |
+    template:
       Configuration:
         status: INFO
         monitorInterval: 30
