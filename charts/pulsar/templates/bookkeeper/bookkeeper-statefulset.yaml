@@ -26,6 +26,13 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.bookkeeper.component }}
+{{- with .Values.bookkeeper.statefulset.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.bookkeeper.statefulset.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   replicas: {{ .Values.bookkeeper.replicaCount }}
@@ -41,6 +48,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.bookkeeper.component }}
+{{- with .Values.bookkeeper.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.bookkeeper.datadog.annotation" . | nindent 8 }}

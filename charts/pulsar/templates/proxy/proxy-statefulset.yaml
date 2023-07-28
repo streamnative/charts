@@ -26,6 +26,13 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.proxy.component }}
+{{- with .Values.proxy.statefulset.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- with .Values.proxy.statefulset.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
   replicas: {{ .Values.proxy.replicaCount }}
@@ -41,6 +48,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.proxy.component }}
+{{- with .Values.proxy.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.proxy.datadog.annotation" . | nindent 8 }}
