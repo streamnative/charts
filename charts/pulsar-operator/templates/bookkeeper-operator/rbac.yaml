@@ -18,16 +18,22 @@
 #
 
 {{- if .Values.components.bookkeeper }}
-kind: {{ template "pulsar.bookkeeperRoleKind" . }}
+{{- $namespaces := splitList "," .Values.watchNamespace }}
+{{- if .Values.pulsar.serviceAccount.clusterRole }}
+{{- $namespaces = list (first $namespaces) }}
+{{- end }}
+{{- range $namespaces }}
+---
+kind: {{ template "pulsar.bookkeeperRoleKind" $ }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
-  {{- if not .Values.bookkeeper.serviceAccount.clusterRole }}
-  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" . ) }}
+  name: '{{ template "pulsar.fullname" $ }}-{{ $.Values.bookkeeper.rbac.name }}'
+  {{- if not $.Values.bookkeeper.serviceAccount.clusterRole }}
+  namespace: {{ . | default (include "pulsar.namespace" $ ) }}
   {{- end }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.bookkeeper.component }}
+    {{- include "pulsar.standardLabels" $ | nindent 4 }}
+    components: {{ $.Values.bookkeeper.component }}
 rules:
   - apiGroups:
       - apps
@@ -230,19 +236,20 @@ rules:
       - update
       - watch
 ---
-kind: {{ template "pulsar.bookkeeperRoleBindingKind" . }}
+kind: {{ template "pulsar.bookkeeperRoleBindingKind" $ }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: {{ template "pulsar.bookkeeperRoleBindingName" . }}
-  {{- if not .Values.bookkeeper.serviceAccount.clusterRole }}
-  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+  name: {{ template "pulsar.bookkeeperRoleBindingName" $ }}
+  {{- if not $.Values.bookkeeper.serviceAccount.clusterRole }}
+  namespace: {{ . | default (include "pulsar.namespace" $)}}
   {{- end }}
 subjects:
-- kind: ServiceAccount
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.serviceAccount.name }}'
-  namespace: {{ template "pulsar.namespace" . }}
+  - kind: ServiceAccount
+    name: '{{ template "pulsar.fullname" $ }}-{{ $.Values.bookkeeper.serviceAccount.name }}'
+    namespace: {{ template "pulsar.namespace" $ }}
 roleRef:
-  kind: {{ template "pulsar.bookkeeperRoleKind" . }}
-  name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}'
+  kind: {{ template "pulsar.bookkeeperRoleKind" $ }}
+  name: '{{ template "pulsar.fullname" $ }}-{{ $.Values.bookkeeper.rbac.name }}'
   apiGroup: rbac.authorization.k8s.io
+{{- end }}
 {{- end }}
