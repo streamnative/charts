@@ -28,10 +28,12 @@ metadata:
   annotations:
 {{ toYaml . | indent 4 }}
 {{- end }}
-
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.zookeeper.component }}
+{{- with .Values.zookeeper.statefulset.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   replicas: {{ .Values.zookeeper.replicaCount }}
@@ -47,6 +49,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.zookeeper.component }}
+{{- with .Values.zookeeper.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.zookeeper.datadog.annotation" . | nindent 8 }}
