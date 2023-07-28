@@ -41,6 +41,13 @@ metadata:
 spec:
   replicas: {{ .Values.zookeeper.replicaCount }}
   image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
+  logConfig:
+    level: {{ .Values.zookeeper.logConfig.level }}
+    format: {{ .Values.zookeeper.logConfig.format }}
+    {{- with .Values.zookeeper.logConfig.template }}
+    template: |
+    {{- toYaml . | nindent 6 -}}
+    {{- end }}
   pod:
     {{- with .Values.zookeeper.topologySpreadConstraints }}
     topologySpreadConstraints:
