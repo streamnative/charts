@@ -26,6 +26,9 @@ metadata:
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.broker.component }}
+{{- with .Values.broker.statefulset.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 {{- with .Values.broker.statefulset.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
@@ -45,6 +48,9 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.broker.component }}
+{{- with .Values.broker.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
       annotations:
         {{- if .Values.monitoring.datadog }}
         {{- include "pulsar.broker.datadog.annotation" . | nindent 8 }}
