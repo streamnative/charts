@@ -1478,7 +1478,7 @@ proxy:
     annotations: {}
 
   # The field logConfig can be used to change the log level and log format of pods.
-  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml. 
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
   # If it is specified will dynamically change the log level and log format of the component by changing the CR.
   logConfig:
   # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
