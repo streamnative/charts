@@ -45,6 +45,13 @@ spec:
   replicas: {{ .Values.bookkeeper.replicaCount }}
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
   imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
+  logConfig:
+    level: {{ .Values.bookkeeper.logConfig.level }}
+    format: {{ .Values.bookkeeper.logConfig.format }}
+    {{- with .Values.bookkeeper.logConfig.template }}
+    template: |
+    {{- toYaml . | nindent 6 -}}
+    {{- end }}
   pod:
     {{- with .Values.bookkeeper.topologySpreadConstraints }}
     topologySpreadConstraints:

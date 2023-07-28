@@ -43,6 +43,13 @@ spec:
   replicas: {{ .Values.proxy.replicaCount }}
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
   imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
+  logConfig:
+    level: {{ .Values.proxy.logConfig.level }}
+    format: {{ .Values.proxy.logConfig.format }}
+    {{- with .Values.proxy.logConfig.template }}
+    template: |
+    {{- toYaml . | nindent 6 -}}
+    {{- end }}
   pod:
     {{- with .Values.proxy.topologySpreadConstraints }}
     topologySpreadConstraints:

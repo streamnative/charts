@@ -203,7 +203,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: "0.0.20"
+    tag: "0.0.22"
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
@@ -620,6 +620,17 @@ zookeeper:
     # annotations that will be added on the ZooKeeperCluster CR only.
     annotations: {}
 
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
@@ -844,6 +855,17 @@ bookkeeper:
     # annotations that will be added on the BookKeeperCluster CR only.
     annotations: {}
 
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
@@ -1063,6 +1085,17 @@ broker:
     labels: {}
     # annotations that will be added on the PulsarBroker CR only.
     annotations: {}
+
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
 
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
@@ -1442,6 +1475,17 @@ proxy:
     labels: {}
     # annotations that will be added on the PulsarProxy CR only.
     annotations: {}
+
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
 
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
