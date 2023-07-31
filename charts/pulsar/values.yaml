@@ -1568,6 +1568,7 @@ prometheus:
     ##
     retention: "15d"
   scrapeInterval: 15s
+  external_labels: {}
   securityContext:
     runAsUser: 65534
     runAsNonRoot: true
