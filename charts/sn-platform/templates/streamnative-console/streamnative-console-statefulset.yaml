@@ -29,6 +29,10 @@ metadata:
 {{- with .Values.streamnative_console.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+  annotations:
+{{- with .Values.streamnative_console.annotations }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   replicas: 1
@@ -91,7 +95,7 @@ spec:
           {{- if .Values.streamnative_console.probe.readiness.enabled }}
           readinessProbe:
             tcpSocket:
-              port: {{ .Values.streamnative_console.ports.backend }}
+              port: 8850
             initialDelaySeconds: {{ .Values.streamnative_console.probe.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.streamnative_console.probe.readiness.periodSeconds }}
             failureThreshold: {{ .Values.streamnative_console.probe.readiness.failureThreshold }}
@@ -99,7 +103,7 @@ spec:
           {{- if .Values.streamnative_console.probe.liveness.enabled }}
           livenessProbe:
             tcpSocket:
-              port: {{ .Values.streamnative_console.ports.backend }}
+              port: 8850
             initialDelaySeconds: {{ .Values.streamnative_console.probe.liveness.initialDelaySeconds }}
             periodSeconds: {{ .Values.streamnative_console.probe.liveness.periodSeconds }}
             failureThreshold: {{ .Values.streamnative_console.probe.liveness.failureThreshold }}
@@ -107,7 +111,7 @@ spec:
           {{- if .Values.streamnative_console.probe.startup.enabled }}
           startupProbe:
             tcpSocket:
-              port: {{ .Values.streamnative_console.ports.backend }}
+              port: 8850
             initialDelaySeconds: {{ .Values.streamnative_console.probe.startup.initialDelaySeconds }}
             periodSeconds: {{ .Values.streamnative_console.probe.startup.periodSeconds }}
             failureThreshold: {{ .Values.streamnative_console.probe.startup.failureThreshold }}
@@ -244,11 +248,6 @@ spec:
           - secretRef:
               name: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
           {{- end }}
-          ports:
-          - name: frontend
-            containerPort: {{ .Values.streamnative_console.ports.frontend }}
-          - name: backend
-            containerPort: {{ .Values.streamnative_console.ports.backend }}
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data
@@ -257,6 +256,20 @@ spec:
             name: token-keys
             readOnly: true
           {{- end }}
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-gateway"
+          image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
+          imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
+          {{- if .Values.streamnative_console.resources }}
+          resources:
+{{ toYaml .Values.streamnative_console.resources | indent 12 }}
+          {{- end }}
+          workingDir: "/pulsar-manager/gateway"
+          command: ["/pulsar-manager/gateway/gateway-entrypoint.sh"]
+          ports:
+          - name: frontend
+            containerPort: {{ .Values.streamnative_console.ports.frontend }}
+          - name: backend
+            containerPort: {{ .Values.streamnative_console.ports.backend }}
       volumes:
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
       - name: streamnative-console-data

@@ -117,13 +117,13 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
-      namespace: {{ template "pulsar.namespace" . }},
+      "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
-{{- if .Values.auth.authentication.enabled }}
+{{- if and .Values.auth.authentication.enabled .Values.proxy.authenticateMetricsEndpoint.enabled }}
 {{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
@@ -146,7 +146,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
       "enable_health_service_check": true,
       "timeout": 300,
-{{- if .Values.auth.authentication.enabled }}
+{{- if and .Values.auth.authentication.enabled .Values.proxy.authenticateMetricsEndpoint.enabled }}
 {{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
@@ -170,13 +170,13 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
-      namespace: {{ template "pulsar.namespace" . }},
+      "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "health_service_check": true,
       "prometheus_timeout": 1000,
       "max_returned_metrics": 1000000,
-{{- if .Values.auth.authentication.enabled }}
+{{- if and .Values.auth.authentication.enabled .Values.proxy.authenticateMetricsEndpoint.enabled }}
 {{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
@@ -191,7 +191,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
       "enable_health_service_check": true,
       "timeout": 300,
-{{- if .Values.auth.authentication.enabled }}
+{{- if and .Values.auth.authentication.enabled .Values.proxy.authenticateMetricsEndpoint.enabled }}
 {{- if or (eq .Values.auth.authentication.provider "jwt") .Values.auth.vault.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"

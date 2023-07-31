@@ -18,7 +18,7 @@
 #
 
 # Flag to control whether to run initialize job
-initialize: false
+initialize: true
 
 ###
 ### K8S Settings
@@ -130,22 +130,22 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.2.4"
+        tag: "2.10.4.7"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.2.4"
+        tag: "2.10.4.7"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
     exporter:
       repository: bitnami/jmx-exporter
@@ -154,36 +154,36 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.10.2.4
+  #   tag: 2.10.4.7
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
     kafka:
       repository: confluentinc/cp-kafka
@@ -191,36 +191,36 @@ images:
       pullPolicy: IfNotPresent
     busybox:
       repository: busybox
-      tag: "1.35.0"
+      tag: "1.36.1-uclibc"
       pullPolicy: IfNotPresent
   prometheus:
-    repository: prom/prometheus
-    tag: "v2.36.1"
+    repository: quay.io/prometheus/prometheus
+    tag: "v2.43.0"
     pullPolicy: IfNotPresent
   alert_manager:
-    repository: prom/alertmanager
-    tag: "v0.24.0"
+    repository: quay.io/prometheus/alertmanager
+    tag: "v0.25.0"
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: "0.0.17"
+    tag: "0.0.22"
     pullPolicy: IfNotPresent
   streamnative_console:
-    repository: streamnative/sn-platform-console
-    tag: "v1.14.2"
+    repository: streamnative/private-cloud-console
+    tag: "v2.2.1"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
-    repository: prom/node-exporter
-    tag: "v1.4.0"
+    repository: quay.io/prometheus/node-exporter
+    tag: "v1.5.0"
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
     repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
     tag: "0.26.2"
     pullPolicy: "IfNotPresent"
   vault:
-    repository: vault
-    tag: "1.10.4"
+    repository: hashicorp/vault
+    tag: "1.11.8"
     pullPolicy: "IfNotPresent"
   bank_vaults:
     repository: ghcr.io/banzaicloud/bank-vaults
@@ -230,23 +230,23 @@ images:
     repository: streamnative/pulsar_vault_init
     tag: "v1.0.6"
   custom_metric_server_prometheus:
-    repository: prom/prometheus
-    tag: "v2.39.1"
+    repository: quay.io/prometheus/prometheus
+    tag: "v2.43.0"
     pullPolicy: IfNotPresent
   custom_metric_server:
-    repository: k8s.gcr.io/prometheus-adapter/prometheus-adapter
+    repository: registry.k8s.io/prometheus-adapter/prometheus-adapter
     tag: "v0.9.0"
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.10.2.4"
+    tag: "2.10.4.7"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
     tag: "v0.8.0"
     pullPolicy: IfNotPresent
   external_dns:
-    repository: k8s.gcr.io/external-dns/external-dns
+    repository: registry.k8s.io/external-dns/external-dns
     tag: "v0.7.3"
     pullPolicy: IfNotPresent
 
@@ -363,9 +363,13 @@ auth:
   authorization:
     enabled: true
   superUsers:
-    # broker to broker communication
-    broker: "admin,broker-admin,admin-approle,pulsar-manager-admin"
-    # proxy to broker communication
+    # broker to broker communication, broker superUserRoles
+    broker: "admin,proxy-admin,broker-admin,admin-approle,pulsar-manager-admin"
+    # if it is enabled, the roles configured in the proxy will not be used by the client
+    proxyRolesEnabled: false
+    # if proxyRolesEnabled is set to true, this role is only available to proxy connection brokers, please make sure the client does not use this role
+    proxyRoles: proxy-admin
+    # proxy to broker communication, proxy superUserRoles
     proxy: "admin,proxy-admin,admin-approle,pulsar-manager-admin"
     # websocket proxy to broker communication
     websocket: "admin,ws-admin,admin-approle,pulsar-manager-admin"
@@ -616,6 +620,17 @@ zookeeper:
     # annotations that will be added on the ZooKeeperCluster CR only.
     annotations: {}
 
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
@@ -677,6 +692,8 @@ zookeeper:
     limits: {}
       # memory: "1Gi"
       # cpu: "0.4"
+  # extra environment variable to define for the containers
+  extraEnv: []
   volumes:
     # use a persistent volume or emptyDir
     persistence: true
@@ -738,9 +755,8 @@ zookeeper:
   # Automtically Roll Deployments when configmap is changed
   autoRollDeployment: true
   jvm:
-    memoryOptions:
-    - >
-      -Xms64m -Xmx128m
+    # ZooKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
@@ -749,7 +765,6 @@ zookeeper:
       -Djute.maxbuffer=10485760
       -XX:+ParallelRefProcEnabled
       -XX:+UnlockExperimentalVMOptions
-      -XX:+AggressiveOpts
       -XX:+DoEscapeAnalysis
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
@@ -841,6 +856,17 @@ bookkeeper:
     # annotations that will be added on the BookKeeperCluster CR only.
     annotations: {}
 
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
@@ -874,6 +900,8 @@ bookkeeper:
     # limits:
     #   memory: "2Gi"
     #   cpu: "0.8"
+  # extra environment variable to define for the containers
+  extraEnv: []
   # Definition of the serviceAccount used to run bookies.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -938,18 +966,14 @@ bookkeeper:
         # extraParameters:
         #   iopsPerGB: "50"
   jvm:
-    memoryOptions:
-    - >
-      -Xms128m
-      -Xmx256m
-      -XX:MaxDirectMemorySize=256m
+    # BookKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
       -XX:MaxGCPauseMillis=10
       -XX:+ParallelRefProcEnabled
       -XX:+UnlockExperimentalVMOptions
-      -XX:+AggressiveOpts
       -XX:+DoEscapeAnalysis
       -XX:ParallelGCThreads=4
       -XX:ConcGCThreads=4
@@ -1005,9 +1029,11 @@ autorecovery:
     # limits:
     #   memory: "256Mi"
     #   cpu: "0.2"
+  # extra environment variable to define for the containers
+  extraEnv: []
   jvm:
-    memoryOptions:
-    - -Xms128m -Xmx256m
+    # BookKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions: []
     extraOptions: []
     gcLoggingOptions: []
@@ -1029,18 +1055,19 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
-  ## set an existing configuration store
-  # configurationStore:
-  configurationStoreMetadataPrefix: ""
+  # set the cluster name. if empty or not specified,
+  # it will use helm release name to generate a cluster name.
+  clusterName: ""
 
   ## optional, you can provide your own zookeeper metadata store for other components
   # to use this, you should explicit set components.zookeeper to false
   #
-  # userProvidedZookeepers: "zk01.example.com:2181,zk02.example.com:2181"
+  # userProvidedZookeepers: "zk01:2181,zk02:2181,zk03:2181"
 
-  # set the cluster name. if empty or not specified,
-  # it will use helm release name to generate a cluster name.
-  clusterName: ""
+  ## optional, you can provide your own configuration store for other components
+  # to use this, you should explicit set components.zookeeper to false
+  #
+  # configurationStoreServers: "zk04:2181,zk05:2181,zk06:2181"
 
 ## Pulsar: KoP Protocol Handler
 kop:
@@ -1059,6 +1086,17 @@ broker:
     labels: {}
     # annotations that will be added on the PulsarBroker CR only.
     annotations: {}
+
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
 
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
@@ -1117,7 +1155,18 @@ broker:
     # -- enable authorization
     authorizationEnabled: false
   functionmesh:
-    enabled: true
+    enabled: false
+    mesh:
+      uploadEnabled: true
+      functionEnabled: true
+      sourceEnabled: true
+      sinkEnabled: true
+    customWorkerConfig:
+    runnerImages:
+    labels:
+    custom:
+  pulsarRestMessaging:
+    enabled: false
   # Resources requests/limits for both init containers and app containers
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
@@ -1173,9 +1222,8 @@ broker:
     # whether to create a cluster role
     clusterRole: true
   jvm:
-    memoryOptions:
-      - >
-        -Xms128m -Xmx256m -XX:MaxDirectMemorySize=256m
+    # Pulsar Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
       - >
         -XX:+UseG1GC
@@ -1184,7 +1232,6 @@ broker:
         -Dio.netty.recycler.linkCapacity=1024
         -XX:+ParallelRefProcEnabled
         -XX:+UnlockExperimentalVMOptions
-        -XX:+AggressiveOpts
         -XX:+DoEscapeAnalysis
         -XX:ParallelGCThreads=4
         -XX:ConcGCThreads=4
@@ -1390,6 +1437,8 @@ pulsar_detector:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   # tolerations: []
+  securityContext:
+    runAsNonRoot: true
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1428,6 +1477,17 @@ proxy:
     # annotations that will be added on the PulsarProxy CR only.
     annotations: {}
 
+  # The field logConfig can be used to change the log level and log format of pods.
+  # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
+  # If it is specified will dynamically change the log level and log format of the component by changing the CR.
+  logConfig:
+  # The level field can be used to change the log level of the component. The value can be one of TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF.
+    level: "INFO"
+  # The format field can be used to change the log format of the component. The value can be one of json, text.
+    format: "text"
+  # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
+    template: {}
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
@@ -1450,7 +1510,7 @@ proxy:
   gracePeriod: 30
   resources:
     requests:
-      memory: "128Mi"
+      memory: "512Mi"
       cpu: "0.2"
     # limits:
     #   memory: "512Mi"
@@ -1482,10 +1542,11 @@ proxy:
   brokerWebServiceURL: ""
   brokerServiceURLTLS: ""
   brokerWebServiceURLTLS: ""
+  authenticateMetricsEndpoint:
+    enabled: true
   jvm:
-    memoryOptions:
-    - >
-      -Xms64m -Xmx64m -XX:MaxDirectMemorySize=64m
+    # Pulsar Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
+    memoryOptions: []
     gcOptions:
     - >
       -XX:+UseG1GC
@@ -1494,7 +1555,6 @@ proxy:
       -Dio.netty.recycler.linkCapacity=1024
       -XX:+ParallelRefProcEnabled
       -XX:+UnlockExperimentalVMOptions
-      -XX:+AggressiveOpts
       -XX:+DoEscapeAnalysis
       -XX:ParallelGCThreads=4
       -XX:ConcGCThreads=4
@@ -1536,6 +1596,7 @@ proxy:
 toolset:
   component: toolset
   useProxy: false
+  installBusybox: true
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
@@ -1563,7 +1624,7 @@ toolset:
       -Xmx128M
       -XX:MaxDirectMemorySize=128M
   securityContext:
-    runAsUser: 0
+    runAsNonRoot: true
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
@@ -1728,6 +1789,7 @@ prometheus:
       periodSeconds: 10
   customRelabelConfigs: []
   extraScrapeConfigs: []
+  extraCustomArgs: {}
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
@@ -1741,7 +1803,7 @@ datadog:
   component: datadog
   ## Datadog <METRICS_NAMESPACE_PREFIX_FOR_DATADOG> configuration. Set namespace to be prefixed to every metric when viewed in Datadog.
   ## https://docs.datadoghq.com/containers/kubernetes/prometheus/?tab=kubernetesadv2
-  namespace: {}
+  namespace:
   components:
     zookeeper:
       enabled: false
@@ -1771,6 +1833,9 @@ datadog:
       tags: {}
     prometheus:
       enabled: false
+      metrics: [
+        "\"_*\""
+      ]
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-statefulset.yaml
@@ -1991,7 +2056,11 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
-  securityContext: {}
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 1000
+    fsGroup: 1000
+    runAsUser: 1000
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml
@@ -2257,7 +2326,6 @@ presto:
       managedLedgerCacheSizeMB: "0"
       bookkeeperNumIOThreads: "8"
       bookkeeperNumWorkerThreads: "8"
-      mlNumWorkerThreads: "8"
       mlNumSchedulerThreads: "8"
   service:
     spec:
@@ -2290,6 +2358,13 @@ vault:
     prometheus.io/port: "9091"
   labels: {}
   volumeClaimTemplates: []
+  affinity:
+    anti_affinity: true
+    zone_anti_affinity: true
+    # Set the anti affinity type. Valid values:
+    # requiredDuringSchedulingIgnoredDuringExecution - rules must be met for pod to be scheduled (hard) requires at least one node per replica
+    # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
+    type: preferredDuringSchedulingIgnoredDuringExecution
   unsealConfig: {}
   volumeMounts:
   - name: vault-raft

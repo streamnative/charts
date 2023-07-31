@@ -43,6 +43,13 @@ spec:
   replicas: {{ .Values.proxy.replicaCount }}
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
   imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
+  logConfig:
+    level: {{ .Values.proxy.logConfig.level }}
+    format: {{ .Values.proxy.logConfig.format }}
+    {{- with .Values.proxy.logConfig.template }}
+    template: |
+    {{- toYaml . | nindent 6 -}}
+    {{- end }}
   pod:
     {{- with .Values.proxy.topologySpreadConstraints }}
     topologySpreadConstraints:
@@ -70,16 +77,14 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if or .Values.proxy.readPublicKeyFromFile .Values.proxy.extraSecretRefs }}
+{{- if or (and .Values.auth.vault.enabled .Values.proxy.readPublicKeyFromFile) .Values.proxy.extraSecretRefs  .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
-    {{- if .Values.proxy.readPublicKeyFromFile }}
-    - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.proxy.publicKeyPath }}
-      {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
-      secretName: {{ default $defaultSecretName .Values.proxy.publicKeySecret }}
-    {{- end }}
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled .Values.auth.vault.enabled }}
+{{- include "pulsar.authSecret" . | indent 4 }}
+    {{- end }}
 {{- end }}
     {{- if .Values.tls.proxy.enabled }}
     volumes:
@@ -89,7 +94,7 @@ spec:
       {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.proxy.affinity "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
     {{- if .Values.auth.authentication.enabled }}
     vars:
-{{- include "pulsar.authEnvironment" . | indent 4 }}
+{{- include "pulsar.authEnvironment" (dict "Values" .Values "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 4 }}
     {{- end }}
 {{- with .Values.proxy.extraEnv}}
 {{ toYaml . | indent 4 }}
@@ -97,10 +102,6 @@ spec:
     {{- if .Values.proxy.resources }}
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
-    {{- end }}
-    {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
-    secretRefs:
-{{- include "pulsar.authSecret" . | indent 4 }}
     {{- end }}
     {{- with .Values.proxy.securityContext }}
     securityContext:
@@ -149,13 +150,18 @@ spec:
       forwardAuthorizationCredentials: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
 {{- include "pulsar.authConfiguration" . | indent 6 }}
-      superUserRoles: "{{ .Values.auth.superUsers.broker }}"
+      superUserRoles: "{{ .Values.auth.superUsers.proxy }}"
       {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}
       tlsAllowInsecureConnection: "true"
       tlsTrustCertsFilePath: "/etc/tls/pulsar-proxy-tls/ca.crt"
       {{- end }}
+      {{- end }}
+      {{- if .Values.proxy.authenticateMetricsEndpoint.enabled }}
+      PULSAR_PREFIX_authenticateMetricsEndpoint: "true"
+      {{- else }}
+      PULSAR_PREFIX_authenticateMetricsEndpoint: "false"
       {{- end }}
   dnsNames:
   {{- if or .Values.domain.enabled (and .Values.ingress.proxy.enabled .Values.ingress.proxy.external_domain) }}

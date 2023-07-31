@@ -16,18 +16,23 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-
 {{- if .Values.components.pulsar }}
-kind: {{ template "pulsar.operatorRoleKind" . }}
+{{- $namespaces := splitList "," .Values.watchNamespace }}
+{{- if .Values.pulsar.serviceAccount.clusterRole }}
+{{- $namespaces = list (first $namespaces) }}
+{{- end }}
+{{- range $namespaces }}
+---
+kind: {{ template "pulsar.operatorRoleKind" $ }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: '{{ include "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
-  {{- if not .Values.pulsar.serviceAccount.clusterRole }}
-  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" . ) }}
+  name: '{{ include "pulsar.fullname" $ }}-{{ $.Values.pulsar.rbac.name }}'
+  {{- if not $.Values.pulsar.serviceAccount.clusterRole }}
+  namespace: {{ . | default (include "pulsar.namespace" $ ) }}
   {{- end }}
   labels:
-    {{- include "pulsar.standardLabels" . | nindent 4 }}
-    components: {{ .Values.pulsar.component }}
+    {{- include "pulsar.standardLabels" $ | nindent 4 }}
+    components: {{ $.Values.pulsar.component }}
 rules:
 - apiGroups:
     - apps
@@ -385,18 +390,19 @@ rules:
   - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: {{ template "pulsar.operatorRoleBindingKind" . }}
+kind: {{ template "pulsar.operatorRoleBindingKind" $ }}
 metadata:
-  name: {{ template "pulsar.operatorRoleBindingName" . }}
-  {{- if not .Values.pulsar.serviceAccount.cluserRole }}
-  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+  name: {{ template "pulsar.operatorRoleBindingName" $ }}
+  {{- if not $.Values.pulsar.serviceAccount.clusterRole }}
+  namespace: {{ . | default (include "pulsar.namespace" $)}}
   {{- end }}
 subjects:
-- kind: ServiceAccount
-  name: '{{ include "pulsar.fullname" . }}-{{ .Values.pulsar.serviceAccount.name }}'
-  namespace: {{ include "pulsar.namespace" . }}
+  - kind: ServiceAccount
+    name: '{{ include "pulsar.fullname" $ }}-{{ $.Values.pulsar.serviceAccount.name }}'
+    namespace: {{ include "pulsar.namespace" $ }}
 roleRef:
-  kind: {{ template "pulsar.operatorRoleKind" . }}
-  name: '{{ include "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}'
+  kind: {{ template "pulsar.operatorRoleKind" $ }}
+  name: '{{ include "pulsar.fullname" $ }}-{{ $.Values.pulsar.rbac.name }}'
   apiGroup: rbac.authorization.k8s.io
+{{- end }}
 {{- end }}

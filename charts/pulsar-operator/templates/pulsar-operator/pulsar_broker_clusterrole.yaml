@@ -20,12 +20,18 @@
 # The permissions assigned to this role are those needed by brokers to run functions
 # The binding step is done by operator
 {{- if .Values.components.pulsar }}
-kind: {{ template "pulsar.operatorRoleKind" . }}
+{{- $namespaces := splitList "," .Values.watchNamespace }}
+{{- if .Values.pulsar.serviceAccount.clusterRole }}
+{{- $namespaces = list (first $namespaces) }}
+{{- end }}
+{{- range $namespaces }}
+---
+kind: {{ template "pulsar.operatorRoleKind" $ }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: pulsar-operator-pulsar-broker
-  {{- if not .Values.pulsar.serviceAccount.clusterRole }}
-  namespace: {{ .Values.watchNamespace | default (include "pulsar.namespace" .)}}
+  {{- if not $.Values.pulsar.serviceAccount.clusterRole }}
+  namespace: {{ . | default (include "pulsar.namespace" $)}}
   {{- end }}
 rules:
   - apiGroups:
@@ -79,4 +85,5 @@ rules:
       - create
       - delete
       - patch
+{{- end }}
 {{- end }}

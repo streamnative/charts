@@ -1,0 +1,100 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.monitoring.node_exporter }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.node_exporter.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.node_exporter.component }}
+    kubernetes.io/cluster-service: "true"
+    addonmanager.kubernetes.io/mode: Reconcile
+{{- with .Values.node_exporter.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.node_exporter.component }}
+  updateStrategy:
+    type: OnDelete
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.node_exporter.component }}
+{{- with .Values.node_exporter.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- if or (and .Values.prometheus.scrape.node_exporter .Values.prometheus.scrape.enabled) .Values.node_exporter.annotations }}
+      annotations:
+{{- if (and .Values.prometheus.scrape.node_exporter .Values.prometheus.scrape.enabled) }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+{{- end}}
+        {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
+{{- with .Values.node_exporter.annotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- end }}   
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+    {{- if .Values.node_exporter.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.node_exporter.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.node_exporter.tolerations }}
+      tolerations:
+{{ toYaml .Values.node_exporter.tolerations | indent 8 }}
+    {{- end }}
+      containers:
+        - name: prometheus-node-exporter
+          image: "{{ .Values.images.node_exporter.repository }}:{{ .Values.images.node_exporter.tag }}"
+          imagePullPolicy: {{ .Values.images.node_exporter.pullPolicy }}
+          args:
+            - --path.procfs=/host/proc
+            - --path.sysfs=/host/sys
+          ports:
+          volumeMounts:
+            - name: proc
+              mountPath: /host/proc
+              readOnly:  true
+            - name: sys
+              mountPath: /host/sys
+              readOnly: true
+          {{- if .Values.node_exporter.resources }}
+          resources:
+{{ toYaml .Values.node_exporter.resources | indent 10 }}
+          {{- end }}
+      hostNetwork: true
+      hostPID: true
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: sys
+          hostPath:
+            path: /sys
+{{- end }}

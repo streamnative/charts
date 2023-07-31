@@ -224,7 +224,13 @@ Define pulsarctl config volume mount
 */}}
 {{- define "pulsar.toolset.pulsarctl.conf.volumeMounts" -}}
 - name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
-  mountPath: "{{ template "pulsar.home" . }}/conf/pulsarctl.config"
+  mountPath: "/home/pulsar/.config/pulsar/config"
+  subPath: pulsarctl.config
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
+  mountPath: "/root/.config/pulsar/config"
+  subPath: pulsarctl.config
+- name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}-pulsarctl"
+  mountPath: "/.config/pulsar/config"
   subPath: pulsarctl.config
 {{- end }}
 

@@ -136,11 +136,12 @@ JVM Options
 */}}
 {{- define "pulsar.jvm.options" -}}
 jvmOptions:
-  memoryOptions:
   {{- if .configData.PULSAR_MEM }}
+  memoryOptions:
   - {{ .configData.PULSAR_MEM | quote }}
   {{- else }}
   {{- with .jvm.memoryOptions }}
+  memoryOptions:
   {{- toYaml . | nindent 2 }}
   {{- end }}
   {{- end }}
@@ -245,18 +246,34 @@ Define function for get authenticaiton environment variable
       secretKeyRef:
         name: {{ template "pulsar.vault-secret-key-name" . }}
         key: PULSAR_PREFIX_OIDCTokenAudienceID
+{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
+- name: brokerClientAuthenticationParameters
+  valueFrom:
+      secretKeyRef:
+        name: {{ template "pulsar.vault-secret-key-name" . }}
+        key: PROXY_brokerClientAuthenticationParameters
+{{- else }}
 - name: brokerClientAuthenticationParameters
   valueFrom:
       secretKeyRef:
         name: {{ template "pulsar.vault-secret-key-name" . }}
         key: brokerClientAuthenticationParameters
 {{- end }}
+{{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
+{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
+- name: brokerClientAuthenticationParameters
+  valueFrom:
+      secretKeyRef:
+        name: {{ .Release.Name }}-token-proxy-admin
+        key: TOKEN
+{{- else }}
 - name: brokerClientAuthenticationParameters
   valueFrom:
       secretKeyRef:
         name: {{ .Release.Name }}-token-admin
         key: TOKEN
+{{- end }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
 - name: tokenSecretKey
   value: "file:///mnt/secrets/SECRETKEY"
@@ -273,8 +290,13 @@ Define function for get authenticaiton secret
 {{- define "pulsar.authSecret" }}
 {{- if .Values.auth.authentication.enabled }}
 {{- if and .Values.auth.oauth.enabled .Values.auth.oauth.brokerClientCredentialSecret }}
-- mountPath: /mnt/secrets
+- mountPath: /mnt/secrets/oauth
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
+{{- end }}
+{{- if and .Values.auth.vault.enabled (or .Values.broker.readPublicKeyFromFile .Values.proxy.readPublicKeyFromFile) }}
+- mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
+  {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
+  secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}

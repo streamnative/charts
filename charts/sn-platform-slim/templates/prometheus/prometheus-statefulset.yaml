@@ -1,0 +1,209 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+{{- if .Values.monitoring.prometheus }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: {{ .Values.prometheus.component }}
+{{- with .Values.prometheus.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  serviceName: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
+  replicas: {{ .Values.prometheus.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.prometheus.component }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.template.labels" . | nindent 8 }}
+        component: {{ .Values.prometheus.component }}
+{{- with .Values.prometheus.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+      annotations:
+        {{- if .Values.istio.enabled }}
+        # ref: https://istio.io/latest/docs/ops/integrations/prometheus/#tls-settings
+        traffic.sidecar.istio.io/includeOutboundIPRanges: ""  # do not intercept any outbound traffic
+        # configure an env variable `OUTPUT_CERTS` to write certificates to the given folder
+        proxy.istio.io/config: |
+          proxyMetadata:
+            OUTPUT_CERTS: /etc/istio-output-certs
+        # mount the shared volume at sidecar proxy
+        sidecar.istio.io/userVolumeMount: '[{"name": "istio-certs", "mountPath": "/etc/istio-output-certs"}]'
+        {{- end }}
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.prometheus.datadog.annotation" . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.prometheus.annotations }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+    {{- if .Values.prometheus.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.prometheus.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.prometheus.tolerations }}
+      tolerations:
+{{ toYaml .Values.prometheus.tolerations | indent 8 }}
+    {{- end }}
+    {{- if and .Values.rbac.enable .Values.prometheus.serviceAccount.use }}
+      serviceAccount: {{ template "pulsar.prometheus.serviceAccount" . }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.prometheus.gracePeriod }}
+      {{- if .Values.prometheus.securityContext }}
+      securityContext:
+{{ toYaml .Values.prometheus.securityContext | indent 8 }}
+      {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.prometheus.affinity "Component" .Values.prometheus.component "Release" .Release "Chart" .Chart) | indent 8 }}
+      containers:
+      {{- if .Values.configmapReload.prometheus.enabled }}
+      - name: {{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.configmapReload.prometheus.name }}
+        image: "{{ .Values.images.configmapReload.repository }}:{{ .Values.images.configmapReload.tag }}"
+        imagePullPolicy: "{{ .Values.images.configmapReload.pullPolicy }}"
+        args:
+          - --volume-dir=/etc/config
+          - --webhook-url=http://127.0.0.1:{{ .Values.prometheus.port }}{{ template "pulsar.control_center_path.prometheus" . }}/-/reload
+        {{- range $key, $value := .Values.configmapReload.prometheus.extraArgs }}
+          - --{{ $key }}={{ $value }}
+        {{- end }}
+        {{- range .Values.configmapReload.prometheus.extraVolumeDirs }}
+          - --volume-dir={{ . }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.configmapReload.prometheus.resources | indent 10 }}
+        volumeMounts:
+          - name: config-volume
+            mountPath: /etc/config
+            readOnly: true
+        {{- range .Values.configmapReload.prometheus.extraConfigmapMounts }}
+          - name: {{ $.Values.configmapReload.prometheus.name }}-{{ .name }}
+            mountPath: {{ .mountPath }}
+            subPath: {{ .subPath }}
+            readOnly: {{ .readOnly }}
+        {{- end }}
+      {{- end }}
+      - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
+        image: "{{ .Values.images.prometheus.repository }}:{{ .Values.images.prometheus.tag }}"
+        imagePullPolicy: {{ .Values.images.prometheus.pullPolicy }}
+      {{- if .Values.prometheus.resources }}
+        resources:
+{{ toYaml .Values.prometheus.resources | indent 10 }}
+      {{- end }}
+        args:
+          - --config.file=/etc/config/prometheus.yml
+          {{- if .Values.prometheus.args.retention }}
+          - --storage.tsdb.retention.time={{ .Values.prometheus.args.retention }}
+          {{- end }}
+          - --storage.tsdb.path=/prometheus
+          - --web.console.libraries=/etc/prometheus/console_libraries
+          - --web.console.templates=/etc/prometheus/consoles
+  {{- if and .Values.ingress.control_center.enabled .Values.ingress.control_center.endpoints.prometheus }}
+          - --web.external-url={{ template "pulsar.control_center_url" . }}{{ template "pulsar.control_center_path.prometheus" . }}/
+  {{- end }}
+          - --web.enable-lifecycle
+  {{ if .Values.prometheus.maxQuerySamples }}
+          - --query.max-samples={{.Values.prometheus.maxQuerySamples }}
+  {{- end }}
+          {{- with .Values.prometheus.extraArgs }}
+          {{ toYaml . | nindent 10 }}
+          {{- end }}
+        ports:
+        - name: server
+          containerPort: {{ .Values.prometheus.port }}
+        {{- if .Values.prometheus.probe.readiness.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ template "pulsar.control_center_path.prometheus" . }}/-/ready
+            port: {{ .Values.prometheus.port }}
+          initialDelaySeconds: {{ .Values.prometheus.probe.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.prometheus.probe.readiness.periodSeconds }}
+          failureThreshold: {{ .Values.prometheus.probe.readiness.failureThreshold }}
+        {{- end }}
+        {{- if .Values.prometheus.probe.liveness.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ template "pulsar.control_center_path.prometheus" . }}/-/healthy
+            port: {{ .Values.prometheus.port }}
+          initialDelaySeconds: {{ .Values.prometheus.probe.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.prometheus.probe.liveness.periodSeconds }}
+          failureThreshold: {{ .Values.prometheus.probe.liveness.failureThreshold }}
+        {{- end }}
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
+          mountPath: /prometheus
+        {{- if .Values.istio.enabled }}
+        - name: istio-certs
+          mountPath: /etc/prom-certs/
+        {{- end }}
+        {{- include "pulsar.prometheus.token.volumeMounts" . | nindent 8 }}
+      volumes:
+      - name: config-volume
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
+      {{- if .Values.istio.enabled }}
+      - emptyDir:
+          medium: Memory
+        name: istio-certs
+      {{- end }}
+    {{- range .Values.configmapReload.prometheus.extraConfigmapMounts }}
+      - name: {{ $.Values.configmapReload.prometheus.name }}-{{ .name }}
+        configMap:
+          name: {{ .configMap }}
+    {{- end }}
+    {{- if not (and .Values.volumes.persistence .Values.prometheus.volumes.persistence) }}
+      - name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+        emptyDir: {}
+    {{- end }}
+    {{- if and .Values.volumes.persistence .Values.prometheus.volumes.persistence }}
+    {{- if not (or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName) }}
+      - name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+        persistentVolumeClaim:
+          claimName: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+    {{- end }}
+    {{- end }}
+    {{- include "pulsar.prometheus.token.volumes" . | nindent 6 }}
+  {{- if or .Values.prometheus.volumes.data.storageClass .Values.prometheus.volumes.data.storageClassName }}
+  volumeClaimTemplates:
+  - metadata:
+      name: "{{ template "pulsar.prometheus.data.pvc.name" . }}"
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.prometheus.volumes.data.size }}
+      {{- include "pulsar.prometheus.data.storage.class" . | nindent 6 }}
+  {{- end }}
+{{- end }}

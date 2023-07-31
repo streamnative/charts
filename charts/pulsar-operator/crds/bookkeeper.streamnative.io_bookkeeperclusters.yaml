@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.6.0
+    controller-gen.kubebuilder.io/version: v0.10.0
   creationTimestamp: null
   name: bookkeeperclusters.bookkeeper.streamnative.io
 spec:
@@ -291,6 +290,7 @@ spec:
                                   - kind
                                   - name
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 dataSourceRef:
                                   description: 'Specifies the object from which to
                                     populate the volume with data, if a non-empty
@@ -309,13 +309,13 @@ spec:
                                     other is non-empty. There are two important differences
                                     between DataSource and DataSourceRef: * While
                                     DataSource only allows two specific types of objects,
-                                    DataSourceRef   allows any non-core object, as
-                                    well as PersistentVolumeClaim objects. * While
-                                    DataSource ignores disallowed values (dropping
-                                    them), DataSourceRef   preserves all values, and
-                                    generates an error if a disallowed value is   specified.
-                                    (Alpha) Using this field requires the AnyVolumeDataSource
-                                    feature gate to be enabled.'
+                                    DataSourceRef allows any non-core object, as well
+                                    as PersistentVolumeClaim objects. * While DataSource
+                                    ignores disallowed values (dropping them), DataSourceRef
+                                    preserves all values, and generates an error if
+                                    a disallowed value is specified. (Alpha) Using
+                                    this field requires the AnyVolumeDataSource feature
+                                    gate to be enabled.'
                                   properties:
                                     apiGroup:
                                       description: APIGroup is the group for the resource
@@ -336,9 +336,14 @@ spec:
                                   - kind
                                   - name
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 resources:
                                   description: 'Resources represents the minimum resources
-                                    the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
+                                    the volume should have. If RecoverVolumeExpansionFailure
+                                    feature is enabled users are allowed to specify
+                                    resource requirements that are lower than previous
+                                    value but must still be higher than capacity recorded
+                                    in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
                                   properties:
                                     limits:
                                       additionalProperties:
@@ -416,6 +421,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 storageClassName:
                                   description: 'Name of the StorageClass required
                                     by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1'
@@ -442,6 +448,28 @@ spec:
                                   items:
                                     type: string
                                   type: array
+                                allocatedResources:
+                                  additionalProperties:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                    x-kubernetes-int-or-string: true
+                                  description: The storage resource within AllocatedResources
+                                    tracks the capacity allocated to a PVC. It may
+                                    be larger than the actual capacity when a volume
+                                    expansion operation is requested. For storage
+                                    quota, the larger value from allocatedResources
+                                    and PVC.spec.resources is used. If allocatedResources
+                                    is not set, PVC.spec.resources alone is used for
+                                    quota calculation. If a volume expansion capacity
+                                    request is lowered, allocatedResources is only
+                                    lowered if there are no expansion operations in
+                                    progress and if the actual volume capacity is
+                                    equal or lower than the requested capacity. This
+                                    is an alpha field and requires enabling RecoverVolumeExpansionFailure
+                                    feature.
+                                  type: object
                                 capacity:
                                   additionalProperties:
                                     anyOf:
@@ -495,6 +523,14 @@ spec:
                                 phase:
                                   description: Phase represents the current phase
                                     of PersistentVolumeClaim.
+                                  type: string
+                                resizeStatus:
+                                  description: ResizeStatus stores status of resize
+                                    operation. ResizeStatus is not set by default
+                                    but when expansion is complete resizeStatus is
+                                    set to empty string by resize controller or kubelet.
+                                    This is an alpha field and requires enabling RecoverVolumeExpansionFailure
+                                    feature.
                                   type: string
                               type: object
                           type: object
@@ -671,6 +707,7 @@ spec:
                                   - kind
                                   - name
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 dataSourceRef:
                                   description: 'Specifies the object from which to
                                     populate the volume with data, if a non-empty
@@ -689,13 +726,13 @@ spec:
                                     other is non-empty. There are two important differences
                                     between DataSource and DataSourceRef: * While
                                     DataSource only allows two specific types of objects,
-                                    DataSourceRef   allows any non-core object, as
-                                    well as PersistentVolumeClaim objects. * While
-                                    DataSource ignores disallowed values (dropping
-                                    them), DataSourceRef   preserves all values, and
-                                    generates an error if a disallowed value is   specified.
-                                    (Alpha) Using this field requires the AnyVolumeDataSource
-                                    feature gate to be enabled.'
+                                    DataSourceRef allows any non-core object, as well
+                                    as PersistentVolumeClaim objects. * While DataSource
+                                    ignores disallowed values (dropping them), DataSourceRef
+                                    preserves all values, and generates an error if
+                                    a disallowed value is specified. (Alpha) Using
+                                    this field requires the AnyVolumeDataSource feature
+                                    gate to be enabled.'
                                   properties:
                                     apiGroup:
                                       description: APIGroup is the group for the resource
@@ -716,9 +753,14 @@ spec:
                                   - kind
                                   - name
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 resources:
                                   description: 'Resources represents the minimum resources
-                                    the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
+                                    the volume should have. If RecoverVolumeExpansionFailure
+                                    feature is enabled users are allowed to specify
+                                    resource requirements that are lower than previous
+                                    value but must still be higher than capacity recorded
+                                    in the status field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
                                   properties:
                                     limits:
                                       additionalProperties:
@@ -796,6 +838,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 storageClassName:
                                   description: 'Name of the StorageClass required
                                     by the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1'
@@ -822,6 +865,28 @@ spec:
                                   items:
                                     type: string
                                   type: array
+                                allocatedResources:
+                                  additionalProperties:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                    x-kubernetes-int-or-string: true
+                                  description: The storage resource within AllocatedResources
+                                    tracks the capacity allocated to a PVC. It may
+                                    be larger than the actual capacity when a volume
+                                    expansion operation is requested. For storage
+                                    quota, the larger value from allocatedResources
+                                    and PVC.spec.resources is used. If allocatedResources
+                                    is not set, PVC.spec.resources alone is used for
+                                    quota calculation. If a volume expansion capacity
+                                    request is lowered, allocatedResources is only
+                                    lowered if there are no expansion operations in
+                                    progress and if the actual volume capacity is
+                                    equal or lower than the requested capacity. This
+                                    is an alpha field and requires enabling RecoverVolumeExpansionFailure
+                                    feature.
+                                  type: object
                                 capacity:
                                   additionalProperties:
                                     anyOf:
@@ -875,6 +940,14 @@ spec:
                                 phase:
                                   description: Phase represents the current phase
                                     of PersistentVolumeClaim.
+                                  type: string
+                                resizeStatus:
+                                  description: ResizeStatus stores status of resize
+                                    operation. ResizeStatus is not set by default
+                                    but when expansion is complete resizeStatus is
+                                    set to empty string by resize controller or kubelet.
+                                    This is an alpha field and requires enabling RecoverVolumeExpansionFailure
+                                    feature.
                                   type: string
                               type: object
                           type: object
@@ -1159,10 +1232,11 @@ spec:
                                   - value
                                   type: object
                                 type: array
+                                x-kubernetes-list-type: atomic
                               selectPolicy:
                                 description: selectPolicy is used to specify which
                                   policy should be used. If not set, the default value
-                                  MaxPolicySelect is used.
+                                  Max is used.
                                 type: string
                               stabilizationWindowSeconds:
                                 description: 'StabilizationWindowSeconds is the number
@@ -1179,10 +1253,9 @@ spec:
                             type: object
                           scaleUp:
                             description: 'scaleUp is scaling policy for scaling Up.
-                              If not set, the default value is the higher of:   *
-                              increase no more than 4 pods per 60 seconds   * double
-                              the number of pods per 60 seconds No stabilization is
-                              used.'
+                              If not set, the default value is the higher of: * increase
+                              no more than 4 pods per 60 seconds * double the number
+                              of pods per 60 seconds No stabilization is used.'
                             properties:
                               policies:
                                 description: policies is a list of potential scaling
@@ -1216,10 +1289,11 @@ spec:
                                   - value
                                   type: object
                                 type: array
+                                x-kubernetes-list-type: atomic
                               selectPolicy:
                                 description: selectPolicy is used to specify which
                                   policy should be used. If not set, the default value
-                                  MaxPolicySelect is used.
+                                  Max is used.
                                 type: string
                               stabilizationWindowSeconds:
                                 description: 'StabilizationWindowSeconds is the number
@@ -1249,7 +1323,7 @@ spec:
                             should be set at once).
                           properties:
                             containerResource:
-                              description: container resource refers to a resource
+                              description: containerResource refers to a resource
                                 metric (such as those specified in requests and limits)
                                 known to Kubernetes describing a single container
                                 in each pod of the current scale target (e.g. CPU
@@ -1381,6 +1455,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                   required:
                                   - name
                                   type: object
@@ -1431,9 +1506,8 @@ spec:
                                 on an Ingress object).
                               properties:
                                 describedObject:
-                                  description: CrossVersionObjectReference contains
-                                    enough information to let you identify the referred
-                                    resource.
+                                  description: describedObject specifies the descriptions
+                                    of a object,such as kind,name apiVersion
                                   properties:
                                     apiVersion:
                                       description: API version of the referent
@@ -1514,6 +1588,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                   required:
                                   - name
                                   type: object
@@ -1629,6 +1704,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                   required:
                                   - name
                                   type: object
@@ -1863,6 +1939,7 @@ spec:
                                             type: object
                                           type: array
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     weight:
                                       description: Weight associated with matching
                                         the corresponding nodeSelectorTerm, in the
@@ -1969,10 +2046,12 @@ spec:
                                             type: object
                                           type: array
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     type: array
                                 required:
                                 - nodeSelectorTerms
                                 type: object
+                                x-kubernetes-map-type: atomic
                             type: object
                           podAffinity:
                             description: Describes pod affinity scheduling rules (e.g.
@@ -2057,6 +2136,7 @@ spec:
                                                 ANDed.
                                               type: object
                                           type: object
+                                          x-kubernetes-map-type: atomic
                                         namespaceSelector:
                                           description: A label query over the set
                                             of namespaces that the term applies to.
@@ -2121,6 +2201,7 @@ spec:
                                                 ANDed.
                                               type: object
                                           type: object
+                                          x-kubernetes-map-type: atomic
                                         namespaces:
                                           description: namespaces specifies a static
                                             list of namespace names that the term
@@ -2230,6 +2311,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaceSelector:
                                       description: A label query over the set of namespaces
                                         that the term applies to. The term is applied
@@ -2289,6 +2371,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaces:
                                       description: namespaces specifies a static list
                                         of namespace names that the term applies to.
@@ -2398,6 +2481,7 @@ spec:
                                                 ANDed.
                                               type: object
                                           type: object
+                                          x-kubernetes-map-type: atomic
                                         namespaceSelector:
                                           description: A label query over the set
                                             of namespaces that the term applies to.
@@ -2462,6 +2546,7 @@ spec:
                                                 ANDed.
                                               type: object
                                           type: object
+                                          x-kubernetes-map-type: atomic
                                         namespaces:
                                           description: namespaces specifies a static
                                             list of namespace names that the term
@@ -2571,6 +2656,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaceSelector:
                                       description: A label query over the set of namespaces
                                         that the term applies to. The term is applied
@@ -2630,6 +2716,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaces:
                                       description: namespaces specifies a static list
                                         of namespace names that the term applies to.
@@ -2680,6 +2767,7 @@ spec:
                                 TODO: Add other useful fields. apiVersion, kind, uid?'
                               type: string
                           type: object
+                          x-kubernetes-map-type: atomic
                         type: array
                       initContainers:
                         description: InitContainers defines init containers of the
@@ -2749,6 +2837,7 @@ spec:
                                         required:
                                         - key
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                       fieldRef:
                                         description: 'Selects a field of the pod:
                                           supports metadata.name, metadata.namespace,
@@ -2768,6 +2857,7 @@ spec:
                                         required:
                                         - fieldPath
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                       resourceFieldRef:
                                         description: 'Selects a resource of the container:
                                           only resources limits and requests (limits.cpu,
@@ -2794,6 +2884,7 @@ spec:
                                         required:
                                         - resource
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                       secretKeyRef:
                                         description: Selects a key of a secret in
                                           the pod's namespace
@@ -2816,6 +2907,7 @@ spec:
                                         required:
                                         - key
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                     type: object
                                 required:
                                 - name
@@ -2842,6 +2934,7 @@ spec:
                                           must be defined
                                         type: boolean
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   prefix:
                                     description: An optional identifier to prepend
                                       to each key in the ConfigMap. Must be a C_IDENTIFIER.
@@ -2860,6 +2953,7 @@ spec:
                                           be defined
                                         type: boolean
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                 type: object
                               type: array
                             image:
@@ -2872,8 +2966,7 @@ spec:
                               description: Periodic probe of container liveness.
                               properties:
                                 exec:
-                                  description: One and only one of the following should
-                                    be specified. Exec specifies the action to take.
+                                  description: Exec specifies the action to take.
                                   properties:
                                     command:
                                       description: Command is the command line to
@@ -2895,6 +2988,26 @@ spec:
                                     Defaults to 3. Minimum value is 1.
                                   format: int32
                                   type: integer
+                                grpc:
+                                  description: GRPC specifies an action involving
+                                    a GRPC port. This is an alpha field and requires
+                                    enabling GRPCContainerProbe feature gate.
+                                  properties:
+                                    port:
+                                      description: Port number of the gRPC service.
+                                        Number must be in the range 1 to 65535.
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      description: "Service is the name of the service
+                                        to place in the gRPC HealthCheckRequest (see
+                                        https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                        \n If this is not specified, the default behavior
+                                        is defined by gRPC."
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   description: HTTPGet specifies the http request
                                     to perform.
@@ -2960,9 +3073,8 @@ spec:
                                   format: int32
                                   type: integer
                                 tcpSocket:
-                                  description: 'TCPSocket specifies an action involving
-                                    a TCP port. TCP hooks not yet supported TODO:
-                                    implement a realistic TCP lifecycle hook'
+                                  description: TCPSocket specifies an action involving
+                                    a TCP port.
                                   properties:
                                     host:
                                       description: 'Optional: Host name to connect
@@ -3014,8 +3126,7 @@ spec:
                                 More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
                               properties:
                                 exec:
-                                  description: One and only one of the following should
-                                    be specified. Exec specifies the action to take.
+                                  description: Exec specifies the action to take.
                                   properties:
                                     command:
                                       description: Command is the command line to
@@ -3037,6 +3148,26 @@ spec:
                                     Defaults to 3. Minimum value is 1.
                                   format: int32
                                   type: integer
+                                grpc:
+                                  description: GRPC specifies an action involving
+                                    a GRPC port. This is an alpha field and requires
+                                    enabling GRPCContainerProbe feature gate.
+                                  properties:
+                                    port:
+                                      description: Port number of the gRPC service.
+                                        Number must be in the range 1 to 65535.
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      description: "Service is the name of the service
+                                        to place in the gRPC HealthCheckRequest (see
+                                        https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                        \n If this is not specified, the default behavior
+                                        is defined by gRPC."
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   description: HTTPGet specifies the http request
                                     to perform.
@@ -3102,9 +3233,8 @@ spec:
                                   format: int32
                                   type: integer
                                 tcpSocket:
-                                  description: 'TCPSocket specifies an action involving
-                                    a TCP port. TCP hooks not yet supported TODO:
-                                    implement a realistic TCP lifecycle hook'
+                                  description: TCPSocket specifies an action involving
+                                    a TCP port.
                                   properties:
                                     host:
                                       description: 'Optional: Host name to connect
@@ -3179,8 +3309,7 @@ spec:
                                 successfully initialized.
                               properties:
                                 exec:
-                                  description: One and only one of the following should
-                                    be specified. Exec specifies the action to take.
+                                  description: Exec specifies the action to take.
                                   properties:
                                     command:
                                       description: Command is the command line to
@@ -3202,6 +3331,26 @@ spec:
                                     Defaults to 3. Minimum value is 1.
                                   format: int32
                                   type: integer
+                                grpc:
+                                  description: GRPC specifies an action involving
+                                    a GRPC port. This is an alpha field and requires
+                                    enabling GRPCContainerProbe feature gate.
+                                  properties:
+                                    port:
+                                      description: Port number of the gRPC service.
+                                        Number must be in the range 1 to 65535.
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      description: "Service is the name of the service
+                                        to place in the gRPC HealthCheckRequest (see
+                                        https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                        \n If this is not specified, the default behavior
+                                        is defined by gRPC."
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   description: HTTPGet specifies the http request
                                     to perform.
@@ -3267,9 +3416,8 @@ spec:
                                   format: int32
                                   type: integer
                                 tcpSocket:
-                                  description: 'TCPSocket specifies an action involving
-                                    a TCP port. TCP hooks not yet supported TODO:
-                                    implement a realistic TCP lifecycle hook'
+                                  description: TCPSocket specifies an action involving
+                                    a TCP port.
                                   properties:
                                     host:
                                       description: 'Optional: Host name to connect
@@ -3366,29 +3514,34 @@ spec:
                         type: array
                       jvmOptions:
                         description: JvmOptions defines the Jvm options passed to
-                          the proxy
+                          the container
                         properties:
                           extraOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                           gcLoggingOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                           gcOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                           memoryOptions:
                             items:
                               type: string
                             nullable: true
                             type: array
+                            x-kubernetes-list-type: set
                         type: object
+                        x-kubernetes-map-type: granular
                       labels:
                         additionalProperties:
                           type: string
@@ -3460,7 +3613,8 @@ spec:
                               in the volume will be owned by FSGroup) 3. The permission
                               bits are OR'd with rw-rw---- \n If unset, the Kubelet
                               will not modify the ownership and permissions of any
-                              volume."
+                              volume. Note that this field cannot be set when spec.os.name
+                              is windows."
                             format: int64
                             type: integer
                           fsGroupChangePolicy:
@@ -3471,14 +3625,16 @@ spec:
                               permissions). It will have no effect on ephemeral volume
                               types such as: secret, configmaps and emptydir. Valid
                               values are "OnRootMismatch" and "Always". If not specified,
-                              "Always" is used.'
+                              "Always" is used. Note that this field cannot be set
+                              when spec.os.name is windows.'
                             type: string
                           runAsGroup:
                             description: The GID to run the entrypoint of the container
                               process. Uses runtime default if unset. May also be
                               set in SecurityContext.  If set in both SecurityContext
                               and PodSecurityContext, the value specified in SecurityContext
-                              takes precedence for that container.
+                              takes precedence for that container. Note that this
+                              field cannot be set when spec.os.name is windows.
                             format: int64
                             type: integer
                           runAsNonRoot:
@@ -3497,7 +3653,8 @@ spec:
                               if unspecified. May also be set in SecurityContext.  If
                               set in both SecurityContext and PodSecurityContext,
                               the value specified in SecurityContext takes precedence
-                              for that container.
+                              for that container. Note that this field cannot be set
+                              when spec.os.name is windows.
                             format: int64
                             type: integer
                           seLinuxOptions:
@@ -3506,7 +3663,8 @@ spec:
                               allocate a random SELinux context for each container.  May
                               also be set in SecurityContext.  If set in both SecurityContext
                               and PodSecurityContext, the value specified in SecurityContext
-                              takes precedence for that container.
+                              takes precedence for that container. Note that this
+                              field cannot be set when spec.os.name is windows.
                             properties:
                               level:
                                 description: Level is SELinux level label that applies
@@ -3527,7 +3685,8 @@ spec:
                             type: object
                           seccompProfile:
                             description: The seccomp options to use by the containers
-                              in this pod.
+                              in this pod. Note that this field cannot be set when
+                              spec.os.name is windows.
                             properties:
                               localhostProfile:
                                 description: localhostProfile indicates a profile
@@ -3552,7 +3711,8 @@ spec:
                             description: A list of groups applied to the first process
                               run in each container, in addition to the container's
                               primary GID.  If unspecified, no groups will be added
-                              to any container.
+                              to any container. Note that this field cannot be set
+                              when spec.os.name is windows.
                             items:
                               format: int64
                               type: integer
@@ -3560,7 +3720,8 @@ spec:
                           sysctls:
                             description: Sysctls hold a list of namespaced sysctls
                               used for the pod. Pods with unsupported sysctls (by
-                              the container runtime) might fail to launch.
+                              the container runtime) might fail to launch. Note that
+                              this field cannot be set when spec.os.name is windows.
                             items:
                               description: Sysctl defines a kernel parameter to be
                                 set
@@ -3581,7 +3742,8 @@ spec:
                               all containers. If unspecified, the options within a
                               container's SecurityContext will be used. If set in
                               both SecurityContext and PodSecurityContext, the value
-                              specified in SecurityContext takes precedence.
+                              specified in SecurityContext takes precedence. Note
+                              that this field cannot be set when spec.os.name is linux.
                             properties:
                               gmsaCredentialSpec:
                                 description: GMSACredentialSpec is where the GMSA
@@ -3687,6 +3849,7 @@ spec:
                                         required:
                                         - key
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                       fieldRef:
                                         description: 'Selects a field of the pod:
                                           supports metadata.name, metadata.namespace,
@@ -3706,6 +3869,7 @@ spec:
                                         required:
                                         - fieldPath
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                       resourceFieldRef:
                                         description: 'Selects a resource of the container:
                                           only resources limits and requests (limits.cpu,
@@ -3732,6 +3896,7 @@ spec:
                                         required:
                                         - resource
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                       secretKeyRef:
                                         description: Selects a key of a secret in
                                           the pod's namespace
@@ -3754,6 +3919,7 @@ spec:
                                         required:
                                         - key
                                         type: object
+                                        x-kubernetes-map-type: atomic
                                     type: object
                                 required:
                                 - name
@@ -3780,6 +3946,7 @@ spec:
                                           must be defined
                                         type: boolean
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   prefix:
                                     description: An optional identifier to prepend
                                       to each key in the ConfigMap. Must be a C_IDENTIFIER.
@@ -3798,6 +3965,7 @@ spec:
                                           be defined
                                         type: boolean
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                 type: object
                               type: array
                             image:
@@ -3810,8 +3978,7 @@ spec:
                               description: Periodic probe of container liveness.
                               properties:
                                 exec:
-                                  description: One and only one of the following should
-                                    be specified. Exec specifies the action to take.
+                                  description: Exec specifies the action to take.
                                   properties:
                                     command:
                                       description: Command is the command line to
@@ -3833,6 +4000,26 @@ spec:
                                     Defaults to 3. Minimum value is 1.
                                   format: int32
                                   type: integer
+                                grpc:
+                                  description: GRPC specifies an action involving
+                                    a GRPC port. This is an alpha field and requires
+                                    enabling GRPCContainerProbe feature gate.
+                                  properties:
+                                    port:
+                                      description: Port number of the gRPC service.
+                                        Number must be in the range 1 to 65535.
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      description: "Service is the name of the service
+                                        to place in the gRPC HealthCheckRequest (see
+                                        https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                        \n If this is not specified, the default behavior
+                                        is defined by gRPC."
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   description: HTTPGet specifies the http request
                                     to perform.
@@ -3898,9 +4085,8 @@ spec:
                                   format: int32
                                   type: integer
                                 tcpSocket:
-                                  description: 'TCPSocket specifies an action involving
-                                    a TCP port. TCP hooks not yet supported TODO:
-                                    implement a realistic TCP lifecycle hook'
+                                  description: TCPSocket specifies an action involving
+                                    a TCP port.
                                   properties:
                                     host:
                                       description: 'Optional: Host name to connect
@@ -3952,8 +4138,7 @@ spec:
                                 More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
                               properties:
                                 exec:
-                                  description: One and only one of the following should
-                                    be specified. Exec specifies the action to take.
+                                  description: Exec specifies the action to take.
                                   properties:
                                     command:
                                       description: Command is the command line to
@@ -3975,6 +4160,26 @@ spec:
                                     Defaults to 3. Minimum value is 1.
                                   format: int32
                                   type: integer
+                                grpc:
+                                  description: GRPC specifies an action involving
+                                    a GRPC port. This is an alpha field and requires
+                                    enabling GRPCContainerProbe feature gate.
+                                  properties:
+                                    port:
+                                      description: Port number of the gRPC service.
+                                        Number must be in the range 1 to 65535.
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      description: "Service is the name of the service
+                                        to place in the gRPC HealthCheckRequest (see
+                                        https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                        \n If this is not specified, the default behavior
+                                        is defined by gRPC."
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   description: HTTPGet specifies the http request
                                     to perform.
@@ -4040,9 +4245,8 @@ spec:
                                   format: int32
                                   type: integer
                                 tcpSocket:
-                                  description: 'TCPSocket specifies an action involving
-                                    a TCP port. TCP hooks not yet supported TODO:
-                                    implement a realistic TCP lifecycle hook'
+                                  description: TCPSocket specifies an action involving
+                                    a TCP port.
                                   properties:
                                     host:
                                       description: 'Optional: Host name to connect
@@ -4117,8 +4321,7 @@ spec:
                                 successfully initialized.
                               properties:
                                 exec:
-                                  description: One and only one of the following should
-                                    be specified. Exec specifies the action to take.
+                                  description: Exec specifies the action to take.
                                   properties:
                                     command:
                                       description: Command is the command line to
@@ -4140,6 +4343,26 @@ spec:
                                     Defaults to 3. Minimum value is 1.
                                   format: int32
                                   type: integer
+                                grpc:
+                                  description: GRPC specifies an action involving
+                                    a GRPC port. This is an alpha field and requires
+                                    enabling GRPCContainerProbe feature gate.
+                                  properties:
+                                    port:
+                                      description: Port number of the gRPC service.
+                                        Number must be in the range 1 to 65535.
+                                      format: int32
+                                      type: integer
+                                    service:
+                                      description: "Service is the name of the service
+                                        to place in the gRPC HealthCheckRequest (see
+                                        https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                        \n If this is not specified, the default behavior
+                                        is defined by gRPC."
+                                      type: string
+                                  required:
+                                  - port
+                                  type: object
                                 httpGet:
                                   description: HTTPGet specifies the http request
                                     to perform.
@@ -4205,9 +4428,8 @@ spec:
                                   format: int32
                                   type: integer
                                 tcpSocket:
-                                  description: 'TCPSocket specifies an action involving
-                                    a TCP port. TCP hooks not yet supported TODO:
-                                    implement a realistic TCP lifecycle hook'
+                                  description: TCPSocket specifies an action involving
+                                    a TCP port.
                                   properties:
                                     host:
                                       description: 'Optional: Host name to connect
@@ -4408,6 +4630,7 @@ spec:
                                     requirements are ANDed.
                                   type: object
                               type: object
+                              x-kubernetes-map-type: atomic
                             maxSkew:
                               description: 'MaxSkew describes the degree to which
                                 pods may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`,
@@ -4439,13 +4662,13 @@ spec:
                                 with a pod if it doesn''t satisfy the spread constraint.
                                 - DoNotSchedule (default) tells the scheduler not
                                 to schedule it. - ScheduleAnyway tells the scheduler
-                                to schedule the pod in any location,   but giving
-                                higher precedence to topologies that would help reduce
-                                the   skew. A constraint is considered "Unsatisfiable"
-                                for an incoming pod if and only if every possible
-                                node assigment for that pod would violate "MaxSkew"
-                                on some topology. For example, in a 3-zone cluster,
-                                MaxSkew is set to 1, and pods with the same labelSelector
+                                to schedule the pod in any location, but giving higher
+                                precedence to topologies that would help reduce the
+                                skew. A constraint is considered "Unsatisfiable" for
+                                an incoming pod if and only if every possible node
+                                assignment for that pod would violate "MaxSkew" on
+                                some topology. For example, in a 3-zone cluster, MaxSkew
+                                is set to 1, and pods with the same labelSelector
                                 spread as 3/1/1: | zone1 | zone2 | zone3 | | P P P
                                 |   P   |   P   | If WhenUnsatisfiable is set to DoNotSchedule,
                                 incoming pod can only be scheduled to zone2(zone3)
@@ -4506,6 +4729,7 @@ spec:
                                   required:
                                   - key
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 fieldRef:
                                   description: 'Selects a field of the pod: supports
                                     metadata.name, metadata.namespace, `metadata.labels[''<KEY>'']`,
@@ -4524,6 +4748,7 @@ spec:
                                   required:
                                   - fieldPath
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 resourceFieldRef:
                                   description: 'Selects a resource of the container:
                                     only resources limits and requests (limits.cpu,
@@ -4549,6 +4774,7 @@ spec:
                                   required:
                                   - resource
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 secretKeyRef:
                                   description: Selects a key of a secret in the pod's
                                     namespace
@@ -4570,6 +4796,7 @@ spec:
                                   required:
                                   - key
                                   type: object
+                                  x-kubernetes-map-type: atomic
                               type: object
                           required:
                           - name
@@ -4655,6 +4882,7 @@ spec:
                                     keys must be defined
                                   type: boolean
                               type: object
+                              x-kubernetes-map-type: atomic
                             name:
                               description: 'Volume''s name. Must be a DNS_LABEL and
                                 unique within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
@@ -4790,10 +5018,11 @@ spec:
                               - value
                               type: object
                             type: array
+                            x-kubernetes-list-type: atomic
                           selectPolicy:
                             description: selectPolicy is used to specify which policy
-                              should be used. If not set, the default value MaxPolicySelect
-                              is used.
+                              should be used. If not set, the default value Max is
+                              used.
                             type: string
                           stabilizationWindowSeconds:
                             description: 'StabilizationWindowSeconds is the number
@@ -4809,9 +5038,9 @@ spec:
                         type: object
                       scaleUp:
                         description: 'scaleUp is scaling policy for scaling Up. If
-                          not set, the default value is the higher of:   * increase
-                          no more than 4 pods per 60 seconds   * double the number
-                          of pods per 60 seconds No stabilization is used.'
+                          not set, the default value is the higher of: * increase
+                          no more than 4 pods per 60 seconds * double the number of
+                          pods per 60 seconds No stabilization is used.'
                         properties:
                           policies:
                             description: policies is a list of potential scaling polices
@@ -4845,10 +5074,11 @@ spec:
                               - value
                               type: object
                             type: array
+                            x-kubernetes-list-type: atomic
                           selectPolicy:
                             description: selectPolicy is used to specify which policy
-                              should be used. If not set, the default value MaxPolicySelect
-                              is used.
+                              should be used. If not set, the default value Max is
+                              used.
                             type: string
                           stabilizationWindowSeconds:
                             description: 'StabilizationWindowSeconds is the number
@@ -4876,7 +5106,7 @@ spec:
                         set at once).
                       properties:
                         containerResource:
-                          description: container resource refers to a resource metric
+                          description: containerResource refers to a resource metric
                             (such as those specified in requests and limits) known
                             to Kubernetes describing a single container in each pod
                             of the current scale target (e.g. CPU or memory). Such
@@ -5003,6 +5233,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                               required:
                               - name
                               type: object
@@ -5053,8 +5284,8 @@ spec:
                             Ingress object).
                           properties:
                             describedObject:
-                              description: CrossVersionObjectReference contains enough
-                                information to let you identify the referred resource.
+                              description: describedObject specifies the descriptions
+                                of a object,such as kind,name apiVersion
                               properties:
                                 apiVersion:
                                   description: API version of the referent
@@ -5131,6 +5362,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                               required:
                               - name
                               type: object
@@ -5244,6 +5476,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                               required:
                               - name
                               type: object
@@ -5368,6 +5601,18 @@ spec:
               config:
                 description: Config defines the bookkeeper configuration
                 properties:
+                  bookieIDPolicy:
+                    description: BookieIDPolicy defines how should the bookieID be
+                      generated For backward compatibility, the operator will just
+                      set `useHostNameAsBookieID` to `true` when `bookieIDPolicy`
+                      is an empty string or set to `UseHostNameAsBookieID`. When `bookieIDPolicy`
+                      is set to `HostNamePort`, the operator will set `bookieId` as
+                      `{{HostName}}:{{Port}}` which should be able be compatible with
+                      `useHostNameAsBookieID` but decouples the bookie physical address
+                      from the logical address. The default value might be changed
+                      in the future. See https://bookkeeper.apache.org/bps/BP-41-bookieid/
+                      for more details
+                    type: string
                   compactionRateByBytes:
                     description: "CompactionRateByBytes is the rate at which compaction
                       will read entries. The unit is adds per second. \n The default
@@ -5553,15 +5798,15 @@ spec:
                       tls:
                         properties:
                           certSecretName:
-                            description: "SIMPLE mode:   CertSecretName defines the
-                              name of the secret that contains the   certificate to
-                              use in Istio Ingress Gateway. The value should be   name
+                            description: 'SIMPLE mode: CertSecretName defines the
+                              name of the secret that contains the certificate to
+                              use in Istio Ingress Gateway. The value should be name
                               of the secret in the gateway workload namespace. PASSTHROUGH
-                              mode: \t CertSecretName defines the name of the secret
-                              that contains the \t certificate to use in Broker. The
-                              value should be name of the secret   name of the secret
+                              mode: CertSecretName defines the name of the secret
+                              that contains the certificate to use in Broker. The
+                              value should be name of the secret name of the secret
                               in the Broker workload namespace. Required in both SIMPLE
-                              and PASSTHROUGH mode."
+                              and PASSTHROUGH mode.'
                             type: string
                           mode:
                             description: 'Optional: Indicates whether connections
@@ -5586,6 +5831,10 @@ spec:
                     description: Revision defines which Istio control plane inject
                       sidecar
                     type: string
+                  trustDomain:
+                    description: TrustDomain corresponds to the trust root of a system
+                      and is part of a workload identity
+                    type: string
                 type: object
               labels:
                 additionalProperties:
@@ -5593,6 +5842,34 @@ spec:
                 description: Labels specifies the labels to attach to the stateful
                   set the operator creates for the bookkeeper cluster.
                 nullable: true
+                type: object
+              logConfig:
+                description: LogConfig defines the log configuration
+                properties:
+                  format:
+                    default: text
+                    description: Format is the log format, value is 'json' or 'text'
+                    enum:
+                    - json
+                    - text
+                    type: string
+                  level:
+                    default: INFO
+                    description: Level is the log level
+                    enum:
+                    - INFO
+                    - DEBUG
+                    - TRACE
+                    - WARN
+                    - ERROR
+                    - FATAL
+                    - ALL
+                    - "OFF"
+                    type: string
+                  template:
+                    description: Template is the log Configuration content, can use
+                      golang template syntax
+                    type: string
                 type: object
               pod:
                 description: Pod defines the policy for creating a bookkeeper pod
@@ -5705,6 +5982,7 @@ spec:
                                         type: object
                                       type: array
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 weight:
                                   description: Weight associated with matching the
                                     corresponding nodeSelectorTerm, in the range 1-100.
@@ -5810,10 +6088,12 @@ spec:
                                         type: object
                                       type: array
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 type: array
                             required:
                             - nodeSelectorTerms
                             type: object
+                            x-kubernetes-map-type: atomic
                         type: object
                       podAffinity:
                         description: Describes pod affinity scheduling rules (e.g.
@@ -5894,6 +6174,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaceSelector:
                                       description: A label query over the set of namespaces
                                         that the term applies to. The term is applied
@@ -5953,6 +6234,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaces:
                                       description: namespaces specifies a static list
                                         of namespace names that the term applies to.
@@ -6057,6 +6339,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 namespaceSelector:
                                   description: A label query over the set of namespaces
                                     that the term applies to. The term is applied
@@ -6115,6 +6398,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 namespaces:
                                   description: namespaces specifies a static list
                                     of namespace names that the term applies to. The
@@ -6218,6 +6502,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaceSelector:
                                       description: A label query over the set of namespaces
                                         that the term applies to. The term is applied
@@ -6277,6 +6562,7 @@ spec:
                                             only "value". The requirements are ANDed.
                                           type: object
                                       type: object
+                                      x-kubernetes-map-type: atomic
                                     namespaces:
                                       description: namespaces specifies a static list
                                         of namespace names that the term applies to.
@@ -6381,6 +6667,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 namespaceSelector:
                                   description: A label query over the set of namespaces
                                     that the term applies to. The term is applied
@@ -6439,6 +6726,7 @@ spec:
                                         The requirements are ANDed.
                                       type: object
                                   type: object
+                                  x-kubernetes-map-type: atomic
                                 namespaces:
                                   description: namespaces specifies a static list
                                     of namespace names that the term applies to. The
@@ -6486,6 +6774,7 @@ spec:
                             TODO: Add other useful fields. apiVersion, kind, uid?'
                           type: string
                       type: object
+                      x-kubernetes-map-type: atomic
                     type: array
                   initContainers:
                     description: InitContainers defines init containers of the pod.
@@ -6554,6 +6843,7 @@ spec:
                                     required:
                                     - key
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   fieldRef:
                                     description: 'Selects a field of the pod: supports
                                       metadata.name, metadata.namespace, `metadata.labels[''<KEY>'']`,
@@ -6572,6 +6862,7 @@ spec:
                                     required:
                                     - fieldPath
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   resourceFieldRef:
                                     description: 'Selects a resource of the container:
                                       only resources limits and requests (limits.cpu,
@@ -6597,6 +6888,7 @@ spec:
                                     required:
                                     - resource
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   secretKeyRef:
                                     description: Selects a key of a secret in the
                                       pod's namespace
@@ -6618,6 +6910,7 @@ spec:
                                     required:
                                     - key
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                 type: object
                             required:
                             - name
@@ -6644,6 +6937,7 @@ spec:
                                       be defined
                                     type: boolean
                                 type: object
+                                x-kubernetes-map-type: atomic
                               prefix:
                                 description: An optional identifier to prepend to
                                   each key in the ConfigMap. Must be a C_IDENTIFIER.
@@ -6662,6 +6956,7 @@ spec:
                                       defined
                                     type: boolean
                                 type: object
+                                x-kubernetes-map-type: atomic
                             type: object
                           type: array
                         image:
@@ -6674,8 +6969,7 @@ spec:
                           description: Periodic probe of container liveness.
                           properties:
                             exec:
-                              description: One and only one of the following should
-                                be specified. Exec specifies the action to take.
+                              description: Exec specifies the action to take.
                               properties:
                                 command:
                                   description: Command is the command line to execute
@@ -6697,6 +6991,25 @@ spec:
                                 to 3. Minimum value is 1.
                               format: int32
                               type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port. This is an alpha field and requires enabling
+                                GRPCContainerProbe feature gate.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  description: "Service is the name of the service
+                                    to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                    \n If this is not specified, the default behavior
+                                    is defined by gRPC."
+                                  type: string
+                              required:
+                              - port
+                              type: object
                             httpGet:
                               description: HTTPGet specifies the http request to perform.
                               properties:
@@ -6760,9 +7073,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: 'TCPSocket specifies an action involving
-                                a TCP port. TCP hooks not yet supported TODO: implement
-                                a realistic TCP lifecycle hook'
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -6813,8 +7125,7 @@ spec:
                             More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
                           properties:
                             exec:
-                              description: One and only one of the following should
-                                be specified. Exec specifies the action to take.
+                              description: Exec specifies the action to take.
                               properties:
                                 command:
                                   description: Command is the command line to execute
@@ -6836,6 +7147,25 @@ spec:
                                 to 3. Minimum value is 1.
                               format: int32
                               type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port. This is an alpha field and requires enabling
+                                GRPCContainerProbe feature gate.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  description: "Service is the name of the service
+                                    to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                    \n If this is not specified, the default behavior
+                                    is defined by gRPC."
+                                  type: string
+                              required:
+                              - port
+                              type: object
                             httpGet:
                               description: HTTPGet specifies the http request to perform.
                               properties:
@@ -6899,9 +7229,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: 'TCPSocket specifies an action involving
-                                a TCP port. TCP hooks not yet supported TODO: implement
-                                a realistic TCP lifecycle hook'
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -6975,8 +7304,7 @@ spec:
                             initialized.
                           properties:
                             exec:
-                              description: One and only one of the following should
-                                be specified. Exec specifies the action to take.
+                              description: Exec specifies the action to take.
                               properties:
                                 command:
                                   description: Command is the command line to execute
@@ -6998,6 +7326,25 @@ spec:
                                 to 3. Minimum value is 1.
                               format: int32
                               type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port. This is an alpha field and requires enabling
+                                GRPCContainerProbe feature gate.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  description: "Service is the name of the service
+                                    to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                    \n If this is not specified, the default behavior
+                                    is defined by gRPC."
+                                  type: string
+                              required:
+                              - port
+                              type: object
                             httpGet:
                               description: HTTPGet specifies the http request to perform.
                               properties:
@@ -7061,9 +7408,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: 'TCPSocket specifies an action involving
-                                a TCP port. TCP hooks not yet supported TODO: implement
-                                a realistic TCP lifecycle hook'
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -7155,29 +7501,34 @@ spec:
                     type: array
                   jvmOptions:
                     description: JvmOptions defines the Jvm options passed to the
-                      proxy
+                      container
                     properties:
                       extraOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcLoggingOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       gcOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                       memoryOptions:
                         items:
                           type: string
                         nullable: true
                         type: array
+                        x-kubernetes-list-type: set
                     type: object
+                    x-kubernetes-map-type: granular
                   labels:
                     additionalProperties:
                       type: string
@@ -7247,7 +7598,8 @@ spec:
                           bit is set (new files created in the volume will be owned
                           by FSGroup) 3. The permission bits are OR'd with rw-rw----
                           \n If unset, the Kubelet will not modify the ownership and
-                          permissions of any volume."
+                          permissions of any volume. Note that this field cannot be
+                          set when spec.os.name is windows."
                         format: int64
                         type: integer
                       fsGroupChangePolicy:
@@ -7257,14 +7609,16 @@ spec:
                           support fsGroup based ownership(and permissions). It will
                           have no effect on ephemeral volume types such as: secret,
                           configmaps and emptydir. Valid values are "OnRootMismatch"
-                          and "Always". If not specified, "Always" is used.'
+                          and "Always". If not specified, "Always" is used. Note that
+                          this field cannot be set when spec.os.name is windows.'
                         type: string
                       runAsGroup:
                         description: The GID to run the entrypoint of the container
                           process. Uses runtime default if unset. May also be set
                           in SecurityContext.  If set in both SecurityContext and
                           PodSecurityContext, the value specified in SecurityContext
-                          takes precedence for that container.
+                          takes precedence for that container. Note that this field
+                          cannot be set when spec.os.name is windows.
                         format: int64
                         type: integer
                       runAsNonRoot:
@@ -7282,6 +7636,8 @@ spec:
                           unspecified. May also be set in SecurityContext.  If set
                           in both SecurityContext and PodSecurityContext, the value
                           specified in SecurityContext takes precedence for that container.
+                          Note that this field cannot be set when spec.os.name is
+                          windows.
                         format: int64
                         type: integer
                       seLinuxOptions:
@@ -7290,7 +7646,8 @@ spec:
                           SELinux context for each container.  May also be set in
                           SecurityContext.  If set in both SecurityContext and PodSecurityContext,
                           the value specified in SecurityContext takes precedence
-                          for that container.
+                          for that container. Note that this field cannot be set when
+                          spec.os.name is windows.
                         properties:
                           level:
                             description: Level is SELinux level label that applies
@@ -7311,7 +7668,8 @@ spec:
                         type: object
                       seccompProfile:
                         description: The seccomp options to use by the containers
-                          in this pod.
+                          in this pod. Note that this field cannot be set when spec.os.name
+                          is windows.
                         properties:
                           localhostProfile:
                             description: localhostProfile indicates a profile defined
@@ -7334,6 +7692,8 @@ spec:
                         description: A list of groups applied to the first process
                           run in each container, in addition to the container's primary
                           GID.  If unspecified, no groups will be added to any container.
+                          Note that this field cannot be set when spec.os.name is
+                          windows.
                         items:
                           format: int64
                           type: integer
@@ -7341,7 +7701,8 @@ spec:
                       sysctls:
                         description: Sysctls hold a list of namespaced sysctls used
                           for the pod. Pods with unsupported sysctls (by the container
-                          runtime) might fail to launch.
+                          runtime) might fail to launch. Note that this field cannot
+                          be set when spec.os.name is windows.
                         items:
                           description: Sysctl defines a kernel parameter to be set
                           properties:
@@ -7361,7 +7722,8 @@ spec:
                           containers. If unspecified, the options within a container's
                           SecurityContext will be used. If set in both SecurityContext
                           and PodSecurityContext, the value specified in SecurityContext
-                          takes precedence.
+                          takes precedence. Note that this field cannot be set when
+                          spec.os.name is linux.
                         properties:
                           gmsaCredentialSpec:
                             description: GMSACredentialSpec is where the GMSA admission
@@ -7465,6 +7827,7 @@ spec:
                                     required:
                                     - key
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   fieldRef:
                                     description: 'Selects a field of the pod: supports
                                       metadata.name, metadata.namespace, `metadata.labels[''<KEY>'']`,
@@ -7483,6 +7846,7 @@ spec:
                                     required:
                                     - fieldPath
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   resourceFieldRef:
                                     description: 'Selects a resource of the container:
                                       only resources limits and requests (limits.cpu,
@@ -7508,6 +7872,7 @@ spec:
                                     required:
                                     - resource
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                   secretKeyRef:
                                     description: Selects a key of a secret in the
                                       pod's namespace
@@ -7529,6 +7894,7 @@ spec:
                                     required:
                                     - key
                                     type: object
+                                    x-kubernetes-map-type: atomic
                                 type: object
                             required:
                             - name
@@ -7555,6 +7921,7 @@ spec:
                                       be defined
                                     type: boolean
                                 type: object
+                                x-kubernetes-map-type: atomic
                               prefix:
                                 description: An optional identifier to prepend to
                                   each key in the ConfigMap. Must be a C_IDENTIFIER.
@@ -7573,6 +7940,7 @@ spec:
                                       defined
                                     type: boolean
                                 type: object
+                                x-kubernetes-map-type: atomic
                             type: object
                           type: array
                         image:
@@ -7585,8 +7953,7 @@ spec:
                           description: Periodic probe of container liveness.
                           properties:
                             exec:
-                              description: One and only one of the following should
-                                be specified. Exec specifies the action to take.
+                              description: Exec specifies the action to take.
                               properties:
                                 command:
                                   description: Command is the command line to execute
@@ -7608,6 +7975,25 @@ spec:
                                 to 3. Minimum value is 1.
                               format: int32
                               type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port. This is an alpha field and requires enabling
+                                GRPCContainerProbe feature gate.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  description: "Service is the name of the service
+                                    to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                    \n If this is not specified, the default behavior
+                                    is defined by gRPC."
+                                  type: string
+                              required:
+                              - port
+                              type: object
                             httpGet:
                               description: HTTPGet specifies the http request to perform.
                               properties:
@@ -7671,9 +8057,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: 'TCPSocket specifies an action involving
-                                a TCP port. TCP hooks not yet supported TODO: implement
-                                a realistic TCP lifecycle hook'
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -7724,8 +8109,7 @@ spec:
                             More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes'
                           properties:
                             exec:
-                              description: One and only one of the following should
-                                be specified. Exec specifies the action to take.
+                              description: Exec specifies the action to take.
                               properties:
                                 command:
                                   description: Command is the command line to execute
@@ -7747,6 +8131,25 @@ spec:
                                 to 3. Minimum value is 1.
                               format: int32
                               type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port. This is an alpha field and requires enabling
+                                GRPCContainerProbe feature gate.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  description: "Service is the name of the service
+                                    to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                    \n If this is not specified, the default behavior
+                                    is defined by gRPC."
+                                  type: string
+                              required:
+                              - port
+                              type: object
                             httpGet:
                               description: HTTPGet specifies the http request to perform.
                               properties:
@@ -7810,9 +8213,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: 'TCPSocket specifies an action involving
-                                a TCP port. TCP hooks not yet supported TODO: implement
-                                a realistic TCP lifecycle hook'
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -7886,8 +8288,7 @@ spec:
                             initialized.
                           properties:
                             exec:
-                              description: One and only one of the following should
-                                be specified. Exec specifies the action to take.
+                              description: Exec specifies the action to take.
                               properties:
                                 command:
                                   description: Command is the command line to execute
@@ -7909,6 +8310,25 @@ spec:
                                 to 3. Minimum value is 1.
                               format: int32
                               type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port. This is an alpha field and requires enabling
+                                GRPCContainerProbe feature gate.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  description: "Service is the name of the service
+                                    to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+                                    \n If this is not specified, the default behavior
+                                    is defined by gRPC."
+                                  type: string
+                              required:
+                              - port
+                              type: object
                             httpGet:
                               description: HTTPGet specifies the http request to perform.
                               properties:
@@ -7972,9 +8392,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: 'TCPSocket specifies an action involving
-                                a TCP port. TCP hooks not yet supported TODO: implement
-                                a realistic TCP lifecycle hook'
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -8166,6 +8585,7 @@ spec:
                                 contains only "value". The requirements are ANDed.
                               type: object
                           type: object
+                          x-kubernetes-map-type: atomic
                         maxSkew:
                           description: 'MaxSkew describes the degree to which pods
                             may be unevenly distributed. When `whenUnsatisfiable=DoNotSchedule`,
@@ -8196,19 +8616,19 @@ spec:
                             a pod if it doesn''t satisfy the spread constraint. -
                             DoNotSchedule (default) tells the scheduler not to schedule
                             it. - ScheduleAnyway tells the scheduler to schedule the
-                            pod in any location,   but giving higher precedence to
-                            topologies that would help reduce the   skew. A constraint
-                            is considered "Unsatisfiable" for an incoming pod if and
-                            only if every possible node assigment for that pod would
-                            violate "MaxSkew" on some topology. For example, in a
-                            3-zone cluster, MaxSkew is set to 1, and pods with the
-                            same labelSelector spread as 3/1/1: | zone1 | zone2 |
-                            zone3 | | P P P |   P   |   P   | If WhenUnsatisfiable
-                            is set to DoNotSchedule, incoming pod can only be scheduled
-                            to zone2(zone3) to become 3/2/1(3/1/2) as ActualSkew(2-1)
-                            on zone2(zone3) satisfies MaxSkew(1). In other words,
-                            the cluster can still be imbalanced, but scheduler won''t
-                            make it *more* imbalanced. It''s a required field.'
+                            pod in any location, but giving higher precedence to topologies
+                            that would help reduce the skew. A constraint is considered
+                            "Unsatisfiable" for an incoming pod if and only if every
+                            possible node assignment for that pod would violate "MaxSkew"
+                            on some topology. For example, in a 3-zone cluster, MaxSkew
+                            is set to 1, and pods with the same labelSelector spread
+                            as 3/1/1: | zone1 | zone2 | zone3 | | P P P |   P   |   P   |
+                            If WhenUnsatisfiable is set to DoNotSchedule, incoming
+                            pod can only be scheduled to zone2(zone3) to become 3/2/1(3/1/2)
+                            as ActualSkew(2-1) on zone2(zone3) satisfies MaxSkew(1).
+                            In other words, the cluster can still be imbalanced, but
+                            scheduler won''t make it *more* imbalanced. It''s a required
+                            field.'
                           type: string
                       required:
                       - maxSkew
@@ -8259,6 +8679,7 @@ spec:
                               required:
                               - key
                               type: object
+                              x-kubernetes-map-type: atomic
                             fieldRef:
                               description: 'Selects a field of the pod: supports metadata.name,
                                 metadata.namespace, `metadata.labels[''<KEY>'']`,
@@ -8277,6 +8698,7 @@ spec:
                               required:
                               - fieldPath
                               type: object
+                              x-kubernetes-map-type: atomic
                             resourceFieldRef:
                               description: 'Selects a resource of the container: only
                                 resources limits and requests (limits.cpu, limits.memory,
@@ -8301,6 +8723,7 @@ spec:
                               required:
                               - resource
                               type: object
+                              x-kubernetes-map-type: atomic
                             secretKeyRef:
                               description: Selects a key of a secret in the pod's
                                 namespace
@@ -8321,6 +8744,7 @@ spec:
                               required:
                               - key
                               type: object
+                              x-kubernetes-map-type: atomic
                           type: object
                       required:
                       - name
@@ -8402,6 +8826,7 @@ spec:
                                 must be defined
                               type: boolean
                           type: object
+                          x-kubernetes-map-type: atomic
                         name:
                           description: 'Volume''s name. Must be a DNS_LABEL and unique
                             within the pod. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names'
@@ -8479,10 +8904,12 @@ spec:
                     type: array
                 type: object
               replicas:
+                default: 3
                 description: Replicas is the expected size of the bookkeeper cluster.
                   The bookkeeper operator will eventually make the size of the running
                   cluster equal to the expected size. Use a pointer to distinguish
-                  between a specified zero or unspecified.
+                  between a specified zero or unspecified. If unspecified, defaults
+                  to 3.
                 format: int32
                 minimum: 0
                 type: integer
@@ -8539,6 +8966,7 @@ spec:
                             - kind
                             - name
                             type: object
+                            x-kubernetes-map-type: atomic
                           dataSourceRef:
                             description: 'Specifies the object from which to populate
                               the volume with data, if a non-empty volume is desired.
@@ -8555,11 +8983,11 @@ spec:
                               and the other is non-empty. There are two important
                               differences between DataSource and DataSourceRef: *
                               While DataSource only allows two specific types of objects,
-                              DataSourceRef   allows any non-core object, as well
-                              as PersistentVolumeClaim objects. * While DataSource
-                              ignores disallowed values (dropping them), DataSourceRef   preserves
+                              DataSourceRef allows any non-core object, as well as
+                              PersistentVolumeClaim objects. * While DataSource ignores
+                              disallowed values (dropping them), DataSourceRef preserves
                               all values, and generates an error if a disallowed value
-                              is   specified. (Alpha) Using this field requires the
+                              is specified. (Alpha) Using this field requires the
                               AnyVolumeDataSource feature gate to be enabled.'
                             properties:
                               apiGroup:
@@ -8578,9 +9006,14 @@ spec:
                             - kind
                             - name
                             type: object
+                            x-kubernetes-map-type: atomic
                           resources:
                             description: 'Resources represents the minimum resources
-                              the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
+                              the volume should have. If RecoverVolumeExpansionFailure
+                              feature is enabled users are allowed to specify resource
+                              requirements that are lower than previous value but
+                              must still be higher than capacity recorded in the status
+                              field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
                             properties:
                               limits:
                                 additionalProperties:
@@ -8652,6 +9085,7 @@ spec:
                                   contains only "value". The requirements are ANDed.
                                 type: object
                             type: object
+                            x-kubernetes-map-type: atomic
                           storageClassName:
                             description: 'Name of the StorageClass required by the
                               claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1'
@@ -8718,6 +9152,7 @@ spec:
                             - kind
                             - name
                             type: object
+                            x-kubernetes-map-type: atomic
                           dataSourceRef:
                             description: 'Specifies the object from which to populate
                               the volume with data, if a non-empty volume is desired.
@@ -8734,11 +9169,11 @@ spec:
                               and the other is non-empty. There are two important
                               differences between DataSource and DataSourceRef: *
                               While DataSource only allows two specific types of objects,
-                              DataSourceRef   allows any non-core object, as well
-                              as PersistentVolumeClaim objects. * While DataSource
-                              ignores disallowed values (dropping them), DataSourceRef   preserves
+                              DataSourceRef allows any non-core object, as well as
+                              PersistentVolumeClaim objects. * While DataSource ignores
+                              disallowed values (dropping them), DataSourceRef preserves
                               all values, and generates an error if a disallowed value
-                              is   specified. (Alpha) Using this field requires the
+                              is specified. (Alpha) Using this field requires the
                               AnyVolumeDataSource feature gate to be enabled.'
                             properties:
                               apiGroup:
@@ -8757,9 +9192,14 @@ spec:
                             - kind
                             - name
                             type: object
+                            x-kubernetes-map-type: atomic
                           resources:
                             description: 'Resources represents the minimum resources
-                              the volume should have. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
+                              the volume should have. If RecoverVolumeExpansionFailure
+                              feature is enabled users are allowed to specify resource
+                              requirements that are lower than previous value but
+                              must still be higher than capacity recorded in the status
+                              field of the claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources'
                             properties:
                               limits:
                                 additionalProperties:
@@ -8831,6 +9271,7 @@ spec:
                                   contains only "value". The requirements are ANDed.
                                 type: object
                             type: object
+                            x-kubernetes-map-type: atomic
                           storageClassName:
                             description: 'Name of the StorageClass required by the
                               claim. More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1'
@@ -8943,9 +9384,3 @@ spec:
         specReplicasPath: .spec.replicas
         statusReplicasPath: .status.replicas
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

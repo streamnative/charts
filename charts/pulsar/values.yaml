@@ -129,61 +129,61 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.9.2.12
+  #   tag: 2.10.3.6
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-pulsar
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_runner_java:
     repository: streamnative/pulsar-functions-java-runner
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_runner_go:
     repository: streamnative/pulsar-functions-go-runner
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   function_runner_python:
     repository: streamnative/pulsar-functions-python-runner
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   # toolset:
   #   repository: streamnative/pulsar-all
-  #   tag: 2.9.2.12
+  #   tag: 2.10.3.6
   #   pullPolicy: IfNotPresent
   prometheus:
     repository: prom/prometheus
@@ -207,7 +207,7 @@ images:
     tag: v0.16.0
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
-    repository: k8s.gcr.io/ingress-nginx/controller
+    repository: registry.k8s.io/ingress-nginx/controller
     tag: v1.1.1
     pullPolicy: "IfNotPresent"
 
@@ -530,18 +530,19 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-      timeoutSeconds: 5
+      timeoutSeconds: 10
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
-      timeoutSeconds: 5
+      timeoutSeconds: 10
     startup:
       enabled: false
       failureThreshold: 30
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 10
   affinity:
     anti_affinity: true
     # Set the anti affinity type. Valid values:
@@ -551,7 +552,10 @@ zookeeper:
   annotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "8000"
-  securityContext: {}
+  labels: {}
+  securityContext:
+    fsGroup: 0
+    fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
   gracePeriod: 30
   resources:
@@ -635,6 +639,7 @@ zookeeper:
       -Dzookeeper.forceSync=no
   statefulset:
     annotations: {}
+    labels: {}
   ## Zookeeper service
   ## templates/zookeeper-service.yaml
   ##
@@ -658,7 +663,7 @@ zookeeper:
       component: "backup"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.12"
+      tag: "2.10.3.6"
       pullPolicy: IfNotPresent
       webServerPort: "8088"
       backupInterval: "600"
@@ -684,7 +689,7 @@ zookeeper:
       component: "restore"
       enable: false
       repository: "streamnative/pulsar-metadata-tool"
-      tag: "2.9.2.12"
+      tag: "2.10.3.6"
       pullPolicy: IfNotPresent
       restorePoint: ""
       restoreVersion: "1"
@@ -745,7 +750,10 @@ bookkeeper:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext: {}
+  labels: {}
+  securityContext:
+    fsGroup: 0
+    fsGroupChangePolicy: "OnRootMismatch"
   tolerations: []
   gracePeriod: 30
   resources:
@@ -844,6 +852,7 @@ bookkeeper:
       -verbosegc
   statefulset:
     annotations: {}
+    labels: {}
   ## Bookkeeper Service
   ## templates/bookkeeper-service.yaml
   ##
@@ -876,7 +885,10 @@ autorecovery:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
-  securityContext: {}
+  labels: {}
+  securityContext:
+    fsGroup: 0
+    fsGroupChangePolicy: "OnRootMismatch"
   # tolerations: []
   gracePeriod: 30
   resources:
@@ -894,6 +906,7 @@ autorecovery:
       -Xms64m -Xmx64m
   statefulset:
     annotations: {}
+    labels: {}
 
 ## Pulsar Zookeeper metadata. The metadata will be deployed as
 ## soon as the last zookeeper node is reachable. The deployment
@@ -908,7 +921,7 @@ pulsar_metadata:
     # repository: apachepulsar/pulsar-all
     # tag: 2.5.0
     repository: streamnative/pulsar-all
-    tag: 2.9.2.12
+    tag: 2.10.3.6
     pullPolicy: IfNotPresent
   ## set an existing configuration store
   # configurationStore:
@@ -989,6 +1002,7 @@ broker:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
+  labels: {}
   tolerations: []
   securityContext: {}
   gracePeriod: 30
@@ -1051,6 +1065,7 @@ broker:
     managedLedgerDefaultAckQuorum: "2"
   statefulset:
     annotations: {}
+    labels: {}
   ## Broker service
   ## templates/broker-service.yaml
   ##
@@ -1111,7 +1126,7 @@ broker:
 ##
 functions:
   component: functions-worker
-  useDedicatedRunner: false
+  useDedicatedRunner: true
   functionMesh: false
   functionMeshName: "function-mesh"
   functionMeshServiceAccount: "default"
@@ -1131,7 +1146,11 @@ functions:
   # pulsarServiceUrlOverride:
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
-  securityContext: {}
+  securityContext:
+    fsGroup: 0
+    runAsGroup: 0
+    runAsNonRoot: false
+    runAsUser: 0
   tolerations: []
   extraVolumes: []
   extraVolumeMounts: []
@@ -1154,6 +1173,7 @@ functions:
     clusterRole: true
   autoRollDeployment: true
   annotations: {}
+  labels: {}
   ports:
     http: 8080
     https: 8443
@@ -1179,6 +1199,7 @@ functions:
       periodSeconds: 10
   statefulset:
     annotations: {}
+    labels: {}
   service:
     annotations: {}
   affinity:
@@ -1286,6 +1307,7 @@ proxy:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   annotations: {}
+  labels: {}
   securityContext: {}
   tolerations: []
   gracePeriod: 30
@@ -1374,6 +1396,7 @@ proxy:
     websockettls: 9443
   statefulset:
     annotations: {}
+    labels: {}
   service:
     annotations: {}
     type: ClusterIP
