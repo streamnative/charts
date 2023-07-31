@@ -1771,6 +1771,7 @@ prometheus:
     # https://prometheus.io/docs/prometheus/latest/storage/#operational-aspects
     - --storage.tsdb.wal-compression
   scrapeInterval: 15s
+  external_labels: {}
   securityContext:
     runAsUser: 65534
     runAsNonRoot: true
@@ -1789,7 +1790,7 @@ prometheus:
       periodSeconds: 10
   customRelabelConfigs: []
   extraScrapeConfigs: []
-  extraCustomArgs: {}
+  extraCustomArgs:
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
