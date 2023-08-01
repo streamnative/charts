@@ -1771,7 +1771,10 @@ prometheus:
     # https://prometheus.io/docs/prometheus/latest/storage/#operational-aspects
     - --storage.tsdb.wal-compression
   scrapeInterval: 15s
-  external_labels: {}
+  externalLabels:
+    test1: test2
+    test3: test4
+    test5: test6
   securityContext:
     runAsUser: 65534
     runAsNonRoot: true
