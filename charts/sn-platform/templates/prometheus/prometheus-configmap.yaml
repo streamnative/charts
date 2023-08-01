@@ -32,11 +32,9 @@ data:
   prometheus.yml: |
     global:
       scrape_interval: {{ .Values.prometheus.scrapeInterval }}
-{{- if .Values.prometheus.external_labels }}
+{{- if .Values.prometheus.externalLabels }}
       external_labels:
-      {{- with .Values.prometheus.external_labels }}
-      {{ toYaml . | indent 2 }}
-      {{- end }}
+{{ toYaml .Values.prometheus.externalLabels | indent 8 }}
 {{- end }}
 {{- if .Values.monitoring.alert_manager }}
     rule_files:
