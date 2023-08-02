@@ -299,7 +299,7 @@ spec:
       {{- end }}
       {{- if .Values.broker.kop.enabled }}
       PULSAR_PREFIX_kafkaTransactionCoordinatorEnabled: "true"
-      {{- if .Values.kop.auth.enabled }}
+      {{- if .Values.kop.auth.enabled or .Values.broker.kop.auth.enabled }}
       PULSAR_PREFIX_saslAllowedMechanisms: "PLAIN"
       {{- end }}
       {{- end }}
