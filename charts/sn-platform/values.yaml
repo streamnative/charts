@@ -1245,11 +1245,6 @@ broker:
     extraOptions: []
     gcLoggingOptions: []
   configData:
-    # @deprecated:
-    # 1. You can use a service account to assume an IAM role to access S3 bucket
-    # 2. You can use a k8s secret to reference AWS credentials. See `offload.s3.secret`
-    # AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
-    # AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
