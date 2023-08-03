@@ -31,7 +31,8 @@ export VAULT_APPROLE_SUPER_NAME=apachepulsar
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo $BASEDIR
 TMP_DIR="/tmp"
-
+mkdir -p $BASEDIR/../tmp
+cp $BASEDIR/*.hcl $BASEDIR/*.json $BASEDIR/../tmp
 
 vault login $ROOT_TOKEN
 vault auth enable userpass
@@ -40,14 +41,29 @@ userMountAccessor=$(vault auth list | grep auth_userpass | awk '{print $3}')
 echo $userMountAccessor
 serviceAccountMountAccessor=$(vault auth list | grep auth_approle | awk '{print $3}')
 echo $serviceAccountMountAccessor
-sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/user-template.json > $TMP_DIR/user-template.json
-sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/user.hcl > $TMP_DIR/user.hcl
-sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/super-user.hcl > $TMP_DIR/super-user.hcl
-sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/super-user-template.json > $TMP_DIR/super-user-template.json
-sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/service-account-template.json > $TMP_DIR/service-account-template.json
-sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/service-account.hcl > $TMP_DIR/service-account.hcl
-sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/super-service-account.hcl > $TMP_DIR/super-service-account.hcl
-sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/super-service-account-template.json > $TMP_DIR/super-service-account-template.json
+
+if [ -n "$CUSTOM_SUPER_TOKEN_PAYLOAD" ]; then
+    echo "$CUSTOM_SUPER_TOKEN_PAYLOAD" | tr '|' '\n' | while read item; do
+        sed -i "2a  ${item}," $BASEDIR/../tmp/super-service-account-template.json;
+        sed -i "2a  ${item}," $BASEDIR/../tmp/super-user-template.json;
+    done
+fi
+
+if [ -n "$CUSTOM_NON_SUPER_TOKEN_PAYLOAD" ]; then
+    echo "$CUSTOM_NON_SUPER_TOKEN_PAYLOAD" | tr '|' '\n' | while read item; do
+        sed -i "2a  ${item}," $BASEDIR/../tmp/service-account-template.json;
+        sed -i "2a  ${item}," $BASEDIR/../tmp/user-template.json;
+    done
+fi
+
+sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/../tmp/user-template.json > $TMP_DIR/user-template.json
+sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/../tmp/user.hcl > $TMP_DIR/user.hcl
+sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/../tmp/super-user.hcl > $TMP_DIR/super-user.hcl
+sed "s#MOUNT_ACCESSOR#$userMountAccessor#g" $BASEDIR/../tmp/super-user-template.json > $TMP_DIR/super-user-template.json
+sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/service-account-template.json > $TMP_DIR/service-account-template.json
+sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/service-account.hcl > $TMP_DIR/service-account.hcl
+sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/super-service-account.hcl > $TMP_DIR/super-service-account.hcl
+sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/super-service-account-template.json > $TMP_DIR/super-service-account-template.json
 
 vault policy write service-account $TMP_DIR/service-account.hcl
 vault write identity/entity name="service-account" policies="service-account"
@@ -57,6 +73,15 @@ vault write identity/oidc/key/service-account name=service-account rotation_peri
 vault write identity/oidc/role/service-account key=service-account ttl=$VAULT_TTL template=@$TMP_DIR/service-account-template.json
 serviceAccountClientId=$(vault read identity/oidc/role/service-account | grep client_id |  awk '{print $2}')
 vault write identity/oidc/key/service-account name=service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$serviceAccountClientId
+
+vault policy write service-account-non-expire $TMP_DIR/service-account.hcl
+vault write identity/entity name="service-account-non-expire" policies="service-account"
+canonicalId=$(vault read identity/entity/name/service-account-non-expire | grep -v _id | grep id | awk '{print $2}')
+vault write identity/entity-alias name="service-account"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='service-account-non-expire'
+vault write identity/oidc/key/service-account-non-expire name=service-account-non-expire rotation_period=256000h verification_ttl=1752000h
+vault write identity/oidc/role/service-account-non-expire key=service-account-non-expire ttl=1314000h template=@$TMP_DIR/service-account-template.json
+nonExpireServiceAccountClientId=$(vault read identity/oidc/role/service-account-non-expire | grep client_id |  awk '{print $2}')
+vault write identity/oidc/key/service-account-non-expire name=service-account-non-expire rotation_period=256000h verification_ttl=1752000h allowed_client_ids=$nonExpireServiceAccountClientId
 
 superApproleName=$VAULT_APPROLE_SUPER_NAME
 vault policy write super-service-account $TMP_DIR/super-service-account.hcl
@@ -68,6 +93,15 @@ vault write identity/oidc/key/super-service-account name=super-service-account r
 vault write identity/oidc/role/super-service-account key=super-service-account ttl=$VAULT_TTL template=@$TMP_DIR/super-service-account-template.json
 superServiceAccountClientId=$(vault read identity/oidc/role/super-service-account | grep client_id |  awk '{print $2}')
 vault write identity/oidc/key/super-service-account name=super-service-account rotation_period=$ROTATION_PERIOD verification_ttl=$VERIFICATION_TTL allowed_client_ids=$superServiceAccountClientId
+
+vault policy write super-service-account-non-expire $TMP_DIR/super-service-account.hcl
+vault write identity/entity name="super-service-account-non-expire" policies="super-service-account"
+canonicalId=$(vault read identity/entity/name/super-service-account-non-expire | grep -v _id | grep id | awk '{print $2}')
+vault write identity/entity-alias name="super-service-account-non-expire"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='super-service-account-non-expire'
+vault write identity/oidc/key/super-service-account-non-expire name=super-service-account-non-expire rotation_period=256000h verification_ttl=1752000h
+vault write identity/oidc/role/super-service-account-non-expire key=super-service-account-non-expire ttl=1314000h template=@$TMP_DIR/super-service-account-template.json
+nonExpireSuperServiceAccountClientId=$(vault read identity/oidc/role/super-service-account-non-expire | grep client_id |  awk '{print $2}')
+vault write identity/oidc/key/super-service-account-non-expire name=super-service-account-non-expire rotation_period=256000h verification_ttl=1752000h allowed_client_ids=$nonExpireSuperServiceAccountClientId
 
 vault write auth/approle/role/$superApproleName policies=super-service-account
 proxyApproleName=proxy-admin
@@ -104,6 +138,10 @@ export VAULT_PROXY_ROLE_ID=$(vault read auth/approle/role/$proxyApproleName/role
 export VAULT_PROXY_SECRET_ID=$(vault write -f auth/approle/role/$proxyApproleName/secret-id | grep -v secret_id_ | grep secret_id | awk '{print $2}')
 approleLoginInfo=$(vault write auth/approle/login role_id=$VAULT_APPROLE_ROLE_ID secret_id=$VAULT_APPROLE_SECRET_ID)
 export VAULT_APPROLE_SUPER_TOKEN=$(echo "$approleLoginInfo" | grep 'token ' | awk '{print $2}')
+proxyApproleLoginInfo=$(vault write auth/approle/login role_id=$VAULT_PROXY_ROLE_ID secret_id=$VAULT_PROXY_SECRET_ID)
+export PROXY_VAULT_APPROLE_SUPER_TOKEN=$(echo "$proxyApproleLoginInfo" | grep 'token ' | awk '{print $2}')
+echo '{"name": "apachepulsar"}' > $TMP_DIR/broker-payload.json
+echo '{"name": "proxy-admin"}' > $TMP_DIR/proxy-payload.json
 
 
 echo "RESULT is as below: "
@@ -119,12 +157,12 @@ echo "VAULT_APPROLE_SUPER_TOKEN: "$VAULT_APPROLE_SUPER_TOKEN
 echo "VAULT_PROXY_ROLE_ID: "$VAULT_PROXY_ROLE_ID
 echo "VAULT_PROXY_SECRET_ID: "$VAULT_PROXY_SECRET_ID
 echo "oidc info ====="
-echo "oidc client ids: serviceAccount,superServiceAccount,user,superUser "
-echo $serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId
+echo "oidc client ids: serviceAccount,superServiceAccount,user,superUser,nonExpireSuperServiceAccount,nonExpireServiceAccount"
+echo $serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId,$nonExpireSuperServiceAccountClientId,$nonExpireServiceAccountClientId
 
 
 echo "" > /tmp/pm_env
-echo "PULSAR_PREFIX_OIDCTokenAudienceID="$serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId >> /tmp/pm_env
+echo "PULSAR_PREFIX_OIDCTokenAudienceID="$serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId,$nonExpireSuperServiceAccountClientId,$nonExpireServiceAccountClientId >> /tmp/pm_env
 echo "VAULT_HOST="$VAULT_ADDR >> /tmp/pm_env
 echo "VAULT_USERPASS_MOUNT_ACCESSOR="$VAULT_USERPASS_MOUNT_ACCESSOR >> /tmp/pm_env
 echo "VAULT_SUPER_USER_NAME="$VAULT_SUPER_USER_NAME >> /tmp/pm_env
@@ -138,12 +176,33 @@ echo "VAULT_APPROLE_SUPER_TOKEN="$VAULT_SUPER_USER_TOKEN >> /tmp/pm_env
 
 #echo "brokerClientAuthenticationParameters={\"role\":\"super-service-account\",\"roleId\":\""$VAULT_APPROLE_ROLE_ID"\",\"secretId\":\""$VAULT_APPROLE_SECRET_ID"\",\"vaultHost\": \""$VAULT_ADDR"\"}"\" >> /tmp/pm_env
 
-# for busybox base64 image, we need to remove \n in the result
-export VAULT_PULSAR_TOKEN=$(echo "$VAULT_APPROLE_ROLE_ID:$VAULT_APPROLE_SECRET_ID"|base64|tr -d \\n)
-echo "brokerClientAuthenticationParameters=$VAULT_PULSAR_TOKEN" >> /tmp/pm_env
-export VAULT_PULSAR_PROXY_TOKEN=$(echo "$VAULT_PROXY_ROLE_ID:$VAULT_PROXY_SECRET_ID"|base64|tr -d \\n)
-echo "PROXY_brokerClientAuthenticationParameters=$VAULT_PULSAR_PROXY_TOKEN" >> /tmp/pm_env
+if [[ -n "$CUSTOM_SUPER_TOKEN_PAYLOAD" && -n "$CUSTOM_NON_SUPER_TOKEN_PAYLOAD" ]];then
+    brokerClientAuthenticationParameters=$(curl \
+        --header "X-Vault-Token: $VAULT_APPROLE_SUPER_TOKEN" \
+        --request GET \
+        --data $TMP_DIR/broker-payload.json \
+        $VAULT_ADDR/v1/identity/oidc/token/super-service-account-non-expire | jq -r ".data.token")
+    echo "brokerClientAuthenticationParameters=$brokerClientAuthenticationParameters" >> /tmp/pm_env
+    PROXY_brokerClientAuthenticationParameters=$(curl \
+        --header "X-Vault-Token: $PROXY_VAULT_APPROLE_SUPER_TOKEN" \
+        --request GET \
+        --data $TMP_DIR/proxy-payload.json \
+        $VAULT_ADDR/v1/identity/oidc/token/super-service-account-non-expire | jq -r ".data.token")
+    echo "PROXY_brokerClientAuthenticationParameters=$PROXY_brokerClientAuthenticationParameters" >> /tmp/pm_env
 
+    echo "create secret for toolset token -> $TOOLSET_TOKEN_SECRET_NAME"
+    kubectl delete secret $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --ignore-not-found=true
+    kubectl create secret generic $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --from-literal=TOKEN=$brokerClientAuthenticationParameters
+else
+    # for busybox base64 image, we need to remove \n in the result
+    export VAULT_PULSAR_TOKEN=$(echo "$VAULT_APPROLE_ROLE_ID:$VAULT_APPROLE_SECRET_ID"|base64|tr -d \\n)
+    echo "brokerClientAuthenticationParameters=$VAULT_PULSAR_TOKEN" >> /tmp/pm_env
+    export VAULT_PULSAR_PROXY_TOKEN=$(echo "$VAULT_PROXY_ROLE_ID:$VAULT_PROXY_SECRET_ID"|base64|tr -d \\n)
+    echo "PROXY_brokerClientAuthenticationParameters=$VAULT_PULSAR_PROXY_TOKEN" >> /tmp/pm_env
+    echo "create secret for toolset token -> $TOOLSET_TOKEN_SECRET_NAME"
+    kubectl delete secret $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --ignore-not-found=true
+    kubectl create secret generic $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --from-literal=TOKEN=$VAULT_PULSAR_TOKEN
+fi
 
 echo "create secret for above secrets!"
 cat /tmp/pm_env
@@ -155,6 +214,6 @@ echo "create secret for console password! -> $CONSOLE_SECRET_KEY_NAME"
 kubectl delete secret $CONSOLE_SECRET_KEY_NAME -n $NAMESPACE --ignore-not-found=true
 kubectl create secret generic $CONSOLE_SECRET_KEY_NAME -n $NAMESPACE --from-literal=password=$VAULT_SUPER_USER_PASSWORD
 
-echo "create secret for toolset token -> $TOOLSET_TOKEN_SECRET_NAME"
-kubectl delete secret $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --ignore-not-found=true
-kubectl create secret generic $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --from-literal=TOKEN=$VAULT_PULSAR_TOKEN
+# echo "create secret for toolset token -> $TOOLSET_TOKEN_SECRET_NAME"
+# kubectl delete secret $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --ignore-not-found=true
+# kubectl create secret generic $TOOLSET_TOKEN_SECRET_NAME -n $NAMESPACE --from-literal=TOKEN=$VAULT_PULSAR_TOKEN

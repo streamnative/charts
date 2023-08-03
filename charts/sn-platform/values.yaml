@@ -2351,6 +2351,9 @@ vault:
     verification_ttl: 24h
     # time to live for service-account and user
     ttl: 12h
+    customPayload:
+      superToken: ""
+      nonSuperToken: ""
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}

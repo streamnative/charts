@@ -51,6 +51,8 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
+           apk add jq;
+           apk add curl;
            tokenLen=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|wc -m);
            until [ ${tokenLen} -gt 1 ]; do
              echo "current token is empty ! wait another 10s~"
@@ -94,6 +96,16 @@ spec:
           value: {{ .Values.streamnative_console.username }}
         - name: VAULT_SUPER_USER_PASSWORD
           value:  {{ .Values.streamnative_console.password }}
+        {{- end }}
+        {{- if .Values.vault.oidcToken.customPayload }}
+        {{- if and .Values.vault.oidcToken.customPayload.superToken }}
+        - name: CUSTOM_SUPER_TOKEN_PAYLOAD
+          value: {{ .Values.vault.oidcToken.customPayload.superToken }}
+        {{- end }}
+        {{- if and .Values.vault.oidcToken.customPayload.nonSuperToken }}
+        - name: CUSTOM_NON_SUPER_TOKEN_PAYLOAD
+          value: {{ .Values.vault.oidcToken.customPayload.nonSuperToken }}
+        {{- end }}
         {{- end }}
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
