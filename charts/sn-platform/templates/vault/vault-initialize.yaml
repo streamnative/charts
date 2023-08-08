@@ -51,8 +51,6 @@ spec:
         command: ["sh", "-c"]
         args:
           - >
-           apk add jq;
-           apk add curl;
            tokenLen=$(kubectl get secret {{ template "pulsar.vault-unseal-secret-key-name" . }} -o jsonpath='{.data.vault-root}'|wc -m);
            until [ ${tokenLen} -gt 1 ]; do
              echo "current token is empty ! wait another 10s~"
