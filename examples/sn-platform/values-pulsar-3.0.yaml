@@ -62,9 +62,9 @@ zookeeper:
       -Dzookeeper.forceSync=no
 
 bookkeeper:
-  configData:
-    # Enable DirectIO by default
-    PULSAR_PREFIX_dbStorage_directIOEntryLogger: "true"
+  configData: {}
+    # For Pulsar 3.0, please do not enable Direct IO. Needs a fix https://github.com/apache/bookkeeper/pull/4041
+    # PULSAR_PREFIX_dbStorage_directIOEntryLogger: "true"
   jvm:
     gcOptions:
     - >
