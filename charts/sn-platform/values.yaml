@@ -1254,7 +1254,6 @@ broker:
     delayedDeliveryTrackerFactoryClassName: "org.apache.pulsar.broker.delayed.BucketDelayedDeliveryTrackerFactory"
     # Enable transaction buffer segmented snapshot
     transactionBufferSegmentedSnapshotEnabled: "true"
-    transactionBufferSnapshotSegmentSize: "262144"
     # Enable the new Load Balancer
     loadManagerClassName: "org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerImpl"
     loadBalancerLoadSheddingStrategy: "org.apache.pulsar.broker.loadbalance.extensions.scheduler.TransferShedder"

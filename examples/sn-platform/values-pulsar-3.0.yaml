@@ -96,7 +96,6 @@ broker:
     delayedDeliveryTrackerFactoryClassName: "org.apache.pulsar.broker.delayed.BucketDelayedDeliveryTrackerFactory"
     # Enable transaction buffer segmented snapshot
     transactionBufferSegmentedSnapshotEnabled: "true"
-    transactionBufferSnapshotSegmentSize: "262144"
   jvm:
     gcOptions:
       - >
