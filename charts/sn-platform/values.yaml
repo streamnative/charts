@@ -1254,8 +1254,8 @@ broker:
     delayedDeliveryTrackerFactoryClassName: "org.apache.pulsar.broker.delayed.BucketDelayedDeliveryTrackerFactory"
     # Enable transaction buffer segmented snapshot
     transactionBufferSegmentedSnapshotEnabled: "true"
-    # Enable the new Load Balancer, please make sure your cluster is already on Pulsar 3.0 then to use. 
-    # Mix of new and previous Load Balancer in the same cluster will lead to unexpected problems. 
+    # Enable the new Load Balancer, please make sure your cluster is already on Pulsar 3.0 then to use.
+    # Mix of new and previous Load Balancer in the same cluster will lead to unexpected problems.
     # loadManagerClassName: "org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerImpl"
     # loadBalancerLoadSheddingStrategy: "org.apache.pulsar.broker.loadbalance.extensions.scheduler.TransferShedder"
   ### Broker service account

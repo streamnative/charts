@@ -89,7 +89,8 @@ broker:
     managedLedgerDefaultAckQuorum: "2"
     PULSAR_PREFIX_systemTopicEnabled: "true"
     PULSAR_PREFIX_topicLevelPoliciesEnabled: "true"
-    # Enable the new Load Balancer, please make sure your cluster is already on Pulsar 3.0 then to use. 
+    # Enable the new Load Balancer, please make sure your cluster is already on Pulsar 3.0 then to use.
+    # Mix of new and previous Load Balancer in the same cluster will lead to unexpected problems.
     # loadManagerClassName: "org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerImpl"
     # loadBalancerLoadSheddingStrategy: "org.apache.pulsar.broker.loadbalance.extensions.scheduler.TransferShedder"
     
