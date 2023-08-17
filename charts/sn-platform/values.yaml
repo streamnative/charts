@@ -228,7 +228,7 @@ images:
     pullPolicy: "IfNotPresent"
   vault_init:
     repository: streamnative/pulsar_vault_init
-    tag: "v1.0.6"
+    tag: "v1.0.7"
   custom_metric_server_prometheus:
     repository: quay.io/prometheus/prometheus
     tag: "v2.43.0"
@@ -2350,6 +2350,9 @@ vault:
     verification_ttl: 24h
     # time to live for service-account and user
     ttl: 12h
+    customPayload:
+      superToken: ""
+      nonSuperToken: ""
   serviceType: "ClusterIP"
   tolerations: []
   nodeSelector: {}
