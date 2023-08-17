@@ -95,6 +95,16 @@ spec:
         - name: VAULT_SUPER_USER_PASSWORD
           value:  {{ .Values.streamnative_console.password }}
         {{- end }}
+        {{- if .Values.vault.oidcToken.customPayload }}
+        {{- if and .Values.vault.oidcToken.customPayload.superToken }}
+        - name: CUSTOM_SUPER_TOKEN_PAYLOAD
+          value: {{ .Values.vault.oidcToken.customPayload.superToken }}
+        {{- end }}
+        {{- if and .Values.vault.oidcToken.customPayload.nonSuperToken }}
+        - name: CUSTOM_NON_SUPER_TOKEN_PAYLOAD
+          value: {{ .Values.vault.oidcToken.customPayload.nonSuperToken }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
         {{- include "pulsar.vault.createPulsarTokens.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.vault.initStreamNativeConsole.volumeMounts" . | nindent 8 }}
