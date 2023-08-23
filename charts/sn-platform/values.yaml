@@ -186,8 +186,8 @@ images:
     tag: "2.10.4.7"
     pullPolicy: IfNotPresent
     kafka:
-      repository: confluentinc/cp-kafka
-      tag: "7.3.1"
+      repository: bitnami/kafka
+      tag: "3.5.1"
       pullPolicy: IfNotPresent
     busybox:
       repository: busybox
