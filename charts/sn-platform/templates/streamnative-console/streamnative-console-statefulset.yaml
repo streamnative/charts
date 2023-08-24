@@ -191,6 +191,8 @@ spec:
           - name: BACKEND_DEFAULT_SUPER_USER_ROLE
             value: {{ .Values.streamnative_console.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
           {{- end }}
+          - name: CUSTOM_PAYLOAD_ENABLED
+            value:  "{{ .Values.streamnative_console.configData.CUSTOM_PAYLOAD_ENABLED | default "false" }}"
           {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
           - name: AUTHENTICATION_NAME
             value: "pulsar-jwt"
@@ -265,6 +267,9 @@ spec:
           {{- end }}
           workingDir: "/pulsar-manager/gateway"
           command: ["/pulsar-manager/gateway/gateway-entrypoint.sh"]
+          env:
+          - name: OPENAPI_ENABLED
+            value: "{{ .Values.streamnative_console.configData.OPENAPI_ENABLED | default "false" }}"
           ports:
           - name: frontend
             containerPort: {{ .Values.streamnative_console.ports.frontend }}

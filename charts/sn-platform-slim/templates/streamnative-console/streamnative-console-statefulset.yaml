@@ -259,6 +259,9 @@ spec:
           {{- end }}
           workingDir: "/pulsar-manager/gateway"
           command: ["/pulsar-manager/gateway/gateway-entrypoint.sh"]
+          env:
+          - name: OPENAPI_ENABLED
+            value: "{{ .Values.streamnative_console.configData.OPENAPI_ENABLED | default "false" }}"
           ports:
           - name: frontend
             containerPort: {{ .Values.streamnative_console.ports.frontend }}
