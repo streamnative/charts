@@ -1188,7 +1188,6 @@ broker:
     enabled: false
     managedLedgerMinLedgerRolloverTimeMinutes: "10"
     managedLedgerMaxEntriesPerLedger: "50000"
-    managedLedgerOffloadDriver: aws-s3
     gcs:
       enabled: false
       gcsManagedLedgerOffloadRegion: "[YOUR REGION OF GCS]"
