@@ -1,0 +1,23 @@
+{{- if .Values.argocd_hook.tests.test_pulsar_producer }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: test-pulsar-producer-
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ template "pulsar.fullname" . }}-argocd-hook-serviceaccount
+      containers:
+        - name: pulsar-producer
+          image: "bitnami/kubectl"
+          command:
+            - |
+              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsar-admin clusters list
+              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsar-admin namespaces create public/test
+              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsarctl clusters list
+              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsar-client produce -m "test-message" public/test/test-topic
+      restartPolicy: Never
+  backoffLimit: 2
+{{- end }}
