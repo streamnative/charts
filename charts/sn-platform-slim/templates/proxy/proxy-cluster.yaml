@@ -43,6 +43,7 @@ spec:
   replicas: {{ .Values.proxy.replicaCount }}
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
   imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
+  webSocketServiceEnabled: {{ .Values.proxy.websocket.enabled }}
   logConfig:
     level: {{ .Values.proxy.logConfig.level }}
     format: {{ .Values.proxy.logConfig.format }}
