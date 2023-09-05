@@ -21,7 +21,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: test-pulsar-producer-
+  generateName: test-pulsar-pulsarctl-
   annotations:
     argocd.argoproj.io/hook: PostSync
 spec:
@@ -32,11 +32,9 @@ spec:
         - name: pulsar-producer
           image: "bitnami/kubectl"
           command:
-            - |
-              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsar-admin clusters list
-              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsar-admin namespaces create public/test
-              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsarctl clusters list
-              kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsar-client produce -m "test-message" public/test/test-topic
+            - "bin/bash"
+            - "-c"
+            - "kubectl exec -n sn-platform-test sn-platform-slim-toolset-0 -- bin/pulsarctl clusters list"
       restartPolicy: Never
-  backoffLimit: 2
+  backoffLimit: 1
 {{- end }}
