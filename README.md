@@ -19,20 +19,18 @@
 
 -->
 
-# Official Helm Charts
+# StreamNative Helm Charts
 
-This repository includes the officially supported Helm Charts.
+This repository contains the Helm Charts supported by [StreamNative](https://streamnative.io).
 
 ## General descriptions
 
 | Chart | Description | Usage |
 | --- | --- | --- |
-| [`pulsar-operator`](https://github.com/streamnative/charts/tree/master/charts/pulsar-operator)  | The officially supported Helm Chart for installing the Pulsar operator to provide Customer Resource Definitions (CRDs) and Controllers to manage and run Pulsar clusters in a more resilient way. | For details about how to use it, see [here](charts/pulsar-operator/README.md). |
-| [`sn-platform`](https://github.com/streamnative/charts/tree/master/charts/sn-platform) | The officially supported Helm Chart used for deploying StreamNative Platform to Kubernetes clusters. | For details about how to use it, see [here](charts/sn-platform/README.md).
-| [`function-mesh-operator`(Migrated)](https://github.com/streamnative/function-mesh/tree/master/charts/function-mesh-operator) | The officially supported Helm Chart for installing FunctionMesh to manage Pulsar Functions and Pulsar IO connectors on Kubernetes. | For details about how to use it, see [here](https://functionmesh.io/docs/). | 
-| [`pulsar`(Deprecated)](https://github.com/streamnative/charts/tree/master/charts/pulsar) | The officially supported Helm Chart used for deploying Apache Pulsar to Kubernetes clusters. | For details about how to use it, see [here](charts/pulsar/README.md). |  
-| [`local-storage-provisioner`](https://github.com/streamnative/charts/tree/master/charts/local-storage-provisioner) | The officially supported Helm Chart for installing the local storage provisioner to use local persistent volumes as persistent storage. | For details about how to use it, see [here](charts/local-storage-provisioner/README.md). |
-| [`image-puller`](https://github.com/streamnative/charts/tree/master/charts/image-puller) | The officially supported Helm Chart for installing an Image Puller which pulls required docker images for deploying Apache Pulsar or StreamNative Platform. | For details about how to use it, see [here](charts/image-puller/README.md). |
+| [`pulsar-operator`](https://github.com/streamnative/charts/tree/master/charts/pulsar-operator)  | The Helm Chart used for installing the StreamNative operator for Apache Pulsar that eases the installation and management of Pulsar clusters in a k8s environment.  | For more details on how to use it, please refer to its [documentation](https://docs.streamnative.io/operator).
+| [`sn-platform`](https://github.com/streamnative/charts/tree/master/charts/sn-platform) | The Helm Chart used for deploying a self-managed version of StreamNative Cloud under a [Private Cloud Licence](https://streamnative.io/deployment/private-cloud-license). | For more details on how to use it, please refer to its [documentation](https://docs.streamnative.io/platform/platform-quickstart).
+| [`local-storage-provisioner`](https://github.com/streamnative/charts/tree/master/charts/local-storage-provisioner) | The Helm Chart used for installing the local storage provisioner, allowing the use of local persistent volumes as durable storage. | For more details on how to use it, please see [here](charts/local-storage-provisioner/README.md). |
+| [`image-puller`](https://github.com/streamnative/charts/tree/master/charts/image-puller) | The Helm Chart used for installing an Image Puller which retrieves the necessary Docker images for deploying Apache Pulsar or the StreamNative Platform. | For more details on how to use it, please see [here](charts/image-puller/README.md). |
 
 
 ## Troubleshooting
@@ -48,3 +46,7 @@ tips and tricks for troubleshooting common issues. Please examine these first be
 - Click the `Run workflow` button which is in the right side
 - Choose the name of chart you want to release, input its base branch version and release version
 - Click `Run workflow`
+
+## About StreamNative
+
+Founded in 2019 by the original creators of Apache Pulsar, [StreamNative](https://streamnative.io) is one of the leading contributors to the open-source Apache Pulsar project. We have helped engineering teams worldwide make the move to Pulsar with [StreamNative Cloud](https://streamnative.io/product), a fully managed service to help teams accelerate time-to-production.
