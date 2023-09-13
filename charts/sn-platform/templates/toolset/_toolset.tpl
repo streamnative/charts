@@ -41,7 +41,7 @@ Define toolset token mounts
 */}}
 {{- define "pulsar.toolset.token.volumeMounts" -}}
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if and (eq .Values.auth.authentication.provider "jwt") .Values.auth.authentication.jwt.enabled }}
 - mountPath: "/pulsar/tokens"
   name: client-token
   readOnly: true
@@ -54,7 +54,7 @@ Define toolset token volumes
 */}}
 {{- define "pulsar.toolset.token.volumes" -}}
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if and (eq .Values.auth.authentication.provider "jwt") .Values.auth.authentication.jwt.enabled }}
 - name: client-token
   secret:
     secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
