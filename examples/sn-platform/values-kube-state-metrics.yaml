@@ -20,7 +20,7 @@
 images:
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: "0.0.22"
+    tag: "0.1.0"
     pullPolicy: IfNotPresent
 
 monitoring:
