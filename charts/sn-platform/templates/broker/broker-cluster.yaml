@@ -305,30 +305,32 @@ spec:
       {{- end }}
       ## Offloading settings
       {{- if .Values.broker.offload.enabled }}
-      offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
-      managedLedgerMinLedgerRolloverTimeMinutes: "{{ .Values.broker.offload.managedLedgerMinLedgerRolloverTimeMinutes }}"
-      managedLedgerMaxEntriesPerLedger: "{{ .Values.broker.offload.managedLedgerMaxEntriesPerLedger }}"
-      managedLedgerOffloadDriver: {{ .Values.broker.offload.managedLedgerOffloadDriver }}
+      PULSAR_PREFIX_offloadersDirectory: "{{ template "pulsar.home" . }}/offloaders"
+      PULSAR_PREFIX_managedLedgerMinLedgerRolloverTimeMinutes: "{{ .Values.broker.offload.managedLedgerMinLedgerRolloverTimeMinutes }}"
+      PULSAR_PREFIX_managedLedgerMaxEntriesPerLedger: "{{ .Values.broker.offload.managedLedgerMaxEntriesPerLedger }}"
 
       {{- if .Values.broker.offload.gcs.enabled }}
       # gcs
-      gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadRegion }}
-      gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadBucket }}
-      gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
-      gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
+      PULSAR_PREFIX_managedLedgerOffloadDriver: "google-cloud-storage"
+      PULSAR_PREFIX_gcsManagedLedgerOffloadRegion: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadRegion }}
+      PULSAR_PREFIX_gcsManagedLedgerOffloadBucket: {{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadBucket }}
+      PULSAR_PREFIX_gcsManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadMaxBlockSizeInBytes }}"
+      PULSAR_PREFIX_gcsManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.gcs.gcsManagedLedgerOffloadReadBufferSizeInBytes }}"
       ## Authentication with GCS
-      gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
+      PULSAR_PREFIX_gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
       {{- end }}
       {{- if .Values.broker.offload.s3.enabled }}
       # aws-s3
-      s3ManagedLedgerOffloadRegion: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}
-      s3ManagedLedgerOffloadBucket: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}
-      s3ManagedLedgerOffloadServiceEndpoint: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}
-      s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
-      s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
+      PULSAR_PREFIX_managedLedgerOffloadDriver: "aws-s3"
+      PULSAR_PREFIX_s3ManagedLedgerOffloadRegion: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadRegion }}
+      PULSAR_PREFIX_s3ManagedLedgerOffloadBucket: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadBucket }}
+      PULSAR_PREFIX_s3ManagedLedgerOffloadServiceEndpoint: {{ .Values.broker.offload.s3.s3ManagedLedgerOffloadServiceEndpoint }}
+      PULSAR_PREFIX_s3ManagedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadMaxBlockSizeInBytes }}"
+      PULSAR_PREFIX_s3ManagedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.s3.s3ManagedLedgerOffloadReadBufferSizeInBytes }}"
       {{- end }}
       {{- if .Values.broker.offload.azureblob.enabled }}
       # azureblob configuration from https://pulsar.apache.org/docs/en/tiered-storage-azure/
+      PULSAR_PREFIX_managedLedgerOffloadDriver: "azureblob"
       PULSAR_PREFIX_managedLedgerOffloadBucket: {{ .Values.broker.offload.azureblob.managedLedgerOffloadBucket }}
       PULSAR_PREFIX_managedLedgerOffloadMaxBlockSizeInBytes: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadMaxBlockSizeInBytes }}"
       PULSAR_PREFIX_managedLedgerOffloadReadBufferSizeInBytes: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadReadBufferSizeInBytes }}"

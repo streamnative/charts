@@ -1441,9 +1441,164 @@ spec:
                     description: AdvertisedDomain defines a root domain of the services
                       to advertise to the outside world.
                     type: string
+                  authentication:
+                    description: Authentication defines broker authentication
+                    properties:
+                      apiKey:
+                        description: ApiKeys authentication configuration
+                        properties:
+                          oidcIssuers:
+                            description: OIDCIssuers OpenID Connect configuration
+                              for API keys
+                            items:
+                              properties:
+                                adminScope:
+                                  default: admin
+                                  description: AdminScope Scope to operate as a Pulsar
+                                    superuser, by default admin.
+                                  type: string
+                                audience:
+                                  description: Audience The expected audience for
+                                    the OIDC token. This field is required.
+                                  type: string
+                                authzAdminRole:
+                                  description: AuthzAdminRole Authz Role to operate
+                                    as a Pulsar superuser.
+                                  type: string
+                                authzRoleClaim:
+                                  description: AuthzRoleClaim JWT claim to use for
+                                    Authz roles.
+                                  type: string
+                                issuerUrl:
+                                  description: IssuerUrl of the provider which allows
+                                    Pulsar to discover public signing keys. Required.
+                                  type: string
+                                requiredScope:
+                                  description: RequiredScope to require in a JWT token
+                                    used for authentication, optional.
+                                  type: string
+                                scopeClaim:
+                                  default: scope
+                                  description: ScopeClaim JWT claim to use as the
+                                    scope claim, by default scope.
+                                  type: string
+                                subjectClaim:
+                                  default: sub
+                                  description: SubjectClaim JWT claim to use as the
+                                    user name, by default sub.
+                                  type: string
+                              required:
+                              - audience
+                              - issuerUrl
+                              type: object
+                            type: array
+                            x-kubernetes-list-map-keys:
+                            - issuerUrl
+                            x-kubernetes-list-type: map
+                          revocationListLoadIntervalInSecs:
+                            description: RevocationListLoadIntervalInSecs Interval
+                              to load the revocation list from api keys service
+                            format: int32
+                            type: integer
+                          revocationListUrl:
+                            description: RevocationListUrl URL to fetch the revocation
+                              list from api keys service
+                            type: string
+                          skipRevocationListValidationOnRevocationListInitFailure:
+                            description: SkipRevocationListValidationOnRevocationListInitFailure
+                              Skip validation of revocation list if the revocation
+                              list
+                            type: boolean
+                        type: object
+                      jwt:
+                        description: JWT enabled jwt authentication
+                        properties:
+                          tokenAuthClaim:
+                            default: sub
+                            description: TokenAuthClaim The token "claim" that will
+                              be interpreted as the authentication "role" or "principal"
+                              by AuthenticationProviderToken (defaults to "sub" if
+                              blank)
+                            type: string
+                          tokenPublicKey:
+                            description: 'Asymmetric public/private key pair TokenPublicKey
+                              Configure the public key to be used to validate auth
+                              tokens The key can be specified like: tokenPublicKey:
+                              data:;base64,xxxxxxxxx tokenPublicKey: file:///my/public.key    (
+                              Note: key file must be DER-encoded ) tokenPublicKey:
+                              your-secret-name, the secret should contain the `secret-key`
+                              field'
+                            type: string
+                          tokenSecretKey:
+                            description: 'Symmetric key TokenSecretKey Configure the
+                              secret key to be used to validate auth tokens The key
+                              can be specified like: tokenSecretKey: data:;base64,xxxxxxxxx
+                              tokenSecretKey: file:///my/secret.key    ( Note: key
+                              file must be DER-encoded ) tokenSecretKey: your-secret-name,
+                              the secret should contain the `public-key` field'
+                            type: string
+                        type: object
+                    type: object
+                  authorization:
+                    description: Authorization defines broker authorization
+                    properties:
+                      proxyRoles:
+                        description: Role names that are treated as "proxy roles".
+                          If the broker sees a request with role as proxyRoles - it
+                          will demand to see a valid original principal.
+                        type: string
+                      superUserRoles:
+                        description: SuperUserRoles Role names that are treated as
+                          "super-user", meaning they will be able to do all admin
+                          operations and publish/consume from all topics
+                        type: string
+                    type: object
+                  clientAuth:
+                    description: ClientAuth authentication configuration for client
+                      connections
+                    properties:
+                      generic:
+                        description: Generic Client Generic authentication configuration
+                        properties:
+                          authParams:
+                            description: 'Parameters passed to authentication plugin.
+                              A comma separated list of key:value pairs. Keys depend
+                              on the configured authPlugin. e.g. for TLS authParams:
+                              tlsCertFile:/my/cert/file,tlsKeyFile:/my/key/file AuthParams
+                              This parameter is required if using a generic configuration'
+                            type: string
+                          authPlugin:
+                            description: Authentication plugin to authenticate with
+                              servers e.g. for TLS authPlugin=org.apache.pulsar.client.impl.auth.AuthenticationTls
+                              AuthPlugin This parameter is required if using a generic
+                              configuration
+                            type: string
+                          custom:
+                            additionalProperties:
+                              type: string
+                            description: Custom parameters for the client authentication
+                            type: object
+                        required:
+                        - authParams
+                        - authPlugin
+                        type: object
+                      jwt:
+                        description: JWT Client JWT authentication configuration
+                        properties:
+                          token:
+                            description: Token passed to authentication plugin. A
+                              comma separated list of key:value pairs. Keys depend
+                              on the configured authPlugin. Token
+                            type: string
+                        type: object
+                    type: object
                   clusterName:
                     description: ClusterName defines name of the Pulsar cluster.
                     type: string
+                  concurrentUnloadPerSecond:
+                    description: control the unload speed of pulsar broker
+                    format: int64
+                    type: integer
                   custom:
                     additionalProperties:
                       type: string

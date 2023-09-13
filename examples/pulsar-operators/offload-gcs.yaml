@@ -1,0 +1,57 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+apiVersion: pulsar.streamnative.io/v1alpha1
+kind: PulsarBroker
+metadata:
+  name: brokers
+  namespace: default
+spec:
+  image: streamnative/sn-platform-slim:2.10.5.3
+  pod:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    securityContext:
+      runAsNonRoot: true
+    # secret that stores GCS credentials. The secret should be created in the following format.
+    # ```
+    # kubectl -n pulsar create secret generic \
+    #   --from-file=GCS_SERVICE_ACCOUNT_PATH \
+    #   [secret name]
+    # ```
+    secretRefs:
+    - mountPath: /pulsar/srvaccts/gcs.json
+      secretName: gcs-secret
+  replicas: 2
+  zkServers: zookeepers-zk:2181
+  config:
+    custom:
+      # Offloading settings
+      PULSAR_PREFIX_offloadersDirectory: "/pulsar/offloaders"
+      PULSAR_PREFIX_managedLedgerMinLedgerRolloverTimeMinutes: "10"
+      PULSAR_PREFIX_managedLedgerMaxEntriesPerLedger: "50000"
+      # gcs
+      PULSAR_PREFIX_gcsManagedLedgerOffloadRegion: "europe-west3"
+      PULSAR_PREFIX_gcsManagedLedgerOffloadBucket: "pulsar-topic-offload"
+      PULSAR_PREFIX_gcsManagedLedgerOffloadMaxBlockSizeInBytes: "67108864"
+      PULSAR_PREFIX_gcsManagedLedgerOffloadReadBufferSizeInBytes: "1048576"
+      ## Authentication with GCS
+      PULSAR_PREFIX_gcsManagedLedgerOffloadServiceAccountKeyFile: "/pulsar/srvaccts/gcs.json"
