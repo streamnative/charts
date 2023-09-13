@@ -23,7 +23,7 @@ metadata:
   name: brokers
   namespace: default
 spec:
-  image: streamnative/sn-platform-slim:2.10.4.3
+  image: streamnative/sn-platform-slim:2.10.5.3
   pod:
     resources:
       requests:
