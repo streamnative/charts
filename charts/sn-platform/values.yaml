@@ -130,22 +130,22 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.4.7"
+        tag: "3.0.0.4"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "2.10.4.7"
+        tag: "3.0.0.4"
   bookie:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
     exporter:
       repository: bitnami/jmx-exporter
@@ -154,36 +154,36 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 2.10.4.7
+  #   tag: 3.0.0.4
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
     kafka:
       repository: bitnami/kafka
@@ -239,7 +239,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "2.10.4.7"
+    tag: "3.0.0.4"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -988,6 +988,8 @@ bookkeeper:
     gcLoggingOptions: []
   custom: {}
   configData: {}
+    # For Pulsar 3.0, please do not enable Direct IO. Needs a fix https://github.com/apache/bookkeeper/pull/4041
+    # PULSAR_PREFIX_dbStorage_directIOEntryLogger: "false"
   ## Operator Controller
   ## templates/bookkeeper-cluster.yaml
   operator:
@@ -1244,16 +1246,19 @@ broker:
     extraOptions: []
     gcLoggingOptions: []
   configData:
-    # @deprecated:
-    # 1. You can use a service account to assume an IAM role to access S3 bucket
-    # 2. You can use a k8s secret to reference AWS credentials. See `offload.s3.secret`
-    # AWS_ACCESS_KEY_ID: "[YOUR AWS ACCESS KEY ID]"
-    # AWS_SECRET_ACCESS_KEY: "[YOUR SECRET]"
     managedLedgerDefaultEnsembleSize: "3"
     managedLedgerDefaultWriteQuorum: "3"
     managedLedgerDefaultAckQuorum: "2"
     PULSAR_PREFIX_systemTopicEnabled: "true"
     PULSAR_PREFIX_topicLevelPoliciesEnabled: "true"
+    # Enable the new delayed message
+    delayedDeliveryTrackerFactoryClassName: "org.apache.pulsar.broker.delayed.BucketDelayedDeliveryTrackerFactory"
+    # Enable transaction buffer segmented snapshot
+    transactionBufferSegmentedSnapshotEnabled: "true"
+    # Enable the new Load Balancer, please make sure your cluster is already on Pulsar 3.0 then to use.
+    # Mix of new and previous Load Balancer in the same cluster will lead to unexpected problems.
+    # loadManagerClassName: "org.apache.pulsar.broker.loadbalance.extensions.ExtensibleLoadManagerImpl"
+    # loadBalancerLoadSheddingStrategy: "org.apache.pulsar.broker.loadbalance.extensions.scheduler.TransferShedder"
   ### Broker service account
   ## templates/broker-service-account.yaml
   # deprecated: use `serviceAccount` section to configure service account.
