@@ -305,6 +305,7 @@ auth:
       autoInitSecret: false
     tls:
       enabled: false
+    statusCheck: false
   authorization:
     enabled: false
   superUsers:
