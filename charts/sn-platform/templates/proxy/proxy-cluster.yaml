@@ -39,6 +39,7 @@ metadata:
 {{ toYaml . | nindent 4 }}
 {{- end }}
 spec:
+{{- include "pulsar.statusCheckPatch" . | indent 2 }}
   brokerAddress: {{ template "pulsar.proxy.broker.service.address" . }}
   replicas: {{ .Values.proxy.replicaCount }}
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"

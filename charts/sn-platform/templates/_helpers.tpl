@@ -397,3 +397,47 @@ podAntiAffinity:
 {{ toYaml .thisAffinity.customRules }}
 {{- end }}
 {{end}}
+
+{{/*
+Status check patch
+*/}}
+{{- define "pulsar.statusCheckPatch" }}
+{{- if and .Values.auth.authentication.enabled .Values.auth.authentication.statusCheck }}
+{{- if or .Values.auth.vault.enabled .Values.auth.authentication.jwt.enabled }}
+customization:
+- manifest: |
+    spec:
+      template:
+        spec:
+          $setElementOrder/containers:
+          - name: pulsar-proxy
+          containers:
+          - name: pulsar-proxy
+            livenessProbe:
+              httpGet: null
+              exec:
+                command:
+                - /bin/bash
+                - -c
+                - 'res=$(curl -H "Authorization: Bearer $brokerClientAuthenticationParameters" http://localhost:8080/status.html);if [[ $res == "OK" ]]; then exit 0; else exit 1; fi'
+            readinessProbe:
+              httpGet: null
+              exec:
+                command:
+                - /bin/bash
+                - -c
+                - 'res=$(curl -H "Authorization: Bearer $brokerClientAuthenticationParameters" http://localhost:8080/status.html);if [[ $res == "OK" ]]; then exit 0; else exit 1; fi'
+            startupProbe:
+              httpGet: null
+              exec:
+                command:
+                - /bin/bash
+                - -c
+                - 'res=$(curl -H "Authorization: Bearer $brokerClientAuthenticationParameters" http://localhost:8080/status.html);if [[ $res == "OK" ]]; then exit 0; else exit 1; fi'
+  match:
+    groupVersionKinds:
+    - kind: StatefulSet
+    name: .*-proxy
+{{- end }}
+{{- end }}
+{{- end }}

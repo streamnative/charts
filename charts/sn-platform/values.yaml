@@ -362,6 +362,8 @@ auth:
       autoInitSecret: false
     tls:
       enabled: false
+    # Enabled or disabled authentication protect for status.html endpoint
+    statusCheck: false
   authorization:
     enabled: true
   superUsers:
