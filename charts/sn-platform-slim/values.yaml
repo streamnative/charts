@@ -997,13 +997,13 @@ pulsar_metadata:
   #
   # configurationStoreServers: "zk04:2181,zk05:2181,zk06:2181"
 
-## Pulsar: KoP Protocol Handler
-kop:
-  ports:
-    plaintext: 9092
-    ssl: 9093
-  auth:
-    enabled: false
+## deprecated: move to broker.kop
+# kop:
+#   ports:
+#     plaintext: 9092
+#     ssl: 9093
+#   auth:
+#     enabled: false
 ## Pulsar: Broker cluster
 ## templates/broker-statefulset.yaml
 ##
@@ -1058,6 +1058,11 @@ broker:
 #    - my-pulsar-service-mop.example.com
   kop:
     enabled: true
+    ports:
+      plaintext: 9092
+      ssl: 9093
+    auth:
+      enabled: false
     tls:
       enabled: false
       # trustCertsEnabled controls the kop configuration item kopSslTruststoreLocation=/xxx/truststore.jks
