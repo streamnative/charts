@@ -363,7 +363,7 @@ auth:
     tls:
       enabled: false
     # Enabled or disabled authentication protect for status.html endpoint
-    statusCheck: false
+    statusCheck: true
   authorization:
     enabled: true
   superUsers:
