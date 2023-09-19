@@ -287,7 +287,7 @@ spec:
       {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
-{{- include "pulsar.authConfiguration" . | indent 6 }}
+{{- include "pulsar.authConfiguration" (dict "Values" .Values "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
       {{- if .Values.tls.broker.enabled }}
       superUserRoles: "{{ .Values.auth.superUsers.broker }},{{ .Release.Name }}-sn-platform-broker,{{ .Release.Name }}-sn-platform-proxy,{{ .Release.Name }}-sn-platform-toolset"
       {{- else }}

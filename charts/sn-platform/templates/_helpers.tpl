@@ -242,15 +242,15 @@ forwardAuthorizationCredentials: "true"
 {{- end }}
 {{- if and (eq .Component "proxy") .Values.auth.authentication.tls.enabled }}
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationTls"
-brokerClientAuthenticationParameters: tlsCertFile:/etc/tls/pulsar-proxy-tls/tls.crt,tlsKeyFile:/etc/tls/pulsar-proxy-tls/tls.key
-forwardAuthorizationCredentials： "false"
+brokerClientAuthenticationParameters: "tlsCertFile:/etc/tls/pulsar-proxy-tls/tls.crt,tlsKeyFile:/etc/tls/pulsar-proxy-tls/tls.key"
+forwardAuthorizationCredentials: "false"
 tlsEnabledWithBroker: "true"
 {{- end }}
 {{- if and (eq .Component "broker") .Values.auth.authentication.tls.enabled }}
 brokerClientTlsEnabled: "true"
 tlsTrustCertsFilePath: /etc/tls/pulsar-broker/ca.crt
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationTls"
-brokerClientAuthenticationParameters: tlsCertFile:/etc/tls/pulsar-broker/tls.crt,tlsKeyFile:/etc/tls/pulsar-broker/tls.key
+brokerClientAuthenticationParameters: "tlsCertFile:/etc/tls/pulsar-broker/tls.crt,tlsKeyFile:/etc/tls/pulsar-broker/tls.key"
 {{- end }}
 {{- end }}
 
