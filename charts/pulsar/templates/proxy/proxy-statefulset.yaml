@@ -192,27 +192,36 @@ spec:
         imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}
         {{- if .Values.proxy.probe.liveness.enabled }}
         livenessProbe:
-          httpGet:
-            path: /status.html
-            port: {{ .Values.proxy.ports.http }}
+          httpGet: null
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - 'res=$(curl -H "Authorization: Bearer $brokerClientAuthenticationParameters" http://localhost:8080/status.html);if [[ $res == "OK" ]]; then exit 0; else exit 1; fi'
           initialDelaySeconds: {{ .Values.proxy.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.proxy.probe.liveness.periodSeconds }}
           failureThreshold: {{ .Values.proxy.probe.liveness.failureThreshold }}
         {{- end }}
         {{- if .Values.proxy.probe.readiness.enabled }}
         readinessProbe:
-          httpGet:
-            path: /status.html
-            port: {{ .Values.proxy.ports.http }}
+          httpGet: null
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - 'res=$(curl -H "Authorization: Bearer $brokerClientAuthenticationParameters" http://localhost:8080/status.html);if [[ $res == "OK" ]]; then exit 0; else exit 1; fi'
           initialDelaySeconds: {{ .Values.proxy.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.proxy.probe.readiness.periodSeconds }}
           failureThreshold: {{ .Values.proxy.probe.readiness.failureThreshold }}
         {{- end }}
         {{- if .Values.proxy.probe.startup.enabled }}
         startupProbe:
-          httpGet:
-            path: /status.html
-            port: {{ .Values.proxy.ports.http }}
+          httpGet: null
+          exec:
+            command:
+              - /bin/bash
+              - -c
+              - 'res=$(curl -H "Authorization: Bearer $brokerClientAuthenticationParameters" http://localhost:8080/status.html);if [[ $res == "OK" ]]; then exit 0; else exit 1; fi'
           initialDelaySeconds: {{ .Values.proxy.probe.startup.initialDelaySeconds }}
           periodSeconds: {{ .Values.proxy.probe.startup.periodSeconds }}
           failureThreshold: {{ .Values.proxy.probe.startup.failureThreshold }}
