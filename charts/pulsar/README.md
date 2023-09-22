@@ -97,7 +97,7 @@ We provide some instructions to guide you through the preparation for the [Googl
 3. Add Loki Helm Charts repository and update charts.
 
     ```bash
-    helm repo add loki https://grafana.github.io/loki/charts
+    helm repo add loki https://grafana.github.io/helm-charts
     helm dependency update charts/pulsar
     ```
 
