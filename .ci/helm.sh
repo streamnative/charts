@@ -177,7 +177,7 @@ function ci::test_pulsar_function() {
 function ci::upgrade_pulsar_chart() {
     local value_file=$1
     echo "Upgrading the pulsar chart"
-    ${HELM} repo add loki https://grafana.github.io/loki/charts
+    ${HELM} repo add loki https://grafana.github.io/helm-charts
     ${HELM} dependency update ${CHARTS_HOME}/charts/pulsar
     ${HELM} upgrade -n ${NAMESPACE} --values ${value_file} ${CLUSTER} ${CHARTS_HOME}/charts/pulsar --timeout 1h --debug
     # wait the upgrade process start then to check the status
