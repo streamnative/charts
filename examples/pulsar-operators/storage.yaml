@@ -24,7 +24,7 @@ metadata:
   name: zookeepers
   namespace: pulsar
 spec:
-  streamnative/sn-platform-slim:2.10.5.3
+  image: streamnative/sn-platform-slim:2.10.5.3
   pod:
     resources:
       requests:
@@ -58,7 +58,7 @@ metadata:
   name: bookies
   namespace: pulsar
 spec:
-  streamnative/sn-platform-slim:2.10.5.3
+  image: streamnative/sn-platform-slim:2.10.5.3
   replicas: 3
   pod:
     resources:
@@ -99,7 +99,7 @@ metadata:
   name: brokers
   namespace: pulsar
 spec:
-  streamnative/sn-platform-slim:2.10.5.3
+  image: streamnative/sn-platform-slim:2.10.5.3
   pod:
     resources:
       requests:
