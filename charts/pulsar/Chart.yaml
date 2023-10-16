@@ -22,7 +22,7 @@ appVersion: "2.10"
 kubeVersion: ">= 1.19.0-0 <= 1.25.0-0"
 description: Apache Pulsar Helm chart for Kubernetes
 name: pulsar
-version: 2.10.0
+version: 2.10.1
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/pulsar
