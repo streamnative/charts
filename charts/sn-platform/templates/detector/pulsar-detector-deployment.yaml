@@ -120,9 +120,9 @@ spec:
         {{- if and .Values.components.vault .Values.auth.vault.enabled }}
         - name: brokerClientAuthenticationParameters
           valueFrom:
-              secretKeyRef:
-                name: {{ template "pulsar.vault-secret-key-name" . }}
-                key: brokerClientAuthenticationParameters
+            secretKeyRef:
+              name: {{ template "pulsar.vault-secret-key-name" . }}
+              key: brokerClientAuthenticationParameters
         {{- end }}
         {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
         - name: brokerClientAuthenticationParameters

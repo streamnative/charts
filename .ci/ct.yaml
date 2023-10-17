@@ -1,4 +1,3 @@
-
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -18,7 +17,12 @@
 # under the License.
 #
 
-zookeeper:
-  customTools:
-    backup:
-      enable: true
+chart-dirs:
+  - charts
+charts:
+  - charts/pulsar-operator
+  - charts/sn-platform
+
+debug: true
+helm-extra-args: --timeout 1200
+validate-maintainers: false

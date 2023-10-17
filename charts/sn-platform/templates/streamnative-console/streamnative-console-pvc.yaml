@@ -29,7 +29,8 @@ spec:
   resources:
     requests:
       storage: {{ .Values.streamnative_console.volumes.data.size }}
-  accessModes: [ "ReadWriteOnce" ]
+  accessModes:
+  - "ReadWriteOnce"
 {{- if  .Values.streamnative_console.volumes.data.storageClass }}
   storageClassName: "{{ template "pulsar.streamnative_console.data.pvc.name" . }}"
 {{- else if .Values.streamnative_console.volumes.data.storageClassName }}
