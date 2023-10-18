@@ -124,4 +124,13 @@ spec:
                 name: {{ .Release.Name }}-token-admin
                 key: TOKEN
         {{- end }}
+        {{- toYaml .Values.pulsar_detector.extraEnv | nindent 10 }}
+        {{- if .Values.pulsar_detector.extraVolumeMounts }}
+        volumeMounts: 
+        {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
+        {{- end }}
+      {{- if .Values.pulsar_detector.extraVolumes }}
+      volumes:
+      {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 8 }}
+      {{- end }}
 {{- end }}
