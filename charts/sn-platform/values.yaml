@@ -2454,6 +2454,7 @@ custom_metric_server:
 
 istio:
   enabled: false
+  migration: false
   # istio labels used to inject sidecars if it's not `sidecar.istio.io/inject: "true"`
   labels: {}
   # If you're using the prometheus in this chart, please keep mergeMetrics disabled.
