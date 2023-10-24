@@ -25,5 +25,9 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   mtls:
+{{- if .Values.istio.migration }}
+    mode: PERMISSIVE
+{{- else }}
     mode: STRICT
+{{- end }}
 {{- end }}
