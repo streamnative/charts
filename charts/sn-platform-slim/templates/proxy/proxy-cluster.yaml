@@ -152,6 +152,9 @@ spec:
 {{- include "pulsar.authConfiguration" . | indent 6 }}
       superUserRoles: "{{ .Values.auth.superUsers.proxy }}"
       {{- end }}
+      {{- if .Values.proxy.websocket.enabled }}
+      PULSAR_PREFIX_webSocketServiceEnabled: "true"
+      {{- end }}
       {{- if and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
       {{- if .Values.certs.internal_issuer.enabled }}
       tlsAllowInsecureConnection: "true"
