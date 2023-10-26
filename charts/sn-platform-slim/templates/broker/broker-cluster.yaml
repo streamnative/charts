@@ -167,6 +167,10 @@ spec:
   {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
   istio:
     enabled: true
+    {{- if .Values.istio.migration }}
+    mtls:
+      mode: permissive
+    {{- end }}
     gateway:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
