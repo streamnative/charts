@@ -1471,6 +1471,9 @@ pulsar_detector:
     limits: {}
       # memory: "1Gi"
       # cpu: "0.4"
+  extraVolumes: []
+  extraVolumeMounts: []
+  extraEnv: []
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
