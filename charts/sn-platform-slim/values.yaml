@@ -166,6 +166,10 @@ images:
       repository: busybox
       tag: "1.36.1-uclibc"
       pullPolicy: IfNotPresent
+    kubectl:
+      repository: bitnami/kubectl
+      tag: "1.28.3"
+      pullPolicy: IfNotPresent
   prometheus:
     repository: quay.io/prometheus/prometheus
     tag: "v2.43.0"
