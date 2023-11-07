@@ -1889,27 +1889,6 @@ entries:
   sn-platform:
   - apiVersion: v1
     appVersion: 3.0.0
-    created: "2023-11-02T04:57:17.023068506Z"
-    dependencies:
-    - condition: monitoring.loki
-      name: loki-stack
-      repository: https://grafana.github.io/helm-charts
-      version: 0.36.1
-    description: StreamNative Platform Chart
-    digest: 80e829ed8d12080a92af8d0b8b8a2490efeb2ead23fbb5c3fe8faf1bc57c8d8d
-    home: https://streamnative.io
-    icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
-    maintainers:
-    - email: support@streamnative.io
-      name: StreamNative Support
-    name: sn-platform
-    sources:
-    - https://github.com/streamnative/charts/tree/master/charts/sn-platform
-    urls:
-    - https://github.com/streamnative/charts/releases/download/sn-platform-1.11.1/sn-platform-1.11.1.tgz
-    version: 1.11.1
-  - apiVersion: v1
-    appVersion: 3.0.0
     created: "2023-09-18T07:37:19.52128363Z"
     dependencies:
     - condition: monitoring.loki
@@ -3610,22 +3589,6 @@ entries:
     - https://github.com/streamnative/charts/releases/download/sn-platform-1.1.0/sn-platform-1.1.0.tgz
     version: 1.1.0
   sn-platform-slim:
-  - apiVersion: v1
-    appVersion: 3.0.0
-    created: "2023-11-02T05:04:49.578958442Z"
-    description: StreamNative Platform Slim Chart
-    digest: 6df5adae488ef58786c3bb635ca5d1e3c95e31779a0004e0c5fa2e161a850ef2
-    home: https://streamnative.io
-    icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
-    maintainers:
-    - email: support@streamnative.io
-      name: StreamNative Support
-    name: sn-platform-slim
-    sources:
-    - https://github.com/streamnative/charts/tree/master/charts/sn-platform
-    urls:
-    - https://github.com/streamnative/charts/releases/download/sn-platform-slim-1.11.1/sn-platform-slim-1.11.1.tgz
-    version: 1.11.1
   - apiVersion: v1
     appVersion: 3.0.0
     created: "2023-09-18T08:07:06.329735812Z"
