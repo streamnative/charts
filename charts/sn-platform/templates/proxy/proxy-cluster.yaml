@@ -146,10 +146,8 @@ spec:
 {{- end }}
       {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
-      authenticateOriginalAuthData: "true"
-      forwardAuthorizationCredentials: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
-{{- include "pulsar.authConfiguration" . | indent 6 }}
+{{- include "pulsar.authConfiguration" (dict "Values" .Values "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 6 }}
       superUserRoles: "{{ .Values.auth.superUsers.proxy }}"
       {{- end }}
       {{- if .Values.proxy.websocket.enabled }}

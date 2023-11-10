@@ -38,6 +38,8 @@ data:
   tlsAllowInsecureConnection: "false"
   tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
   tlsEnableHostnameVerification: "false"
+  authParams: tlsCertFile:/pulsar/certs/toolset/tls.crt,tlsKeyFile:/pulsar/certs/toolset/tls.key
+  authPlugin: org.apache.pulsar.client.impl.auth.AuthenticationTls
   {{- else }}
   webServiceUrl: "http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless:{{ .Values.broker.ports.http }}/"
   brokerServiceUrl: "pulsar://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-headless:{{ .Values.broker.ports.pulsar }}/"
@@ -62,7 +64,7 @@ data:
   {{- end }}
   # Authentication Settings
   {{- if .Values.auth.authentication.enabled }}
-  {{- if eq .Values.auth.authentication.provider "jwt" }}
+  {{- if and (eq .Values.auth.authentication.provider "jwt") .Values.auth.authentication.jwt.enabled }}
   authParams: "file:///pulsar/tokens/client/token"
   authPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
   {{- end }}
@@ -73,7 +75,7 @@ data:
 {{ (.Files.Glob "conf/toolset/log4j2.yaml").AsConfig | indent 2 }}
   kafka.properties: |
 {{- if and .Values.tls.broker.enabled .Values.toolset.kafka.enabled }}
-{{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }}
+{{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") .Values.auth.authentication.jwt.enabled }}
     security.protocol=SASL_SSL
     sasl.mechanism=PLAIN
 {{- else }}
@@ -99,7 +101,7 @@ data:
         tls_allow_insecure_connection: false
         token: ""
         {{- if .Values.auth.authentication.enabled }}
-        {{- if eq .Values.auth.authentication.provider "jwt" }}
+        {{- if and (eq .Values.auth.authentication.provider "jwt") .Values.auth.authentication.jwt.enabled }}
         tokenFile: "/pulsar/tokens/client/token"
         {{- end }}
         {{- end }}

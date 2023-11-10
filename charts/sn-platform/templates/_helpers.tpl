@@ -202,6 +202,8 @@ Define function for save authenticaiton configuration
 {{- define "pulsar.authConfiguration" }}
 {{- if .Values.auth.vault.enabled }}
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+authenticateOriginalAuthData: "true"
+forwardAuthorizationCredentials: "true"
 PULSAR_PREFIX_chainAuthenticationEnabled: "true"
 PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
 {{- if .Values.broker.readPublicKeyFromFile }}
@@ -213,6 +215,8 @@ PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identit
 {{- if .Values.auth.oauth.enabled }}
 PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
 PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
+authenticateOriginalAuthData: "true"
+forwardAuthorizationCredentials: "true"
 {{- if .Values.auth.oauth.oauthAdminScope }}
 PULSAR_PREFIX_oauthAdminScope: "{{ .Values.auth.oauth.oauthAdminScope }}"
 {{- end }}
@@ -233,6 +237,20 @@ PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+authenticateOriginalAuthData: "true"
+forwardAuthorizationCredentials: "true"
+{{- end }}
+{{- if and (eq .Component "proxy") .Values.auth.authentication.tls.enabled }}
+brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationTls"
+brokerClientAuthenticationParameters: "tlsCertFile:/etc/tls/pulsar-proxy-tls/tls.crt,tlsKeyFile:/etc/tls/pulsar-proxy-tls/tls.key"
+forwardAuthorizationCredentials: "false"
+tlsEnabledWithBroker: "true"
+{{- end }}
+{{- if and (eq .Component "broker") .Values.auth.authentication.tls.enabled }}
+brokerClientTlsEnabled: "true"
+tlsTrustCertsFilePath: /etc/tls/pulsar-broker/ca.crt
+brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationTls"
+brokerClientAuthenticationParameters: "tlsCertFile:/etc/tls/pulsar-broker/tls.crt,tlsKeyFile:/etc/tls/pulsar-broker/tls.key"
 {{- end }}
 {{- end }}
 

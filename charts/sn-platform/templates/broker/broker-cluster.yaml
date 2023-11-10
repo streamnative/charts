@@ -290,12 +290,19 @@ spec:
 {{- end }}
       {{- if .Values.auth.authentication.enabled }}
       authenticationEnabled: "true"
-      authenticateOriginalAuthData: "true"
       authenticationProviders: {{ include "pulsar.authenticationProviders" . }}
-{{- include "pulsar.authConfiguration" . | indent 6 }}
+{{- include "pulsar.authConfiguration" (dict "Values" .Values "Component" .Values.broker.component "Release" .Release "Chart" .Chart) | indent 6 }}
+      {{- if .Values.tls.broker.enabled }}
+      superUserRoles: "{{ .Values.auth.superUsers.broker }},{{ .Release.Name }}-sn-platform-broker,{{ .Release.Name }}-sn-platform-proxy,{{ .Release.Name }}-sn-platform-toolset"
+      {{- else }}
       superUserRoles: "{{ .Values.auth.superUsers.broker }}"
+      {{- end }}
       {{- if .Values.auth.superUsers.proxyRolesEnabled }}
+      {{- if .Values.tls.broker.enabled }}
+      proxyRoles: {{ .Release.Name }}-sn-platform-proxy
+      {{- else }}
       proxyRoles: {{ .Values.auth.superUsers.proxyRoles }}
+      {{- end }}
       {{- end }}
       {{- end }}
       {{- if .Values.auth.authorization.enabled }}
