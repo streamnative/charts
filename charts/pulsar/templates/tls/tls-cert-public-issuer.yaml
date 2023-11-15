@@ -21,7 +21,7 @@
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if eq .Values.certs.public_issuer.type "acme" }}
 {{- if not .Values.certs.public_issuer.issuer_override }}
-apiVersion: cert-manager.io/v1alpha2
+apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.certs.public_issuer.component }}"

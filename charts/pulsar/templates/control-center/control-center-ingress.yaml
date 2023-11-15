@@ -22,7 +22,7 @@
 
 {{/* COMMENT */}}
 
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.ingress.control_center.component }}-ingress"
@@ -63,37 +63,55 @@ spec:
         paths:
           {{- if and .Values.monitoring.grafana .Values.ingress.control_center.endpoints.grafana }}
           - path: /grafana
+            pathType: ImplementationSpecific
             backend:
-              serviceName: "{{ $fullName }}-{{ .Values.grafana.component }}"
-              servicePort: {{ .Values.grafana.port }}
+              service:
+                name: "{{ $fullName }}-{{ .Values.grafana.component }}"
+                port:
+                  number: {{ .Values.grafana.port }}
           {{- end }}
           {{- if and .Values.monitoring.alert_manager .Values.ingress.control_center.endpoints.alertmanager }}
           - path: /alerts
+            pathType: ImplementationSpecific
             backend:
-              serviceName: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
-              servicePort: {{ .Values.alert_manager.port }}
+              service:
+                name: "{{ $fullName }}-{{ .Values.alert_manager.component }}"
+                port:
+                  number: {{ .Values.alert_manager.port }}
           {{- end }}
           {{- if and .Values.monitoring.prometheus .Values.ingress.control_center.endpoints.prometheus }}
           - path: /prometheus
+            pathType: ImplementationSpecific
             backend:
-              serviceName: "{{ $fullName }}-{{ .Values.prometheus.component }}"
-              servicePort: {{ .Values.prometheus.port }}
+              service:
+                name: "{{ $fullName }}-{{ .Values.prometheus.component }}"
+                port:
+                  number: {{ .Values.prometheus.port }}
           {{- end }}
           {{- if .Values.components.streamnative_console }}
           - path: /console
+            pathType: ImplementationSpecific
             backend:
-              serviceName: "{{ $fullName }}-{{ .Values.streamnative_console.component }}"
-              servicePort: {{ .Values.streamnative_console.ports.frontend }}
+              service:
+                name: "{{ $fullName }}-{{ .Values.streamnative_console.component }}"
+                port:
+                  number: {{ .Values.streamnative_console.ports.frontend }}
           {{- end }}
           {{- if .Values.components.pulsar_manager }}
           - path: /
+            pathType: ImplementationSpecific
             backend:
-              serviceName: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
-              servicePort: {{ .Values.pulsar_manager.ports.frontend }}
+              service:
+                name: "{{ $fullName }}-{{ .Values.pulsar_manager.component }}"
+                port:
+                  number: {{ .Values.pulsar_manager.ports.frontend }}
           {{- else }}
           - path: /
+            pathType: ImplementationSpecific
             backend:
-              serviceName: default
-              servicePort: 80
+              service:
+                name: default
+                port:
+                  number: 80
           {{- end }}
 {{- end }}
