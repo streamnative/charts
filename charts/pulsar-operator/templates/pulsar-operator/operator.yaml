@@ -65,6 +65,8 @@ spec:
         - containerPort: 8000
           name: metrics
         env:
+        - name: OPERATOR_NAMESPACE
+          value: {{ template "pulsar.namespace" . }}
         - name: MAX_CONCURRENT_RECONCILES
           value: "{{ .Values.pulsar.workers }}"
         - name: WATCH_CERT_MANAGER_CRDS
