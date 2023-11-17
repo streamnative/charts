@@ -66,6 +66,8 @@ spec:
         - containerPort: 8000
           name: metrics
         env:
+        - name: OPERATOR_NAMESPACE
+          value: {{ template "pulsar.namespace" . }}
         - name: MAX_CONCURRENT_RECONCILES
           value: "{{ .Values.zookeeper.workers }}"
         {{- if .Values.zookeeper.resources }}
