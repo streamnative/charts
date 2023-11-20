@@ -112,7 +112,7 @@ monitoring:
   # alerting - alert-manager
   alert_manager: false
   # monitoring - datadog
-  datadog: true
+  datadog: false
 
 ## Images
 ##
@@ -1754,12 +1754,12 @@ datadog:
         "\"_*\""
       ]
     bookkeeper:
-      enabled: true
+      enabled: false
       metrics: [
         "\"_*\""
       ]
     autorecovery:
-      enabled: true
+      enabled: false
       metrics: [
         "\"_*\""
       ]
