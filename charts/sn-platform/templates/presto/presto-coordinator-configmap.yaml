@@ -191,7 +191,7 @@ data:
     # to prevent erroneous rewriting
     pulsar.namespace-delimiter-rewrite-enable={{ .Values.presto.catalog.pulsar.namespaceDelimiterRewriteEnable }}
     pulsar.rewrite-namespace-delimiter={{ .Values.presto.catalog.pulsar.rewriteNamespaceDelimiter }}
-
+   
     ####### TIERED STORAGE OFFLOADER CONFIGS #######
 
     {{- if and .Values.broker.offload.enabled .Values.presto.read_offload.enabled }}
@@ -223,6 +223,11 @@ data:
 
     ## the authentication parameter to be used to authenticate to Pulsar cluster
     pulsar.auth-params = file:///pulsar/tokens/client/token
+    {{- else .Values.auth.oauth.enabled }}
+    pulsar.auth-plugin = org.apache.pulsar.client.impl.auth.oauth2.AuthenticationOAuth2
+    pulsar.auth-params = '{"privateKey":"file:///path/to/key/file.json",
+        "issuerUrl":"https://dev-kt-aa9ne.us.auth0.com",
+        "audience":"https://dev-kt-aa9ne.us.auth0.com/api/v2/"}'
     {{- end }}
     {{- end }}
 
