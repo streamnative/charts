@@ -160,7 +160,7 @@ images:
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.0.1.5"
     pullPolicy: IfNotPresent
     busybox:
       repository: busybox
@@ -184,7 +184,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
-    tag: "v2.3.3"
+    tag: "v2.3.4-rc.15"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
