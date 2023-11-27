@@ -164,6 +164,8 @@ spec:
                 name: {{ .Values.broker.offload.s3.secret }}
                 key: AWS_SECRET_ACCESS_KEY
           {{- end }}
+          securityContext:
+            runAsUser: 0
           volumeMounts:
             - mountPath: {{ template "pulsar.home" . }}/trino/conf/node.properties.template
               name: config-volume
