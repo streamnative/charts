@@ -77,17 +77,9 @@ Define the toolset web service url
 */}}
 {{- define "toolset.web.service.url" -}}
 {{- if not .Values.toolset.useProxy -}}
-{{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
-{{- else -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
-{{- end -}}
-{{- else -}}
-{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
 {{- else -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 
