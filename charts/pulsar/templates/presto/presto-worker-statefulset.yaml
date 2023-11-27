@@ -142,7 +142,6 @@ spec:
             - >-
               cp {{ template "pulsar.home" . }}/trino/conf/node.properties.template {{ template "pulsar.home" . }}/trino/conf/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/trino/conf/node.properties ;
-              echo "node.internal-address=${HOSTNAME}.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/trino/conf/node.properties ;
               bin/pulsar sql-worker run \
                 --etc-dir={{ template "pulsar.home" . }}/trino/conf \
                 --data-dir={{ template "pulsar.home" . }}/data;

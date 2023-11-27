@@ -120,7 +120,6 @@ spec:
             - >-
               cp {{ template "pulsar.home" . }}/trino/conf/node.properties.template {{ template "pulsar.home" . }}/trino/conf/node.properties;
               echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/trino/conf/node.properties ;
-              echo "node.internal-address=$(echo ${POD_IP} | tr "." "-").{{ template "presto.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/trino/conf/node.properties ;
               {{- if .Values.tls.presto.enabled }}
               set -ex;
               mkdir -p /pulsar/jks;
