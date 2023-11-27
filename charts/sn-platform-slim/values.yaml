@@ -237,11 +237,6 @@ tls:
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
     untrustedCa: true
-  # settings for generating certs for proxy
-  pulsar_detector:
-    enabled: false
-    # name of chart generated certificate
-    cert_name: tls-pulsar-detector
   # settings for generating certs for broker
   broker:
     enabled: false
