@@ -109,21 +109,20 @@ spec:
           command: ["sh", "-c"]
           args:
             - >-
-              cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
-              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
-              echo "node.internal-address=$(echo ${POD_IP} | tr "." "-").{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
-              ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
+              cp {{ template "pulsar.home" . }}/trino/conf/node.properties.template {{ template "pulsar.home" . }}/trino/conf/node.properties;
+              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/trino/conf/node.properties ;
+              echo "node.internal-address=$(echo ${POD_IP} | tr "." "-").{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/trino/conf/node.properties ;
               {{- if .Values.tls.presto.enabled }}
               set -ex;
               mkdir -p /pulsar/jks;
               openssl pkcs12 -export -in /pulsar/certs/presto/tls.crt -inkey /pulsar/certs/presto/tls.key -out /pulsar/jks/server-cert.p12 -name presto-coordinator -passout "pass:{{ template "pulsar.presto.jks.password" . }}";
               keytool -importkeystore -srckeystore /pulsar/jks/server-cert.p12 -srcstoretype PKCS12 -srcstorepass {{ template "pulsar.presto.jks.password" . }} -alias presto-coordinator -destkeystore /pulsar/jks/presto.keystore.jks -deststorepass {{ template "pulsar.presto.jks.password" . }};
               {{- if .Values.tls.presto.trustCertsEnabled }}
-              echo "y" | keytool -import -alias selfsigned -file /pulsar/certs/presto/ca.crt -keystore /pulsar/jks/trust.jks -trustcacerts -storepass {{ template "pulsar.presto.jks.password" . }}; 
+              echo "y" | keytool -import -alias selfsigned -file /pulsar/certs/presto/ca.crt -keystore /pulsar/jks/trust.jks -trustcacerts -storepass {{ template "pulsar.presto.jks.password" . }};
               {{- end }}
               {{- end }}
               bin/pulsar sql-worker run \
-                --etc-dir={{ template "pulsar.home" . }}/conf/presto \
+                --etc-dir={{ template "pulsar.home" . }}/trino/conf \
                 --data-dir={{ template "pulsar.home" . }}/data;
           env:
           - name: POD_IP
@@ -143,19 +142,19 @@ spec:
                 key: AWS_SECRET_ACCESS_KEY
           {{- end }}
           volumeMounts:
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/node.properties.template
               name: config-volume
               subPath: node.properties
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/log.properties
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/log.properties
               name: config-volume
               subPath: log.properties
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/jvm.config
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/jvm.config
               name: config-volume
               subPath: jvm.config
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/config.properties
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/config.properties
               name: config-volume
               subPath: config.properties
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/catalog/pulsar.properties
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/catalog/pulsar.properties
               name: config-volume
               subPath: pulsar.properties
             - mountPath: /presto/health_check.sh
