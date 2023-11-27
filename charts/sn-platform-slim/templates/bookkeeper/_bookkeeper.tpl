@@ -12,16 +12,6 @@ Define the bookkeeper hostname
 ${HOSTNAME}.{{ template "pulsar.bookkeeper.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
 {{- end -}}
 
-
-{{/*
-Define bookie zookeeper client tls settings
-*/}}
-{{- define "pulsar.bookkeeper.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-/pulsar/keytool/keytool.sh bookie {{ template "pulsar.bookkeeper.hostname" . }} true;
-{{- end }}
-{{- end }}
-
 {{- define "pulsar.bookkeeper.journal.pvc.name" -}}
 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}
 {{- end }}
@@ -59,28 +49,6 @@ httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
 statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
 # use hostname as the bookie id
 useHostNameAsBookieID: "true"
-{{- end }}
-
-{{/*
-Define bookie init container : verify cluster id
-*/}}
-{{- define "pulsar.bookkeeper.init.verify_cluster_id" -}}
-{{- if not (and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence) }}
-bin/apply-config-from-env.py conf/bookkeeper.conf;
-{{- include "pulsar.bookkeeper.zookeeper.tls.settings" . -}}
-until bin/bookkeeper shell whatisinstanceid; do
-  sleep 3;
-done;
-bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie || true
-{{- end }}
-{{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence }}
-set -e;
-bin/apply-config-from-env.py conf/bookkeeper.conf;
-{{- include "pulsar.bookkeeper.zookeeper.tls.settings" . -}}
-until bin/bookkeeper shell whatisinstanceid; do
-  sleep 3;
-done;
-{{- end }}
 {{- end }}
 
 {{/*

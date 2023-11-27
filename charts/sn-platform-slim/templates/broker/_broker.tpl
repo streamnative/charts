@@ -74,15 +74,6 @@ Define the broker znode prefix
 {{ .Values.metadataPrefix }}/loadbalance/brokers/
 {{- end }}
 
-{{/*
-Define broker zookeeper client tls settings
-NOTE: `BROKER_ADDRESS` should be set before using this template
-*/}}
-{{- define "pulsar.broker.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.broker.kop.enabled)) }}
-/pulsar/keytool/keytool.sh broker ${BROKER_ADDRESS} true;
-{{- end }}
-{{- end }}
 
 {{/*
 Define broker kop settings
@@ -93,33 +84,6 @@ Define broker kop settings
 export PULSAR_PREFIX_listeners="SSL://{{ template "pulsar.broker.hostname" . }}:{{ .Values.broker.kop.ports.ssl }}";
 {{- else }}
 export PULSAR_PREFIX_listeners="PLAINTEXT://{{ template "pulsar.broker.hostname" . }}:{{ .Values.broker.kop.ports.plaintext }}";
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define broker tls certs mounts
-*/}}
-{{- define "pulsar.broker.certs.volumeMounts" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-{{- if or .Values.tls.zookeeper.enabled .Values.broker.kop.enabled }}
-- name: keytool
-  mountPath: "/pulsar/keytool/keytool.sh"
-  subPath: keytool.sh
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define broker tls certs volumes
-*/}}
-{{- define "pulsar.broker.certs.volumes" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled)) }}
-{{- if or .Values.tls.zookeeper.enabled .Values.broker.kop.enabled }}
-- name: keytool
-  configMap:
-    name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
-    defaultMode: 0755
 {{- end }}
 {{- end }}
 {{- end }}

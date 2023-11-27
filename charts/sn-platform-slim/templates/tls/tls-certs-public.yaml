@@ -19,7 +19,7 @@
 
 {{- if .Values.certs.public_issuer.enabled }}
 {{- if .Values.tls.enabled }}
-{{- if or .Values.tls.broker.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
+{{- if or .Values.tls.broker.enabled }}
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:

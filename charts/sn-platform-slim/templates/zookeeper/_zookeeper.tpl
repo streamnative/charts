@@ -12,8 +12,6 @@ Define the pulsar zookeeper
 {{$zk:=.Values.pulsar_metadata.userProvidedZookeepers}}
 {{- if and (not .Values.components.zookeeper) $zk }}
 {{- $zk -}}
-{{- else if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}} 
-{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.clientTls }}
 {{- else -}}
 {{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
 {{- end -}}
@@ -26,8 +24,6 @@ Define the pulsar configurationStore
 {{$configurationStore:=.Values.pulsar_metadata.configurationStoreServers}}
 {{- if and (not .Values.components.zookeeper) $configurationStore }}
 {{- $configurationStore -}}
-{{- else if and .Values.tls.enabled .Values.tls.zookeeper.enabled -}} 
-{{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.clientTls }}
 {{- else -}}
 {{ template "pulsar.zookeeper.service" . }}:{{ .Values.zookeeper.ports.client }}
 {{- end -}}
@@ -39,58 +35,6 @@ Define the zookeeper hostname
 {{- define "pulsar.zookeeper.hostname" -}}
 ${HOSTNAME}.{{ template "pulsar.zookeeper.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
 {{- end -}}
-
-{{/*
-Define zookeeper tls settings
-*/}}
-{{- define "pulsar.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-/pulsar/keytool/keytool.sh zookeeper {{ template "pulsar.zookeeper.hostname" . }} false;
-{{- end }}
-{{- end }}
-
-{{/*
-Define zookeeper certs mounts
-*/}}
-{{- define "pulsar.zookeeper.certs.volumeMounts" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-- mountPath: "/pulsar/certs/zookeeper"
-  name: zookeeper-certs
-  readOnly: true
-- mountPath: "/pulsar/certs/ca"
-  name: ca
-  readOnly: true
-- name: keytool
-  mountPath: "/pulsar/keytool/keytool.sh"
-  subPath: keytool.sh
-{{- end }}
-{{- end }}
-
-{{/*
-Define zookeeper certs volumes
-*/}}
-{{- define "pulsar.zookeeper.certs.volumes" -}}
-{{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-- name: zookeeper-certs
-  secret:
-    secretName: "{{ template "pulsar.zookeeper.tls.secret.name" . }}"
-    items:
-      - key: tls.crt
-        path: tls.crt
-      - key: tls.key
-        path: tls.key
-- name: ca
-  secret:
-    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
-    items:
-      - key: ca.crt
-        path: ca.crt
-- name: keytool
-  configMap:
-    name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
-    defaultMode: 0755
-{{- end}}
-{{- end }}
 
 
 {{/*
