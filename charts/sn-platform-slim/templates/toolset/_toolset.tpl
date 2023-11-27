@@ -73,17 +73,6 @@ imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
 {{- end }}
 
 {{/*
-Define toolset TLS certificate secret name
-*/}}
-{{- define "pulsar.toolset.tls.secret.name" -}}
-{{- if .Values.tls.toolset.certSecretName -}}
-{{- .Values.tls.toolset.certSecretName -}}
-{{- else -}}
-{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Define the toolset web service url
 */}}
 {{- define "toolset.web.service.url" -}}

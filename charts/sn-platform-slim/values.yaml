@@ -263,12 +263,6 @@ tls:
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
     trustCertsEnabled: false
-  # settings for generating certs for toolset
-  toolset:
-    cert_name: tls-toolset
-    # name of chart generated certificate
-    # specify name of secret contain certificate if using pre-generated certificate
-    certSecretName:
   streamnative_console:
     enabled: false
     # name of chart generated certificate
