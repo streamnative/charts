@@ -47,53 +47,6 @@ storageClassName: "{{ .Values.bookkeeper.volumes.ledgers.storageClassName }}"
 {{- end }}
 
 {{/*
-Define bookie tls certs mounts
-*/}}
-{{- define "pulsar.bookkeeper.certs.volumeMounts" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
-- name: bookie-certs
-  mountPath: "/pulsar/certs/bookie"
-  readOnly: true
-- name: ca
-  mountPath: "/pulsar/certs/ca"
-  readOnly: true
-{{- if .Values.tls.zookeeper.enabled }}
-- name: keytool
-  mountPath: "/pulsar/keytool/keytool.sh"
-  subPath: keytool.sh
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define bookie tls certs volumes
-*/}}
-{{- define "pulsar.bookkeeper.certs.volumes" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.bookie.enabled .Values.tls.zookeeper.enabled) }}
-- name: bookie-certs
-  secret:
-    secretName: "{{ template "pulsar.bookie.tls.secret.name" . }}"
-    items:
-    - key: tls.crt
-      path: tls.crt
-    - key: tls.key
-      path: tls.key
-- name: ca
-  secret:
-    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
-    items:
-    - key: ca.crt
-      path: ca.crt
-{{- if .Values.tls.zookeeper.enabled }}
-- name: keytool
-  configMap:
-    name: "{{ template "pulsar.fullname" . }}-keytool-configmap"
-    defaultMode: 0755
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
 Define bookie common config
 */}}
 {{- define "pulsar.bookkeeper.config.common" -}}
@@ -106,20 +59,6 @@ httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
 statsProviderClass: org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider
 # use hostname as the bookie id
 useHostNameAsBookieID: "true"
-{{- end }}
-
-{{/*
-Define bookie tls config
-*/}}
-{{- define "pulsar.bookkeeper.config.tls" -}}
-{{- if and .Values.tls.enabled .Values.tls.bookie.enabled }}
-PULSAR_PREFIX_tlsProviderFactoryClass: org.apache.bookkeeper.tls.TLSContextFactory
-PULSAR_PREFIX_tlsCertificatePath: /pulsar/certs/bookie/tls.crt
-PULSAR_PREFIX_tlsKeyStoreType: PEM
-PULSAR_PREFIX_tlsKeyStore: /pulsar/certs/bookie/tls.key
-PULSAR_PREFIX_tlsTrustStoreType: PEM
-PULSAR_PREFIX_tlsTrustStore: /pulsar/certs/ca/ca.crt
-{{- end }}
 {{- end }}
 
 {{/*
@@ -228,13 +167,3 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
 {{- end -}}
 {{- end -}}
 
-{{/*
-Define Bookie TLS certificate secret name
-*/}}
-{{- define "pulsar.bookie.tls.secret.name" -}}
-{{- if .Values.tls.bookie.certSecretName -}}
-{{- .Values.tls.bookie.certSecretName -}}
-{{- else -}}
-{{ .Release.Name }}-{{ .Values.tls.bookie.cert_name }}
-{{- end -}}
-{{- end -}}

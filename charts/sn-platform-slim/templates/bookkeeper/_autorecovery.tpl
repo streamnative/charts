@@ -96,14 +96,3 @@ Define autorecovery log volumes
   configMap:
     name: "{{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
 {{- end }}
-
-{{/*
-Define Autorecovery TLS certificate secret name
-*/}}
-{{- define "pulsar.autorecovery.tls.secret.name" -}}
-{{- if .Values.tls.autorecovery.certSecretName -}}
-{{- .Values.tls.autorecovery.certSecretName -}}
-{{- else -}}
-{{ .Release.Name }}-{{ .Values.tls.autorecovery.cert_name }}
-{{- end -}}
-{{- end -}}

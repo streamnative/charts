@@ -214,7 +214,7 @@ images:
 ## The chart is using cert-manager for provisioning TLS certs for
 ## brokers and proxies.
 tls:
-  enabled: false
+  enabled: true
   # common settings for generating certs
   common:
     # 90d
@@ -244,7 +244,7 @@ tls:
     cert_name: tls-pulsar-detector
   # settings for generating certs for broker
   broker:
-    enabled: false
+    enabled: true
     # name of chart generated certificate
     cert_name: tls-broker
     # specify name of secret contain certificate if using pre-generated certificate
@@ -263,24 +263,11 @@ tls:
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
     trustCertsEnabled: false
-  # settings for generating certs for bookies
-  bookie:
-    enabled: false
-    # name of chart generated certificate
-    cert_name: tls-bookie
-    # specify name of secret contain certificate if using pre-generated certificate
-    certSecretName:
   # settings for generating certs for zookeeper
   zookeeper:
     enabled: false
     # name of chart generated certificate
     cert_name: tls-zookeeper
-    # specify name of secret contain certificate if using pre-generated certificate
-    certSecretName:
-  # settings for generating certs for recovery
-  autorecovery:
-    cert_name: tls-recovery
-    # name of chart generated certificate
     # specify name of secret contain certificate if using pre-generated certificate
     certSecretName:
   # settings for generating certs for toolset
