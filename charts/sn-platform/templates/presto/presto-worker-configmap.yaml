@@ -258,9 +258,9 @@ data:
   health_check.sh: |
     #!/bin/bash
     {{- if .Values.tls.presto.enabled }}
-    curl --silent https://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.https }}/v1/node -k | tr "," "\n" | grep --silent $(echo ${POD_IP} | tr "." "-")
+    curl --header "X-Trino-User: test-user" --silent https://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.https }}/v1/node -k | tr "," "\n" | grep --silent $(echo ${POD_IP} | tr "." "-")
     {{- else }}
-    curl --silent http://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(echo ${POD_IP} | tr "." "-")
+    curl --header "X-Trino-User: test-user" --silent http://{{ template "presto.service" . }}:{{ .Values.presto.coordinator.ports.http }}/v1/node | tr "," "\n" | grep --silent $(echo ${POD_IP} | tr "." "-")
     {{- end }}
 {{- end }}
 {{- end }}
