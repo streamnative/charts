@@ -155,10 +155,6 @@ spec:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
     {{- end }}
     {{- end }}
-    {{- if and (not .Values.zookeeper.operator.adopt_existing) .Values.tls.zookeeper.enabled }}
-    volumes:
-      {{- include "pulsar.zookeeper.certs.volumes" . | nindent 4 }}
-    {{- end }}
   {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
   persistence:
     data:
@@ -194,10 +190,6 @@ spec:
       {{- end }}
       {{- end }}
       # enable zookeeper tls
-      {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-      secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
-      PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
-      {{- end }}
       {{- if .Values.zookeeper.reconfig.enabled }}
       PULSAR_PREFIX_reconfigEnabled: "true"
       PULSAR_PREFIX_quorumListenOnAllIPs: "true"
@@ -232,10 +224,6 @@ spec:
       {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 6 }}
       {{- include "pulsar.zookeeper.genzkconf.volumeMounts" . | nindent 6 }}
       {{- end }}
-      {{- if and (not .Values.zookeeper.operator.adopt_existing) .Values.tls.zookeeper.enabled }}
-      volumeMounts:
-      {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 6 }}
-    {{- end }}
     configMap:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"

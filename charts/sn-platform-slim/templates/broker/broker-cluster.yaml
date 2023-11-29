@@ -98,7 +98,6 @@ spec:
 {{- end }}
     {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumes }}
     volumes:
-    {{- include "pulsar.broker.certs.volumes" . | nindent 4 }}
 {{- with .Values.broker.extraVolumes }}
 {{ toYaml . | indent 4 }}
 {{- end }}
@@ -365,7 +364,6 @@ spec:
     statefulSet:
 {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
       volumeMounts:
-      {{- include "pulsar.broker.certs.volumeMounts" . | nindent 6 }}
 {{- with .Values.broker.extraVolumeMounts }}
 {{ toYaml . | indent 6 }}
 {{- end }}

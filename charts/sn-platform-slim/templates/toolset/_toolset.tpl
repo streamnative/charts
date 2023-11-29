@@ -13,15 +13,6 @@ ${HOSTNAME}.{{ template "pulsar.toolset.service" . }}.{{ template "pulsar.namesp
 {{- end -}}
 
 {{/*
-Define toolset zookeeper client tls settings
-*/}}
-{{- define "pulsar.toolset.zookeeper.tls.settings" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled (and .Values.tls.broker.enabled .Values.broker.kop.enabled)) }}
-/pulsar/keytool/keytool.sh toolset {{ template "pulsar.toolset.hostname" . }} true;
-{{- end -}}
-{{- end }}
-
-{{/*
 Define toolset token mounts
 */}}
 {{- define "pulsar.toolset.token.volumeMounts" -}}
@@ -46,66 +37,6 @@ Define toolset token volumes
     items:
       - key: TOKEN
         path: client/token
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define toolset tls certs mounts
-*/}}
-{{- define "pulsar.toolset.certs.volumeMounts" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled) }}
-- name: toolset-certs
-  mountPath: "/pulsar/certs/toolset"
-  readOnly: true
-- name: ca
-  mountPath: "/pulsar/certs/ca"
-  readOnly: true
-{{- end }}
-{{- if and .Values.toolset.useProxy .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
-{{- if .Values.tls.proxy.untrustedCa }}
-- mountPath: "/pulsar/certs/proxy-ca"
-  name: proxy-ca
-  readOnly: true
-{{- end }}
-{{- end }}
-{{- end }}
-
-{{/*
-Define toolset tls certs volumes
-*/}}
-{{- define "pulsar.toolset.certs.volumes" -}}
-{{- if and .Values.tls.enabled (or .Values.tls.zookeeper.enabled .Values.tls.broker.enabled) }}
-- name: toolset-certs
-  secret:
-    secretName: "{{ template "pulsar.toolset.tls.secret.name" . }}"
-    items:
-    - key: tls.crt
-      path: tls.crt
-    - key: tls.key
-      path: tls.key
-- name: ca
-  secret:
-    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
-    items:
-    - key: ca.crt
-      path: ca.crt
-{{- end }}
-{{- if and .Values.tls.enabled (or .Values.tls.broker.enabled .Values.tls.proxy.enabled) }}
-{{- if .Values.tls.proxy.untrustedCa }}
-- name: proxy-ca
-  secret:
-  {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
-    secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
-    items:
-      - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
-        path: ca.crt
-  {{- else }}
-    secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
-    items:
-      - key: ca.crt
-        path: ca.crt
-  {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -142,32 +73,13 @@ imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
 {{- end }}
 
 {{/*
-Define toolset TLS certificate secret name
-*/}}
-{{- define "pulsar.toolset.tls.secret.name" -}}
-{{- if .Values.tls.toolset.certSecretName -}}
-{{- .Values.tls.toolset.certSecretName -}}
-{{- else -}}
-{{ .Release.Name }}-{{ .Values.tls.toolset.cert_name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Define the toolset web service url
 */}}
 {{- define "toolset.web.service.url" -}}
 {{- if not .Values.toolset.useProxy -}}
-{{- if and .Values.tls.enabled .Values.tls.broker.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.https }}
-{{- else -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
-{{- end -}}
-{{- else -}}
-{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
 {{- else -}}
 http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 

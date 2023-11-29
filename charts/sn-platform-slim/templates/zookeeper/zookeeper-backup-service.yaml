@@ -33,10 +33,6 @@ spec:
   ports:
     - name: client
       port: {{ .Values.zookeeper.ports.client }}
-    {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-    - name: client-tls
-      port: {{ .Values.zookeeper.ports.clientTls }}
-    {{- end }}
   clusterIP: None
   publishNotReadyAddresses: true
   selector:

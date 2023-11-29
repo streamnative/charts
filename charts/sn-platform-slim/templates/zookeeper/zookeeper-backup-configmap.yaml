@@ -43,11 +43,6 @@ data:
   PULSAR_PREFIX_dataLogDir: /pulsar/data/zookeeper-datalog
   {{- end }}
   PULSAR_PREFIX_serverCnxnFactory: {{ .Values.zookeeper.serverCnxnFactory }}
-  # enable zookeeper tls
-  {{- if and .Values.tls.enabled .Values.tls.zookeeper.enabled }}
-  secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
-  PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
-  {{- end }}
   {{- if .Values.zookeeper.reconfig.enabled }}
   PULSAR_PREFIX_reconfigEnabled: "true"
   PULSAR_PREFIX_quorumListenOnAllIPs: "true"
