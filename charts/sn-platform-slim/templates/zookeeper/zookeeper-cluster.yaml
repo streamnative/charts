@@ -163,14 +163,18 @@ spec:
   persistence:
     data:
       accessModes:
-        - ReadWriteOnce
+        {{- range .Values.zookeeper.volumes.data.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
       resources:
         requests:
           storage: {{ .Values.zookeeper.volumes.data.size }}
 {{- include "pulsar.zookeeper.data.storage.class" . | nindent 6 }}
     dataLog:
       accessModes:
-        - ReadWriteOnce
+        {{- range .Values.zookeeper.volumes.dataLog.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
       resources:
         requests:
           {{- if .Values.zookeeper.volumes.useSeparateDiskForTxlog }}

@@ -638,6 +638,8 @@ zookeeper:
     data:
       name: data
       size: 50Gi
+      accessModes: 
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -656,6 +658,8 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
+      accessModes: 
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -859,6 +863,8 @@ bookkeeper:
       numDirsPerVolume: 1
       name: journal
       size: 10Gi
+      accessModes: 
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -875,11 +881,13 @@ bookkeeper:
       #   extraParameters:
       #     iopsPerGB: "50"
     ledgers:
-      name: ledgers
-      size: 50Gi
       # It determines the directory of ledgers data
       numVolumes: 1
       numDirsPerVolume: 1
+      name: ledgers
+      size: 50Gi
+      accessModes: 
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
