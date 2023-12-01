@@ -115,7 +115,7 @@ data:
 {{- if .Values.presto.security.authentication.jwt.enabled }}
     # JWT Authentication
     http-server.authentication.type=JWT
-    http-server.authentication.jwt.key-file={{ template "pulsar.home" . }}/conf/presto/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
+    http-server.authentication.jwt.key-file={{ template "pulsar.home" . }}/trino/conf/{{ .Values.presto.security.authentication.jwt.publicKeyFileName }}
 {{- end }}
     {{- if .Values.presto.coordinator.config.custom }}
     {{- range $k, $v := .Values.presto.coordinator.config.custom }}
@@ -279,13 +279,13 @@ data:
   access-control.properties: |
     # access-control.properties
     access-control.name=file
-    security.config-file={{ template "pulsar.home" . }}/conf/presto/rules.json
+    security.config-file={{ template "pulsar.home" . }}/trino/conf/rules.json
     security.refresh-period=60s
 {{- end}}
 {{- if .Values.presto.security.authentication.password.enabled }}
   password-authenticator.properties: |
     password-authenticator.name=file
-    file.password-file={{ template "pulsar.home" . }}/presto/{{ .Values.presto.security.authentication.password.passwordFileName }}
+    file.password-file={{ template "pulsar.home" . }}/trino/{{ .Values.presto.security.authentication.password.passwordFileName }}
     file.refresh-period=60s
 {{- end}}
 {{- end }}
