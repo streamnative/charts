@@ -713,7 +713,7 @@ zookeeper:
     data:
       name: data
       size: 50Gi
-      accessModes: 
+      accessModes:
         - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
@@ -733,7 +733,7 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
-      accessModes: 
+      accessModes:
         - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
@@ -938,7 +938,7 @@ bookkeeper:
       numDirsPerVolume: 1
       name: journal
       size: 10Gi
-      accessModes: 
+      accessModes:
         - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
@@ -961,7 +961,7 @@ bookkeeper:
       numDirsPerVolume: 1
       name: ledgers
       size: 50Gi
-      accessModes: 
+      accessModes:
         - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
