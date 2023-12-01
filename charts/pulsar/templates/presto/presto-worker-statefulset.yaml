@@ -140,12 +140,10 @@ spec:
             {{- end }}
             {{- else }}
             - >-
-              cp {{ template "pulsar.home" . }}/conf/presto/node.properties.template {{ template "pulsar.home" . }}/conf/presto/node.properties;
-              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
-              echo "node.internal-address=${HOSTNAME}.{{ template "presto.worker.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local" >> {{ template "pulsar.home" . }}/conf/presto/node.properties ;
-              ln -s {{ template "pulsar.home" . }}/conf/presto {{ template "pulsar.home" . }}/lib/presto/etc;
+              cp {{ template "pulsar.home" . }}/trino/conf/node.properties.template {{ template "pulsar.home" . }}/trino/conf/node.properties;
+              echo "node.id=${HOSTNAME}" >> {{ template "pulsar.home" . }}/trino/conf/node.properties ;
               bin/pulsar sql-worker run \
-                --etc-dir={{ template "pulsar.home" . }}/conf/presto \
+                --etc-dir={{ template "pulsar.home" . }}/trino/conf \
                 --data-dir={{ template "pulsar.home" . }}/data;
             {{- end }}
           env:
@@ -165,20 +163,22 @@ spec:
                 name: {{ .Values.broker.offload.s3.secret }}
                 key: AWS_SECRET_ACCESS_KEY
           {{- end }}
+          securityContext:
+            runAsUser: 0
           volumeMounts:
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/node.properties.template
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/node.properties.template
               name: config-volume
               subPath: node.properties
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/log.properties
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/log.properties
               name: config-volume
               subPath: log.properties
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/jvm.config
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/jvm.config
               name: config-volume
               subPath: jvm.config
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/config.properties
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/config.properties
               name: config-volume
               subPath: config.properties
-            - mountPath: {{ template "pulsar.home" . }}/conf/presto/catalog/pulsar.properties
+            - mountPath: {{ template "pulsar.home" . }}/trino/conf/catalog/pulsar.properties
               name: config-volume
               subPath: pulsar.properties
             - mountPath: /presto/health_check.sh
