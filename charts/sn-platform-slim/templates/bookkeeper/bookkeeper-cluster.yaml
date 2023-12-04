@@ -130,7 +130,9 @@ spec:
       numDirsPerVolume: {{ .Values.bookkeeper.volumes.journal.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
-          - ReadWriteOnce
+        {{- range .Values.bookkeeper.volumes.journal.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.bookkeeper.volumes.journal.size }}
@@ -140,7 +142,9 @@ spec:
       numDirsPerVolume: {{ .Values.bookkeeper.volumes.ledgers.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
-          - ReadWriteOnce
+        {{- range .Values.bookkeeper.volumes.ledgers.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
