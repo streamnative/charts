@@ -197,10 +197,13 @@ spec:
 {{- end }}
 {{- if or (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) .Values.autorecovery.annotations }}
       annotations:
-{{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}
+        {{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
-{{- end }}
+        {{- end }}
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.autorecovery.datadog.annotation" . | nindent 6 }}
+        {{- end }}
         {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
