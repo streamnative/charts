@@ -1845,6 +1845,11 @@ datadog:
       metrics: [
         "\"_*\""
       ]
+    autorecovery:
+      enabled: false
+      metrics: [
+        "\"_*\""
+      ]
     broker:
       enabled: false
       metrics: [
