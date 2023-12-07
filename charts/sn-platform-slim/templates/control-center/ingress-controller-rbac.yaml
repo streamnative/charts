@@ -47,6 +47,13 @@ rules:
       - list
       - watch
   - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - list
+      - watch
+  - apiGroups:
       - ""
     resources:
       - nodes
@@ -61,12 +68,80 @@ rules:
       - list
       - watch
   - apiGroups:
+      - "extensions"
+      - "networking.k8s.io"
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
       - ""
     resources:
       - events
     verbs:
       - create
       - patch
+  - apiGroups:
+      - "extensions"
+      - "networking.k8s.io"
+    resources:
+      - ingresses/status
+    verbs:
+      - update
+  - apiGroups:
+      - "networking.k8s.io"
+    resources:
+      - ingressclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - list
+      - watch
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-nginx-ingress-role"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    app: {{ template "pulsar.name" . }}
+    chart: {{ template "pulsar.chart" . }}
+    release: {{ .Release.Name }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - pods
+      - secrets
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - "extensions"
       - "networking.k8s.io"
@@ -83,52 +158,44 @@ rules:
       - ingresses/status
     verbs:
       - update
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: "{{ template "pulsar.fullname" . }}-nginx-ingress-role"
-  namespace: {{ template "pulsar.namespace" . }}
-  labels:
-    app: {{ template "pulsar.name" . }}
-    chart: {{ template "pulsar.chart" . }}
-    release: {{ .Release.Name }}
-rules:
   - apiGroups:
-      - ""
+      - networking.k8s.io
     resources:
-      - configmaps
-      - pods
-      - secrets
-      - namespaces
+      - ingressclasses
     verbs:
       - get
+      - list
+      - watch
   - apiGroups:
-      - ""
+      - coordination.k8s.io
     resources:
-      - configmaps
+      - leases
     resourceNames:
-      # Defaults to "<election-id>-<ingress-class>"
-      # Here: "<ingress-controller-leader>-<nginx>"
-      # This has to be adapted if you change either parameter
-      # when launching the nginx-ingress-controller.
       - "ingress-controller-leader-nginx"
-      # Upgrade to v1.1.1, controller will update this configmap
       - "ingress-controller-leader"
     verbs:
       - get
       - update
   - apiGroups:
-      - ""
+      - coordination.k8s.io
     resources:
-      - configmaps
+      - leases
     verbs:
       - create
   - apiGroups:
       - ""
     resources:
-      - endpoints
+      - events
     verbs:
+      - create
+      - patch
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+    verbs:
+      - list
+      - watch
       - get
 ---
 apiVersion: rbac.authorization.k8s.io/v1
