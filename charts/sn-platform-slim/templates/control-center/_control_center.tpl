@@ -115,9 +115,9 @@ If k8s version is higher or equal than v1.22, but the .Values.images.nginx_ingre
 it will use registry.k8s.io/ingress-nginx/controller:v1.1.1 as default to make ingress work.
 */}}
 {{- define "pulsar.ingress.image" -}}
-    {{- if and (eq (include "pulsar.kubeVersion.isLessThanV122" .) "false") (semverCompare "< 1.0.0" .Values.images.nginx_ingress_controller.tag )}}
-        {{- print "registry.k8s.io/ingress-nginx/controller:v1.1.1"}}
-    {{- else -}}
+    {{- if (eq (include "pulsar.kubeVersion.isLessThanV122" .) "false") }}
         {{- printf "%s:%s" .Values.images.nginx_ingress_controller.repository .Values.images.nginx_ingress_controller.tag -}}
+    {{- else -}}
+        {{- print "quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.26.2"}}
     {{- end -}}
 {{- end -}}
