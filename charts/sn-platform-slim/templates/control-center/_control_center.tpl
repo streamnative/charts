@@ -111,8 +111,8 @@ Get ingress image according to the k8s version.
 When k8s version is higher or equal than v1.22, ingress image should use version v1.x.x,
 otherwise it should use the default version 0.26.2 that defines in values.yaml.
 
-If k8s version is higher or equal than v1.22, but the .Values.images.nginx_ingress_controller.tag is less than v1.x.x,
-it will use registry.k8s.io/ingress-nginx/controller:v1.1.1 as default to make ingress work.
+If k8s version is higher or equal than v1.22, it will use the nginx_ingress_controller image in values. 
+otherwise, it will use quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.26. as default to make ingress work.
 */}}
 {{- define "pulsar.ingress.image" -}}
     {{- if (eq (include "pulsar.kubeVersion.isLessThanV122" .) "false") }}
