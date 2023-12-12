@@ -45,7 +45,7 @@ components:
 ## Control what images to use for each component
 images:
   registry: "docker.streamnative.io"
-  tag: "v0.17.8"
+  tag: "v0.17.9"
 
   zookeeper:
     registry: ""
