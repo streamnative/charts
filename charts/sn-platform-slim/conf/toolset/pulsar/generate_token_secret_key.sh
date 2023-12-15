@@ -18,7 +18,7 @@
 # under the License.
 #
 
-set -ex;
+set -x;
 CHART_HOME=$(unset CDPATH && cd $(dirname "${BASH_SOURCE[0]}")/../.. && pwd)
 cd ${CHART_HOME}
 
