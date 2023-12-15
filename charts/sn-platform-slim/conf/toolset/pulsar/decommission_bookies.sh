@@ -89,8 +89,8 @@ autorecovery_pod=${autorecovery_pod:-autorecovery}
 for ((i=replicas; i>=1; i--))
 do
     j=$((i-1))
-    echo /pulsar/kubectl -n ${namespace} scale --replicas=${j} sts/${statefulset}
-    /pulsar/kubectl -n ${namespace} scale --replicas=${j} sts/${statefulset}
-    echo /pulsar/kubectl -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.${namespace}.svc.cluster.local:3181
-    /pulsar/kubectl -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.${namespace}.svc.cluster.local:3181
+    echo ${KUBECTL_BIN} -n ${namespace} scale --replicas=${j} sts/${statefulset}
+    ${KUBECTL_BIN} -n ${namespace} scale --replicas=${j} sts/${statefulset}
+    echo ${KUBECTL_BIN} -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.${namespace}.svc.cluster.local:3181
+    ${KUBECTL_BIN} -n ${autorecovery_namespace} exec -it ${autorecovery_pod} -- bin/bookkeeper shell decommissionbookie -bookieid ${statefulset}-${j}.${statefulset}.${namespace}.svc.cluster.local:3181
 done

@@ -18,8 +18,7 @@
 # under the License.
 #
 
-set -e
-
+set -ex;
 CHART_HOME=$(unset CDPATH && cd $(dirname "${BASH_SOURCE[0]}")/../.. && pwd)
 cd ${CHART_HOME}
 
@@ -82,9 +81,9 @@ function pulsar::jwt::generate_symmetric_key() {
     tmpfile=$(mktemp)
     trap "test -f $tmpfile && rm $tmpfile" RETURN
     ${PULSARCTL_BIN} token create-secret-key --output-file ${tmpfile}
-    mv $tmpfile SECRETKEY
-    /pulsar/kubectl create secret generic ${secret_name} -n ${namespace} --from-file=SECRETKEY
-    rm SECRETKEY
+    mv $tmpfile ${OUTPUT}/SECRETKEY
+    ${KUBECTL_BIN} create secret generic ${secret_name} -n ${namespace} --from-file=${OUTPUT}/SECRETKEY
+    rm ${OUTPUT}/SECRETKEY
 }
 
 function pulsar::jwt::generate_asymmetric_key() {
@@ -95,11 +94,11 @@ function pulsar::jwt::generate_asymmetric_key() {
     publickeytmpfile=$(mktemp)
     trap "test -f $publickeytmpfile && rm $publickeytmpfile" RETURN
     ${PULSARCTL_BIN} token create-key-pair -a RS256 --output-private-key ${privatekeytmpfile} --output-public-key ${publickeytmpfile}
-    mv $privatekeytmpfile PRIVATEKEY
-    mv $publickeytmpfile PUBLICKEY
-    /pulsar/kubectl create secret generic ${secret_name} -n ${namespace} --from-file=PRIVATEKEY --from-file=PUBLICKEY
-    rm PRIVATEKEY
-    rm PUBLICKEY
+    mv $privatekeytmpfile $OUTPUT/PRIVATEKEY
+    mv $publickeytmpfile $OUTPUT/PUBLICKEY
+    ${KUBECTL_BIN} create secret generic ${secret_name} -n ${namespace} --from-file=$OUTPUT/PRIVATEKEY --from-file=$OUTPUT/PUBLICKEY
+    rm $OUTPUT/PRIVATEKEY
+    rm $OUTPUT/PUBLICKEY
 }
 
 if [[ "${symmetric}" == "true" ]]; then

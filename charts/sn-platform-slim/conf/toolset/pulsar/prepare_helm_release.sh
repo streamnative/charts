@@ -18,6 +18,7 @@
 # under the License.
 #
 
+set -ex;
 CHART_HOME=$(unset CDPATH && cd $(dirname "${BASH_SOURCE[0]}")/../.. && pwd)
 cd ${CHART_HOME}
 
@@ -94,7 +95,7 @@ pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-ma
 
 function generate_gcs_offloader_service_account_keyfile() {
     local secret_name="${release}-gcs-offloader-service-account"
-    /pulsar/kubectl create secret generic ${secret_name} -n ${namespace} \
+    ${KUBECTL_BIN} create secret generic ${secret_name} -n ${namespace} \
         --from-file="gcs.json=${gcs_offloader_service_account_keyfile}"
 }
 
@@ -102,7 +103,7 @@ pulsar_superusers=${pulsar_superusers:-"proxy-admin,broker-admin,admin,pulsar-ma
 
 function do_create_namespace() {
     if [[ "${create_namespace}" == "true" ]]; then
-        /pulsar/kubectl create namespace ${namespace}
+        ${KUBECTL_BIN} create namespace ${namespace}
     fi
 }
 
