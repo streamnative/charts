@@ -1,0 +1,109 @@
+# vault is not supported in rootless env
+components:
+  pulsar_detector: true
+  vault: false
+
+# monitoring components haven't been tested in rootless env
+monitoring:
+  prometheus: false
+  grafana: false
+  node_exporter: false
+  alert_manager: false
+  loki: false
+  datadog: false
+
+auth:
+  authentication:
+    enabled: true
+    provider: "jwt"
+    jwt:
+      enabled: true
+      usingSecretKey: false
+      autoInitSecret: true
+  vault:
+    enabled: false
+
+zookeeper:
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+bookkeeper:
+  bookKeeperCluster:
+    annotations:
+      cloud.streamnative.io/omit-init-sysctl: "true"
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+  autorecovery:
+    securityContext:
+      runAsNonRoot: true
+      runAsGroup: 10001
+      fsGroup: 10001
+      runAsUser: 10000
+
+broker:
+  pulsarBroker:
+    annotations:
+      cloud.streamnative.io/omit-init-sysctl: "true"
+  replicaCount: 2
+  kop:
+    enabled: false
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+
+proxy:
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+
+streamnative_console:
+  securityContext:
+    fsGroup: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    runAsUser: 1000
+  configData:
+    INIT_DEFAULT_ENVIRONMENT: true
+    BACKEND_DEFAULT_SUPER_USER_ROLE: "admin,pulsar-manager-admin"
+  login:
+    sso:
+      pulsarJwt:
+        enabled: true
+        config:
+          AUTHENTICATION_CUSTOM_CLAIM: sub
+          # The secret should contain both `TOKEN`
+          SERVICE_ACCOUNT_SUPER_TOKEN_SECRET: "sn-platform-token-admin"
+          # AUTH_METHOD_CUSTOM_CLAIM: sub
+          # USERNAME_CLAIM: sub
+          JWT_BROKER_TOKEN_MODE: PRIVATE
+          # The secret should contain both `PUBLICKEY`, `PRIVATEKEY`
+          JWT_BROKER_PUBLIC_PRIVATE_KEY: "sn-platform-token-asymmetric-key"
+          # The secret should contain both `SECRETKEY`
+          JWT_BROKER_SECRET_KEY: ""
+toolset:
+  readOnlyRootFilesystem: true
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
+
+pulsar_detector:
+  securityContext:
+    runAsNonRoot: true
+    runAsGroup: 10001
+    fsGroup: 10001
+    runAsUser: 10000
