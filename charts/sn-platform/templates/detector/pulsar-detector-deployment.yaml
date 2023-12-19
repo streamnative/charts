@@ -87,7 +87,7 @@ spec:
         {{- end }}
         volumeMounts:
         - name: tmp
-          mountPath: /pulsar
+          mountPath: /pulsar/logs
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
@@ -108,7 +108,7 @@ spec:
         {{- end }}
         volumeMounts:
         - name: tmp
-          mountPath: /pulsar
+          mountPath: /pulsar/logs
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
