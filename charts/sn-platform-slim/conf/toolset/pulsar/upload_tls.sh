@@ -91,7 +91,7 @@ ca_cert_file=${tlsdir}/certs/ca.cert.pem
 
 function upload_ca() {
     local tls_ca_secret="${release}-ca-tls"
-    /pulsar/kubectl create secret generic ${tls_ca_secret} -n ${namespace} --from-file="ca.crt=${ca_cert_file}"
+    ${KUBECTL_BIN} create secret generic ${tls_ca_secret} -n ${namespace} --from-file="ca.crt=${ca_cert_file}"
 }
 
 function upload_server_cert() {
@@ -100,7 +100,7 @@ function upload_server_cert() {
     local tls_cert_file="${tlsdir}/servers/${component}/${component}.cert.pem"
     local tls_key_file="${tlsdir}/servers/${component}/${component}.key-pk8.pem"
 
-    /pulsar/kubectl create secret generic ${server_cert_secret} \
+    ${KUBECTL_BIN} create secret generic ${server_cert_secret} \
         -n ${namespace} \
         --from-file="tls.crt=${tls_cert_file}" \
         --from-file="tls.key=${tls_key_file}" \
@@ -113,7 +113,7 @@ function upload_client_cert() {
     local tls_cert_file="${tlsdir}/clients/${component}/${component}.cert.pem"
     local tls_key_file="${tlsdir}/clients/${component}/${component}.key-pk8.pem"
 
-    /pulsar/kubectl create secret generic ${client_cert_secret} \
+    ${KUBECTL_BIN} create secret generic ${client_cert_secret} \
         -n ${namespace} \
         --from-file="tls.crt=${tls_cert_file}" \
         --from-file="tls.key=${tls_key_file}" \

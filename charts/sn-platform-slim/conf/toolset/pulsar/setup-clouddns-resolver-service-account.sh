@@ -46,7 +46,7 @@ gcloud iam service-accounts keys create ${RESOLVER_NAME}-key.json \
    --iam-account ${RESOLVER_NAME}@$PROJECT_ID.iam.gserviceaccount.com
 
 echo "Save the service account key as a kubernete secret '${HELM_RELEASE}-${RESOLVER_NAME}-svc-acct' in namespace '${NAMESPACE}'."
-/pulsar/kubectl create secret generic ${HELM_RELEASE}-${RESOLVER_NAME}-svc-acct \
+${KUBECTL_BIN} create secret generic ${HELM_RELEASE}-${RESOLVER_NAME}-svc-acct \
    --from-file=${RESOLVER_NAME}-key.json -n ${NAMESPACE}
 
 echo "Remove the generated key."
