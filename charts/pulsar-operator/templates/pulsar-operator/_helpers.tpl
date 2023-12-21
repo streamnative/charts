@@ -3,7 +3,7 @@ install broker crd yaml file to tpl.
 */}}
 {{- define "broker.crd" -}}
 {{- $files := .Files }}
-{{ $files.Get "crds/pulsar.streamnative.io_pulsarbrokers" }}
+{{ $files.Get "crds/pulsar.streamnative.io_pulsarbrokers.yaml" }}
 {{- end -}}
 
 {{/*
@@ -11,7 +11,7 @@ install proxy crd yaml file to tpl.
 */}}
 {{- define "proxy.crd" -}}
 {{- $files := .Files }}
-{{ $files.Get "crds/pulsar.streamnative.io_pulsarproxies" }}
+{{ $files.Get "crds/pulsar.streamnative.io_pulsarproxies.yaml" }}
 {{- end -}}
 
 {{/*Define the image for pulsar*/}}
