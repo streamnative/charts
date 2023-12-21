@@ -198,7 +198,6 @@ Define function for save authenticaiton configuration
 {{- define "pulsar.authConfiguration" }}
 {{- if .Values.auth.vault.enabled }}
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
-PULSAR_PREFIX_chainAuthenticationEnabled: "true"
 PULSAR_PREFIX_vaultHost: {{ template "pulsar.vault.url" . }}
 {{- if .Values.broker.readPublicKeyFromFile }}
 PULSAR_PREFIX_OIDCPublicKeyPath: file://{{ .Values.broker.publicKeyPath | default "/pulsar/vault/v1/identity/oidc/.well-known/keys" }}/publicKey
