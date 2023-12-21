@@ -53,6 +53,24 @@ spec:
     {{- toYaml . | nindent 6 -}}
     {{- end }}
   pod:
+    {{- if .Values.zookeeper.customTools.restore.enable }}
+    initContainers:
+    - name: pulsar-metadata-cleanup
+      image: "{{ .Values.zookeeper.customTools.restore.repository }}:{{ .Values.zookeeper.customTools.restore.tag }}"
+      imagePullPolicy: "{{ .Values.zookeeper.customTools.restore.pullPolicy }}"
+      command: ["sh", "-c"]
+      args:
+        - >
+          bin/pulsar-metadata-tool cleanup
+      env:
+        - name: METADATA_TOOL_CONF
+          value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        - name: EXTRA_OPTS
+          value: {{ .Values.zookeeper.customTools.restore.configData.OPTS }}
+      volumeMounts:
+        - name: cleanup-config
+          mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
+    {{- end }}
     {{- with .Values.bookkeeper.topologySpreadConstraints }}
     topologySpreadConstraints:
     {{- toYaml . | nindent 4 }}
@@ -119,9 +137,16 @@ spec:
     {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
     {{- include "pulsar.bookkeeper.log.volumes" . | nindent 4 }}
     {{- end }}
-    {{- if and (not .Values.bookkeeper.operator.adopt_existing) .Values.tls.bookie.enabled }}
+    {{- if and (not .Values.bookkeeper.operator.adopt_existing) (or .Values.zookeeper.customTools.restore.enable .Values.tls.bookie.enabled) }}
     volumes:
+    {{- if .Values.tls.bookie.enabled }}
     {{- include "pulsar.bookkeeper.certs.volumes" . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.zookeeper.customTools.restore.enable }}
+      - name: cleanup-config
+        configMap:
+          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+    {{- end }}
     {{- end }}
   {{- if and .Values.volumes.persistence .Values.bookkeeper.volumes.persistence}}
   storage:
