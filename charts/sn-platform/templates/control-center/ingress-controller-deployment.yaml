@@ -19,6 +19,11 @@
 
 {{- if .Values.ingress.controller.enabled }}
 {{- $isKubeVersionLessThanV122 := eq (include "pulsar.kubeVersion.isLessThanV122" .) "true" }}
+{{- $isIngressAPIStable := eq (include "pulsar.ingress.isStable" .) "true" -}}
+
+{{/* COMMENT */}}
+
+
 
 apiVersion: apps/v1
 kind: Deployment
@@ -70,7 +75,11 @@ spec:
         - --tcp-services-configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-tcp-services
         - --udp-services-configmap={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-udp-services
         - --publish-service={{ template "pulsar.namespace" . }}/{{ template "pulsar.fullname" . }}-{{ .Values.ingress.controller.component }}
+        {{- if $isIngressAPIStable }}
+        - --ingress-class=nginx
+        {{- else }}
         - --annotations-prefix=nginx.ingress.kubernetes.io
+        {{- end }}
         securityContext:
           allowPrivilegeEscalation: true
           capabilities:
