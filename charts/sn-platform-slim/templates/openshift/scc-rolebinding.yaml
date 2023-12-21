@@ -18,8 +18,7 @@
 #
 
 {{- if and .Values.openshift.enabled .Values.openshift.scc.enabled -}}
-{{- $sas := list (include "pulsar.vault.serviceAccount" .) -}}
-{{- $sas = append $sas (include "pulsar.zookeeper.serviceAccount" .) -}}
+{{- $sas := list (include "pulsar.zookeeper.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.bookkeeper.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.broker.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.proxy.serviceAccount" .) -}}
