@@ -12,6 +12,59 @@ Define the autorecovery hostname
 ${HOSTNAME}.{{ template "pulsar.autorecovery.service" . }}.{{ template "pulsar.namespace" . }}.svc.cluster.local
 {{- end -}}
 
+{{/*Define broker autorecovery name*/}}
+{{- define "pulsar.autorecovery.podName" -}}
+{{- print "autorecovery" -}}
+{{- end -}}
+
+{{/*Define autorecovery datadog annotation*/}}
+{{- define  "pulsar.autorecovery.datadog.annotation" -}}
+{{- if .Values.datadog.components.autorecovery.enabled }}
+ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.check_names: |
+  ["openmetrics"]
+ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.init_configs: |
+  [{}]
+ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.instances: |
+  [
+    {
+      "prometheus_url": "http://%%host%%:{{ .Values.autorecovery.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
+      "namespace": "{{ template "pulsar.namespace" . }}",
+      {{ end -}}
+      "metrics": {{ .Values.datadog.components.autorecovery.metrics }},
+      "health_service_check": true,
+      "prometheus_timeout": 1000,
+      "max_returned_metrics": 1000000,
+      "type_overrides": {
+        "jvm_memory_bytes_used": "gauge",
+        "jvm_memory_bytes_committed": "gauge",
+        "jvm_memory_bytes_max": "gauge",
+        "jvm_memory_bytes_init": "gauge",
+        "jvm_memory_pool_bytes_used": "gauge",
+        "jvm_memory_pool_bytes_committed": "gauge",
+        "jvm_memory_pool_bytes_max": "gauge",
+        "jvm_memory_pool_bytes_init": "gauge",
+        "jvm_memory_direct_bytes_used": "gauge",
+        "jvm_threads_current": "gauge",
+        "jvm_threads_daemon": "gauge",
+        "jvm_threads_peak": "gauge",
+        "jvm_threads_started_total": "gauge",
+        "jvm_threads_deadlocked": "gauge",
+        "jvm_threads_deadlocked_monitor": "gauge",
+        "jvm_gc_collection_seconds_count": "gauge",
+        "jvm_gc_collection_seconds_sum": "gauge",
+        "jvm_memory_direct_bytes_max": "gauge"
+      },
+      "tags": [
+        "pulsar-autorecovery: {{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+      ]
+    }
+  ]
+{{- end }}
+{{- end }}
+
 {{/*
 Define autorecovery zookeeper client tls settings
 */}}
@@ -72,9 +125,9 @@ Define autorecovery tls certs volumes
 Define autorecovery init container : verify cluster id
 */}}
 {{- define "pulsar.autorecovery.init.verify_cluster_id" -}}
-bin/apply-config-from-env.py conf/bookkeeper.conf;
+bin/apply-config-from-env.py conf/autorecovery.conf;
 {{- include "pulsar.autorecovery.zookeeper.tls.settings" . -}}
-until bin/bookkeeper shell whatisinstanceid; do
+until bin/autorecovery shell whatisinstanceid; do
   sleep 3;
 done;
 {{- end }}

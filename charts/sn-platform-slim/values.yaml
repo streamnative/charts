@@ -120,47 +120,47 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.0.0.4"
+        tag: "3.1.0.5"
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.0.0.4"
+        tag: "3.1.0.5"
   bookie:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.0.1.5"
     pullPolicy: IfNotPresent
     busybox:
       repository: busybox
@@ -184,7 +184,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
-    tag: "v2.3.3"
+    tag: "v2.3.4"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -197,7 +197,7 @@ images:
     pullPolicy: "IfNotPresent"
   pulsar_metadata:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.0.4"
+    tag: "3.1.0.5"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -638,6 +638,8 @@ zookeeper:
     data:
       name: data
       size: 50Gi
+      accessModes:
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -656,6 +658,8 @@ zookeeper:
     dataLog:
       name: datalog
       size: 10Gi
+      accessModes:
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -859,6 +863,8 @@ bookkeeper:
       numDirsPerVolume: 1
       name: journal
       size: 10Gi
+      accessModes:
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -875,11 +881,13 @@ bookkeeper:
       #   extraParameters:
       #     iopsPerGB: "50"
     ledgers:
-      name: ledgers
-      size: 50Gi
       # It determines the directory of ledgers data
       numVolumes: 1
       numDirsPerVolume: 1
+      name: ledgers
+      size: 50Gi
+      accessModes:
+        - ReadWriteOnce
       # storageClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
@@ -1403,6 +1411,11 @@ pulsar_detector:
   extraVolumes: []
   extraVolumeMounts: []
   extraEnv: []
+  ## Additional pulsar_detector container arguments
+  extraArgs: {}
+    # Configure the tls auth for detector
+    # auth-plugin: "tls"
+    # auth-params: "{\"tlsCertFile\":\"/pulsar/certs/pulsar-detector/tls.crt\",\"tlsKeyFile\":\"/pulsar/certs/pulsar-detector/tls.key\"}"
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
@@ -1749,6 +1762,11 @@ datadog:
         "\"_*\""
       ]
     bookkeeper:
+      enabled: false
+      metrics: [
+        "\"_*\""
+      ]
+    autorecovery:
       enabled: false
       metrics: [
         "\"_*\""

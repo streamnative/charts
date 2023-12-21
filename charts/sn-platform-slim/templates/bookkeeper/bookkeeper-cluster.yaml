@@ -130,7 +130,9 @@ spec:
       numDirsPerVolume: {{ .Values.bookkeeper.volumes.journal.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
-          - ReadWriteOnce
+        {{- range .Values.bookkeeper.volumes.journal.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.bookkeeper.volumes.journal.size }}
@@ -140,7 +142,9 @@ spec:
       numDirsPerVolume: {{ .Values.bookkeeper.volumes.ledgers.numDirsPerVolume | default 1 }}
       volumeClaimTemplate:
         accessModes:
-          - ReadWriteOnce
+        {{- range .Values.bookkeeper.volumes.ledgers.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.bookkeeper.volumes.ledgers.size }}
@@ -193,10 +197,13 @@ spec:
 {{- end }}
 {{- if or (and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled) .Values.autorecovery.annotations }}
       annotations:
-{{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}
+        {{- if and .Values.prometheus.scrape.autorecovery .Values.prometheus.scrape.enabled }}
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
-{{- end }}
+        {{- end }}
+        {{- if .Values.monitoring.datadog }}
+        {{- include "pulsar.autorecovery.datadog.annotation" . | nindent 6 }}
+        {{- end }}
         {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
 {{- with .Values.autorecovery.annotations }}
 {{ toYaml . | indent 8 }}
