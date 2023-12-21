@@ -85,6 +85,9 @@ spec:
         {{- if .Values.pulsar_detector.resources }}
         resources: {{- toYaml .Values.pulsar_detector.resources | nindent 10 }}
         {{- end }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /pulsar/logs
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
@@ -103,6 +106,9 @@ spec:
         {{- if .Values.pulsar_detector.resources }}
         resources: {{- toYaml .Values.pulsar_detector.resources | nindent 10 }}
         {{- end }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /pulsar/logs
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
@@ -152,8 +158,10 @@ spec:
         volumeMounts: 
         {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
         {{- end }}
-      {{- if .Values.pulsar_detector.extraVolumes }}
       volumes:
+      - name: tmp
+        emptyDir: {}
+      {{- if .Values.pulsar_detector.extraVolumes }}
       {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 8 }}
       {{- end }}
 {{- end }}

@@ -81,14 +81,14 @@ done
 
 function delete_ca() {
     local tls_ca_secret="${release}-ca-tls"
-    /pulsar/kubectl delete secret ${tls_ca_secret} -n ${namespace}
+    ${KUBECTL_BIN} delete secret ${tls_ca_secret} -n ${namespace}
 }
 
 function delete_server_cert() {
     local component=$1
     local server_cert_secret="${release}-tls-${component}"
 
-    /pulsar/kubectl delete secret ${server_cert_secret} \
+    ${KUBECTL_BIN} delete secret ${server_cert_secret} \
         -n ${namespace}
 }
 
@@ -96,7 +96,7 @@ function delete_client_cert() {
     local component=$1
     local client_cert_secret="${release}-tls-${component}"
 
-    /pulsar/kubectl delete secret ${client_cert_secret} \
+    ${KUBECTL_BIN} delete secret ${client_cert_secret} \
         -n ${namespace}
 }
 

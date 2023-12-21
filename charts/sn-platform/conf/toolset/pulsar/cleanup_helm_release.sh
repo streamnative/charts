@@ -73,15 +73,15 @@ release=${release:-pulsar-dev}
 
 function delete_namespace() {
     if [[ "${delete_namespace}" == "true" ]]; then
-        /pulsar/kubectl delete namespace ${namespace}
+        ${KUBECTL_BIN} delete namespace ${namespace}
     fi
 }
 
 # delete the cc admin secrets
-/pulsar/kubectl delete -n ${namespace} secret ${release}-admin-secret
+${KUBECTL_BIN} delete -n ${namespace} secret ${release}-admin-secret
 
 # delete tokens
-/pulsar/kubectl get secrets -n ${namespace} | grep ${release}-token- | awk '{print $1}' | xargs /pulsar/kubectl delete secrets -n ${namespace}
+${KUBECTL_BIN} get secrets -n ${namespace} | grep ${release}-token- | awk '{print $1}' | xargs ${KUBECTL_BIN} delete secrets -n ${namespace}
 
 # delete namespace
 delete_namespace
