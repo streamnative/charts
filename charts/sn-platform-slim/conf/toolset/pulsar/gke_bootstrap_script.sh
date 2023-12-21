@@ -58,7 +58,7 @@ function bootstrap(){
 
   echo "Wait for metrics API service"
   # Helm 2.15 and 3.0 bug https://github.com/helm/helm/issues/6361#issuecomment-550503455
-  /pulsar/kubectl --namespace=kube-system wait --for=condition=Available --timeout=5m apiservices/v1beta1.metrics.k8s.io
+  ${KUBECTL_BIN} --namespace=kube-system wait --for=condition=Available --timeout=5m apiservices/v1beta1.metrics.k8s.io
 
   helm repo update
 }

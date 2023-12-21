@@ -29,5 +29,5 @@ PEM="${CA_NAME}.pem"
 
 NAMESPACE=$1
 
-/pulsar/kubectl create secret generic ${CA_NAME}  \
+${KUBECTL_BIN} create secret generic ${CA_NAME}  \
    --from-file=${PEM} -n ${NAMESPACE}

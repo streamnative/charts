@@ -72,8 +72,27 @@ spec:
 {{ toYaml .Values.toolset.tolerations | indent 8 }}
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.toolset.gracePeriod }}
-    {{- if .Values.toolset.installBusybox }}
       initContainers:
+      {{- if .Values.toolset.readOnlyRootFilesystem }}
+      - name: "init-copy-config"
+        image: "{{ .Values.images.toolset.repository }}:{{ .Values.images.toolset.tag }}"
+        imagePullPolicy: {{ .Values.images.toolset.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - |
+          set -ex;
+          cp -r /pulsar/conf/* /conf_tmp/;
+          echo OK > /conf_tmp/status;
+        {{- if .Values.toolset.resources }}
+        resources:
+{{ toYaml .Values.toolset.resources | indent 10 }}
+      {{- end }}
+        volumeMounts:
+         - name: tmp
+           mountPath: /conf_tmp/
+      {{- end }}
+      {{- if .Values.toolset.installBusybox }}
       - name: busybox
         image: "{{ .Values.images.toolset.busybox.repository }}:{{ .Values.images.toolset.busybox.tag }}"
         imagePullPolicy: {{ .Values.images.toolset.busybox.pullPolicy }}
@@ -98,7 +117,7 @@ spec:
         volumeMounts:
         - name: binaries
           mountPath: /home/tmp/binaries
-    {{- end }}
+      {{- end }}
       containers:
       - name: "pulsar"
         {{- include "pulsar.toolset.image" . | nindent 8 }}
@@ -122,6 +141,12 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
         volumeMounts:
+        {{- if .Values.toolset.readOnlyRootFilesystem }}
+        - name: tmp
+          mountPath: /pulsar/conf
+        - name: tmp
+          mountPath: /pulsar/logs
+        {{- end }}
         {{- if .Values.toolset.installBusybox }}
         - name: binaries
           mountPath: /bin/busybox
@@ -138,6 +163,10 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
       volumes:
+      {{- if .Values.toolset.readOnlyRootFilesystem }}
+      - name: tmp
+        emptyDir: {}
+      {{- end }}
       {{- if .Values.toolset.installBusybox }}
       - name: binaries
         emptyDir: {}
