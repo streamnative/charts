@@ -693,8 +693,8 @@ zookeeper:
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "0.1"
+      memory: "512Mi"
+      cpu: "0.2"
     limits: {}
       # memory: "1Gi"
       # cpu: "0.4"
