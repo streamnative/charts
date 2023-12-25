@@ -136,9 +136,11 @@ images:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
         tag: "3.1.0.5"
+        pullPolicy: IfNotPresent
       restore:
         repository: "streamnative/pulsar-metadata-tool"
         tag: "3.1.0.5"
+        pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
     tag: "3.1.0.5"
@@ -658,16 +660,19 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 10
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 10
     startup:
       enabled: false
       failureThreshold: 30
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 10
   affinity:
     anti_affinity: true
     zone_anti_affinity: true
@@ -788,6 +793,12 @@ zookeeper:
   service:
     annotations: {}
   customTools:
+  # metadata tool needs access the data directory but the user in the image doesn't have the right
+  # permission to access. Set the running user to root to fix this issue.
+  # Change the securityContext to:
+  # securityContext:
+  #   runAsUser: 0
+  #   runAsNonRoot: false
     serviceAccount:
       use: true
       create: true
