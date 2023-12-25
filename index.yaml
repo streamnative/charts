@@ -1938,6 +1938,27 @@ entries:
   sn-platform:
   - apiVersion: v1
     appVersion: 3.0.0
+    created: "2023-12-25T02:08:32.671321973Z"
+    dependencies:
+    - condition: monitoring.loki
+      name: loki-stack
+      repository: https://grafana.github.io/helm-charts
+      version: 0.36.1
+    description: StreamNative Platform Chart
+    digest: 87d33812d3e1b4471cbd4d61b65e090bc3ee7605bb92be243b846915ee01e91c
+    home: https://streamnative.io
+    icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-platform
+    sources:
+    - https://github.com/streamnative/charts/tree/master/charts/sn-platform
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-platform-1.11.4/sn-platform-1.11.4.tgz
+    version: 1.11.4
+  - apiVersion: v1
+    appVersion: 3.0.0
     created: "2023-12-05T06:36:47.666519896Z"
     dependencies:
     - condition: monitoring.loki
@@ -3998,4 +4019,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/sn-platform-slim-1.10.0/sn-platform-slim-1.10.0.tgz
     version: 1.10.0
-generated: "2023-12-21T14:40:06.573875441Z"
+generated: "2023-12-25T02:08:32.672909791Z"
