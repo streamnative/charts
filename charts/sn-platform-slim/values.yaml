@@ -120,44 +120,44 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.1.0.5"
+        tag: "3.1.1.1"
         pullPolicy: IfNotPresent
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.1.0.5"
+        tag: "3.1.1.1"
         pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
@@ -194,12 +194,12 @@ images:
     tag: "v1.5.0"
     pullPolicy: "IfNotPresent"
   nginx_ingress_controller:
-    repository: quay.io/kubernetes-ingress-controller/nginx-ingress-controller
-    tag: "0.26.2"
+    repository: registry.k8s.io/ingress-nginx/controller
+    tag: "v1.9.4"
     pullPolicy: "IfNotPresent"
   pulsar_metadata:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.0.5"
+    tag: "3.1.1.1"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
@@ -623,8 +623,8 @@ zookeeper:
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "0.1"
+      memory: "512Mi"
+      cpu: "0.2"
     limits: {}
       # memory: "1Gi"
       # cpu: "0.4"
@@ -1561,6 +1561,7 @@ toolset:
   component: toolset
   useProxy: false
   installBusybox: true
+  readOnlyRootFilesystem: false
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool

@@ -23,7 +23,6 @@ if [ -z "$CHART_HOME" ]; then
     exit 1
 fi
 
-OUTPUT=${CHART_HOME}/output
 OUTPUT_BIN=${OUTPUT}/bin
 PULSARCTL_VERSION=v2.10.2.2
 PULSARCTL_BIN=/pulsar/bin/pulsarctl

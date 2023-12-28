@@ -29,11 +29,6 @@ allowHostPID: false
 allowHostPorts: false
 allowPrivilegeEscalation: true
 allowPrivilegedContainer: true
-allowedCapabilities:
-  {{- if .Values.components.vault }}
-  - IPC_LOCK
-  - SETFCAP
-  {{- end }}
 defaultAddCapabilities: null
 fsGroup:
   type: RunAsAny

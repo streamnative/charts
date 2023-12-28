@@ -166,7 +166,7 @@ spec:
       {{- range .Values.zookeeper.volumes.data.accessModes }}
         - {{ . | quote }}
       {{- end }}
-    resources:
+      resources:
         requests:
           storage: {{ .Values.zookeeper.volumes.data.size }}
 {{- include "pulsar.zookeeper.data.storage.class" . | nindent 6 }}

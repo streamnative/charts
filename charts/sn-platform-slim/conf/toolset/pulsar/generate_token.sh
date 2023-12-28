@@ -96,11 +96,11 @@ function pulsar::jwt::generate_symmetric_token() {
     trap "test -f $tmpfile && rm $tmpfile" RETURN
     tokentmpfile=$(mktemp)
     trap "test -f $tokentmpfile && rm $tokentmpfile" RETURN
-    /pulsar/kubectl get -n ${namespace} secrets ${secret_name} -o jsonpath="{.data['SECRETKEY']}" | base64 --decode > ${tmpfile}
+    ${KUBECTL_BIN} get -n ${namespace} secrets ${secret_name} -o jsonpath="{.data['SECRETKEY']}" | base64 --decode > ${tmpfile}
     ${PULSARCTL_BIN} token create -a HS256 --secret-key-file ${tmpfile} --subject ${role} 2&> ${tokentmpfile}
     newtokentmpfile=$(mktemp)
     tr -d '\n' < ${tokentmpfile} > ${newtokentmpfile}
-    /pulsar/kubectl create secret generic ${token_name} -n ${namespace} --from-file="TOKEN=${newtokentmpfile}" --from-literal="TYPE=symmetric"
+    ${KUBECTL_BIN} create secret generic ${token_name} -n ${namespace} --from-file="TOKEN=${newtokentmpfile}" --from-literal="TYPE=symmetric"
 }
 
 function pulsar::jwt::generate_asymmetric_token() {
@@ -111,11 +111,11 @@ function pulsar::jwt::generate_asymmetric_token() {
     trap "test -f $privatekeytmpfile && rm $privatekeytmpfile" RETURN
     tokentmpfile=$(mktemp)
     trap "test -f $tokentmpfile && rm $tokentmpfile" RETURN
-    /pulsar/kubectl get -n ${namespace} secrets ${secret_name} -o jsonpath="{.data['PRIVATEKEY']}" | base64 --decode > ${privatekeytmpfile}
+    ${KUBECTL_BIN} get -n ${namespace} secrets ${secret_name} -o jsonpath="{.data['PRIVATEKEY']}" | base64 --decode > ${privatekeytmpfile}
     ${PULSARCTL_BIN} token create -a RS256 --private-key-file ${privatekeytmpfile} --subject ${role} 2&> ${tokentmpfile}
     newtokentmpfile=$(mktemp)
     tr -d '\n' < ${tokentmpfile} > ${newtokentmpfile}
-    /pulsar/kubectl create secret generic ${token_name} -n ${namespace} --from-file="TOKEN=${newtokentmpfile}" --from-literal="TYPE=asymmetric"
+    ${KUBECTL_BIN} create secret generic ${token_name} -n ${namespace} --from-file="TOKEN=${newtokentmpfile}" --from-literal="TYPE=asymmetric"
 }
 
 if [[ "${symmetric}" == "true" ]]; then
