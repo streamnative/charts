@@ -718,12 +718,6 @@ zookeeper:
   service:
     annotations: {}
   customTools:
-  # metadata tool needs access the data directory but the user in the image doesn't have the right
-  # permission to access. Set the running user to root to fix this issue.
-  # Change the securityContext to:
-  # securityContext:
-  #   runAsUser: 0
-  #   runAsNonRoot: false
     serviceAccount:
       use: true
       create: true
