@@ -136,9 +136,11 @@ images:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
         tag: "3.1.1.1"
+        pullPolicy: IfNotPresent
       restore:
         repository: "streamnative/pulsar-metadata-tool"
         tag: "3.1.1.1"
+        pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
     tag: "3.1.1.1"
@@ -658,16 +660,19 @@ zookeeper:
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 10
     readiness:
       enabled: true
       failureThreshold: 10
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 10
     startup:
       enabled: false
       failureThreshold: 30
       initialDelaySeconds: 10
       periodSeconds: 30
+      timeoutSeconds: 10
   affinity:
     anti_affinity: true
     zone_anti_affinity: true
