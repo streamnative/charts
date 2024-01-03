@@ -336,30 +336,6 @@ spec:
       PULSAR_PREFIX_managedLedgerOffloadServiceEndpoint: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadServiceEndpoint }}"
       {{- end}}
       {{- end }}
-  initJobPod:
-    {{- if .Values.zookeeper.customTools.restore.enable }}
-    initContainers:
-      - name: cleanup
-        image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
-        command:
-          - bash
-          - '-c'
-        args:
-          - "bin/pulsar-metadata-tool cleanup"
-        env:
-          - name: METADATA_TOOL_CONF
-            value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
-        volumeMounts:
-          - name: cleanup-config
-            mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
-    volumes:
-      - name: cleanup-config
-        configMap:
-          name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
-    {{- end }}
-    {{- if .Values.broker.resources }}
-    resources: {{- toYaml .Values.broker.resources | nindent 10 }}
-    {{- end }}
   {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
   apiObjects:
     statefulSet:

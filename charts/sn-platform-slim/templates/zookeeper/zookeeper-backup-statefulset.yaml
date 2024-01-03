@@ -58,7 +58,7 @@ spec:
       {{- end }}
       securityContext:
       {{- with .Values.zookeeper.securityContext }}
-      {{ toYaml . | indent 8 }}
+      {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- if .Values.zookeeper.customTools.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.zookeeper.backup.serviceAccount" . }}
@@ -85,7 +85,7 @@ spec:
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}-service"
         image: "{{ .Values.images.zookeeper.customTools.backup.repository }}:{{ .Values.images.zookeeper.customTools.backup.tag }}"
-        imagePullPolicy: {{ .Values.zookeeper.customTools.backup.pullPolicy }}
+        imagePullPolicy: {{ .Values.images.zookeeper.customTools.backup.pullPolicy }}
         command: ["sh", "-c"]
         args:
           - >
@@ -163,6 +163,7 @@ spec:
           initialDelaySeconds: {{ .Values.zookeeper.probe.readiness.initialDelaySeconds }}
           periodSeconds: {{ .Values.zookeeper.probe.readiness.periodSeconds }}
           failureThreshold: {{ .Values.zookeeper.probe.readiness.failureThreshold }}
+          timeoutSeconds: {{ .Values.zookeeper.probe.readiness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.zookeeper.probe.liveness.enabled }}
         livenessProbe:
@@ -172,6 +173,7 @@ spec:
           initialDelaySeconds: {{ .Values.zookeeper.probe.liveness.initialDelaySeconds }}
           periodSeconds: {{ .Values.zookeeper.probe.liveness.periodSeconds }}
           failureThreshold: {{ .Values.zookeeper.probe.liveness.failureThreshold }}
+          timeoutSeconds: {{ .Values.zookeeper.probe.liveness.timeoutSeconds }}
         {{- end }}
         {{- if .Values.zookeeper.probe.startup.enabled }}
         startupProbe:
@@ -181,6 +183,7 @@ spec:
           initialDelaySeconds: {{ .Values.zookeeper.probe.startup.initialDelaySeconds }}
           periodSeconds: {{ .Values.zookeeper.probe.startup.periodSeconds }}
           failureThreshold: {{ .Values.zookeeper.probe.startup.failureThreshold }}
+          timeoutSeconds: {{ .Values.zookeeper.probe.startup.timeoutSeconds }}
         {{- end }}
         volumeMounts:
         {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
