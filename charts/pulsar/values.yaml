@@ -636,7 +636,6 @@ zookeeper:
       -XX:+DoEscapeAnalysis
       -XX:+DisableExplicitGC
       -XX:+PerfDisableSharedMem
-      -Dzookeeper.forceSync=no
   statefulset:
     annotations: {}
     labels: {}
