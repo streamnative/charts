@@ -35,6 +35,12 @@ data:
       {{- if .Values.prometheus.scrapeTimeout }}
       scrape_timeout: {{ .Values.prometheus.scrapeTimeout }}
       {{- end }}
+{{- if .Values.prometheus.external_labels }}
+      external_labels:
+      {{- with .Values.prometheus.external_labels }}
+      {{ toYaml . | indent 2 }}
+      {{- end }}
+{{- end }}
 {{- if .Values.monitoring.alert_manager }}
     rule_files:
       - 'rules.yml'
