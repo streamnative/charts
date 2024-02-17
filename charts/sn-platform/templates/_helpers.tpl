@@ -75,6 +75,9 @@ cluster: {{ template "pulsar.fullname" . }}
 sidecar.istio.io/inject: "true"
 {{- end }}
 {{- end }}
+{{- if .Values.components.pulsar_coordinator }}
+k8s.streamnative.io/coordinator-name: "{{ template "pulsar.fullname" . }}"
+{{- end }}
 {{- end }}
 
 {{/*
