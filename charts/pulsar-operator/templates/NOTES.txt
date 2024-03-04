@@ -9,4 +9,4 @@ Quick Start:
 Follow our Quick Start guide https://docs.streamnative.io/private/private-cloud-quickstart to quickly provision and manage Pulsar clusters with the StreamNative Private Cloud.
 
 Upgrade to StreamNative Operator:
-Follow the Upgrade guide https://docs.streamnative.io/private/upgrade-from-pulsar-operators to easily upgraded to to the StreamNative Operator.
+Follow the Upgrade guide https://docs.streamnative.io/private/upgrade-from-pulsar-operators to upgrade to the StreamNative Operator easily.
