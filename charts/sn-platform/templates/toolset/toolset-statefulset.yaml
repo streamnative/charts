@@ -48,14 +48,14 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.toolset.component }}
-{{- with .Values.toolset.labels }}
+{{- with .Values.toolset.podLabels }}
 {{ toYaml . | indent 8 }}
 {{- end }}
       annotations:
         {{- if .Values.toolset.autoRollDeployment }}
         checksum/config: {{ include (print $.Template.BasePath "/toolset/toolset-configmap.yaml") . | sha256sum }}
         {{- end }}
-{{- with .Values.toolset.annotations }}
+{{- with .Values.toolset.podAnnotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:

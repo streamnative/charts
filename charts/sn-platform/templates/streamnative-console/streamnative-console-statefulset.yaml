@@ -48,11 +48,11 @@ spec:
       labels:
         {{- include "pulsar.template.labels" . | nindent 8 }}
         component: {{ .Values.streamnative_console.component }}
-{{- with .Values.streamnative_console.labels }}
+{{- with .Values.streamnative_console.podLabels }}
 {{ toYaml . | indent 8 }}
 {{- end }}
       annotations:
-{{- with .Values.streamnative_console.annotations }}
+{{- with .Values.streamnative_console.podAnnotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
     spec:
