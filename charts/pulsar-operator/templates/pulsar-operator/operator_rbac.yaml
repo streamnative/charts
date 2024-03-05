@@ -288,7 +288,7 @@ kind: {{ template "pulsar.operatorRoleBindingKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.pulsar.rbac.name }}-operator'
-  {{- if not .Values.pulsar.serviceAccount.cluserRole }}
+  {{- if not .Values.pulsar.serviceAccount.clusterRole }}
   namespace: {{ template "pulsar.namespace" . }}
   {{- end }}
 subjects:
