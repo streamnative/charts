@@ -234,7 +234,7 @@ kind: {{ template "pulsar.bookkeeperRoleBindingKind" . }}
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: '{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.rbac.name }}-operator'
-  {{- if not .Values.bookkeeper.serviceAccount.cluserRole }}
+  {{- if not .Values.bookkeeper.serviceAccount.clusterRole }}
   namespace: {{ template "pulsar.namespace" . }}
   {{- end }}
 subjects:
