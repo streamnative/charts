@@ -1561,6 +1561,8 @@ toolset:
     # cloud.google.com/gke-nodepool: default-pool
   labels: {}
   annotations: {}
+  podLabels: {}
+  podAnnotations: {}
   tolerations: []
   gracePeriod: 0
   resources:
@@ -1985,6 +1987,8 @@ streamnative_console:
     # cloud.google.com/gke-nodepool: default-pool
   labels: {}
   annotations: {}
+  podLabels: {}
+  podAnnotations: {}
   tolerations: []
   gracePeriod: 0
   # Resources requests/limits for both init containers and app containers
@@ -2051,7 +2055,7 @@ streamnative_console:
     DEFAULT_ORGANIZATION: "streamnative"
     # *required*: the instance name to display for the Pulsar clusters in SN console
     INSTANCE_NAME: "pulsar"
-    INIT_DEFAULT_ENVIRONMENT: false
+    INIT_DEFAULT_ENVIRONMENT: true
     BACKEND_DEFAULT_SUPER_USER_ROLE: "admin"
     # If you want to enable jwt authentication, please enable the following configuration
     # BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
