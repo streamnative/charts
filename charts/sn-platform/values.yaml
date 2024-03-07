@@ -1638,6 +1638,8 @@ toolset:
     # cloud.google.com/gke-nodepool: default-pool
   labels: {}
   annotations: {}
+  podLabels: {}
+  podAnnotations: {}
   tolerations: []
   kafka:
     enabled: false
@@ -2072,6 +2074,8 @@ streamnative_console:
     # cloud.google.com/gke-nodepool: default-pool
   labels: {}
   annotations: {}
+  podLabels: {}
+  podAnnotations: {}
   tolerations: []
   gracePeriod: 0
   # Resources requests/limits for both init containers and app containers
