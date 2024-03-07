@@ -20,11 +20,9 @@
 chart-dirs:
   - charts
 charts:
-  - charts/local-storage-provisioner
-  - charts/image-puller
   - charts/pulsar-operator
   - charts/sn-platform
-  - charts/pulsar
+  - charts/sn-platform-slim
 debug: true
 helm-extra-args: --timeout 1200
 validate-maintainers: false
