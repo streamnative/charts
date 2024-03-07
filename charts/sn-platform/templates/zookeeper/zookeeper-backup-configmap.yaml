@@ -48,10 +48,6 @@ data:
   secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   PULSAR_PREFIX_secureClientPort: "{{ .Values.zookeeper.ports.clientTls }}"
   {{- end }}
-  {{- if .Values.zookeeper.reconfig.enabled }}
-  PULSAR_PREFIX_reconfigEnabled: "true"
-  PULSAR_PREFIX_quorumListenOnAllIPs: "true"
-  {{- end }}
   PULSAR_PREFIX_peerType: "observer"
 {{ toYaml .Values.zookeeper.customTools.backup.configData | indent 2 }}
   # Include log configuration file, If you want to configure the log level and other configuration
