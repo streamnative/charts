@@ -525,7 +525,7 @@ ingress:
       grafana: true
       prometheus: false
       alertmanager: false
-    paths: 
+    paths:
       grafana: /grafana
       prometheus: /prometheus
       alertmanager: /alerts
