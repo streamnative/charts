@@ -1,7 +1,7 @@
 # StreamNative Pulsar Operators 
 
 > **Note**
-> StreamNative now offers a unified approach to managing Pulsar clusters on Kubernetes systems, transitioning from two distinct versions of operators—Pulsar Operators (Basic ? Version) and StreamNative Operator (Advanced Version)—to a single, consolidated operator, StreamNative Operator, effective from the start of 2024. As part of this change, we will cease the release of new versions of Pulsar Operators, with future updates and enhancements being exclusively available through the StreamNative Operator, accessible only via StreamNative's paid services.
+> StreamNative now offers a unified approach to managing Pulsar clusters on Kubernetes systems, transitioning from two distinct versions of operators—Pulsar Operators (Basic Version) and StreamNative Operator (Advanced Version)—to a single, consolidated operator, StreamNative Operator, effective from the start of 2024. As part of this change, we will cease the release of new versions of Pulsar Operators, with future updates and enhancements being exclusively available through the StreamNative Operator, accessible only via StreamNative's paid services.
 
 ## StreamNative Private Cloud
 
