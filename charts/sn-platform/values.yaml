@@ -600,6 +600,11 @@ ingress:
       grafana: true
       prometheus: false
       alertmanager: false
+    paths: 
+      grafana: /grafana
+      prometheus: /prometheus
+      alertmanager: /alerts
+      streamnative_console: /
     # Set external domain of the load balancer of ingress controller
     # external_domain: your.external.control.center.domain
     external_domain_scheme: https://
