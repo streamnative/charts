@@ -72,7 +72,7 @@ spec:
     - http:
         paths:
           {{- if and .Values.monitoring.grafana .Values.ingress.control_center.endpoints.grafana }}
-          - path: /grafana
+          - path: {{.Values.ingress.control_center.paths.grafana}}
             {{- if $isIngressAPIStable }}
             pathType: {{ .Values.grafana.pathType | default "ImplementationSpecific" }}
             backend:
@@ -87,7 +87,7 @@ spec:
             {{- end }}
           {{- end }}
           {{- if and .Values.monitoring.alert_manager .Values.ingress.control_center.endpoints.alertmanager }}
-          - path: /alerts
+          - path: {{.Values.ingress.control_center.paths.alertmanager}}
             {{- if $isIngressAPIStable }}
             pathType: {{ .Values.alert_manager.pathType | default "ImplementationSpecific" }}
             backend:
@@ -102,7 +102,7 @@ spec:
             {{- end }}
           {{- end }}
           {{- if and .Values.monitoring.prometheus .Values.ingress.control_center.endpoints.prometheus }}
-          - path: /prometheus
+          - path: {{.Values.ingress.control_center.paths.prometheus}}
             {{- if $isIngressAPIStable }}
             pathType: {{ .Values.prometheus.pathType | default "ImplementationSpecific" }}
             backend:
@@ -117,7 +117,7 @@ spec:
             {{- end }}
           {{- end }}
           {{- if .Values.components.streamnative_console }}
-          - path: /
+          - path: {{.Values.ingress.control_center.paths.streamnative_console}}
             {{- if $isIngressAPIStable }}
             pathType: {{ .Values.streamnative_console.pathType | default "ImplementationSpecific" }}
             backend:
@@ -131,7 +131,7 @@ spec:
               servicePort: {{ .Values.streamnative_console.ports.frontend }}
             {{- end }}
           {{- else }}
-          - path: /
+          - path: {{.Values.ingress.control_center.paths.streamnative_console}}
             {{- if $isIngressAPIStable }}
             pathType: ImplementationSpecific
             backend:
