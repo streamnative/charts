@@ -1,7 +1,12 @@
 # StreamNative Pulsar Operators 
 
 > **Note**
+>
 > StreamNative now offers a unified approach to managing Pulsar clusters on Kubernetes systems, transitioning from two distinct versions of operators—Pulsar Operators (Basic Version) and StreamNative Operator (Advanced Version)—to a single, consolidated operator, StreamNative Operator, effective from the start of 2024. As part of this change, we will cease the release of new versions of Pulsar Operators, with future updates and enhancements being exclusively available through the StreamNative Operator, accessible only via StreamNative's paid services.
+>
+> Effective March 31st, 2024, a valid StreamNative subscription will be required to leverage StreamNative Pulsar Operators and/or Images. If you prefer to use the open-source version, we recommend switching to the [Pulsar helm charts](https://github.com/apache/pulsar-helm-chart), a community-maintained alternative, and using [open-source Pulsar images](https://hub.docker.com/u/apachepulsar) released and maintained by the Apache Pulsar community based on its [release policy](https://pulsar.apache.org/contribute/release-policy/).
+>
+> Please also note: Starting March 31st, 2024, the existing Pulsar Operator Images will no longer be available on Docker Hub.
 
 ## StreamNative Private Cloud
 
