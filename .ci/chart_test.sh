@@ -1,6 +1,5 @@
 set -e
 
-
 BINDIR=`dirname "$0"`
 CHARTS_HOME=`cd ${BINDIR}/..;pwd`
 VALUES_FILE=$1
