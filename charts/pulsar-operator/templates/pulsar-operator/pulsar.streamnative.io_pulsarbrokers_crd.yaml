@@ -1,6 +1,0 @@
-#
-# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
-#
-{{- if and .Values.components.pulsar .Values.pulsar.crd.create }}
-{{ include "broker.crd" . }}
-{{- end }}
