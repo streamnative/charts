@@ -17,25 +17,29 @@ This repository contains the Helm Charts supported by [StreamNative](https://str
 
 | Chart | Description | Usage |
 | --- | --- | --- |
-| [`pulsar-operator`](https://github.com/streamnative/charts/tree/master/charts/pulsar-operator)  | The Helm Chart used for installing the StreamNative Pulsar Operators that eases the installation and management of Pulsar clusters in a k8s environment.  | For more details on how to use it, please refer to its [documentation](https://docs.streamnative.io/operator).
 | [`sn-platform`](https://github.com/streamnative/charts/tree/master/charts/sn-platform) | The Helm Chart used for deploying a self-managed version of StreamNative Cloud under a [Private Cloud Licence](https://streamnative.io/deployment/private-cloud-license). | For more details on how to use it, please refer to its [documentation](https://docs.streamnative.io/platform/platform-quickstart).
-| [`local-storage-provisioner`](https://github.com/streamnative/charts/tree/master/charts/local-storage-provisioner) | The Helm Chart used for installing the local storage provisioner, allowing the use of local persistent volumes as durable storage. | For more details on how to use it, please see [here](charts/local-storage-provisioner/README.md). |
-| [`image-puller`](https://github.com/streamnative/charts/tree/master/charts/image-puller) | The Helm Chart used for installing an Image Puller which retrieves the necessary Docker images for deploying Apache Pulsar or the StreamNative Platform. | For more details on how to use it, please see [here](charts/image-puller/README.md). |
+| [`sn-platform-slim`](https://github.com/streamnative/charts/tree/master/charts/sn-platform-slim) | StreamNative Platform Slim is based on the StreamNative Platform chart but enhances the security control by removing most third-party componenets. | For more details on how to use it, please refer to its [documentation](https://docs.streamnative.io/platform/platform-quickstart).
 
+## Start with StreamNative Private Cloud
 
-## Troubleshooting
+StreamNative Private Cloud is an enterprise product which brings specific controllers for Kubernetes by providing specific Custom Resource Definitions (CRDs) that extend the basic Kubernetes orchestration capabilities to support the setup and management of StreamNative components.
+    
+### Capabilities
 
-We've done our best to make these charts as seamless as possible,
-occasionally troubles do surface outside of our control. We've collected
-tips and tricks for troubleshooting common issues. Please examine these first before raising an [issue](https://github.com/streamnative/charts/issues/new/choose), and feel free to add to them by raising a [Pull Request](https://github.com/streamnative/charts/compare)!
+With StreamNative Private Cloud, you can simplify operations and maintenance, including:
+- Provisioning and managing multiple Pulsar clusters
+- Scaling Pulsar clusters through rolling upgrades
+- Managing the Pulsar cluster configurations through declarative APIs
+- Simplify the cluster operation with Auto-Scaling
+- Cost efficiency with the Lakehouse tiered storage
 
+### Apply for trial
 
-## Release Process
+Before installing StreamNative Private Cloud, you need to import a valid license. You can contact StreamNative to apply for a [free trial](https://streamnative.io/deployment/start-free-trial). 
 
-- Open https://github.com/streamnative/charts/actions/workflows/release.yml
-- Click the `Run workflow` button which is in the right side
-- Choose the name of chart you want to release, input its base branch version and release version
-- Click `Run workflow`
+### Quick Start
+
+Follow our [Quick Start](https://docs.streamnative.io/private/private-cloud-quickstart) guide to quickly provision and manage Pulsar clusters with the StreamNative Private Cloud.
 
 ## About StreamNative
 
