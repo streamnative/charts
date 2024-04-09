@@ -1,6 +1,0 @@
-#
-# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
-#
-{{- if and .Values.components.zookeeper .Values.zookeeper.crd.create }}
-{{ include "zookeeper.crd" . }}
-{{- end }}

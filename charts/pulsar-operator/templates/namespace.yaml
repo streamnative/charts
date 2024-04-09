@@ -1,9 +1,0 @@
-#
-# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
-#
-{{- if .Values.namespaceCreate }}
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ template "pulsar.namespace" . }}
-{{- end }}
