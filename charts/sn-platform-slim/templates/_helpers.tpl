@@ -217,9 +217,10 @@ brokerClientAuthenticationParameters: '{{ .Values.auth.oauth.brokerClientAuthent
 {{- if .Values.auth.oauth.oauthSubjectClaim }}
 PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
 {{- end }}
-{{- end }}
+{{- else }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
+{{- end }}
 {{- end }}
 {{- end }}
 
