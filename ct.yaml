@@ -5,7 +5,6 @@
 chart-dirs:
   - charts
 charts:
-  - charts/pulsar-operator
   - charts/sn-platform
   - charts/sn-platform-slim
 debug: true
