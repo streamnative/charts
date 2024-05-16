@@ -105,10 +105,10 @@ spec:
         - >
           bin/pulsar-detector \
           {{- range $key, $value := .Values.pulsar_detector.extraArgs }}
-          -{{ $key }} {{ $value }} \
+          {{ $value }} \
           {{- end }}
           -service-url {{ template "pulsar.detector.serviceUrl" . }} \
-          -webservice-url {{ template "pulsar.detector.webServiceUrl" . }}};
+          -webservice-url {{ template "pulsar.detector.webServiceUrl" . }};
         {{- else }}
         args:
         - >
