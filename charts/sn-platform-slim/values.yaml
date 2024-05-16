@@ -1409,8 +1409,11 @@ pulsar_detector:
   ## Additional pulsar_detector container arguments
   extraArgs: {}
     # Configure the tls auth for detector
-    # auth-plugin: "tls"
-    # auth-params: "{\"tlsCertFile\":\"/pulsar/certs/pulsar-detector/tls.crt\",\"tlsKeyFile\":\"/pulsar/certs/pulsar-detector/tls.key\"}"
+    # - "auth-plugin: tls"
+    # - "auth-params: {\"tlsCertFile\":\"/pulsar/certs/pulsar-detector/tls.crt\",\"tlsKeyFile\":\"/pulsar/certs/pulsar-detector/tls.key\"}"
+    # Configure the tls auth for detector
+    # - "auth-plugin: token"
+    # - "auth-params: {\"token\":\"tokenVal\"}"
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
