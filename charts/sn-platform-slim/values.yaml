@@ -1407,13 +1407,15 @@ pulsar_detector:
   extraVolumeMounts: []
   extraEnv: []
   ## Additional pulsar_detector container arguments
-  extraArgs: {}
+  extraArgs:
     # Configure the tls auth for detector
     # auth-plugin: tls
     # auth-params: "{\"tlsCertFile\":\"/pulsar/certs/pulsar-detector/tls.crt\",\"tlsKeyFile\":\"/pulsar/certs/pulsar-detector/tls.key\"}"
     # Configure the tls auth for detector
     # auth-plugin: token
     # auth-params: "{\"token\":\"tokenVal\"}"
+    # Allow TLS insecure connection
+    # tls-allow-insecure: ""
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##

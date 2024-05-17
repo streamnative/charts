@@ -1488,6 +1488,8 @@ pulsar_detector:
     # Configure the tls auth for detector
     # auth-plugin: token
     # auth-params: "{\"token\":\"tokenVal\"}"
+    # Allow TLS insecure connection
+    # tls-allow-insecure: ""
   ## Proxy service
   ## templates/pulsar-detector-service.yaml
   ##
