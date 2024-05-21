@@ -117,7 +117,7 @@
   description: AWS EventBridge Sink
   sinkClass: org.apache.pulsar.io.eventbridge.sink.EventBridgeSink
   sinkConfigClass: org.apache.pulsar.io.eventbridge.sink.EventBridgeConfig
-  imageRepository: streamnative/pulsar-io-aws-eventbridg
+  imageRepository: streamnative/pulsar-io-aws-eventbridge
   version: 3.0.2.6
   imageTag: 3.0.2.6
 - id: pulsar-io-bigquery
