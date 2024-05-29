@@ -2,7 +2,7 @@
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
 {{- if .Values.components.pulsar_coordinator }}
-apiVersion: cloud.streamnative.io/v1alpha1
+apiVersion: k8s.streamnative.io/v1alpha1
 kind: PulsarCoordinator
 metadata:
   name: "{{ template "pulsar.fullname" . }}-coordinator"
