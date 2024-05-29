@@ -105,44 +105,44 @@ monitoring:
 images:
   zookeeper:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.1.1.1"
+        tag: "3.2.3.1"
         pullPolicy: IfNotPresent
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.1.1.1"
+        tag: "3.2.3.1"
         pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
@@ -184,7 +184,7 @@ images:
     pullPolicy: "IfNotPresent"
   pulsar_metadata:
     repository: streamnative/sn-platform-slim
-    tag: "3.1.1.1"
+    tag: "3.2.3.1"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
