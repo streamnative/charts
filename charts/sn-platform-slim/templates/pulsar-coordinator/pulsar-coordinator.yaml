@@ -5,14 +5,9 @@
 apiVersion: cloud.streamnative.io/v1alpha1
 kind: PulsarCoordinator
 metadata:
-  name: "{{ template "pulsar.fullname" . }}"
+  name: "{{ template "pulsar.fullname" . }}-coordinator"
   namespace: {{ template "pulsar.namespace" . }}
-  annotations:
-    helm.sh/hook: pre-install,pre-upgrade
 spec:
-  image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-  {{- if .Values.placement.availability_policy }}
-  placement:
-    availabilityPolicy: {{ .Values.placement.availability_policy }}
-  {{- end }}
+  toolSet:
+    enabled: false
 {{- end }}
