@@ -1095,7 +1095,7 @@ broker:
     # -- enable authorization
     authorizationEnabled: false
   functionmesh:
-    enabled: true
+    enabled: false
     mesh:
       uploadEnabled: true
       functionEnabled: true
