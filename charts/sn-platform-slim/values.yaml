@@ -1095,13 +1095,13 @@ broker:
     # -- enable authorization
     authorizationEnabled: false
   functionmesh:
-    enabled: false
+    enabled: true
     mesh:
       uploadEnabled: true
       functionEnabled: true
       sourceEnabled: true
       sinkEnabled: true
-    builtinConnectorRepository: docker.io/streamnative
+    builtinConnectorRepository: {}
     customWorkerConfig:
     runnerImages:
     labels:
