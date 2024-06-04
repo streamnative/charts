@@ -111,6 +111,10 @@ spec:
           -{{ $key }}
           {{- end }}
           {{- end }}
+          {{- if .Values.auth.authentication.enabled }} 
+          -auth-plugin token 
+          -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" 
+          {{- end }}
           -service-url {{ template "pulsar.detector.serviceUrl" . }}
           -webservice-url {{ template "pulsar.detector.webServiceUrl" . }};
         {{- else }}
