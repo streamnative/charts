@@ -85,6 +85,10 @@ spec:
         - name: CUSTOM_SUPER_TOKEN_PAYLOAD
           value: {{ .Values.vault.oidcToken.customPayload.superToken }}
         {{- end }}
+        {{- if and .Values.vault.oidcToken.customPayload.proxySuperToken }}
+        - name: CUSTOM_PROXY_SUPER_TOKEN_PAYLOAD
+          value: {{ .Values.vault.oidcToken.customPayload.proxySuperToken }}
+        {{- end }}
         {{- if and .Values.vault.oidcToken.customPayload.nonSuperToken }}
         - name: CUSTOM_NON_SUPER_TOKEN_PAYLOAD
           value: {{ .Values.vault.oidcToken.customPayload.nonSuperToken }}
