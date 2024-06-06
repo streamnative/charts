@@ -2410,6 +2410,8 @@ vault:
     ttl: 12h
     customPayload:
       superToken: ""
+      # \\\"roles\\\":[\\\"proxy-admin\\\"]
+      proxySuperToken: ""
       nonSuperToken: ""
   serviceType: "ClusterIP"
   tolerations: []

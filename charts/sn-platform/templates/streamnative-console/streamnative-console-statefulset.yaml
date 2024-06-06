@@ -125,6 +125,8 @@ spec:
             value: {{ .Values.streamnative_console.configData.DEFAULT_NAME }}
           - name: INSTANCE_NAME
             value: {{ .Values.streamnative_console.configData.INSTANCE_NAME }}
+          - name: CLUSTER_NAME
+            value: {{ template "pulsar.fullname" . }}
           {{- if .Values.streamnative_console.configData.GLOBAL_RESOURCE_READ_ONLY }}
           - name: GLOBAL_RESOURCE_READ_ONLY
             value: "true"
