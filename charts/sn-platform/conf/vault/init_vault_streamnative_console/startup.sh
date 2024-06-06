@@ -39,6 +39,12 @@ if [ -n "$CUSTOM_SUPER_TOKEN_PAYLOAD" ]; then
     done
 fi
 
+if [ -n "$CUSTOM_PROXY_SUPER_TOKEN_PAYLOAD" ]; then
+    echo "$CUSTOM_PROXY_SUPER_TOKEN_PAYLOAD" | tr '|' '\n' | while read item; do
+        sed -i "2a  ${item}," $BASEDIR/../tmp/proxy-super-service-account-template.json;
+    done
+fi
+
 if [ -n "$CUSTOM_NON_SUPER_TOKEN_PAYLOAD" ]; then
     echo "$CUSTOM_NON_SUPER_TOKEN_PAYLOAD" | tr '|' '\n' | while read item; do
         sed -i "2a  ${item}," $BASEDIR/../tmp/service-account-template.json;
@@ -54,6 +60,8 @@ sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/service-ac
 sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/service-account.hcl > $TMP_DIR/service-account.hcl
 sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/super-service-account.hcl > $TMP_DIR/super-service-account.hcl
 sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/super-service-account-template.json > $TMP_DIR/super-service-account-template.json
+sed "s#MOUNT_ACCESSOR#$serviceAccountMountAccessor#g" $BASEDIR/../tmp/proxy-super-service-account-template.json > $TMP_DIR/proxy-super-service-account-template.json
+
 
 vault policy write service-account $TMP_DIR/service-account.hcl
 vault write identity/entity name="service-account" policies="service-account"
@@ -92,6 +100,15 @@ vault write identity/oidc/key/super-service-account-non-expire name=super-servic
 vault write identity/oidc/role/super-service-account-non-expire key=super-service-account-non-expire ttl=1314000h template=@$TMP_DIR/super-service-account-template.json
 nonExpireSuperServiceAccountClientId=$(vault read identity/oidc/role/super-service-account-non-expire | grep client_id |  awk '{print $2}')
 vault write identity/oidc/key/super-service-account-non-expire name=super-service-account-non-expire rotation_period=256000h verification_ttl=1752000h allowed_client_ids=$nonExpireSuperServiceAccountClientId
+
+vault policy write proxy-super-service-account-non-expire $TMP_DIR/super-service-account.hcl
+vault write identity/entity name="proxy-super-service-account-non-expire" policies="super-service-account"
+canonicalId=$(vault read identity/entity/name/proxy-super-service-account-non-expire | grep -v _id | grep id | awk '{print $2}')
+vault write identity/entity-alias name="proxy-super-service-account-non-expire"  mount_accessor=$serviceAccountMountAccessor canonical_id=$canonicalId metadata=name='proxy-super-service-account-non-expire'
+vault write identity/oidc/key/proxy-super-service-account-non-expire name=proxy-super-service-account-non-expire rotation_period=256000h verification_ttl=1752000h
+vault write identity/oidc/role/proxy-super-service-account-non-expire key=proxy-super-service-account-non-expire ttl=1314000h template=@$TMP_DIR/proxy-super-service-account-template.json
+proxyNonExpireSuperServiceAccountClientId=$(vault read identity/oidc/role/proxy-super-service-account-non-expire | grep client_id |  awk '{print $2}')
+vault write identity/oidc/key/proxy-super-service-account-non-expire name=proxy-super-service-account-non-expire rotation_period=256000h verification_ttl=1752000h allowed_client_ids=$proxyNonExpireSuperServiceAccountClientId
 
 vault write auth/approle/role/$superApproleName policies=super-service-account
 proxyApproleName=proxy-admin
@@ -148,11 +165,11 @@ echo "VAULT_PROXY_ROLE_ID: "$VAULT_PROXY_ROLE_ID
 echo "VAULT_PROXY_SECRET_ID: "$VAULT_PROXY_SECRET_ID
 echo "oidc info ====="
 echo "oidc client ids: serviceAccount,superServiceAccount,user,superUser,nonExpireSuperServiceAccount,nonExpireServiceAccount"
-echo $serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId,$nonExpireSuperServiceAccountClientId,$nonExpireServiceAccountClientId
+echo $serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId,$nonExpireSuperServiceAccountClientId,$proxyNonExpireSuperServiceAccountClientId,$nonExpireServiceAccountClientId
 
 
 echo "" > /tmp/pm_env
-echo "PULSAR_PREFIX_OIDCTokenAudienceID="$serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId,$nonExpireSuperServiceAccountClientId,$nonExpireServiceAccountClientId >> /tmp/pm_env
+echo "PULSAR_PREFIX_OIDCTokenAudienceID="$serviceAccountClientId,$superServiceAccountClientId,$userClientId,$superUserClientId,$nonExpireSuperServiceAccountClientId,$proxyNonExpireSuperServiceAccountClientId,$nonExpireServiceAccountClientId >> /tmp/pm_env
 echo "VAULT_HOST="$VAULT_ADDR >> /tmp/pm_env
 echo "VAULT_USERPASS_MOUNT_ACCESSOR="$VAULT_USERPASS_MOUNT_ACCESSOR >> /tmp/pm_env
 echo "VAULT_SUPER_USER_NAME="$VAULT_SUPER_USER_NAME >> /tmp/pm_env
@@ -177,7 +194,7 @@ if [[ -n "$CUSTOM_SUPER_TOKEN_PAYLOAD" && -n "$CUSTOM_NON_SUPER_TOKEN_PAYLOAD" ]
         --header "X-Vault-Token: $PROXY_VAULT_APPROLE_SUPER_TOKEN" \
         --request GET \
         --data $TMP_DIR/proxy-payload.json \
-        $VAULT_ADDR/v1/identity/oidc/token/super-service-account-non-expire | jq -r ".data.token")
+        $VAULT_ADDR/v1/identity/oidc/token/proxy-super-service-account-non-expire | jq -r ".data.token")
     echo "PROXY_brokerClientAuthenticationParameters=$PROXY_brokerClientAuthenticationParameters" >> /tmp/pm_env
 
     echo "create secret for toolset token -> $TOOLSET_TOKEN_SECRET_NAME"
