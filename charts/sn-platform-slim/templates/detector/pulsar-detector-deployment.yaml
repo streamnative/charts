@@ -111,12 +111,16 @@ spec:
           -{{ $key }}
           {{- end }}
           {{- end }}
+          {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }} 
+          -auth-plugin token 
+          -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" 
+          {{- end }}
           -service-url {{ template "pulsar.detector.serviceUrl" . }}
           -webservice-url {{ template "pulsar.detector.webServiceUrl" . }};
         {{- else }}
         args:
         - >
-          bin/pulsar-detector -service-url {{ template "pulsar.detector.serviceUrl" . }} -webservice-url {{ template "pulsar.detector.webServiceUrl" . }} {{- if .Values.auth.authentication.enabled }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }};
+          bin/pulsar-detector -service-url {{ template "pulsar.detector.serviceUrl" . }} -webservice-url {{ template "pulsar.detector.webServiceUrl" . }} {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }};
         {{- end }}
         {{- if .Values.pulsar_detector.resources }}
         resources: {{- toYaml .Values.pulsar_detector.resources | nindent 10 }}
