@@ -91,6 +91,9 @@ components:
   superset: false
   # custom_metric_server
   custom_metric_server: false
+  # pulsar_coordinator is a new CRD from the sn-operator, make sure you already installed the sn-operator or
+  # upgrade from the pulsar-operator with the documentation of https://docs.streamnative.io/private/upgrade-from-pulsar-operators
+  pulsar_coordinator: false
 
 ## Monitoring Components
 ##

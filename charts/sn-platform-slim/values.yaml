@@ -83,6 +83,9 @@ components:
   streamnative_console: true
   # pulsar detector
   pulsar_detector: true
+  # pulsar_coordinator is a new CRD from the sn-operator, make sure you already installed the sn-operator or
+  # upgrade from the pulsar-operator with the documentation of https://docs.streamnative.io/private/upgrade-from-pulsar-operators
+  pulsar_coordinator: false
 
 ## Monitoring Components
 ##
