@@ -37,6 +37,9 @@ metadata:
 {{- with .Values.bookkeeper.bookKeeperCluster.labels -}}
 {{ toYaml . | nindent 4 }}
 {{- end }}
+{{- if .Values.components.pulsar_coordinator }}
+    k8s.streamnative.io/coordinator-name: "{{ template "pulsar.fullname" . }}-coordinator"
+{{- end }}
 spec:
 {{- if not .Values.initialize }}
   initialized: true

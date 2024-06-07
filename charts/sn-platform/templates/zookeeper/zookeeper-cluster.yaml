@@ -38,6 +38,9 @@ metadata:
 {{- with .Values.zookeeper.zooKeeperCluster.labels -}}
 {{ toYaml . | nindent 4 }}
 {{- end }}
+{{- if .Values.components.pulsar_coordinator }}
+    k8s.streamnative.io/coordinator-name: "{{ template "pulsar.fullname" . }}-coordinator"
+{{- end }}
 spec:
   replicas: {{ .Values.zookeeper.replicaCount }}
   image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
