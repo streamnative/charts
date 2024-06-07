@@ -127,6 +127,14 @@
   imageRepository: streamnative/pulsar-io-aws-lambda
   version: 3.0.2.5
   imageTag: 3.0.2.5
+- id: pulsar-io-aws-eventbridge
+  name: aws-eventbridge
+  description: AWS EventBridge Sink
+  sinkClass: org.apache.pulsar.io.eventbridge.sink.EventBridgeSink
+  sinkConfigClass: org.apache.pulsar.io.eventbridge.sink.EventBridgeConfig
+  imageRepository: streamnative/pulsar-io-aws-eventbridge
+  version: 3.0.2.6
+  imageTag: 3.0.2.6
 - id: pulsar-io-bigquery
   name: bigquery
   description: Google BigQuery connectors
