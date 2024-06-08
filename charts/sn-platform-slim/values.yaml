@@ -170,7 +170,7 @@ images:
     pullPolicy: IfNotPresent
   grafana:
     repository: streamnative/apache-pulsar-grafana-dashboard-k8s
-    tag: "0.1.0"
+    tag: "0.1.2"
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
