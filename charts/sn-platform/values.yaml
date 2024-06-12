@@ -201,7 +201,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
-    tag: "v2.3.5"
+    tag: "v2.3.5-rc.5"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -2160,8 +2160,6 @@ streamnative_console:
     CONNECTOR_ENABLED: true
     CUSTOM_PAYLOAD_ENABLED: false
     OPENAPI_ENABLED: false
-    # Use it to set the default user information for the console when all auth is disabled
-    NON_AUTH_TOKEN: ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKaGRXUWlPaUp6ZEhKbFlXMXVZWFJwZG1VdWFXOGlMQ0oxYzJWeWJtRnRaU0k2SW1Ga2JXbHVJbjAucW4xbFdLZmo3eFVyaFQyOEZSUDhMdS1zdHhPMFBQVjU5RkRYVEdEeHBpbwo=
 
   login:
     sso:
