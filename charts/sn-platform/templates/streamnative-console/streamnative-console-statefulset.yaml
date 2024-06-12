@@ -178,6 +178,10 @@ spec:
           - name: BACKEND_DEFAULT_SUPER_USER_ROLE
             value: {{ .Values.streamnative_console.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
           {{- end }}
+          {{- if and .Values.streamnative_console.configData.NON_AUTH_TOKEN }}
+          - name: NON_AUTH_TOKEN
+            value: {{ .Values.streamnative_console.configData.NON_AUTH_TOKEN | b64dec }}
+          {{- end }}
           - name: CUSTOM_PAYLOAD_ENABLED
             value:  "{{ .Values.streamnative_console.configData.CUSTOM_PAYLOAD_ENABLED | default "false" }}"
           {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
