@@ -1178,6 +1178,7 @@ broker:
       functionEnabled: true
       sourceEnabled: true
       sinkEnabled: true
+    builtinConnectorRepository:
     customWorkerConfig:
     runnerImages:
     labels:

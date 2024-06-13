@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
+
 - id: pulsar-io-data-generator
   name: data-generator
   description: Test data generator connector

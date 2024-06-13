@@ -12,6 +12,9 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.vault.component }}
 data:
+{{- if .Values.broker.functionmesh.builtinConnectorRepository }}
+{{ (.Files.Glob "conf/broker/connectors.yaml").AsConfig | replace "streamnative" .Values.broker.functionmesh.builtinConnectorRepository | indent 2 }}
+{{- else }}
 {{ (.Files.Glob "conf/broker/connectors.yaml").AsConfig | indent 2 }}
-
+{{- end }}
 {{- end }}
