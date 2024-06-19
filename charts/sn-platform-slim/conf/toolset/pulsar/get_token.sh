@@ -69,8 +69,8 @@ release=${release:-pulsar-dev}
 function pulsar::jwt::get_token() {
     local token_name="${release}-token-${role}"
 
-    local token=$(${KUBECTL_BIN} get -n ${namespace} secrets ${token_name} -o jsonpath="{.data['TOKEN']}" | base64 --decode)
-    local token_type=$(${KUBECTL_BIN} get -n ${namespace} secrets ${token_name} -o jsonpath="{.data['TYPE']}" | base64 --decode)
+    local token=$(${KUBECTL_BIN} get -n ${namespace} secrets ${token_name} -o jsonpath="{.data['TOKEN']}" | base64 -d)
+    local token_type=$(${KUBECTL_BIN} get -n ${namespace} secrets ${token_name} -o jsonpath="{.data['TYPE']}" | base64 -d)
 
     echo "token type: ${token_type}"
     echo "-------------------------"
