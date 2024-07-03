@@ -92,7 +92,7 @@ spec:
             value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
         envFrom:
           - configMapRef:
-            name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.restore.component }}"
         volumeMounts:
           - name: "data"
             mountPath: "/pulsar/data"
