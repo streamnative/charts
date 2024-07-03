@@ -95,6 +95,9 @@ spec:
         {{- end }}
           - name: METADATA_TOOL_CONF
             value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
+        envFrom:
+          - configMapRef:
+              name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.customTools.backup.component }}"
         ports:
           - name: metrics
             containerPort: {{ .Values.zookeeper.customTools.backup.webServerPort }}
