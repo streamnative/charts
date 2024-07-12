@@ -53,6 +53,10 @@ data:
             - {{ template "pulsar.namespace" . }}
 {{- end }}
 {{- if .Values.istio.enabled }}
+{{- if .Values.istio.migration }} 
+      scheme: http
+      enable_http2: false
+{{- else }}
       scheme: https
       # Disable http2 for Prometheus issue: https://github.com/prometheus/prometheus/issues/10213
       enable_http2: false
@@ -61,6 +65,7 @@ data:
         cert_file: /etc/prom-certs/cert-chain.pem
         key_file: /etc/prom-certs/key.pem
         insecure_skip_verify: true
+{{- end }}
 {{- end }}
       relabel_configs:
 {{- if .Values.istio.enabled }}
