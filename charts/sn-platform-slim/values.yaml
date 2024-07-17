@@ -150,7 +150,7 @@ images:
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform-slim
-    tag: "3.0.1.5"
+    tag: "3.3.0.5"
     pullPolicy: IfNotPresent
     busybox:
       repository: busybox
