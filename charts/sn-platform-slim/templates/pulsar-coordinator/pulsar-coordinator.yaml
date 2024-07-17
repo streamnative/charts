@@ -22,7 +22,4 @@ kind: PulsarCoordinator
 metadata:
   name: "{{ template "pulsar.fullname" . }}-coordinator"
   namespace: {{ template "pulsar.namespace" . }}
-spec:
-  toolSet:
-    enabled: false
 {{- end }}
