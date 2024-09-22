@@ -33,6 +33,17 @@ spec:
   replicas: {{ .Values.bookkeeper.replicaCount }}
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
   imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
+{{- if .Values.bookkeeper.autoScaling.enabled }}
+  autoScalingPolicy:
+    minReplicas: {{ .Values.bookkeeper.autoScaling.minReplicas }}
+    maxReplicas: {{ .Values.bookkeeper.autoScaling.maxReplicas }}
+{{- if .Values.bookkeeper.autoScaling.metrics }}
+    metrics:
+{{- with .Values.bookkeeper.autoScaling.metrics }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
   logConfig:
     level: {{ .Values.bookkeeper.logConfig.level }}
     format: {{ .Values.bookkeeper.logConfig.format }}
