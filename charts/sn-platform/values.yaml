@@ -862,6 +862,14 @@ bookkeeper:
     # annotations that will be added on the BookKeeperCluster CR only.
     annotations: {}
 
+  # The field autoScaling will track the average metrics usage of the Pulsar nodes and adjusts the nodes to keep at the target metrics usage level.
+  # If the average metrics usage for nodes is over the target, scaling controller will scale out to bring more nodes and if the average metrics for the nodes is less than the target, scaling controller will downscale nodes to save resources.
+  autoScaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 4
+    metrics: {}
+
   # The field logConfig can be used to change the log level and log format of pods.
   # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
   # If it is specified will dynamically change the log level and log format of the component by changing the CR.
@@ -1098,6 +1106,14 @@ broker:
     labels: {}
     # annotations that will be added on the PulsarBroker CR only.
     annotations: {}
+
+  # The field autoScaling will track the average metrics usage of the Pulsar nodes and adjusts the nodes to keep at the target metrics usage level.
+  # If the average metrics usage for nodes is over the target, scaling controller will scale out to bring more nodes and if the average metrics for the nodes is less than the target, scaling controller will downscale nodes to save resources.
+  autoScaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 4
+    metrics: {}
 
   # The field logConfig can be used to change the log level and log format of pods.
   # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
