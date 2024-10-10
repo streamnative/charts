@@ -35,6 +35,17 @@ spec:
   replicas: {{ .Values.broker.replicaCount }}
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+{{- if .Values.broker.autoScaling.enabled }}
+  autoScalingPolicy:
+    minReplicas: {{ .Values.broker.autoScaling.minReplicas }}
+    maxReplicas: {{ .Values.broker.autoScaling.maxReplicas }}
+{{- if .Values.broker.autoScaling.metrics }}
+    metrics:
+{{- with .Values.broker.autoScaling.metrics }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}
   logConfig:
     level: {{ .Values.broker.logConfig.level }}
     format: {{ .Values.broker.logConfig.format }}
