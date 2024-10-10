@@ -1,0 +1,29 @@
+broker:
+  autoScaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    # Deploy the https://github.com/kubernetes-sigs/metrics-server to support resource metrics.
+    # Metrics server supports the cpu and memory PodMetrics.
+    metrics:
+      type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+bookkeeper:
+  autoScaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    # Deploy the https://github.com/kubernetes-sigs/metrics-server to support resource metrics.
+    # Metrics server supports the cpu and memory PodMetrics.
+    metrics:
+      type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
