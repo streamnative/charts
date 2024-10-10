@@ -1,0 +1,59 @@
+broker:
+  autoScaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    # Deploy the https://prometheus.io/ and https://github.com/kubernetes-sigs/prometheus-adapter to support custom metrics.
+    # Refer the prometheus.-adapter.yaml how to setup the custom metrics.
+    metrics:
+      - pods:
+        metric:
+          name: cpu_usage
+        target:
+          averageValue: "75"
+          type: AverageValue
+        type: Pods
+      - pods:
+          metric:
+            name: network_in_rate_kb
+          target:
+            averageValue: "204800"
+            type: AverageValue
+        type: Pods
+      - pods:
+          metric:
+            name: network_out_rate_kb
+          target:
+            averageValue: "204800"
+            type: AverageValue
+        type: Pods
+
+bookkeeper:
+  autoScaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 4
+    # Deploy the https://prometheus.io/ and https://github.com/kubernetes-sigs/prometheus-adapter to support custom metrics.
+    # Refer the prometheus.-adapter.yaml how to setup the custom metrics.
+    metrics:
+      - pods:
+        metric:
+          name: cpu_usage
+        target:
+          averageValue: "75"
+          type: AverageValue
+        type: Pods
+      - pods:
+          metric:
+            name: network_in_rate_kb
+          target:
+            averageValue: "204800"
+            type: AverageValue
+        type: Pods
+      - pods:
+          metric:
+            name: network_out_rate_kb
+          target:
+            averageValue: "204800"
+            type: AverageValue
+        type: Pods

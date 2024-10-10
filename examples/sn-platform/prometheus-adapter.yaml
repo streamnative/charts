@@ -1,0 +1,79 @@
+prometheus:
+  url: http://prometheus-server.monitor.svc
+  port: 80
+listenPort: 8443
+rules:
+  default: false
+  custom:
+    - seriesQuery: '{namespace!="",__name__!~"^container_.*"}'
+      resources:
+        template: "<<.Resource>>"
+      name:
+        matches: "^(.*)_total"
+        as: ""
+      metricsQuery: |
+        sum by (<<.GroupBy>>) (
+          irate (
+            <<.Series>>{<<.LabelMatchers>>}[1m]
+          )
+        )
+    - seriesQuery: 'container_cpu_usage_seconds_total{namespace!~"(sn-system|kube-system|olm|cert-manager)"}'
+      seriesFilters: []
+      resources:
+        overrides:
+          pod:
+            resource: pod
+          namespace:
+            resource: namespace
+      name:
+        matches: "container_cpu_usage_seconds_total"
+        as: "cpu_usage"
+      metricsQuery: sum(rate(container_cpu_usage_seconds_total{<<.LabelMatchers>>}[5m])) by (<<.GroupBy>>) / (sum(container_spec_cpu_shares{<<.LabelMatchers>>}/1000) by (<<.GroupBy>>))  * 100
+    - seriesQuery: 'container_network_receive_bytes_total{namespace!~"(sn-system|kube-system|olm|cert-manager)"}'
+      seriesFilters: []
+      resources:
+        overrides:
+          pod:
+            resource: pod
+          namespace:
+            resource: namespace
+      name:
+        matches: "container_network_receive_bytes_total"
+        as: "network_in_rate_kb"
+      metricsQuery: rate(container_network_receive_bytes_total{<<.LabelMatchers>>}[5m]) / 1024
+    - seriesQuery: 'container_network_transmit_bytes_total{namespace!~"(sn-system|kube-system|olm|cert-manager)"}'
+      seriesFilters: []
+      resources:
+        overrides:
+          pod:
+            resource: pod
+          namespace:
+            resource: namespace
+      name:
+        matches: "container_network_transmit_bytes_total"
+        as: "network_out_rate_kb"
+      metricsQuery: rate(container_network_transmit_bytes_total{<<.LabelMatchers>>}[5m]) / 1024
+    - seriesQuery: 'container_fs_reads_bytes_total{namespace!~"(sn-system|kube-system|olm|cert-manager)"}'
+      seriesFilters: []
+      resources:
+        overrides:
+          pod:
+            resource: pod
+          namespace:
+            resource: namespace
+      name:
+        matches: "container_fs_reads_bytes_total"
+        as: "disk_read_rate_kb"
+      metricsQuery: sum(rate(container_fs_reads_bytes_total{<<.LabelMatchers>>}[5m])) by (<<.GroupBy>>) / 1024
+    - seriesQuery: 'container_fs_writes_bytes_total{namespace!~"(sn-system|kube-system|olm|cert-manager)"}'
+      seriesFilters: []
+      resources:
+        overrides:
+          pod:
+            resource: pod
+          namespace:
+            resource: namespace
+      name:
+        matches: "container_fs_writes_bytes_total"
+        as: "disk_write_rate_kb"
+      metricsQuery: sum(rate(container_fs_writes_bytes_total{<<.LabelMatchers>>}[5m])) by (<<.GroupBy>>) / 1024
