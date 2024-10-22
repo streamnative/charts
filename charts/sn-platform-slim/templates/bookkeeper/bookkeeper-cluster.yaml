@@ -195,7 +195,6 @@ spec:
       PULSAR_PREFIX_ledgerDirectories: "/pulsar/data/bookkeeper/ledgers"
       {{- end }}
 {{- include "pulsar.bookkeeper.config.tls" . | nindent 6 }}
-{{ (.Files.Glob "conf/bookie/log4j2.yaml").AsConfig | indent 6 }}
   autoRecovery:
     {{- if .Values.components.autorecovery }}
     replicas: {{ .Values.autorecovery.replicaCount }}
