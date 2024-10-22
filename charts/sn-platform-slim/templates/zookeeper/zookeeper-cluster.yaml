@@ -216,9 +216,6 @@ spec:
 {{- with .Values.zookeeper.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-      # Include log configuration file, If you want to configure the log level and other configuration
-      # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
-{{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 6 }}
   apiObjects:
     clientService: {}
     headlessService:

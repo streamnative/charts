@@ -50,7 +50,4 @@ data:
   {{- end }}
   PULSAR_PREFIX_peerType: "observer"
 {{ toYaml .Values.zookeeper.customTools.backup.configData | indent 2 }}
-  # Include log configuration file, If you want to configure the log level and other configuration
-  # items, you can modify the configmap, and eventually it will overwrite the log4j2.yaml file under conf
-{{ (.Files.Glob "conf/zookeeper/log4j2.yaml").AsConfig | indent 2 }}
 {{- end }}
