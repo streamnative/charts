@@ -239,7 +239,6 @@ spec:
 {{- with .Values.autorecovery.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
-{{ (.Files.Glob "conf/autorecovery/log4j2.yaml").AsConfig | indent 6 }}
   apiObjects:
     clientService: {}
     headlessService:
