@@ -200,7 +200,7 @@ spec:
         prometheus.io/port: "{{ .Values.autorecovery.ports.http }}"
         {{- end }}
         {{- if .Values.monitoring.datadog }}
-        {{- include "pulsar.autorecovery.datadog.annotation" . | nindent 6 }}
+        {{- include "pulsar.autorecovery.datadog.annotation" . | nindent 8 }}
         {{- end }}
         {{- include "pulsar.istio.pod.annotations" . | nindent 8 }}
 {{- with .Values.autorecovery.annotations }}
