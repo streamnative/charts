@@ -1488,7 +1488,7 @@ proxy:
     # limits:
     #   memory: "512Mi"
     #   cpu: "0.8"
-  # Kafka Proxy supports forward the kafka client request to Pulsar Broker, make sure you enable the kop on the Broker component. 
+  # Kafka Proxy supports forward the kafka client request to Pulsar Broker, make sure you enable the kop on the Broker component.
   kopProxy:
     enabled: false
     # Specifies the listeners for Kafka clients. In Kubernetes environments, you should configure the external Proxy LoadBalancer type service address or NodePort type service address for this field.
