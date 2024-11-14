@@ -125,6 +125,11 @@ spec:
     {{- if .Values.pulsar_metadata.clusterName }}
     clusterName: {{ .Values.pulsar_metadata.clusterName }}
     {{- end }}
+    {{- if .Values.proxy.kopProxy.enabled }}
+    kopProxy:
+      enabled: {{ .Values.proxy.kopProxy.enabled }}
+      kafkaAdvertisedListener: {{ .Values.proxy.kopProxy.kafkaAdvertisedListener }}
+    {{- end }}
     usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
     tls:
       enabled: {{ and (.Values.tls.enabled) (.Values.tls.proxy.enabled) }}
