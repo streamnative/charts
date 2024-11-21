@@ -78,6 +78,15 @@ sidecar.istio.io/inject: "true"
 {{- end }}
 
 {{/*
+Create the monitoring template labels.
+*/}}
+{{- define "pulsar.monitoring.template.labels" -}}
+app: {{ template "pulsar.name" . }}
+release: {{ .Release.Name }}
+cluster: {{ template "pulsar.fullname" . }}
+{{- end }}
+
+{{/*
 Create the match labels.
 */}}
 {{- define "pulsar.matchLabels" -}}
