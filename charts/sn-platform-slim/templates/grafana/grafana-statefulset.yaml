@@ -25,7 +25,11 @@ spec:
   template:
     metadata:
       labels:
+        {{- if and .Values.istio.enabled .Values.istio.mergeMetrics }}
+        {{- include "pulsar.monitoring.template.labels" . | nindent 8 }}
+        {{- else }}
         {{- include "pulsar.template.labels" . | nindent 8 }}
+        {{- end }}
         component: {{ .Values.grafana.component }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/grafana/grafana-configmap.yaml") . | sha256sum }}
