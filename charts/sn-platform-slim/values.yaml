@@ -794,7 +794,7 @@ bookkeeper:
     enabled: false
     minReplicas: 1
     maxReplicas: 4
-    metrics: {}
+    metrics: []
   # The field logConfig can be used to change the log level and log format of pods.
   # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
   # f it is specified will dynamically change the log level and log format of the component by changing the CR.
@@ -1038,7 +1038,7 @@ broker:
     enabled: false
     minReplicas: 1
     maxReplicas: 4
-    metrics: {}
+    metrics: []
   # The field logConfig can be used to change the log level and log format of pods.
   # The logConfig field is optional. If it is not specified, the component will use the default log configuration /pulsar/conf/log4j2.yaml.
   # If it is specified will dynamically change the log level and log format of the component by changing the CR.
@@ -2144,7 +2144,8 @@ istio:
   migration: false
   # istio labels used to inject sidecars if it's not `sidecar.istio.io/inject: "true"`
   labels: {}
-  # If you're using the prometheus in this chart, please keep mergeMetrics disabled.
+  # mergeMetrics should be enabled if you want to scrape pulsar metrics from an external prometheus not running on Istio
+  # prometheus and grafana will not be Istio injected if mergeMetrics is enabled
   mergeMetrics: false
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
