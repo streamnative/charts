@@ -67,8 +67,8 @@ data:
           names:
             - {{ template "pulsar.namespace" . }}
 {{- end }}
-{{- if .Values.istio.enabled }}
-{{- if .Values.istio.migration }} 
+{{- if and .Values.istio.enabled (not .Values.istio.mergeMetrics) }}
+{{- if .Values.istio.migration }}
       scheme: http
       enable_http2: false
 {{- else }}
