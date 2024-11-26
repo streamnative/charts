@@ -288,6 +288,8 @@ spec:
       {{- if .Values.streamnative_console.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
       {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.streamnative_console.affinity "Component" .Values.streamnative_console.component "Release" .Release "Chart" .Chart) | indent 8 }}
   {{- if or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName }}
   volumeClaimTemplates:
   - metadata:
