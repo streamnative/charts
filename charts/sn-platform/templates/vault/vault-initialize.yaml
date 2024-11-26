@@ -29,6 +29,16 @@ spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
+      {{- if .Values.vault.tolerations }}
+      tolerations:
+      {{ toYaml .Values.vault.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.vault.nodeSelector }}
+      nodeSelector:
+      {{ toYaml .Values.vault.nodeSelector | indent 8 }}
+      {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.vault.affinity "Component" .Values.vault.component "Release" .Release "Chart" .Chart) | indent 8 }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.vault.component }}-init"
         image: "{{ .Values.images.vault_init.repository }}:{{ .Values.images.vault_init.tag }}"
