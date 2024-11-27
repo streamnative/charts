@@ -28,7 +28,9 @@ metadata:
 {{- end }}
 spec:
   replicas: {{ .Values.zookeeper.replicaCount }}
+  {{- if not .Values.components.pulsar_coordinator }}
   image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
+  {{- end }}
   logConfig:
     level: {{ .Values.zookeeper.logConfig.level }}
     format: {{ .Values.zookeeper.logConfig.format }}
