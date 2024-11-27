@@ -31,7 +31,9 @@ spec:
 {{- end }}
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}"
   replicas: {{ .Values.bookkeeper.replicaCount }}
+  {{- if not .Values.components.pulsar_coordinator }}
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
+  {{- end }}
   imagePullPolicy: {{ .Values.images.bookie.pullPolicy }}
 {{- if .Values.bookkeeper.autoScaling.enabled }}
   autoScalingPolicy:
