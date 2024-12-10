@@ -121,6 +121,9 @@ monitoring:
 ##
 ## Control what images to use for each component
 images:
+  coordinator:
+    repository: streamnative/sn-platform-slim
+    tag: "3.2.3.3"
   zookeeper:
     repository: streamnative/sn-platform-slim
     tag: "3.2.3.3"

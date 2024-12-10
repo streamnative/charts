@@ -22,4 +22,6 @@ kind: PulsarCoordinator
 metadata:
   name: "{{ template "pulsar.fullname" . }}-coordinator"
   namespace: {{ template "pulsar.namespace" . }}
+spec:
+  image: {{ .Values.images.coordinator.repository }}:{{ .Values.images.coordinator.tag }}
 {{- end }}
