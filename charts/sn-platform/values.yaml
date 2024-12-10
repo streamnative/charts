@@ -2224,6 +2224,7 @@ streamnative_console:
           JWT_BROKER_PUBLIC_PRIVATE_KEY: ""
           # The secret should contain both `SECRETKEY`
           JWT_BROKER_SECRET_KEY: ""
+          JWT_BROKER_SECRET_KEY_FILE: "token/secret.key"
 
 ## Components Stack: pulsar operators rbac
 ## templates/pulsar-operators-rbac.yaml
