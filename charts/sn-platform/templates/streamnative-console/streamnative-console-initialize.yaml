@@ -30,7 +30,6 @@ spec:
       affinity:
         {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.streamnative_console.affinity "Component" .Values.streamnative_console.component "Release" .Release "Chart" .Chart) | indent 8 }}
       {{- if not .Values.istio.enabled }}
-      {{- if not .Values.istio.enabled }}
       initContainers:
         # This init container will wait for broker to be ready before
         # deploying the pulsar manager init job
