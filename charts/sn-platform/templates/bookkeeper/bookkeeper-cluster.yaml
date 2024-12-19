@@ -153,6 +153,10 @@ spec:
     reclaimPolicy: {{ .Values.bookkeeper.volumes.reclaimPolicy | default "Delete" }}
   {{- end }}
   config:
+    {{- with .Values.bookkeeper.rackAwareTopologyLabels }}
+    rackAwareTopologyLabels:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     custom:
 {{- with .Values.bookkeeper.custom }}
 {{ toYaml . | indent 6 }}
