@@ -63,6 +63,8 @@ spec:
       tolerations:
 {{ toYaml .Values.grafana.tolerations | indent 8 }}
     {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.grafana.affinity "Component" .Values.grafana.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.grafana.gracePeriod }}
       {{- if .Values.grafana.volumes.securityContext }}
       securityContext:
