@@ -844,6 +844,10 @@ bookkeeper:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   topologySpreadConstraints: []
+  # For BookKeeperCluster, the field rackAwareTopologyLabels should be configured as nodes topology labels the value of which will be set as the rack name.
+  # When there are multiple labels configured, all their values will be joined by "/".
+  # The operator will propagate the label value from nodes to pods and ensure the pod container starts with the label values as environment variables automatically.
+  rackAwareTopologyLabels: []
   labels: {}
   annotations: {}
   securityContext:
