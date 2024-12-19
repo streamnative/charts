@@ -21,6 +21,14 @@ spec:
       {{- if .Values.global.imagePullSecrets }}
       imagePullSecrets: {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
+      {{- if .Values.streamnative_console.nodeSelector }}
+      nodeSelector: {{- toYaml .Values.streamnative_console.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.streamnative_console.tolerations }}
+      tolerations: {{- toYaml .Values.streamnative_console.tolerations | nindent 8 }}
+      {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.streamnative_console.affinity "Component" .Values.streamnative_console.component "Release" .Release "Chart" .Chart) | indent 8 }}
       {{- if not .Values.istio.enabled }}
       initContainers:
         # This init container will wait for broker to be ready before
