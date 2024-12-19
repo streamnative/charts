@@ -67,6 +67,8 @@ spec:
       tolerations:
 {{ toYaml .Values.streamnative_console.tolerations | indent 8 }}
     {{- end }}
+      affinity:
+        {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.streamnative_console.affinity "Component" .Values.streamnative_console.component "Release" .Release "Chart" .Chart) | indent 8 }}
       terminationGracePeriodSeconds: {{ .Values.streamnative_console.gracePeriod }}
       {{- if not .Values.istio.enabled }}
       initContainers:
