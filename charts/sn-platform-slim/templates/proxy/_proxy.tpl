@@ -105,7 +105,7 @@ Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
-{{- if eq (.Values.datadog.components.proxy.checkType | default "openmetrics") "openmetrics" }}
+{{- if eq .Values.datadog.autodiscoveryVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
@@ -135,36 +135,13 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       ]
     }
   ]
-{{- else if (.Values.datadog.components.proxy.checkType | default "openmetrics") "native" }}
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
-  ["pulsar"]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
-  [{}]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
-  [
-    {
-      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
-      "enable_health_service_check": true,
-      "timeout": 300,
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-      "extra_headers": {
-          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
-      },
 {{- end }}
-{{- end }}
-      "tags": [
-        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-      ]
-    }
-  ]
-{{- else if (.Values.datadog.components.proxy.checkType | default "openmetrics") "both" }}
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
-  ["openmetrics", "pulsar"]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
-  [{}, {}]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
-  [
+{{- if eq .Values.datadog.autodiscoveryVersion "v2" }}
+ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.checks: |
+  {
+    "openmetrics": {
+      "init_config": [{}],
+      "instances": [
     {
       "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
       {{ if .Values.datadog.namespace -}}
@@ -186,23 +163,10 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "tags": [
         "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
       ]
-    },
-    {
-      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
-      "enable_health_service_check": true,
-      "timeout": 300,
-{{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
-      "extra_headers": {
-          "Authorization": "Bearer %%env_PROXY_TOKEN%%"
-      },
-{{- end }}
-{{- end }}
-      "tags": [
-        "pulsar-proxy: {{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-      ]
     }
   ]
+    }
+  }
 {{- end }}
 {{- end }}
 {{- end }}
