@@ -118,6 +118,7 @@ Define zookeeper log volumes
 
 {{/*Define zookeeper datadog annotation*/}}
 {{- define "pulsar.zookeeper.datadog.annotation"}}
+{{- if .Values.datadog.components.zookeeper.enabled }}
 {{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.check_names: |
   ["openmetrics"]
