@@ -170,7 +170,7 @@ Define bookkeeper log volumes
 {{/*Define bookkeeper datadog annotation*/}}
 {{- define  "pulsar.bookkeeper.datadog.annotation" -}}
 {{- if .Values.datadog.components.bookkeeper.enabled }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v1" }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.init_configs: |
@@ -214,7 +214,7 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
     }
   ]
 {{- end }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v2" }}
+{{- if eq .Values.datadog.adVersion "v2" }}
 ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.checks: |
   {
     "openmetrics": {

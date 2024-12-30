@@ -20,7 +20,7 @@ ${HOSTNAME}.{{ template "pulsar.autorecovery.service" . }}.{{ template "pulsar.n
 {{/*Define autorecovery datadog annotation*/}}
 {{- define  "pulsar.autorecovery.datadog.annotation" -}}
 {{- if .Values.datadog.components.autorecovery.enabled }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v1" }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.init_configs: |
@@ -64,7 +64,7 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.instances: |
     }
   ]
 {{- end }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v2" }}
+{{- if eq .Values.datadog.adVersion "v2" }}
 ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.checks: |
   {
     "openmetrics": {

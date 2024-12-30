@@ -105,7 +105,7 @@ Define proxy datadog annotation
 */}}
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v1" }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
@@ -136,7 +136,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
     }
   ]
 {{- end }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v2" }}
+{{- if eq .Values.datadog.adVersion "v2" }}
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.checks: |
   {
     "openmetrics": {

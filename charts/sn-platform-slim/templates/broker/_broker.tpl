@@ -172,7 +172,7 @@ Define function worker config volume
 {{/*Define broker datadog annotation*/}}
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v1" }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.init_configs: |
@@ -263,7 +263,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
     }
   ]
 {{- end }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v2" }}
+{{- if eq .Values.datadog.adVersion "v2" }}
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
   {
     "openmetrics": {

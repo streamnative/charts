@@ -43,7 +43,7 @@ Define toolset token volumes
 {{/*Define federation datadog annotation*/}}
 {{- define "pulsar.prometheus.datadog.annotation" -}}
 {{- if .Values.datadog.components.prometheus.enabled }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v1" }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}.init_configs: |
@@ -131,7 +131,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
     }
   ]
 {{- end }}
-{{- if eq .Values.datadog.autodiscoveryVersion "v2" }}
+{{- if eq .Values.datadog.adVersion "v2" }}
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}.checks: |
   {
     "openmetrics": {
