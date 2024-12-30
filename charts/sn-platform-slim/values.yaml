@@ -1788,6 +1788,7 @@ datadog:
   ## Datadog <METRICS_NAMESPACE_PREFIX_FOR_DATADOG> configuration. Set namespace to be prefixed to every metric when viewed in Datadog.
   ## https://docs.datadoghq.com/containers/kubernetes/prometheus/?tab=kubernetesadv2
   namespace:
+  autodiscoveryVersion: v1
   components:
     zookeeper:
       enabled: false
