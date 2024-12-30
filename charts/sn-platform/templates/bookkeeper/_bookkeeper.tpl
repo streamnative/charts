@@ -170,6 +170,7 @@ Define bookkeeper log volumes
 {{/*Define bookkeeper datadog annotation*/}}
 {{- define  "pulsar.bookkeeper.datadog.annotation" -}}
 {{- if .Values.datadog.components.bookkeeper.enabled }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.init_configs: |
@@ -212,6 +213,52 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
       ]
     }
   ]
+{{- end }}
+{{- if eq .Values.datadog.adVersion "v2" }}
+ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.checks: |
+  {
+    "openmetrics": {
+      "init_config": [{}],
+      "instances": [
+    {
+      "prometheus_url": "http://%%host%%:{{ .Values.bookkeeper.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
+      "namespace": "{{ template "pulsar.namespace" . }}",
+      {{ end -}}
+      "metrics": {{ .Values.datadog.components.bookkeeper.metrics }},
+      "health_service_check": true,
+      "prometheus_timeout": 1000,
+      "max_returned_metrics": 1000000,
+      "type_overrides": {
+        "jvm_memory_bytes_used": "gauge",
+        "jvm_memory_bytes_committed": "gauge",
+        "jvm_memory_bytes_max": "gauge",
+        "jvm_memory_bytes_init": "gauge",
+        "jvm_memory_pool_bytes_used": "gauge",
+        "jvm_memory_pool_bytes_committed": "gauge",
+        "jvm_memory_pool_bytes_max": "gauge",
+        "jvm_memory_pool_bytes_init": "gauge",
+        "jvm_memory_direct_bytes_used": "gauge",
+        "jvm_threads_current": "gauge",
+        "jvm_threads_daemon": "gauge",
+        "jvm_threads_peak": "gauge",
+        "jvm_threads_started_total": "gauge",
+        "jvm_threads_deadlocked": "gauge",
+        "jvm_threads_deadlocked_monitor": "gauge",
+        "jvm_gc_collection_seconds_count": "gauge",
+        "jvm_gc_collection_seconds_sum": "gauge",
+        "jvm_memory_direct_bytes_max": "gauge"
+      },
+      "tags": [
+        "pulsar-bookie: {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
+      ]
+    }
+  ]
+    }
+  } 
+{{- end }}
 {{- end }}
 {{- end }}
 
