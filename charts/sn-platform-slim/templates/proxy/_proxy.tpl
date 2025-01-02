@@ -113,16 +113,15 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   [
     {
-      "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
-      "health_service_check": true,
-      "prometheus_timeout": 1000,
-      "max_returned_metrics": 1000000,
+      "enable_health_service_check": true,
+      "timeout": 1000,
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
       "extra_headers": {
@@ -140,19 +139,17 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.checks: |
   {
     "openmetrics": {
-      "init_config": [{}],
       "instances": [
     {
-      "prometheus_url": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
-      "health_service_check": true,
-      "prometheus_timeout": 1000,
-      "max_returned_metrics": 1000000,
+      "enable_health_service_check": true,
+      "timeout": 1000,
 {{- if .Values.auth.authentication.enabled }}
 {{- if eq .Values.auth.authentication.provider "jwt" }}
       "extra_headers": {
