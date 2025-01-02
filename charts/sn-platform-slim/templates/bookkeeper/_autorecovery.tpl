@@ -47,6 +47,7 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.instances: |
 ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.checks: |
   {
     "openmetrics": {
+      "init_config": [{}],
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.autorecovery.ports.http }}/metrics",
@@ -62,7 +63,7 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.checks: |
         "pulsar-autorecovery: {{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
       ]
     }
-    ]
+  ]
     }
   } 
 {{- end }}

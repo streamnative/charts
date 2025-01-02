@@ -146,6 +146,7 @@ ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
 ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.checks: |
   {
     "openmetrics": {
+      "init_config": [{}],
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",

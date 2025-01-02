@@ -1876,27 +1876,27 @@ datadog:
     zookeeper:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     bookkeeper:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     autorecovery:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     broker:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     proxy:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     vault:
       enabled: false
@@ -1907,7 +1907,7 @@ datadog:
     prometheus:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
 
 ## Monitoring Stack: Grafana

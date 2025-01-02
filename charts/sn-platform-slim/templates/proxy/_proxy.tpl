@@ -139,6 +139,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
 ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.checks: |
   {
     "openmetrics": {
+      "init_config": [{}],
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",

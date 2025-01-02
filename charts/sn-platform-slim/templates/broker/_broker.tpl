@@ -199,6 +199,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
   {
     "openmetrics": {
+      "init_config": [{}],
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",

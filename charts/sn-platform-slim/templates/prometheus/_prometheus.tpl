@@ -67,6 +67,7 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
 ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}.checks: |
   {
     "openmetrics": {
+      "init_config": [{}],
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.prometheus.port }}/federate?match[]=%7B__name__%3D~%22pulsar_.%2B%7Cjvm_.%2B%7Ctopic_.%2B%22%7D",
