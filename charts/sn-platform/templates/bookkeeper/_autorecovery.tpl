@@ -20,6 +20,7 @@ ${HOSTNAME}.{{ template "pulsar.autorecovery.service" . }}.{{ template "pulsar.n
 {{/*Define autorecovery datadog annotation*/}}
 {{- define  "pulsar.autorecovery.datadog.annotation" -}}
 {{- if .Values.datadog.components.autorecovery.enabled }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.init_configs: |
@@ -27,41 +28,45 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.init_configs: |
 ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.instances: |
   [
     {
-      "prometheus_url": "http://%%host%%:{{ .Values.autorecovery.ports.http }}/metrics",
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.autorecovery.ports.http }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
+      "namespace": "{{ template "pulsar.namespace" . }}",
+      {{ end -}}
+      "enable_health_service_check": true,
+      "timeout": 1000,
+      "metrics": {{ .Values.datadog.components.autorecovery.metrics }},
+      "tags": [
+        "pulsar-autorecovery: {{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
+      ]
+    }
+  ]
+{{- end }}
+{{- if eq .Values.datadog.adVersion "v2" }}
+ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.checks: |
+  {
+    "openmetrics": {
+      "init_config": [{}],
+      "instances": [
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.autorecovery.ports.http }}/metrics",
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.autorecovery.metrics }},
-      "health_service_check": true,
-      "prometheus_timeout": 1000,
-      "max_returned_metrics": 1000000,
-      "type_overrides": {
-        "jvm_memory_bytes_used": "gauge",
-        "jvm_memory_bytes_committed": "gauge",
-        "jvm_memory_bytes_max": "gauge",
-        "jvm_memory_bytes_init": "gauge",
-        "jvm_memory_pool_bytes_used": "gauge",
-        "jvm_memory_pool_bytes_committed": "gauge",
-        "jvm_memory_pool_bytes_max": "gauge",
-        "jvm_memory_pool_bytes_init": "gauge",
-        "jvm_memory_direct_bytes_used": "gauge",
-        "jvm_threads_current": "gauge",
-        "jvm_threads_daemon": "gauge",
-        "jvm_threads_peak": "gauge",
-        "jvm_threads_started_total": "gauge",
-        "jvm_threads_deadlocked": "gauge",
-        "jvm_threads_deadlocked_monitor": "gauge",
-        "jvm_gc_collection_seconds_count": "gauge",
-        "jvm_gc_collection_seconds_sum": "gauge",
-        "jvm_memory_direct_bytes_max": "gauge"
-      },
+      "enable_health_service_check": true,
+      "timeout": 1000,
       "tags": [
         "pulsar-autorecovery: {{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
       ]
     }
   ]
+    }
+  } 
+{{- end }}
 {{- end }}
 {{- end }}
 
