@@ -218,7 +218,7 @@ PULSAR_PREFIX_OIDCPublicKeyPath: file://{{ .Values.broker.publicKeyPath | defaul
 PULSAR_PREFIX_OIDCPublicKeyPath: "{{ template "pulsar.vault.url" . }}/v1/identity/oidc/.well-known/keys"
 {{- end }}
 {{- end }}
-{{- if .Values.auth.oauth.enabled }}
+{{- if and .Values.auth.oauth.enabled (not (or .Values.auth.vault.enabled .Values.auth.authentication.jwt.enabled)) }}
 PULSAR_PREFIX_oauthIssuerUrl: "{{ .Values.auth.oauth.oauthIssuerUrl }}"
 PULSAR_PREFIX_oauthAudience: "{{ .Values.auth.oauth.oauthAudience }}"
 {{- if .Values.auth.oauth.oauthAdminScope }}
@@ -239,7 +239,7 @@ brokerClientAuthenticationParameters: '{{ .Values.auth.oauth.brokerClientAuthent
 PULSAR_PREFIX_oauthSubjectClaim: "{{ .Values.auth.oauth.oauthSubjectClaim }}"
 {{- end }}
 {{- else }}
-{{- if .Values.auth.authentication.jwt.enabled }}
+{{- if and .Values.auth.authentication.jwt.enabled (not (or .Values.auth.oauth.enabled .Values.auth.vault.enabled))}}
 brokerClientAuthenticationPlugin: "org.apache.pulsar.client.impl.auth.AuthenticationToken"
 {{- end }}
 {{- end }}
