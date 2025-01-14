@@ -119,6 +119,7 @@ Define zookeeper log volumes
 {{/*Define zookeeper datadog annotation*/}}
 {{- define "pulsar.zookeeper.datadog.annotation"}}
 {{- if .Values.datadog.components.zookeeper.enabled }}
+{{- if eq .Values.datadog.adVersion "v1" }}
 ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.check_names: |
   ["openmetrics"]
 ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.init_configs: |
@@ -126,46 +127,45 @@ ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.init_configs: |
 ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
   [
     {
-      "prometheus_url": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
       {{ if .Values.datadog.namespace -}}
       "namespace": "{{ .Values.datadog.namespace }}",
       {{ else -}}
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
-      "health_service_check": true,
-      "prometheus_timeout": 1000,
-      "max_returned_metrics": 1000000,
-      "type_overrides": {
-        "jvm_memory_bytes_used": "gauge",
-        "jvm_memory_bytes_committed": "gauge",
-        "jvm_memory_bytes_max": "gauge",
-        "jvm_memory_bytes_init": "gauge",
-        "jvm_memory_pool_bytes_used": "gauge",
-        "jvm_memory_pool_bytes_committed": "gauge",
-        "jvm_memory_pool_bytes_max": "gauge",
-        "jvm_memory_pool_bytes_init": "gauge",
-        "jvm_classes_loaded": "gauge",
-        "jvm_classes_loaded_total": "counter",
-        "jvm_classes_unloaded_total": "counter",
-        "jvm_buffer_pool_used_bytes": "gauge",
-        "jvm_buffer_pool_capacity_bytes": "gauge",
-        "jvm_buffer_pool_used_buffers": "gauge",
-        "jvm_threads_current": "gauge",
-        "jvm_threads_daemon": "gauge",
-        "jvm_threads_peak": "gauge",
-        "jvm_threads_started_total": "counter",
-        "jvm_threads_deadlocked": "gauge",
-        "jvm_threads_deadlocked_monitor": "gauge",
-        "jvm_gc_collection_seconds_count": "gauge",
-        "jvm_gc_collection_seconds_sum": "gauge",
-        "jvm_memory_direct_bytes_max": "gauge"
-      },
+      "enable_health_service_check": true,
+      "timeout": 1000,
       "tags": [
         "pulsar-zookeeper: {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
       ]
     }
   ]
+{{- end }}
+{{- if eq .Values.datadog.adVersion "v2" }}
+ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.checks: |
+  {
+    "openmetrics": {
+      "init_config": [{}],
+      "instances": [
+    {
+      "openmetrics_endpoint": "http://%%host%%:{{ .Values.zookeeper.ports.metrics }}/metrics",
+      {{ if .Values.datadog.namespace -}}
+      "namespace": "{{ .Values.datadog.namespace }}",
+      {{ else -}}
+      "namespace": "{{ template "pulsar.namespace" . }}",
+      {{ end -}}
+      "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
+      "enable_health_service_check": true,
+      "timeout": 1000,
+      "tags": [
+        "pulsar-zookeeper: {{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
+      ]
+    }
+  ]
+    }
+  }
+{{- end }}
 {{- end }}
 {{- end }}
 

@@ -1803,36 +1803,39 @@ datadog:
   ## Datadog <METRICS_NAMESPACE_PREFIX_FOR_DATADOG> configuration. Set namespace to be prefixed to every metric when viewed in Datadog.
   ## https://docs.datadoghq.com/containers/kubernetes/prometheus/?tab=kubernetesadv2
   namespace:
+  ## Datadog Autodiscovery version, support v1 and v2.
+  ## https://docs.datadoghq.com/getting_started/containers/autodiscovery/?tab=adannotationsv2agent736
+  adVersion: v1
   components:
     zookeeper:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     bookkeeper:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     autorecovery:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     broker:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     proxy:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
     prometheus:
       enabled: false
       metrics: [
-        "\"_*\""
+        "\".*\""
       ]
 
 ## Monitoring Stack: Grafana
