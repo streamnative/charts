@@ -35,12 +35,10 @@ spec:
 {{- end }}
   {{- include "pulsar.istio.pod.annotations" . | nindent 4 }}
   {{- if .Values.vault.tolerations }}
-  tolerations:
-{{ toYaml .Values.vault.tolerations | indent 4 }}
+  tolerations: {{ toYaml .Values.vault.tolerations | nindent 4 }}
   {{- end }}
   {{- if .Values.vault.nodeSelector }}
-  nodeSelector:
-{{ toYaml .Values.vault.nodeSelector | indent 4 }}
+  nodeSelector: {{ toYaml .Values.vault.nodeSelector | nindent 4 }}
   {{- end }}
   affinity:
     {{- include "pulsar.antiAffinityRules" (dict "Values" .Values "thisAffinity" .Values.vault.affinity "Component" .Values.vault.component "Release" .Release "Chart" .Chart) | indent 4 }}
