@@ -151,6 +151,48 @@ spec:
           {{- end }}
           - name: CONNECTOR_ENABLED
             value: "{{ .Values.configData.CONNECTOR_ENABLED | default "true" }}"
+          {{- if .Values.configData.SERVICE_ACCOUNT_OAUTH2_ISSUER_URL }}
+          - name: SERVICE_ACCOUNT_OAUTH2_ISSUER_URL
+            value: {{ .Values.configData.SERVICE_ACCOUNT_OAUTH2_ISSUER_URL }}
+          {{- end }}
+          {{- if .Values.configData.SERVICE_ACCOUNT_OAUTH2_AUDIENCE }}
+          - name: SERVICE_ACCOUNT_OAUTH2_AUDIENCE
+            value: {{ .Values.configData.SERVICE_ACCOUNT_OAUTH2_AUDIENCE }}
+          {{- end }}
+          {{- if .Values.configData.SERVICE_ACCOUNT_OAUTH2_SCOPE }}
+          - name: SERVICE_ACCOUNT_OAUTH2_SCOPE
+            value: {{ .Values.configData.SERVICE_ACCOUNT_OAUTH2_SCOPE }}
+          {{- end }}
+          {{- if .Values.configData.AUTHENTICATION_NAME }}
+          - name: AUTHENTICATION_NAME
+            value: {{ .Values.configData.AUTHENTICATION_NAME }}
+          - name: AUTHENTICATION_PROVIDER
+            value: {{ .Values.configData.AUTHENTICATION_PROVIDER }}
+          - name: AUTHENTICATION_PUBLIC_KEY_PATH
+            value: {{ .Values.configData.AUTHENTICATION_PUBLIC_KEY_PATH }}
+          {{- end }}
+          {{- if .Values.configData.SERVICE_ACCOUNT_NAME }}
+          - name: SERVICE_ACCOUNT_NAME
+            value: {{ .Values.configData.SERVICE_ACCOUNT_NAME }}
+          - name: SERVICE_ACCOUNT_PROVIDER
+            value: {{ .Values.configData.SERVICE_ACCOUNT_PROVIDER }}
+          {{- end }}
+          {{- if .Values.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
+          - name: BACKEND_DEFAULT_SUPER_USER_ROLE
+            value: {{ .Values.configData.BACKEND_DEFAULT_SUPER_USER_ROLE }}
+          {{- end }}
+          {{- if .Values.configData.AUTH_METHOD_NAME }}
+          - name: AUTH_METHOD_NAME
+            value: {{ .Values.configData.AUTH_METHOD_NAME }}
+          - name: AUTH_METHOD_PROVIDER
+            value: {{ .Values.configData.AUTH_METHOD_PROVIDER }}
+          - name: AUTH_METHOD_OIDC_PUBLIC_KEY_PATH
+            value: {{ .Values.configData.AUTH_METHOD_OIDC_PUBLIC_KEY_PATH }}
+          {{- end }}
+          {{- if .Values.configData.USERNAME_CLAIM }}
+          - name: USERNAME_CLAIM
+            value: {{ .Values.configData.USERNAME_CLAIM }}
+          {{- end }}
           {{- if .Values.login.pulsarJwt.enabled }}
           - name: AUTHENTICATION_NAME
             value: "pulsar-jwt"
@@ -185,7 +227,7 @@ spec:
             value: /pulsar-manager/keys/token/secret.key
           {{- end }}
           {{- end }}
-          {{- if or (eq .Values.login.vault.enabled true) (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) (eq .Values.login.pulsarJwt.enabled true) }}
+          {{- if or (eq .Values.login.vault.enabled true) (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) (eq .Values.login.pulsarJwt.enabled true) (eq .Values.login.oidc.enabled true) }}
           envFrom:
           {{- end }}
           {{- if .Values.login.vault.enabled }}
@@ -207,6 +249,10 @@ spec:
           {{- if .Values.login.pulsarJwt.enabled }}
           - secretRef:
               name: {{ .Values.login.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
+          {{- end }}
+          {{- if .Values.login.oidc.enabled }}
+          - secretRef:
+              name: {{ .Values.login.oidc.clientSecretRef }}
           {{- end }}
           
           ports:

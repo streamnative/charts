@@ -3,6 +3,7 @@
 #
 
 {{- if .Values.initialize }}
+{{- if not .Values.configData.DEFAULT_ENVIRONMENT_NAME }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -62,4 +63,5 @@ spec:
         - name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init-configmap"
           configMap:
             name: "{{ template "sn_console.fullname" . }}-{{ .Values.component }}-init-configmap"
+{{- end }}
 {{- end }}
