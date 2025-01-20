@@ -119,7 +119,7 @@ spec:
           - name: OKTA_DOMAIN
             value: {{ .Values.login.sso.okta.config.OKTA_DOMAIN }}
           {{- end }}
-          {{- if or (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) }}
+          {{- if or (eq .Values.login.sso.google.enabled true) (eq .Values.login.sso.azure.enabled true) (eq .Values.login.sso.okta.enabled true) (eq .Values.login.oidc.enabled true) }}
           - name: REDIRECT_SCHEME
             value: {{ .Values.configData.REDIRECT_SCHEME }}
           - name: REDIRECT_HOST
