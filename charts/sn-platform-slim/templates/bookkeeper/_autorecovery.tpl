@@ -13,7 +13,7 @@ ${HOSTNAME}.{{ template "pulsar.autorecovery.service" . }}.{{ template "pulsar.n
 {{- end -}}
 
 {{/*Define broker autorecovery name*/}}
-{{- define "pulsar.autorecovery.podName" -}}
+{{- define "pulsar.autorecovery.containerName" -}}
 {{- print "autorecovery" -}}
 {{- end -}}
 
@@ -21,11 +21,11 @@ ${HOSTNAME}.{{ template "pulsar.autorecovery.service" . }}.{{ template "pulsar.n
 {{- define  "pulsar.autorecovery.datadog.annotation" -}}
 {{- if .Values.datadog.components.autorecovery.enabled }}
 {{- if eq .Values.datadog.adVersion "v1" }}
-ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.autorecovery.containerName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.init_configs: |
-  [{}]
-ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.autorecovery.containerName" . }}.init_configs: |
+  {}
+ad.datadoghq.com/{{ template "pulsar.autorecovery.containerName" . }}.instances: |
   [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.autorecovery.ports.http }}/metrics",
@@ -44,10 +44,10 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.instances: |
   ]
 {{- end }}
 {{- if eq .Values.datadog.adVersion "v2" }}
-ad.datadoghq.com/{{ template "pulsar.autorecovery.podName" . }}.checks: |
+ad.datadoghq.com/{{ template "pulsar.autorecovery.containerName" . }}.checks: |
   {
     "openmetrics": {
-      "init_config": [{}],
+      "init_config": {},
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.autorecovery.ports.http }}/metrics",
