@@ -14,7 +14,7 @@ ${HOSTNAME}.{{ template "pulsar.autorecovery.service" . }}.{{ template "pulsar.n
 
 {{/*Define broker autorecovery name*/}}
 {{- define "pulsar.autorecovery.containerName" -}}
-{{- print "autorecovery" -}}
+{{- print "bookie-recovery" -}}
 {{- end -}}
 
 {{/*Define autorecovery datadog annotation*/}}
