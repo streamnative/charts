@@ -3626,6 +3626,22 @@ entries:
   sn-platform-slim:
   - apiVersion: v1
     appVersion: 3.0.0
+    created: "2025-01-30T13:42:00.569811011Z"
+    description: StreamNative Platform Slim Chart
+    digest: bd37b200885f1b171f641e6993db01f68f96b465ec9a6a9fbd0e97b7e2e5cf58
+    home: https://streamnative.io
+    icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-platform-slim
+    sources:
+    - https://github.com/streamnative/charts/tree/master/charts/sn-platform
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-platform-slim-1.11.14-rc.0/sn-platform-slim-1.11.14-rc.0.tgz
+    version: 1.11.14-rc.0
+  - apiVersion: v1
+    appVersion: 3.0.0
     created: "2025-01-20T18:26:41.025971098Z"
     description: StreamNative Platform Slim Chart
     digest: 4522d75a1cb8bd9398b1077175ab0de3a4877ad4abab0b8bb192b1b97055d515
@@ -4008,4 +4024,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/sn-platform-slim-1.10.0/sn-platform-slim-1.10.0.tgz
     version: 1.10.0
-generated: "2025-01-30T13:33:41.141908818Z"
+generated: "2025-01-30T13:42:00.572984432Z"
