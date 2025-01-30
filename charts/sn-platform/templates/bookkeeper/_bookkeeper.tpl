@@ -197,7 +197,7 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
 ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.checks: |
   {
     "openmetrics": {
-      "init_config": [{}],
+      "init_config": {},
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.bookkeeper.ports.http }}/metrics",

@@ -23,3 +23,6 @@ auth:
     enabled: false
   authorization:
     enabled: false
+proxy:
+  authenticateMetricsEndpoint:
+    enabled: false
