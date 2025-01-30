@@ -50,8 +50,8 @@ ad.datadoghq.com/vault.instances: |
 {{- if eq .Values.datadog.adVersion "v2" }}
 ad.datadoghq.com/vault.checks: |
   {
-    "openmetrics": {
-      "init_config": [{}],
+    "vault": {
+      "init_config": {},
       "instances": [
     {
       "api_url": "http://%%host%%:8200/v1",
