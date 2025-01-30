@@ -96,7 +96,7 @@ Define proxy log volumes
 {{- end }}
 
 {{/*Define proxy pod name*/}}
-{{- define "pulsar.proxy.podName" -}}
+{{- define "pulsar.proxy.containerName" -}}
 {{- print "pulsar-proxy" -}}
 {{- end -}}
 
@@ -106,11 +106,11 @@ Define proxy datadog annotation
 {{- define "pulsar.proxy.datadog.annotation" -}}
 {{- if .Values.datadog.components.proxy.enabled }}
 {{- if eq .Values.datadog.adVersion "v1" }}
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.check_names: |
+ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.check_names: |
   ["openmetrics"]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.init_configs: |
+ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.init_configs: |
   [{}]
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
+ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.instances: |
   [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
@@ -123,7 +123,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
       "enable_health_service_check": true,
       "timeout": 1000,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if eq .Values.auth.authentication.provider "jwt" and .Values.proxy.authenticateMetricsEndpoint.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
@@ -136,10 +136,10 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.instances: |
   ]
 {{- end }}
 {{- if eq .Values.datadog.adVersion "v2" }}
-ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.checks: |
+ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.checks: |
   {
     "openmetrics": {
-      "init_config": [{}],
+      "init_config": {},
       "instances": [
     {
       "openmetrics_endpoint": "http://%%host%%:{{ .Values.proxy.ports.http }}/metrics/",
@@ -152,7 +152,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.podName" . }}.checks: |
       "enable_health_service_check": true,
       "timeout": 1000,
 {{- if .Values.auth.authentication.enabled }}
-{{- if eq .Values.auth.authentication.provider "jwt" }}
+{{- if eq .Values.auth.authentication.provider "jwt" and .Values.proxy.authenticateMetricsEndpoint.enabled }}
       "extra_headers": {
           "Authorization": "Bearer %%env_PROXY_TOKEN%%"
       },
