@@ -203,7 +203,6 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
     }
   ]
 {{- end }}
-{{- end }}
 {{- if eq .Values.datadog.adVersion "v2" }}
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
   {
