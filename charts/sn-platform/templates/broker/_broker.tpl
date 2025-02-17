@@ -173,8 +173,13 @@ Define function worker config volume
 {{- define "pulsar.broker.datadog.annotation" -}}
 {{- if .Values.datadog.components.broker.enabled }}
 {{- if eq .Values.datadog.adVersion "v1" }}
+{{- if .Values.broker.kop.enabled }}
+ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.check_names: |
+  ["openmetrics", "kafka_consumer"]
+{{- else }}
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.check_names: |
   ["openmetrics"]
+{{- end }}
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.init_configs: |
   [{}]
 ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
@@ -187,6 +192,9 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.broker.metrics }},
+      {{- if .Values.broker.kop.enabled }}
+      "kafka_connect_str": {{ template "pulsar.broker.kop.service.url" .}}
+      {{- end }}
       "enable_health_service_check": true,
       "timeout": 1000,
       "tags": [
@@ -201,23 +209,31 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
     "openmetrics": {
       "init_config": {},
       "instances": [
-    {
-      "openmetrics_endpoint": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
-      {{ if .Values.datadog.namespace -}}
-      "namespace": "{{ .Values.datadog.namespace }}",
-      {{ else -}}
-      "namespace": "{{ template "pulsar.namespace" . }}",
-      {{ end -}}
-      "metrics": {{ .Values.datadog.components.broker.metrics }},
-      "enable_health_service_check": true,
-      "timeout": 1000,
-      "tags": [
-        "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+        {
+          "openmetrics_endpoint": "http://%%host%%:{{ .Values.broker.ports.http }}/metrics",
+          {{ if .Values.datadog.namespace -}}
+          "namespace": "{{ .Values.datadog.namespace }}",
+          {{ else -}}
+          "namespace": "{{ template "pulsar.namespace" . }}",
+          {{ end -}}
+          "metrics": {{ .Values.datadog.components.broker.metrics }},
+          "enable_health_service_check": true,
+          "timeout": 1000,
+          "tags": [
+            "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+          ]
+        }
       ]
     }
-  ]
+{{- if .Values.broker.kop.enabled }}
+    "kafka_consumer": {
+      "init_config": {},
+      "instances": [
+        {"kafka_connect_str": {{ template "pulsar.broker.kop.service.url" .}} }
+      ]
     }
   } 
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
