@@ -168,6 +168,8 @@ spec:
   certSecretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
   {{- end }}
   apiObjects:
+    pdb:
+      managed: {{ .Values.proxy.pdb.autoCreate }}
     {{- if .Values.tls.proxy.enabled }}
     statefulSet:
       volumeMounts:

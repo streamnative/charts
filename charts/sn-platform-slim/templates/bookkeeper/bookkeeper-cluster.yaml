@@ -246,6 +246,8 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
   apiObjects:
+    pdb:
+      managed: {{ .Values.bookkeeper.pdb.autoCreate }}
     clientService: {}
     headlessService:
       metadata:
