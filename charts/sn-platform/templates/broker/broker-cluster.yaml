@@ -342,7 +342,7 @@ spec:
       PULSAR_PREFIX_managedLedgerOffloadServiceEndpoint: "{{ .Values.broker.offload.azureblob.managedLedgerOffloadServiceEndpoint }}"
       {{- end}}
       {{- end }}
-  {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates .Values.broker.pdb.pdb.autoCreate }}
+  {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates .Values.broker.pdb.autoCreate }}
   apiObjects:
     pdb:
       managed: {{ .Values.broker.pdb.autoCreate }}
