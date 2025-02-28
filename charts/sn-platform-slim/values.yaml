@@ -608,6 +608,11 @@ zookeeper:
   #   labelSelector:
   #     matchLabels:
   #       "component": "zookeeper"
+  # Controls automatic generation of PodDisruptionBudget resources.
+  # When enabled (true), the sn-operator will auto-create PDBs with default constraints.
+  # Disable (false) if you need to manually manage PDBs for fine-grained control.
+  pdb:
+    autoCreate: true
   labels: {}
   annotations: {}
   advanced: {}
@@ -833,6 +838,11 @@ bookkeeper:
   # When there are multiple labels configured, all their values will be joined by "/".
   # The operator will propagate the label value from nodes to pods and ensure the pod container starts with the label values as environment variables automatically.
   rackAwareTopologyLabels: []
+  # Controls automatic generation of PodDisruptionBudget resources.
+  # When enabled (true), the sn-operator will auto-create PDBs with default constraints.
+  # Disable (false) if you need to manually manage PDBs for fine-grained control.
+  pdb:
+    autoCreate: true
   labels: {}
   annotations: {}
   securityContext:
@@ -1076,6 +1086,11 @@ broker:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   topologySpreadConstraints: []
+  # Controls automatic generation of PodDisruptionBudget resources.
+  # When enabled (true), the sn-operator will auto-create PDBs with default constraints.
+  # Disable (false) if you need to manually manage PDBs for fine-grained control.
+  pdb:
+    autoCreate: true
   labels: {}
   annotations: {}
   tolerations: []
@@ -1482,6 +1497,11 @@ proxy:
     # preferredDuringSchedulingIgnoredDuringExecution - scheduler will try to enforce but not guranentee
     type: preferredDuringSchedulingIgnoredDuringExecution
   topologySpreadConstraints: []
+  # Controls automatic generation of PodDisruptionBudget resources.
+  # When enabled (true), the sn-operator will auto-create PDBs with default constraints.
+  # Disable (false) if you need to manually manage PDBs for fine-grained control.
+  pdb:
+    autoCreate: true
   labels: {}
   annotations: {}
   securityContext:
