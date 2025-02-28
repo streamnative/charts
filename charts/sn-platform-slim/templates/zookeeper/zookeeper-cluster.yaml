@@ -204,8 +204,10 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
   apiObjects:
+    {{- if not .Values.zookeeper.pdb.autoCreate }}
     pdb:
       managed: {{ .Values.zookeeper.pdb.autoCreate }}
+    {{- end }}
     clientService: {}
     headlessService:
       metadata:

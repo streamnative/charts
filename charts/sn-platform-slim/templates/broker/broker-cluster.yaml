@@ -339,8 +339,10 @@ spec:
       {{- end }}
   {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates .Values.broker.pdb.autoCreate }}
   apiObjects:
+    {{- if not .Values.proxy.pdb.autoCreate }}
     pdb:
       managed: {{ .Values.broker.pdb.autoCreate }}
+    {{- end }}
     statefulSet:
 {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
       volumeMounts:
