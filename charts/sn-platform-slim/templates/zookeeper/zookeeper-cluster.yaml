@@ -204,10 +204,6 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
   apiObjects:
-    {{- if not .Values.zookeeper.pdb.autoCreate }}
-    pdb:
-      managed: {{ .Values.zookeeper.pdb.autoCreate }}
-    {{- end }}
     clientService: {}
     headlessService:
       metadata:
@@ -238,6 +234,9 @@ spec:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
     pdb:
+      {{- if not .Values.zookeeper.pdb.autoCreate }}
+      managed: {{ .Values.zookeeper.pdb.autoCreate }}
+      {{- end }}
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}"
   {{- if or .Values.zookeeper.reconfig.staticServerList .Values.zookeeper.advanced.customStartupCommand }}
