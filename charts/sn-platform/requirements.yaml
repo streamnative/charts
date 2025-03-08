@@ -3,8 +3,8 @@
 #
 
 dependencies:
-- name: loki-stack
-  version: 0.36.1
+- name: loki
+  version: 6.27.0
   repository: https://grafana.github.io/helm-charts
   condition: monitoring.loki
 #- name: superset
