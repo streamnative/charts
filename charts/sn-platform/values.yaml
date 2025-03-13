@@ -133,27 +133,27 @@ monitoring:
 images:
   coordinator:
     repository: streamnative/sn-platform-slim
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
   zookeeper:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
     customTools:
       backup:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.2.3.3"
+        tag: "3.3.3.3"
         pullPolicy: IfNotPresent
       restore:
         repository: "streamnative/pulsar-metadata-tool"
-        tag: "3.2.3.3"
+        tag: "3.3.3.3"
         pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   presto:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
     exporter:
       repository: bitnami/jmx-exporter
@@ -162,36 +162,36 @@ images:
   # NOTE: allow overriding the presto worker image
   # presto_worker:
   #   repository: streamnative/sn-platform
-  #   tag: 3.2.3.3
+  #   tag: 3.3.3.3
   #   pullPolicy: IfNotPresent
   autorecovery:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   broker:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   proxy:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   pulsar_detector:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   functions:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   function_worker:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   # NOTE: allow overriding the toolset image
   toolset:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
     kafka:
       repository: bitnami/kafka
@@ -251,7 +251,7 @@ images:
     pullPolicy: IfNotPresent
   pulsar_metadata:
     repository: streamnative/sn-platform
-    tag: "3.2.3.3"
+    tag: "3.3.3.3"
     pullPolicy: IfNotPresent
   configmapReload:
     repository: jimmidyson/configmap-reload
