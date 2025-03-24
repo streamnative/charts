@@ -240,10 +240,10 @@ Define function for get authenticaiton environment variable
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
 - name: brokerClientAuthenticationParameters
-  value: "file:///mnt/secrets/TOKEN"
+  value: "file:///mnt/token/TOKEN"
 {{- else }}
 - name: brokerClientAuthenticationParameters
-  value: "file:///mnt/secrets/TOKEN"
+  value: "file:///mnt/token/TOKEN"
 {{- end }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
 - name: tokenSecretKey
@@ -266,10 +266,10 @@ Define function for get authenticaiton secret
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
-- mountPath: /mnt/secrets
+- mountPath: /mnt/token
   secretName: {{ .Release.Name }}-token-proxy-admin
 {{- else }}
-- mountPath: /mnt/secrets
+- mountPath: /mnt/token
   secretName: {{ .Release.Name }}-token-admin
 {{- end }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
