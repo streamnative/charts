@@ -1217,6 +1217,10 @@ broker:
       sourceEnabled: true
       sinkEnabled: true
     builtinConnectorRepository:
+    # The resource type for builtinConnector. Supported values: ConfigMap and ConnectorCatalog
+    # For ConnectorCatalog builtinConnectorType, make sure you are running with the sn-operator: https://github.com/streamnative/private-cloud
+    # And has ConnectorCatalog CRD
+    builtinConnectorType: ConfigMap
     customWorkerConfig:
     runnerImages:
     labels:
