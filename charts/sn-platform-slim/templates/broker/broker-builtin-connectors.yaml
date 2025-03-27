@@ -1,0 +1,4005 @@
+apiVersion: k8s.streamnative.io/v1alpha1
+kind: ConnectorCatalog
+metadata:
+  name: builtin-connectors
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  connectorDefinitions:
+    - id: pulsar-io-data-generator
+      name: data-generator
+      description: Test data generator connector
+      sourceClass: org.apache.pulsar.io.datagenerator.DataGeneratorSource
+      sourceConfigClass: org.apache.pulsar.io.datagenerator.DataGeneratorSourceConfig
+      imageRepository: streamnative/pulsar-io-data-generator
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      typeClassName: org.apache.pulsar.io.datagenerator.Person
+      sourceConfigFieldDefinitions:
+        - fieldName: sleepBetweenMessages
+          typeName: number
+          attributes:
+            showName: 'Sleep Between Messages'
+            help: >-
+              How long to sleep between emitting messages
+            required: 'true'
+            defaultValue: '50'
+            sensitive: 'false'
+    - id: pulsar-io-kinesis
+      name: kinesis
+      description: AWS Kinesis connectors
+      sinkClass: org.apache.pulsar.io.kinesis.KinesisSink
+      sourceClass: org.apache.pulsar.io.kinesis.KinesisSource
+      sourceConfigClass: org.apache.pulsar.io.kinesis.KinesisSourceConfig
+      sinkConfigClass: org.apache.pulsar.io.kinesis.KinesisSinkConfig
+      imageRepository: streamnative/pulsar-io-kinesis
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      iconLink: https://docs.streamnative.io/images/connectors/aws-kinesis.png
+      sourceDocLink: https://docs.streamnative.io/hub/connector-kinesis-source-v4.0
+      sinkDocLink: https://docs.streamnative.io/hub/connector-kinesis-sink-v4.0
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an AWS Kinesis sink connector to external systems include: <br />
+              1. Create a Kinesis data stream in AWS. <br />
+              2. Create an [AWS User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) and an `AccessKey`(Please record the value of `AccessKey` and its `SecretKey`). <br />
+              3. Assign the following permissions to the AWS User: <br />
+              - [AmazonKinesisFullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonKinesisFullAccess.html) <br />
+              - [CloudWatch:PutMetricData](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_PutMetricData.html): it is required because AWS Kinesis producer will periodically [send metrics to CloudWatch](https://docs.aws.amazon.com/streams/latest/dev/monitoring-with-cloudwatch.html). <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: awsRegion
+          typeName: enum
+          attributes:
+            showName: 'Region'
+            help: >-
+              The AWS Kinesis [Region](https://www.aws-services.info/regions.html).
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+            value: >
+              ["us-east-2", "us-east-1", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", "ap-south-2", "ap-southeast-3",
+              "ap-southeast-4", "ap-south-1", "ap-northeast-3", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2",
+              "ap-northeast-1", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-south-1", "eu-west-3",
+              "eu-south-2", "eu-north-1", "eu-central-2", "il-central-1", "me-south-1", "me-central-1", "sa-east-1",
+              "us-gov-east-1", "us-gov-west-1"]
+        - fieldName: awsKinesisStreamName
+          typeName: string
+          attributes:
+            showName: 'Kinesis Stream Name'
+            help: >-
+              The Kinesis stream name.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsCredentialPluginParam
+          typeName: string
+          attributes:
+            showName: 'Credential Param'
+            help: >-
+              The aws credential param. It is in JSON format and contains `accessKey` and `secretKey` fields.  <br />
+              For example: `{"accessKey":"Your access key","secretKey":"Your secret key"}`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: messageFormat
+          typeName: enum
+          attributes:
+            showName: 'Message Format'
+            help: >-
+              Message format in which Kinesis sink converts Pulsar messages and publishes them to Kinesis streams.<br />
+              Available options include:<br />
+              - `ONLY_RAW_PAYLOAD`: Kinesis sink directly publishes Pulsar message payload as a message into the configured Kinesis stream. <br />
+              - `FULL_MESSAGE_IN_JSON`: Kinesis sink creates a JSON payload with Pulsar message payload, properties, and encryptionCtx, and publishes JSON payload into the configured Kinesis stream.<br />
+              - `FULL_MESSAGE_IN_FB`: Kinesis sink creates a flatbuffers serialized payload with Pulsar message payload, properties, and encryptionCtx, and publishes flatbuffers payload into the configured Kinesis stream. <br />
+              - `FULL_MESSAGE_IN_JSON_EXPAND_VALUE`: Kinesis sink sends a JSON structure containing the record topic name, key, payload, properties, and event time. The record schema is used to convert the value to JSON. <br />
+            required: 'false'
+            defaultValue: 'ONLY_RAW_PAYLOAD'
+            sensitive: 'false'
+            value: '["ONLY_RAW_PAYLOAD", "FULL_MESSAGE_IN_JSON", "FULL_MESSAGE_IN_FB", "FULL_MESSAGE_IN_JSON_EXPAND_VALUE"]'
+        - fieldName: jsonIncludeNonNulls
+          typeName: boolean
+          attributes:
+            showName: 'Include Non Nulls'
+            help: >-
+              Only the properties with non-null values are included when the message format is `FULL_MESSAGE_IN_JSON_EXPAND_VALUE`. 
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["messageFormat.FULL_MESSAGE_IN_JSON_EXPAND_VALUE"]'
+        - fieldName: jsonFlatten
+          typeName: boolean
+          attributes:
+            showName: 'Json Flatten'
+            help: >-
+              When it is set to `true` and the message format is `FULL_MESSAGE_IN_JSON_EXPAND_VALUE`, the output JSON is flattened.    
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["messageFormat.FULL_MESSAGE_IN_JSON_EXPAND_VALUE"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain Ordering'
+            help: >-
+              Whether Pulsar connectors retain the ordering when moving messages from Pulsar to Kinesis.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: retryInitialDelayInMillis
+          typeName: number
+          attributes:
+            showName: 'Retry Initial Delay'
+            help: >-
+              The initial delay (in milliseconds) between retries.
+            required: 'false'
+            defaultValue: '100'
+            sensitive: 'false'
+        - fieldName: retryMaxDelayInMillis
+          typeName: number
+          attributes:
+            showName: 'Retry Max Delay'
+            help: >-
+              The maximum delay(in milliseconds) between retries.
+            required: 'false'
+            defaultValue: '60000'
+            sensitive: 'false'
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an AWS Kinesis source connector to external systems include: <br />
+              1. Create a Kinesis data stream in AWS. <br />
+              2. Create an [AWS User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) and an `AccessKey`(Please record the value of `AccessKey` and its `SecretKey`). <br />
+              3. Assign the following permissions to the AWS User: <br />
+              - [AmazonKinesisFullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonKinesisFullAccess.html) <br />
+              - [CloudWatch:PutMetricData](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_PutMetricData.html): it is required because AWS Kinesis client will periodically [send metrics to CloudWatch](https://docs.aws.amazon.com/streams/latest/dev/monitoring-with-cloudwatch.html). <br />
+              - [AmazonDynamoDBFullAccess](https://docs.aws.amazon.com/aws-managed-policy/latest/reference/AmazonDynamoDBFullAccess.html): it is required because AWS Kinesis client will use [DynamoDB store checkpoint status](https://docs.aws.amazon.com/streams/latest/dev/shared-throughput-kcl-consumers.html#shared-throughput-kcl-consumers-what-is-leasetable). <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsRegion
+          typeName: enum
+          attributes:
+            showName: 'Region'
+            help: >-
+              The AWS Kinesis [Region](https://www.aws-services.info/regions.html).
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+            value: >
+              ["us-east-2", "us-east-1", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", "ap-south-2", "ap-southeast-3",
+              "ap-southeast-4", "ap-south-1", "ap-northeast-3", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2",
+              "ap-northeast-1", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-south-1", "eu-west-3",
+              "eu-south-2", "eu-north-1", "eu-central-2", "il-central-1", "me-south-1", "me-central-1", "sa-east-1",
+              "us-gov-east-1", "us-gov-west-1"]
+        - fieldName: awsKinesisStreamName
+          typeName: string
+          attributes:
+            showName: 'Kinesis Stream Name'
+            help: >-
+              The Kinesis stream name.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsCredentialPluginParam
+          typeName: string
+          attributes:
+            showName: 'Credential Param'
+            help: >-
+              The aws credential param. It is in JSON format and contains `accessKey` and `secretKey` fields.  <br />
+              For example: `{"accessKey":"Your access key","secretKey":"Your secret key"}`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: applicationName
+          typeName: string
+          attributes:
+            showName: 'Application Name'
+            help: >-
+              Name of the Amazon Kinesis application. By default the application name is included in the user agent string used to make AWS requests. <br />
+              This can assist with troubleshooting e.g. distinguish requests made by separate connectors instances. <br />
+              And which will be used as the table name for DynamoDB.
+            required: 'false'
+            defaultValue: 'pulsar-kinesis'
+            sensitive: 'false'
+        - fieldName: initialPositionInStream
+          typeName: enum
+          attributes:
+            showName: 'Initial Position In Stream'
+            help: >-
+              The position where the connector starts from. Below are the available options:<br />
+              - LATEST: start after the most recent data record. <br />
+              - TRIM_HORIZON: start from the oldest available data record.
+            required: 'false'
+            defaultValue: 'LATEST'
+            sensitive: 'false'
+            value: '["LATEST", "TRIM_HORIZON"]'
+        - fieldName: receiveQueueSize
+          typeName: number
+          attributes:
+            showName: 'Receive Queue Size'
+            help: >-
+              The maximum number of AWS records that can be buffered inside the connector. Once the `receiveQueueSize` is reached, the connector does not consume any messages from Kinesis until some messages in the queue are successfully consumed.
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+        - fieldName: checkpointInterval
+          typeName: number
+          attributes:
+            showName: 'Checkpoint Interval'
+            help: >-
+              The frequency of the Kinesis stream checkpoint in milliseconds.
+            required: 'false'
+            defaultValue: '60000'
+            sensitive: 'false'
+        - fieldName: backoffTime
+          typeName: number
+          attributes:
+            showName: 'Backoff Time'
+            help: >-
+              The amount of time to delay between requests when the connector encounters a throttling exception from AWS Kinesis in milliseconds.
+            required: 'false'
+            defaultValue: '3000'
+            sensitive: 'false'
+        - fieldName: numRetries
+          typeName: number
+          attributes:
+            showName: 'Num Retries'
+            help: >-
+              The number of re-attempts when the connector encounters an exception while trying to set a checkpoint.
+            required: 'false'
+            defaultValue: '3'
+            sensitive: 'false'
+    - id: pulsar-io-sqs
+      name: sqs
+      description: SQS connectors
+      imageRepository: streamnative/pulsar-io-sqs
+      sourceClass: org.apache.pulsar.ecosystem.io.sqs.SQSSource
+      sourceConfigClass: org.apache.pulsar.ecosystem.io.sqs.SQSConnectorConfig
+      sinkClass: org.apache.pulsar.ecosystem.io.sqs.SQSSink
+      sinkConfigClass: org.apache.pulsar.ecosystem.io.sqs.SQSConnectorConfig
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      iconLink: https://docs.streamnative.io/images/connectors/sqs-logo.png
+      sourceDocLink: https://docs.streamnative.io/hub/connector-sqs-source-v4.0
+      sinkDocLink: https://docs.streamnative.io/hub/connector-sqs-sink-v4.0
+      sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+      sourceTypeClassName: java.lang.String
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an AWS SQS sink connector to external systems include: <br />
+              1. Create SQS in AWS.  <br />
+              2. Create the [AWS User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) and create `AccessKey`(Please record `AccessKey` and `SecretAccessKey`).  <br />
+              3. Assign the following permissions to the AWS User:  <br />
+              - sqs:CreateQueue  <br />
+              - sqs:SendMessage  <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsRegion
+          typeName: enum
+          attributes:
+            showName: 'Region'
+            help: >-
+              The AWS SQS [Region](https://www.aws-services.info/regions.html).
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+            value: >
+              ["us-east-2", "us-east-1", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", "ap-south-2", "ap-southeast-3",
+              "ap-southeast-4", "ap-south-1", "ap-northeast-3", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2",
+              "ap-northeast-1", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-south-1", "eu-west-3",
+              "eu-south-2", "eu-north-1", "eu-central-2", "il-central-1", "me-south-1", "me-central-1", "sa-east-1",
+              "us-gov-east-1", "us-gov-west-1"]
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: queueName
+          typeName: string
+          attributes:
+            showName: 'Queue Name'
+            help: >-
+              The name of the SQS queue that messages should be read from or written to.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsCredentialPluginParam
+          typeName: string
+          attributes:
+            showName: 'Credential Param'
+            help: >-
+              The aws credential param. It is in JSON format and contains `accessKey` and `secretKey` fields.  <br />
+              For example: `{"accessKey":"Your access key","secretKey":"Your secret key"}`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              1. Create SQS in AWS. <br />
+              2. Create the [AWS User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) and create `AccessKey`(Please record `AccessKey` and `SecretAccessKey`). <br />
+              3. Assign the following permissions to the AWS User: <br />
+              - sqs:CreateQueue <br />
+              - sqs:DeleteMessage <br />
+              - sqs:ChangeMessageVisibility <br />
+              - sqs:GetQueueUrl <br />
+              - sqs:GetQueueAttributes <br />
+              - sqs:ReceiveMessage <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsRegion
+          typeName: enum
+          attributes:
+            showName: 'Region'
+            help: >-
+              The AWS SQS [Region](https://www.aws-services.info/regions.html).
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+            value: >
+              ["us-east-2", "us-east-1", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", "ap-south-2", "ap-southeast-3",
+              "ap-southeast-4", "ap-south-1", "ap-northeast-3", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2",
+              "ap-northeast-1", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-south-1", "eu-west-3",
+              "eu-south-2", "eu-north-1", "eu-central-2", "il-central-1", "me-south-1", "me-central-1", "sa-east-1",
+              "us-gov-east-1", "us-gov-west-1"]
+        - fieldName: queueName
+          typeName: string
+          attributes:
+            showName: 'Queue Name'
+            help: >-
+              The name of the SQS queue that messages should be read from or written to.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsCredentialPluginParam
+          typeName: string
+          attributes:
+            showName: 'Credential Param'
+            help: >-
+              The aws credential param. It is in JSON format and contains `accessKey` and `secretKey` fields.  <br />
+              For example: `{"accessKey":"Your access key","secretKey":"Your secret key"}`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: batchSizeOfOnceReceive
+          typeName: number
+          attributes:
+            showName: 'Batch Size Of Once Receive'
+            help: >-
+              The maximum number of messages that are pulled from SQS at one time. By default, it is set to 1. The value ranges from 1 to 10.
+            required: 'false'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: numberOfConsumers
+          typeName: number
+          attributes:
+            showName: 'Number Of Consumers'
+            help: >-
+              The expected numbers of consumers. You can scale consumers horizontally to achieve high throughput. By default, it is set to 1. The value ranges from 1 to 50.
+            required: 'false'
+            defaultValue: '1'
+            sensitive: 'false'
+    - id: pulsar-io-cloud-storage-s3
+      name: cloud-storage-s3
+      description: AWS S3 Sink connector
+      sinkClass: org.apache.pulsar.io.jcloud.sink.CloudStorageGenericRecordSink
+      sinkConfigClass: org.apache.pulsar.io.jcloud.sink.CloudStorageSinkConfig
+      imageRepository: streamnative/pulsar-io-cloud-storage
+      version: 4.0.4
+      imageTag: 4.0.4
+      typeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+      jarFullName: pulsar-io-cloud-storage-4.0.4.nar
+      iconLink: https://docs.streamnative.io/images/connectors/aws-s3-logo.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-aws-s3-sink-v4.0
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an AWS S3 sink connector to external systems include: <br />
+              1. Create S3 buckets in AWS. <br />
+              2. Create the [AWS User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) and create `AccessKey`(Please record `AccessKey` and `SecretAccessKey`). <br />
+              3. Assign permissions to AWS User, and ensure they have the following permissions to the AWS S3. <br />
+              
+              ```json <br />
+              
+              {
+              	"Version": "2012-10-17",
+              	"Statement": [
+              		{
+              			"Sid": "VisualEditor0",
+              			"Effect": "Allow",
+              			"Action": [
+              				"s3:PutObject",
+              				"s3:AbortMultipartUpload"
+              			],
+              			"Resource": "{Your bucket arn}/*"
+              		}
+              	]
+              }
+              
+              ```
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: provider
+          typeName: string
+          attributes:
+            showName: ''
+            required: 'true'
+            defaultValue: 's3v2'
+            sensitive: 'false'
+        - fieldName: accessKeyId
+          typeName: string
+          attributes:
+            showName: 'Access Key ID'
+            help: >-
+              The AWS access key ID. It requires permission to write objects.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: secretAccessKey
+          typeName: string
+          attributes:
+            showName: 'Secret Access Key'
+            help: >-
+              The AWS secret access key.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: bucket
+          typeName: string
+          attributes:
+            showName: 'Bucket'
+            help: >-
+              The AWS S3 bucket.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: region
+          typeName: enum
+          attributes:
+            showName: 'Region'
+            help: >-
+              The AWS S3 region.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+            value: >
+              ["us-east-2", "us-east-1", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", "ap-south-2", "ap-southeast-3",
+              "ap-southeast-4", "ap-south-1", "ap-northeast-3", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2",
+              "ap-northeast-1", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-south-1", "eu-west-3",
+              "eu-south-2", "eu-north-1", "eu-central-2", "il-central-1", "me-south-1", "me-central-1", "sa-east-1",
+              "us-gov-east-1", "us-gov-west-1"]
+        - fieldName: formatType
+          typeName: enum
+          attributes:
+            showName: 'Format Type'
+            help: >-
+              The data format type. Available options are json, avro, bytes, or parquet. By default, it is set to JSON.
+            required: 'true'
+            defaultValue: 'json'
+            sensitive: 'false'
+            value: '["json", "avro", "bytes", "parquet"]'
+        - fieldName: bytesFormatTypeSeparator
+          typeName: string
+          attributes:
+            showName: 'Bytes Format Type Separator'
+            help: >-
+              It is inserted between records for the `formatType` of `bytes`. By default, it is set to '0x10'. An input record that contains the line separator looks like multiple records in the output object.
+            required: 'true'
+            defaultValue: '0x10'
+            sensitive: 'false'
+            parent: '["formatType.bytes"]'
+        - fieldName: avroCodec
+          typeName: enum
+          attributes:
+            showName: 'Avro Codec'
+            help: >-
+              Compression codec used when formatType=`avro`. Available compression types are: none (no compression), deflate, bzip2, xz, zstandard, snappy.
+            required: 'true'
+            defaultValue: 'snappy'
+            sensitive: 'false'
+            value: '["none", "deflate", "bzip2", "xz", "zstandard", "snappy"]'
+            parent: '["formatType.avro"]'
+        - fieldName: parquetCodec
+          typeName: enum
+          attributes:
+            showName: 'Parquet Codec'
+            help: >-
+              Compression codec used when formatType=`parquet`. Available compression types are: none (no compression), snappy, gzip, lzo, brotli, lz4, zstd.
+            required: 'true'
+            defaultValue: 'gzip'
+            sensitive: 'false'
+            value: '["none", "snappy", "gzip", "lzo", "brotli", "lz4", "zstd"]'
+            parent: '["formatType.parquet"]'
+        - fieldName: jsonAllowNaN
+          typeName: boolean
+          attributes:
+            showName: 'Allow NaN'
+            help: >-
+              Recognize 'NaN', 'INF', '-INF' as legal floating number values when formatType=`json`. Since JSON specification does not allow such values this is a non-standard feature and disabled by default.
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json"]'
+        - fieldName: withMetadata
+          typeName: boolean
+          attributes:
+            showName: 'With Metadata'
+            help: >-
+              Save message attributes to metadata.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: useHumanReadableMessageId
+          typeName: boolean
+          attributes:
+            showName: 'Use Human Readable Message Id'
+            help: >-
+              Use a human-readable format string for messageId in message metadata. The messageId is in a format like ledgerId:entryId:partitionIndex:batchIndex. Otherwise, the messageId is a Hex-encoded string.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: useHumanReadableSchemaVersion
+          typeName: boolean
+          attributes:
+            showName: 'Use Human Readable Schema Version'
+            help: >-
+              Use a human-readable format string for schema version in message metadata. The human-readable schema version is an integer. Otherwise, the schema version is a Hex-encoded string.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: includeTopicToMetadata
+          typeName: boolean
+          attributes:
+            showName: 'Include Topic To Metadata'
+            help: >-
+              Include the topic name to the metadata.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: includePublishTimeToMetadata
+          typeName: boolean
+          attributes:
+            showName: 'Include Publish Time To Metadata'
+            help: >-
+              Include the message publish time to the metadata as a timestamp.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: partitionerType
+          typeName: enum
+          attributes:
+            showName: 'Partitioner Type'
+            help: >-
+              The partitioning type. It can be configured by topic partitions or by time. By default, the partition type is configured by topic partitions. 
+            required: 'false'
+            defaultValue: 'PARTITION'
+            sensitive: 'false'
+            value: '["PARTITION", "TIME"]'
+        - fieldName: timePartitionPattern
+          typeName: string
+          attributes:
+            showName: 'Time Partition Pattern'
+            help: >-
+              The format pattern of the time-based partitioning. For details, refer to the Java date and time format. For example: "yyyy-MM-dd"
+            required: 'true'
+            defaultValue: 'yyyy-MM-dd'
+            sensitive: 'false'
+            parent: '["partitionerType.TIME"]'
+        - fieldName: timePartitionDuration
+          typeName: string
+          attributes:
+            showName: 'Time Partition Duration'
+            help: >-
+              The time interval for time-based partitioning. Support formatted interval string, such as 30d, 24h, 30m, 10s, and also support number in milliseconds precision, such as 86400000 refers to 24h or 1d.
+            required: 'true'
+            defaultValue: '86400000'
+            sensitive: 'false'
+            parent: '["partitionerType.TIME"]'
+        - fieldName: partitionerUseIndexAsOffset
+          typeName: boolean
+          attributes:
+            showName: 'Partitioner Use Index As Offset'
+            help: >-
+              Whether to use the Pulsar's message index as offset or the record sequence. It's recommended if the incoming messages may be batched. The brokers may or not expose the index metadata and, if it's not present on the record, the sequence will be used. See [PIP-70](https://github.com/apache/pulsar/wiki/PIP-70%3A-Introduce-lightweight-broker-entry-metadata) for more details.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: sliceTopicPartitionPath
+          typeName: boolean
+          attributes:
+            showName: 'Slice Topic Partition Path'
+            help: >-
+              When it is set to true, split the partitioned topic name into separate folders in the bucket path.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: withTopicPartitionNumber
+          typeName: boolean
+          attributes:
+            showName: 'With Topic Partition Number'
+            help: >-
+              When it is set to true, include the topic partition number to the object path.
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: partitionerWithTopicName
+          typeName: boolean
+          attributes:
+            showName: 'With Topic Name In Path'
+            help: >-
+              Indicates whether to include the topic name in the file path. Default is true. If not included, the path like: `pathPrefix/24.45.0.json` 
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: pathPrefix
+          typeName: string
+          attributes:
+            showName: 'Path prefix'
+            help: >-
+              If it is set, the output files are stored in a folder under the given bucket path. The `pathPrefix` must be in the format of `xx/xxx/`.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: skipFailedMessages
+          typeName: boolean
+          attributes:
+            showName: 'Skip Failed Messages'
+            help: >-
+              Configure whether to skip a message which it fails to be processed. If it is set to `true`, the connector will skip the failed messages by `ack` it. Otherwise, the connector will fail the message.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: batchModel
+          typeName: enum
+          attributes:
+            showName: 'Batch Model'
+            help: >-
+              Determines how records are batched. Options: `BLEND`, `PARTITIONED`. The BLEND which combines all topic records into a single batch, optimizing for throughput, and PARTITIONED which batches records separately for each topic, 
+              maintaining topic-level separation. Note: When set to PARTITIONED, the connector will cache data up to the size of the number of subscribed topics multiplied by maxBatchBytes. This means you need to anticipate the connector's memory requirements in advance.
+            required: 'false'
+            defaultValue: 'BLEND'
+            sensitive: 'false'
+            value: '["BLEND", "PARTITIONED"]'
+        - fieldName: batchSize
+          typeName: number
+          attributes:
+            showName: 'Batch Size'
+            help: >-
+              The number of records submitted in batch.
+            required: 'false'
+            defaultValue: '10'
+            sensitive: 'false'
+        - fieldName: batchTimeMs
+          typeName: number
+          attributes:
+            showName: 'Batch Timeout'
+            help: >-
+              The interval for batch submission, measured in milliseconds.
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+        - fieldName: maxBatchBytes
+          typeName: number
+          attributes:
+            showName: 'Max Batch Bytes'
+            help: >-
+              The maximum number of bytes in a batch.
+            required: 'false'
+            defaultValue: '10000000'
+            sensitive: 'false'
+        - fieldName: pendingQueueSize
+          typeName: number
+          attributes:
+            showName: 'Pending Queue Size'
+            help: >-
+              The number of records buffered in queue. By default, it is equal to `batchSize`. You can set it manually.
+            required: 'false'
+            defaultValue: '10'
+            sensitive: 'false'
+    - id: pulsar-io-cloud-storage-gcloud
+      name: cloud-storage-gcloud
+      description: Google Cloud Storage Sink Connector
+      sinkClass: org.apache.pulsar.io.jcloud.sink.CloudStorageGenericRecordSink
+      sinkConfigClass: org.apache.pulsar.io.jcloud.sink.CloudStorageSinkConfig
+      imageRepository: streamnative/pulsar-io-cloud-storage
+      version: 4.0.4
+      imageTag: 4.0.4
+      typeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+      jarFullName: pulsar-io-cloud-storage-4.0.4.nar
+      iconLink: https://docs.streamnative.io/images/connectors/gcloud-storage-logo.svg
+      sinkDocLink: https://docs.streamnative.io/hub/connector-google-cloud-storage-sink-v4.0
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an Google Cloud Storage sink connector to external systems include: <br />
+              1. Create Cloud Storage buckets in Google Cloud. <br />
+              2. Create the [Google cloud ServiceAccount](https://cloud.google.com/iam/docs/service-accounts-create) and create a public key certificate. <br />
+              3. Create the [Google cloud Role](https://cloud.google.com/iam/docs/creating-custom-roles), ensure the Google Cloud role have the following permissions: <br />
+              - storage.buckets.get <br />
+              - storage.buckets.list <br />
+              - storage.objects.create <br />
+              4. Grant the `ServiceAccount` the above `Role`. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: provider
+          typeName: string
+          attributes:
+            showName: ''
+            required: 'true'
+            defaultValue: 'google-cloud-storage'
+            sensitive: 'false'
+        - fieldName: gcsServiceAccountKeyFileContent
+          typeName: string
+          attributes:
+            showName: 'Google Cloud Service Account Key File Content'
+            help: >-
+              The contents of the JSON service key certificate file.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: bucket
+          typeName: string
+          attributes:
+            showName: 'Bucket'
+            help: >-
+              The Cloud Storage bucket.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: formatType
+          typeName: enum
+          attributes:
+            showName: 'Format Type'
+            help: >-
+              The data format type. Available options are json, avro, bytes, or parquet. By default, it is set to JSON.
+            required: 'true'
+            defaultValue: 'json'
+            sensitive: 'false'
+            value: '["json", "avro", "bytes", "parquet"]'
+        - fieldName: bytesFormatTypeSeparator
+          typeName: string
+          attributes:
+            showName: 'Bytes Format Type Separator'
+            help: >-
+              It is inserted between records for the `formatType` of `bytes`. By default, it is set to '0x10'. An input record that contains the line separator looks like multiple records in the output object.
+            required: 'true'
+            defaultValue: '0x10'
+            sensitive: 'false'
+            parent: '["formatType.bytes"]'
+        - fieldName: avroCodec
+          typeName: enum
+          attributes:
+            showName: 'Avro Codec'
+            help: >-
+              Compression codec used when formatType=`avro`. Available compression types are: none (no compression), deflate, bzip2, xz, zstandard, snappy.
+            required: 'true'
+            defaultValue: 'snappy'
+            sensitive: 'false'
+            value: '["none", "deflate", "bzip2", "xz", "zstandard", "snappy"]'
+            parent: '["formatType.avro"]'
+        - fieldName: parquetCodec
+          typeName: enum
+          attributes:
+            showName: 'Parquet Codec'
+            help: >-
+              Compression codec used when formatType=`parquet`. Available compression types are: none (no compression), snappy, gzip, lzo, brotli, lz4, zstd.
+            required: 'true'
+            defaultValue: 'gzip'
+            sensitive: 'false'
+            value: '["none", "snappy", "gzip", "lzo", "brotli", "lz4", "zstd"]'
+            parent: '["formatType.parquet"]'
+        - fieldName: jsonAllowNaN
+          typeName: boolean
+          attributes:
+            showName: 'Allow NaN'
+            help: >-
+              Recognize 'NaN', 'INF', '-INF' as legal floating number values when formatType=`json`. Since JSON specification does not allow such values this is a non-standard feature and disabled by default.
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json"]'
+        - fieldName: withMetadata
+          typeName: boolean
+          attributes:
+            showName: 'With Metadata'
+            help: >-
+              Save message attributes to metadata.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: useHumanReadableMessageId
+          typeName: boolean
+          attributes:
+            showName: 'Use Human Readable Message Id'
+            help: >-
+              Use a human-readable format string for messageId in message metadata. The messageId is in a format like ledgerId:entryId:partitionIndex:batchIndex. Otherwise, the messageId is a Hex-encoded string.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: useHumanReadableSchemaVersion
+          typeName: boolean
+          attributes:
+            showName: 'Use Human Readable Schema Version'
+            help: >-
+              Use a human-readable format string for schema version in message metadata. The human-readable schema version is an integer. Otherwise, the schema version is a Hex-encoded string.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: includeTopicToMetadata
+          typeName: boolean
+          attributes:
+            showName: 'Include Topic To Metadata'
+            help: >-
+              Include the topic name to the metadata.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: includePublishTimeToMetadata
+          typeName: boolean
+          attributes:
+            showName: 'Include Publish Time To Metadata'
+            help: >-
+              Include the message publish time to the metadata as a timestamp.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: partitionerType
+          typeName: enum
+          attributes:
+            showName: 'Partitioner Type'
+            help: >-
+              The partitioning type. It can be configured by topic partitions or by time. By default, the partition type is configured by topic partitions. 
+            required: 'false'
+            defaultValue: 'PARTITION'
+            sensitive: 'false'
+            value: '["PARTITION", "TIME"]'
+        - fieldName: timePartitionDuration
+          typeName: string
+          attributes:
+            showName: 'Time Partition Duration'
+            help: >-
+              The time interval for time-based partitioning. Support formatted interval string, such as 30d, 24h, 30m, 10s, and also support number in milliseconds precision, such as 86400000 refers to 24h or 1d.
+            required: 'true'
+            defaultValue: '86400000'
+            sensitive: 'false'
+            parent: '["partitionerType.TIME"]'
+        - fieldName: partitionerUseIndexAsOffset
+          typeName: boolean
+          attributes:
+            showName: 'Partitioner Use Index As Offset'
+            help: >-
+              Whether to use the Pulsar's message index as offset or the record sequence. It's recommended if the incoming messages may be batched. The brokers may or not expose the index metadata and, if it's not present on the record, the sequence will be used. See [PIP-70](https://github.com/apache/pulsar/wiki/PIP-70%3A-Introduce-lightweight-broker-entry-metadata) for more details.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: sliceTopicPartitionPath
+          typeName: boolean
+          attributes:
+            showName: 'Slice Topic Partition Path'
+            help: >-
+              When it is set to true, split the partitioned topic name into separate folders in the bucket path.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: withTopicPartitionNumber
+          typeName: boolean
+          attributes:
+            showName: 'With Topic Partition Number'
+            help: >-
+              When it is set to true, include the topic partition number to the object path.
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: partitionerWithTopicName
+          typeName: boolean
+          attributes:
+            showName: 'With Topic Name In Path'
+            help: >-
+              Indicates whether to include the topic name in the file path. Default is true. If not included, the path like: `pathPrefix/24.45.0.json` 
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: pathPrefix
+          typeName: string
+          attributes:
+            showName: 'Path prefix'
+            help: >-
+              If it is set, the output files are stored in a folder under the given bucket path. The `pathPrefix` must be in the format of `xx/xxx/`.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: skipFailedMessages
+          typeName: boolean
+          attributes:
+            showName: 'Skip Failed Messages'
+            help: >-
+              Configure whether to skip a message which it fails to be processed. If it is set to `true`, the connector will skip the failed messages by `ack` it. Otherwise, the connector will fail the message.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: batchModel
+          typeName: enum
+          attributes:
+            showName: 'Batch Model'
+            help: >-
+              Determines how records are batched. Options: `BLEND`, `PARTITIONED`. The BLEND which combines all topic records into a single batch, optimizing for throughput, and PARTITIONED which batches records separately for each topic, 
+              maintaining topic-level separation. Note: When set to PARTITIONED, the connector will cache data up to the size of the number of subscribed topics multiplied by maxBatchBytes. This means you need to anticipate the connector's memory requirements in advance.
+            required: 'false'
+            defaultValue: 'BLEND'
+            sensitive: 'false'
+            value: '["BLEND", "PARTITIONED"]'
+        - fieldName: batchSize
+          typeName: number
+          attributes:
+            showName: 'Batch Size'
+            help: >-
+              The number of records submitted in batch.
+            required: 'false'
+            defaultValue: '10'
+            sensitive: 'false'
+        - fieldName: batchTimeMs
+          typeName: number
+          attributes:
+            showName: 'Batch Timeout'
+            help: >-
+              The interval for batch submission, measured in milliseconds.
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+        - fieldName: maxBatchBytes
+          typeName: number
+          attributes:
+            showName: 'Max Batch Bytes'
+            help: >-
+              The maximum number of bytes in a batch.
+            required: 'false'
+            defaultValue: '10000000'
+            sensitive: 'false'
+        - fieldName: pendingQueueSize
+          typeName: number
+          attributes:
+            showName: 'Pending Queue Size'
+            help: >-
+              The number of records buffered in queue. By default, it is equal to `batchSize`. You can set it manually.
+            required: 'false'
+            defaultValue: '10'
+            sensitive: 'false'
+    - id: pulsar-io-cloud-storage-azure-blob
+      name: cloud-storage-azure-blob
+      description: Azure Blob Storage Sink Connector
+      sinkClass: org.apache.pulsar.io.jcloud.sink.CloudStorageGenericRecordSink
+      sinkConfigClass: org.apache.pulsar.io.jcloud.sink.CloudStorageSinkConfig
+      imageRepository: streamnative/pulsar-io-cloud-storage
+      version: 4.0.4
+      imageTag: 4.0.4
+      typeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+      iconLink: https://docs.streamnative.io/images/connectors/azure-blob-storage-logo.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-azure-blob-storage-sink-v4.0
+      jarFullName: pulsar-io-cloud-storage-4.0.4.nar
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an Azure Blob Storage sink connector to external systems include: <br />
+              1. Create Blob Storage container in Azure Cloud. <br />
+              2. Get Storage account `Connection string`. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: provider
+          typeName: string
+          attributes:
+            showName: ''
+            required: 'true'
+            defaultValue: 'azure-blob-storage'
+            sensitive: 'false'
+        - fieldName: azureStorageAccountConnectionString
+          typeName: string
+          attributes:
+            showName: 'Azure Storage Account Connection String'
+            help: >-
+              The Azure Blob Storage connection string. 
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: bucket
+          typeName: string
+          attributes:
+            showName: 'Container Name'
+            help: >-
+              The Azure Blob Storage container name.    
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: formatType
+          typeName: enum
+          attributes:
+            showName: 'Format Type'
+            help: >-
+              The data format type. Available options are json, avro, bytes, or parquet. By default, it is set to JSON.
+            required: 'true'
+            defaultValue: 'json'
+            sensitive: 'false'
+            value: '["json", "avro", "bytes", "parquet"]'
+        - fieldName: bytesFormatTypeSeparator
+          typeName: string
+          attributes:
+            showName: 'Bytes Format Type Separator'
+            help: >-
+              It is inserted between records for the `formatType` of `bytes`. By default, it is set to '0x10'. An input record that contains the line separator looks like multiple records in the output object.
+            required: 'true'
+            defaultValue: '0x10'
+            sensitive: 'false'
+            parent: '["formatType.bytes"]'
+        - fieldName: avroCodec
+          typeName: enum
+          attributes:
+            showName: 'Avro Codec'
+            help: >-
+              Compression codec used when formatType=`avro`. Available compression types are: none (no compression), deflate, bzip2, xz, zstandard, snappy.
+            required: 'true'
+            defaultValue: 'snappy'
+            sensitive: 'false'
+            value: '["none", "deflate", "bzip2", "xz", "zstandard", "snappy"]'
+            parent: '["formatType.avro"]'
+        - fieldName: parquetCodec
+          typeName: enum
+          attributes:
+            showName: 'Parquet Codec'
+            help: >-
+              Compression codec used when formatType=`parquet`. Available compression types are: none (no compression), snappy, gzip, lzo, brotli, lz4, zstd.
+            required: 'true'
+            defaultValue: 'gzip'
+            sensitive: 'false'
+            value: '["none", "snappy", "gzip", "lzo", "brotli", "lz4", "zstd"]'
+            parent: '["formatType.parquet"]'
+        - fieldName: jsonAllowNaN
+          typeName: boolean
+          attributes:
+            showName: 'Allow NaN'
+            help: >-
+              Recognize 'NaN', 'INF', '-INF' as legal floating number values when formatType=`json`. Since JSON specification does not allow such values this is a non-standard feature and disabled by default.
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json"]'
+        - fieldName: withMetadata
+          typeName: boolean
+          attributes:
+            showName: 'With Metadata'
+            help: >-
+              Save message attributes to metadata.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: useHumanReadableMessageId
+          typeName: boolean
+          attributes:
+            showName: 'Use Human Readable Message Id'
+            help: >-
+              Use a human-readable format string for messageId in message metadata. The messageId is in a format like ledgerId:entryId:partitionIndex:batchIndex. Otherwise, the messageId is a Hex-encoded string.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: useHumanReadableSchemaVersion
+          typeName: boolean
+          attributes:
+            showName: 'Use Human Readable Schema Version'
+            help: >-
+              Use a human-readable format string for schema version in message metadata. The human-readable schema version is an integer. Otherwise, the schema version is a Hex-encoded string.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: includeTopicToMetadata
+          typeName: boolean
+          attributes:
+            showName: 'Include Topic To Metadata'
+            help: >-
+              Include the topic name to the metadata.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: includePublishTimeToMetadata
+          typeName: boolean
+          attributes:
+            showName: 'Include Publish Time To Metadata'
+            help: >-
+              Include the message publish time to the metadata as a timestamp.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["formatType.json", "formatType.avro", "formatType.parquet"]'
+        - fieldName: partitionerType
+          typeName: enum
+          attributes:
+            showName: 'Partitioner Type'
+            help: >-
+              The partitioning type. It can be configured by topic partitions or by time. By default, the partition type is configured by topic partitions. 
+            required: 'false'
+            defaultValue: 'PARTITION'
+            sensitive: 'false'
+            value: '["PARTITION", "TIME"]'
+        - fieldName: timePartitionPattern
+          typeName: string
+          attributes:
+            showName: 'Time Partition Pattern'
+            help: >-
+              The format pattern of the time-based partitioning. For details, refer to the Java date and time format. For example: "yyyy-MM-dd"
+            required: 'true'
+            defaultValue: 'yyyy-MM-dd'
+            sensitive: 'false'
+            parent: '["partitionerType.TIME"]'
+        - fieldName: timePartitionDuration
+          typeName: string
+          attributes:
+            showName: 'Time Partition Duration'
+            help: >-
+              The time interval for time-based partitioning. Support formatted interval string, such as 30d, 24h, 30m, 10s, and also support number in milliseconds precision, such as 86400000 refers to 24h or 1d.
+            required: 'true'
+            defaultValue: '86400000'
+            sensitive: 'false'
+            parent: '["partitionerType.TIME"]'
+        - fieldName: partitionerUseIndexAsOffset
+          typeName: boolean
+          attributes:
+            showName: 'Partitioner Use Index As Offset'
+            help: >-
+              Whether to use the Pulsar's message index as offset or the record sequence. It's recommended if the incoming messages may be batched. The brokers may or not expose the index metadata and, if it's not present on the record, the sequence will be used. See [PIP-70](https://github.com/apache/pulsar/wiki/PIP-70%3A-Introduce-lightweight-broker-entry-metadata) for more details.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: sliceTopicPartitionPath
+          typeName: boolean
+          attributes:
+            showName: 'Slice Topic Partition Path'
+            help: >-
+              When it is set to true, split the partitioned topic name into separate folders in the bucket path.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: withTopicPartitionNumber
+          typeName: boolean
+          attributes:
+            showName: 'With Topic Partition Number'
+            help: >-
+              When it is set to true, include the topic partition number to the object path.
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: partitionerWithTopicName
+          typeName: boolean
+          attributes:
+            showName: 'With Topic Name In Path'
+            help: >-
+              Indicates whether to include the topic name in the file path. Default is true. If not included, the path like: `pathPrefix/24.45.0.json` 
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: pathPrefix
+          typeName: string
+          attributes:
+            showName: 'Path prefix'
+            help: >-
+              If it is set, the output files are stored in a folder under the given bucket path. The `pathPrefix` must be in the format of `xx/xxx/`.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: skipFailedMessages
+          typeName: boolean
+          attributes:
+            showName: 'Skip Failed Messages'
+            help: >-
+              Configure whether to skip a message which it fails to be processed. If it is set to `true`, the connector will skip the failed messages by `ack` it. Otherwise, the connector will fail the message.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: batchModel
+          typeName: enum
+          attributes:
+            showName: 'Batch Model'
+            help: >-
+              Determines how records are batched. Options: `BLEND`, `PARTITIONED`. The BLEND which combines all topic records into a single batch, optimizing for throughput, and PARTITIONED which batches records separately for each topic, 
+              maintaining topic-level separation. Note: When set to PARTITIONED, the connector will cache data up to the size of the number of subscribed topics multiplied by maxBatchBytes. This means you need to anticipate the connector's memory requirements in advance.
+            required: 'false'
+            defaultValue: 'BLEND'
+            sensitive: 'false'
+            value: '["BLEND", "PARTITIONED"]'
+        - fieldName: batchSize
+          typeName: number
+          attributes:
+            showName: 'Batch Size'
+            help: >-
+              The number of records submitted in batch.
+            required: 'false'
+            defaultValue: '10'
+            sensitive: 'false'
+        - fieldName: batchTimeMs
+          typeName: number
+          attributes:
+            showName: 'Batch Timeout'
+            help: >-
+              The interval for batch submission, measured in milliseconds.
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+        - fieldName: maxBatchBytes
+          typeName: number
+          attributes:
+            showName: 'Max Batch Bytes'
+            help: >-
+              The maximum number of bytes in a batch.
+            required: 'false'
+            defaultValue: '10000000'
+            sensitive: 'false'
+        - fieldName: pendingQueueSize
+          typeName: number
+          attributes:
+            showName: 'Pending Queue Size'
+            help: >-
+              The number of records buffered in queue. By default, it is equal to `batchSize`. You can set it manually.
+            required: 'false'
+            defaultValue: '10'
+            sensitive: 'false'
+    - id: pulsar-io-amqp1_0
+      name: amqp1_0
+      description: AMQP1_0 connectors
+      sourceClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSource
+      sinkClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSink
+      sinkConfigClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSinkConfig
+      sourceConfigClass: org.apache.pulsar.ecosystem.io.amqp.AmqpSourceConfig
+      iconLink: https://docs.streamnative.io/images/connectors/amqp-logo.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-amqp-1-0-sink-v4.0
+      sourceDocLink: https://docs.streamnative.io/hub/connector-amqp-1-0-source-v4.0
+      imageRepository: streamnative/pulsar-io-amqp1_0
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      typeClassName: java.nio.ByteBuffer
+      defaultSchemaType: org.apache.pulsar.client.impl.schema.ByteBufferSchema
+      sinkConfigFieldDefinitions:
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: protocol
+          typeName: string
+          attributes:
+            showName: 'Protocol'
+            help: >-
+              Protocol for connecting AMQP services, For example: `amqp`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: host
+          typeName: string
+          attributes:
+            showName: 'Host'
+            help: >-
+              Host for connecting AMQP services, For example: `localhost`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: port
+          typeName: string
+          attributes:
+            showName: 'Port'
+            help: >-
+              Port for connecting AMQP services, For example: `5672`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: username
+          typeName: string
+          attributes:
+            showName: 'Username'
+            help: >-
+              Username required for authentication
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: password
+          typeName: string
+          attributes:
+            showName: 'Password'
+            help: >-
+              Password required for authentication
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: queue
+          typeName: string
+          attributes:
+            showName: 'Queue'
+            help: >-
+              The name of the queue to be connected
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: topic
+          typeName: string
+          attributes:
+            showName: 'Topic'
+            help: >-
+              The name of the topic to be connected
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: onlyTextMessage
+          typeName: boolean
+          attributes:
+            showName: 'onlyTextMessage'
+            help: >-
+              whether message is test format only.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+      sourceConfigFieldDefinitions:
+        - fieldName: protocol
+          typeName: string
+          attributes:
+            showName: 'Protocol'
+            help: >-
+              Protocol for connecting AMQP services, For example: `amqp`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: host
+          typeName: string
+          attributes:
+            showName: 'Host'
+            help: >-
+              Host for connecting AMQP services, For example: `localhost`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: port
+          typeName: string
+          attributes:
+            showName: 'Port'
+            help: >-
+              Port for connecting AMQP services, For example: `5672`
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: username
+          typeName: string
+          attributes:
+            showName: 'Username'
+            help: >-
+              Username required for authentication
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: password
+          typeName: string
+          attributes:
+            showName: 'Password'
+            help: >-
+              Password required for authentication
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: queue
+          typeName: string
+          attributes:
+            showName: 'Queue'
+            help: >-
+              The name of the queue to be connected
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+    - id: pulsar-io-debezium-mysql
+      name: debezium-mysql
+      description: Debezium MySql Source
+      sourceClass: org.apache.pulsar.io.debezium.mysql.DebeziumMysqlSource
+      imageRepository: streamnative/pulsar-io-debezium-mysql
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      iconLink: https://docs.streamnative.io/images/connectors/debezium.jpg
+      sourceDocLink: https://docs.streamnative.io/hub/connector-debezium-MySQL-source-v4.0
+      typeClassName: org.apache.pulsar.common.schema.KeyValue
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Debezium MySQL source connector to external systems include: <br />
+              1. Create a MySQL service: This connector uses the debezium v1.9, Please refer to this [document](https://debezium.io/releases/1.9/) to see the compatible MySQL versions. <br />
+              2. Prepare MySQL Database: Please refer to this [document](https://debezium.io/documentation/reference/1.9/connectors/mysql.html#setting-up-mysql) to complete the prepare steps on MySQL. <br />
+              **Tips**: If you are using AWS MySQL service, you need to use the [params group](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html) to set the [binlog_format](https://debezium.io/documentation/reference/1.9/connectors/mysql.html#enable-mysql-binlog) to `ROW`. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.hostname
+          typeName: string
+          attributes:
+            showName: 'DataBase Hostname'
+            help: >-
+              The address of a database server.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.port
+          typeName: number
+          attributes:
+            showName: 'DataBase Port'
+            help: >-
+              The port number of a database server. 
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.user
+          typeName: string
+          attributes:
+            showName: 'DataBase User'
+            help: >-
+              The name of a database user that has the required privileges.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: database.password
+          typeName: string
+          attributes:
+            showName: 'DataBase Password'
+            help: >-
+              The password for a database user that has the required privileges.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: database.dbname
+          typeName: string
+          attributes:
+            showName: 'DataBase DB Name'
+            help: >-
+              The database.dbname parameter in Debezium configuration is used to specify the name of the specific database that the connector should connect to.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.server.name
+          typeName: string
+          attributes:
+            showName: 'Database Server Name'
+            help: >-
+              The logical name of a database server/cluster, which forms a namespace and it is used in all the names of Pulsar topics to which the connector writes, the Pulsar Connect schema names, and the namespaces of the corresponding Avro schema when the Avro Connector is used.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.server.id
+          typeName: string
+          attributes:
+            showName: 'Database Server ID'
+            help: >-
+              The connector’s identifier that must be unique within a database cluster and similar to the database’s server-id configuration property. 
+            required: 'true'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: table.whitelist
+          typeName: string
+          attributes:
+            showName: 'White Table List'
+            help: >-
+              A list of all databases hosted by this server which is monitored by the connector. By default, all tables are listened <br />
+              You can configure multiple tables by separating them with commas, and the connector will send data from each table to a different topic of pulsar, and the topic naming role is: {Database Server Name}.{White Table List}. <br />
+              For examples: If `Database Server Name = mydbserver` and  `White Table List = public.io-test`, then will sent data to topic: "public/default/mydbserver.public.io-test"
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: key.converter
+          typeName: string
+          attributes:
+            showName: 'Key Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record key.  <br />
+              - `org.apache.kafka.connect.json.JsonConverter` <br />
+              - `org.apache.pulsar.kafka.shade.io.confluent.connect.avro.AvroConverter`
+            required: 'false'
+            defaultValue: 'org.apache.kafka.connect.json.JsonConverter'
+            sensitive: 'false'
+        - fieldName: value.converter
+          typeName: string
+          attributes:
+            showName: 'Value Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record value. <br />
+              - `org.apache.kafka.connect.json.JsonConverter` <br />
+              - `org.apache.pulsar.kafka.shade.io.confluent.connect.avro.AvroConverter`
+            required: 'false'
+            defaultValue: 'org.apache.kafka.connect.json.JsonConverter'
+            sensitive: 'false'
+        - fieldName: json-with-envelope
+          typeName: boolean
+          attributes:
+            showName: 'Json With Envelope'
+            help: >-
+              The`json-with-envelope` config is valid only for the JsonConverter. By default, the value is set to false. When the `json-with-envelope` value is set to false, the consumer uses the schema `Schema.KeyValue(Schema.AUTO_CONSUME(), Schema.AUTO_CONSUME(), KeyValueEncodingType.SEPARATED)`, and the message only consists of the payload.
+              When the `json-with-envelope` value is set to true, the consumer uses the schema `Schema.KeyValue(Schema.BYTES, Schema.BYTES)`, and the message consists of the schema and the payload.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: offset.storage.topic
+          typeName: string
+          attributes:
+            showName: 'Offset Storage Topic'
+            help: >-
+              Record the last committed offsets that the connector successfully completes. By default, it's `topicNamespace + "/" + sourceName + "-debezium-offset-topic"`. eg. `persistent://public/default/debezium-mysql-source-debezium-offset-topic`
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+    - id: pulsar-io-debezium-postgres
+      name: debezium-postgres
+      description: Debezium Postgres Source
+      sourceClass: org.apache.pulsar.io.debezium.postgres.DebeziumPostgresSource
+      imageRepository: streamnative/pulsar-io-debezium-postgres
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      iconLink: https://docs.streamnative.io/images/connectors/debezium.jpg
+      sourceDocLink: https://docs.streamnative.io/hub/connector-debezium-postgres-source-v4.0
+      typeClassName: org.apache.pulsar.common.schema.KeyValue
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Debezium Postgres source connector to external systems include: <br />
+              1. Create a Postgres service: This connector uses the debezium v1.9, Please refer to this [document](https://debezium.io/releases/1.9/) to see the compatible PostgreSQL versions. <br />
+              2. Prepare Postgres Database: Please refer to this [document](https://debezium.io/documentation/reference/1.9/connectors/postgresql.html#setting-up-postgresql) to complete the prepare steps on Postgres. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.hostname
+          typeName: string
+          attributes:
+            showName: 'DataBase Hostname'
+            help: >-
+              The address of a database server.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.port
+          typeName: number
+          attributes:
+            showName: 'DataBase Port'
+            help: >-
+              The port number of a database server. 
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.user
+          typeName: string
+          attributes:
+            showName: 'DataBase User'
+            help: >-
+              The name of a database user that has the required privileges.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: database.password
+          typeName: string
+          attributes:
+            showName: 'DataBase Password'
+            help: >-
+              The password for a database user that has the required privileges.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: database.dbname
+          typeName: string
+          attributes:
+            showName: 'DataBase DB Name'
+            help: >-
+              The database.dbname parameter in Debezium configuration is used to specify the name of the specific database that the connector should connect to.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.server.name
+          typeName: string
+          attributes:
+            showName: 'Database Server Name'
+            help: >-
+              The logical name of a database server/cluster, which forms a namespace and it is used in all the names of Pulsar topics to which the connector writes, the Pulsar Connect schema names, and the namespaces of the corresponding Avro schema when the Avro Connector is used.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.server.id
+          typeName: string
+          attributes:
+            showName: 'Database Server ID'
+            help: >-
+              The connector’s identifier that must be unique within a database cluster and similar to the database’s server-id configuration property. 
+            required: 'true'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: plugin.name
+          typeName: enum
+          attributes:
+            showName: 'Plugin Name'
+            help: >-
+              The plugin.name parameter in Debezium configuration is used to specify the logical decoding output plugin installed on the PostgreSQL server that the connector should use: `decoderbufs`, `wal2json`, `pgoutput` 
+            required: 'true'
+            defaultValue: 'pgoutput'
+            sensitive: 'false'
+            value: '["pgoutput", "decoderbufs", "wal2json"]'
+        - fieldName: table.whitelist
+          typeName: string
+          attributes:
+            showName: 'White Table List'
+            help: >-
+              A list of all databases hosted by this server which is monitored by the connector. By default, all tables are listened <br />
+              You can configure multiple tables by separating them with commas, and the connector will send data from each table to a different topic of pulsar, and the topic naming role is: {Database Server Name}.{White Table List}. <br />
+              For examples: If `Database Server Name = mydbserver` and  `White Table List = public.io-test`, then will sent data to topic: "public/default/mydbserver.public.io-test"
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: key.converter
+          typeName: string
+          attributes:
+            showName: 'Key Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record key.  <br />
+              - `org.apache.kafka.connect.json.JsonConverter` <br />
+              - `org.apache.pulsar.kafka.shade.io.confluent.connect.avro.AvroConverter`
+            required: 'false'
+            defaultValue: 'org.apache.kafka.connect.json.JsonConverter'
+            sensitive: 'false'
+        - fieldName: value.converter
+          typeName: string
+          attributes:
+            showName: 'Value Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record value. <br />
+              - `org.apache.kafka.connect.json.JsonConverter` <br />
+              - `org.apache.pulsar.kafka.shade.io.confluent.connect.avro.AvroConverter`
+            required: 'false'
+            defaultValue: 'org.apache.kafka.connect.json.JsonConverter'
+            sensitive: 'false'
+        - fieldName: json-with-envelope
+          typeName: boolean
+          attributes:
+            showName: 'Json With Envelope'
+            help: >-
+              The`json-with-envelope` config is valid only for the JsonConverter. By default, the value is set to false. When the `json-with-envelope` value is set to false, the consumer uses the schema `Schema.KeyValue(Schema.AUTO_CONSUME(), Schema.AUTO_CONSUME(), KeyValueEncodingType.SEPARATED)`, and the message only consists of the payload.
+              When the `json-with-envelope` value is set to true, the consumer uses the schema `Schema.KeyValue(Schema.BYTES, Schema.BYTES)`, and the message consists of the schema and the payload.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: offset.storage.topic
+          typeName: string
+          attributes:
+            showName: 'Offset Storage Topic'
+            help: >-
+              Record the last committed offsets that the connector successfully completes. By default, it's `topicNamespace + "/" + sourceName + "-debezium-offset-topic"`. eg. `persistent://public/default/debezium-postgres-source-debezium-offset-topic`
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+    - id: pulsar-io-debezium-mongodb
+      name: debezium-mongodb
+      description: Debezium MongoDb Source
+      sourceClass: org.apache.pulsar.io.debezium.mongodb.DebeziumMongoDbSource
+      imageRepository: streamnative/pulsar-io-debezium-mongodb
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      typeClassName: org.apache.pulsar.common.schema.KeyValue
+      iconLink: https://docs.streamnative.io/images/connectors/debezium.jpg
+      sourceDocLink: https://docs.streamnative.io/hub/connector-debezium-mongodb-source-v4.0
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Debezium MongoDB source connector to external systems include: <br />
+              1. Create a MongoDB service: This connector uses the debezium v1.9, Please refer to this [document](https://debezium.io/releases/1.9/) to see the compatible MongoDB versions. <br />
+              2. Prepare MongoDB Database: Please refer to this [document](https://debezium.io/documentation/reference/1.9/connectors/mongodb.html#setting-up-mongodb) to complete the prepare steps on MongoDB. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: mongodb.hosts
+          typeName: string
+          attributes:
+            showName: 'Mongodb Hosts'
+            help: >-
+              The comma-separated list of hostname and port pairs (in the form 'host' or 'host:port') of the MongoDB servers in the replica set. The list contains a single hostname and a port pair. If mongodb.members.auto.discover is set to false, the host and port pair are prefixed with the replica set name (e.g., rs0/localhost:27017).
+            required: 'true'
+            sensitive: 'false'
+        - fieldName: mongodb.name
+          typeName: string
+          attributes:
+            showName: 'Mongodb Name'
+            help: >-
+              A unique name that identifies the connector and/or MongoDB replica set or shared cluster that this connector monitors. Each server should be monitored by at most one Debezium connector, since this server name prefixes all persisted topics emanating from the MongoDB replica set or cluster.
+            required: 'true'
+            sensitive: 'false'
+        - fieldName: mongodb.user
+          typeName: string
+          attributes:
+            showName: 'Mongodb User'
+            help: >-
+              Name of the database user to be used when connecting to MongoDB.
+            required: 'true'
+            sensitive: 'true'
+        - fieldName: mongodb.password
+          typeName: string
+          attributes:
+            showName: 'Mongodb Password'
+            help: >-
+              Password to be used when connecting to MongoDB.
+            required: 'true'
+            sensitive: 'true'
+        - fieldName: mongodb.task.id
+          typeName: string
+          attributes:
+            showName: 'Mongodb Task Id'
+            help: >-
+              The taskId of the MongoDB connector that attempts to use a separate task for each replica set.
+            required: 'true'
+            sensitive: 'false'
+        - fieldName: database.whitelist
+          typeName: string
+          attributes:
+            showName: 'Database Whitelist'
+            help: >-
+              A list of all databases hosted by this server which is monitored by the  connector. By default, all databases are monitored.
+            required: 'false'
+            sensitive: 'false'
+        - fieldName: key.converter
+          typeName: string
+          attributes:
+            showName: 'Key Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record key.
+            required: 'false'
+            sensitive: 'false'
+        - fieldName: value.converter
+          typeName: string
+          attributes:
+            showName: 'Value Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record value.
+            required: 'false'
+            sensitive: 'false'
+        - fieldName: offset.storage.topic
+          typeName: string
+          attributes:
+            showName: 'Offset Storage Topic'
+            help: >-
+              Record the last committed offsets that the connector successfully completes. By default, it's `topicNamespace + "/" + sourceName + "-debezium-offset-topic"`. eg. `persistent://public/default/debezium-mongodb-source-debezium-offset-topic`
+            required: 'false'
+            sensitive: 'false'
+        - fieldName: json-with-envelope
+          typeName: boolean
+          attributes:
+            showName: 'Json With Envelope'
+            help: >-
+              The`json-with-envelope` config is valid only for the JsonConverter. By default, the value is set to false. When the `json-with-envelope` value is set to false, the consumer uses the schema `Schema.KeyValue(Schema.AUTO_CONSUME(), Schema.AUTO_CONSUME(), KeyValueEncodingType.SEPARATED)`, and the message only consists of the payload. When the `json-with-envelope` value is set to true, the consumer uses the schema `Schema.KeyValue(Schema.BYTES, Schema.BYTES)`, and the message consists of the schema and the payload.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+    - id: pulsar-io-debezium-mssql
+      name: debezium-mssql
+      description: Debezium Microsoft SQL Server Source
+      sourceClass: org.apache.pulsar.io.debezium.mssql.DebeziumMsSqlSource
+      imageRepository: streamnative/pulsar-io-debezium-mssql
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      typeClassName: org.apache.pulsar.common.schema.KeyValue
+      iconLink: https://docs.streamnative.io/images/connectors/debezium.jpg
+      sourceDocLink: https://docs.streamnative.io/hub/connector-debezium-mssql-source-v4.0
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Debezium MSSQL source connector to external systems include: <br />
+              1. Create a MSSQL service: This connector uses the debezium v1.9, Please refer to this [document](https://debezium.io/releases/1.9/) to see the compatible SQL Server versions. <br />
+              2. Prepare SQL Server: Please refer to this [document](https://debezium.io/documentation/reference/1.9/connectors/sqlserver.html) to complete the prepare steps. <br />
+              3. Enable CDC for SQL Server: Please refer to this [document](https://learn.microsoft.com/en-us/sql/relational-databases/track-changes/enable-and-disable-change-data-capture-sql-server?view=sql-server-ver15) <br />
+              4. Enable SQL Server Agent: Please refer to this [document](https://learn.microsoft.com/en-us/sql/ssms/agent/start-stop-or-pause-the-sql-server-agent-service?view=sql-server-ver16) <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.hostname
+          typeName: string
+          attributes:
+            showName: 'DataBase Hostname'
+            help: >-
+              The address of a database server.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.port
+          typeName: number
+          attributes:
+            showName: 'DataBase Port'
+            help: >-
+              The port number of a database server. 
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.user
+          typeName: string
+          attributes:
+            showName: 'DataBase User'
+            help: >-
+              The name of a database user that has the required privileges.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: database.password
+          typeName: string
+          attributes:
+            showName: 'DataBase Password'
+            help: >-
+              The password for a database user that has the required privileges.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: database.dbname
+          typeName: string
+          attributes:
+            showName: 'DataBase DB Name'
+            help: >-
+              The database.dbname parameter in Debezium configuration is used to specify the name of the specific database that the connector should connect to.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.server.name
+          typeName: string
+          attributes:
+            showName: 'Database Server Name'
+            help: >-
+              The logical name of a database server/cluster, which forms a namespace and it is used in all the names of Pulsar topics to which the connector writes, the Pulsar Connect schema names, and the namespaces of the corresponding Avro schema when the Avro Connector is used.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database.server.id
+          typeName: string
+          attributes:
+            showName: 'Database Server ID'
+            help: >-
+              The connector’s identifier that must be unique within a database cluster and similar to the database’s server-id configuration property. 
+            required: 'true'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: table.whitelist
+          typeName: string
+          attributes:
+            showName: 'White Table List'
+            help: >-
+              A list of all databases hosted by this server which is monitored by the connector. By default, all tables are listened <br />
+              You can configure multiple tables by separating them with commas, and the connector will send data from each table to a different topic of pulsar, and the topic naming role is: {Database Server Name}.{White Table List}. <br />
+              For examples: If `Database Server Name = mydbserver` and  `White Table List = public.io-test`, then will sent data to topic: "public/default/mydbserver.public.io-test"
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: key.converter
+          typeName: string
+          attributes:
+            showName: 'Key Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record key.  <br />
+              - `org.apache.kafka.connect.json.JsonConverter` <br />
+              - `org.apache.pulsar.kafka.shade.io.confluent.connect.avro.AvroConverter`
+            required: 'false'
+            defaultValue: 'org.apache.kafka.connect.json.JsonConverter'
+            sensitive: 'false'
+        - fieldName: value.converter
+          typeName: string
+          attributes:
+            showName: 'Value Converter'
+            help: >-
+              The converter provided by Kafka Connect to convert record value. <br />
+              - `org.apache.kafka.connect.json.JsonConverter` <br />
+              - `org.apache.pulsar.kafka.shade.io.confluent.connect.avro.AvroConverter`
+            required: 'false'
+            defaultValue: 'org.apache.kafka.connect.json.JsonConverter'
+            sensitive: 'false'
+        - fieldName: json-with-envelope
+          typeName: boolean
+          attributes:
+            showName: 'Json With Envelope'
+            help: >-
+              The`json-with-envelope` config is valid only for the JsonConverter. By default, the value is set to false. When the `json-with-envelope` value is set to false, the consumer uses the schema `Schema.KeyValue(Schema.AUTO_CONSUME(), Schema.AUTO_CONSUME(), KeyValueEncodingType.SEPARATED)`, and the message only consists of the payload.
+              When the `json-with-envelope` value is set to true, the consumer uses the schema `Schema.KeyValue(Schema.BYTES, Schema.BYTES)`, and the message consists of the schema and the payload.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: offset.storage.topic
+          typeName: string
+          attributes:
+            showName: 'Offset Storage Topic'
+            help: >-
+              Record the last committed offsets that the connector successfully completes. By default, it's `topicNamespace + "/" + sourceName + "-debezium-offset-topic"`. eg. `persistent://public/default/debezium-mysql-source-debezium-offset-topic`
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+    - id: pulsar-io-kafka
+      name: kafka
+      description: Kafka Connector
+      sourceClass: org.apache.pulsar.io.kafka.KafkaBytesSource
+      imageRepository: streamnative/pulsar-io-kafka
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      sinkClass: org.apache.pulsar.io.kafka.KafkaBytesSink
+      sinkConfigClass: org.apache.pulsar.io.kafka.KafkaSinkConfig
+      sourceTypeClassName: java.nio.ByteBuffer
+      sourceConfigClass: org.apache.pulsar.io.kafka.KafkaSourceConfig
+      iconLink: https://docs.streamnative.io/images/connectors/kafka-logo.png
+      sourceDocLink: https://docs.streamnative.io/hub/connector-kafka-source-v4.0
+      sinkDocLink: https://docs.streamnative.io/hub/connector-kafka-sink-v4.0
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an Kafka source connector to external systems include: <br />
+              Apache Kafka: Ensure you have a running Kafka instance. You can follow the official Kafka [Quickstart guide](https://kafka.apache.org/quickstart) to set up a Kafka instance if you don't have one already. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: bootstrapServers
+          typeName: string
+          attributes:
+            showName: 'Bootstrap Servers'
+            help: >-
+              A comma-separated list of host and port pairs that are the addresses of the Kafka brokers that a Kafka client connects to initially bootstrap itself.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: topic
+          typeName: string
+          attributes:
+            showName: 'Topic'
+            help: >-
+              The Kafka topic that is used for Pulsar moving messages to.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: securityProtocol
+          typeName: string
+          attributes:
+            showName: 'Security Protocol'
+            help: >-
+              Protocol used to communicate with Kafka brokers.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: saslMechanism
+          typeName: string
+          attributes:
+            showName: 'SASL Mechanism'
+            help: >-
+              SASL mechanism used for Kafka client connections.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: saslJaasConfig
+          typeName: string
+          attributes:
+            showName: 'SASL JAAS Config'
+            help: >-
+              JAAS login context parameters for SASL connections in the format used by JAAS configuration files.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sslEnabledProtocols
+          typeName: string
+          attributes:
+            showName: 'SSL Enabled Protocols'
+            help: >-
+              The list of protocols enabled for SSL connections.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sslEndpointIdentificationAlgorithm
+          typeName: string
+          attributes:
+            showName: 'SSL Endpoint Identification Algorithm'
+            help: >-
+              The endpoint identification algorithm to validate server hostname using server certificate.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: groupId
+          typeName: string
+          attributes:
+            showName: 'Group ID'
+            help: >-
+              A string that uniquely identifies the group of consumer processes to which this consumer belongs.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: fetchMinBytes
+          typeName: number
+          attributes:
+            showName: 'Fetch Min Bytes'
+            help: >-
+              The minimum amount of data the server should return for a fetch request.
+            required: 'false'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: autoCommitEnabled
+          typeName: enum
+          attributes:
+            showName: 'Auto Commit Enabled'
+            help: >-
+              If true the consumer's offset will be periodically committed in the background.
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+            value: '["true","false"]'
+        - fieldName: autoCommitIntervalMs
+          typeName: number
+          attributes:
+            showName: 'Auto Commit Interval Ms'
+            help: >-
+              The frequency in milliseconds that the consumer offsets are auto-committed to Kafka.
+            required: 'false'
+            defaultValue: '5000'
+            sensitive: 'false'
+            parent: '["autoCommitEnabled.true"]'
+        - fieldName: sessionTimeoutMs
+          typeName: number
+          attributes:
+            showName: 'Session Timeout Ms'
+            help: >-
+              The timeout used to detect failures when using Kafka's group management facilities.
+            required: 'false'
+            defaultValue: '30000'
+            sensitive: 'false'
+        - fieldName: heartbeatIntervalMs
+          typeName: number
+          attributes:
+            showName: 'Heartbeat Interval Ms'
+            help: >-
+              The interval between heartbeats to the consumer when using Kafka's group management facilities. The value must be lower than session timeout.
+            required: 'false'
+            defaultValue: '3000'
+            sensitive: 'false'
+        - fieldName: keyDeserializationClass
+          typeName: string
+          attributes:
+            showName: 'Key Deserialization Class'
+            help: >-
+              The deserializer class for Kafka consumer to deserialize keys.
+            required: 'false'
+            defaultValue: 'org.apache.kafka.common.serialization.StringDeserializer'
+            sensitive: 'false'
+        - fieldName: autoOffsetReset
+          typeName: string
+          attributes:
+            showName: 'Auto Offset Reset'
+            help: >-
+              The default offset reset policy.
+            required: 'false'
+            defaultValue: 'earliest'
+            sensitive: 'false'
+        - fieldName: copyHeadersEnabled
+          typeName: boolean
+          attributes:
+            showName: 'Copy Headers Enabled'
+            help: >-
+              If true the Kafka message headers will be copied into Pulsar message properties. Since Pulsar properties is a Map<String, String>, byte array values in the Kafka headers will be base64 encoded.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an Kafka sink connector to external systems include: <br />
+              Apache Kafka: Ensure you have a running Kafka instance. You can follow the official Kafka [Quickstart guide](https://kafka.apache.org/quickstart) to set up a Kafka instance if you don't have one already. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: bootstrapServers
+          typeName: string
+          attributes:
+            showName: 'Bootstrap Servers'
+            help: >-
+              A comma-separated list of host and port pairs that are the addresses of the Kafka brokers that a Kafka client connects to initially bootstrap itself
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: topic
+          typeName: string
+          attributes:
+            showName: 'Topic'
+            help: >-
+              The Kafka topic that is used for Pulsar moving messages to.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: securityProtocol
+          typeName: string
+          attributes:
+            showName: 'Security Protocol'
+            help: >-
+              Protocol used to communicate with Kafka brokers.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: saslMechanism
+          typeName: string
+          attributes:
+            showName: 'SASL Mechanism'
+            help: >-
+              SASL mechanism used for Kafka client connections.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: saslJaasConfig
+          typeName: string
+          attributes:
+            showName: 'SASL JAAS Config'
+            help: >-
+              JAAS login context parameters for SASL connections in the format used by JAAS configuration files.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sslEnabledProtocols
+          typeName: string
+          attributes:
+            showName: 'SSL Enabled Protocols'
+            help: >-
+              The list of protocols enabled for SSL connections.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sslEndpointIdentificationAlgorithm
+          typeName: string
+          attributes:
+            showName: 'SSL Endpoint Identification Algorithm'
+            help: >-
+              The endpoint identification algorithm to validate server hostname using server certificate.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: acks
+          typeName: string
+          attributes:
+            showName: 'Ack Number'
+            help: >-
+              The number of acknowledgments the producer requires the leader to have received before considering a request complete. This controls the durability of records that are sent.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: batchSize
+          typeName: number
+          attributes:
+            showName: 'Batch Size'
+            help: >-
+              The batch size that Kafka producer will attempt to batch records together before sending them to brokers.
+            required: 'false'
+            defaultValue: '16384'
+            sensitive: 'false'
+        - fieldName: maxRequestSize
+          typeName: number
+          attributes:
+            showName: 'Max Request Size'
+            help: >-
+              The maximum size of a Kafka request in bytes.
+            required: 'false'
+            defaultValue: '1048576'
+            sensitive: 'false'
+        - fieldName: keySerializerClass
+          typeName: string
+          attributes:
+            showName: 'Key Serializer Class'
+            help: >-
+              The serializer class for Kafka producer to serialize keys.
+            required: 'false'
+            defaultValue: 'org.apache.kafka.common.serialization.StringSerializer'
+            sensitive: 'false'
+    - id: pulsar-io-elastic-search
+      name: elasticsearch
+      description: Elasticsearch Sink
+      sinkClass: org.apache.pulsar.io.elasticsearch.ElasticSearchSink
+      sinkConfigClass: org.apache.pulsar.io.elasticsearch.ElasticSearchConfig
+      imageRepository: streamnative/pulsar-io-elastic-search
+      iconLink: https://docs.streamnative.io/images/connectors/elasticsearch.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-elasticsearch-sink-v4.0
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      typeClassName: org.apache.pulsar.client.api.schema.GenericObject
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an Elasticsearch sink connector to external systems include: <br />
+              Create a Elasticsearch cluster. You can create a single-node Elasticsearch cluster by executing this command: <br />
+
+              ```bash <br />
+
+              docker run -p 9200:9200 -p 9300:9300 \ 
+                -e "discovery.type=single-node" \ 
+                    -e "ELASTIC_PASSWORD=ElasticPasseword" \ 
+                docker.elastic.co/elasticsearch/elasticsearch:7.17.13 
+
+              ```
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        # Required configurations
+        - fieldName: elasticSearchUrl
+          typeName: string
+          attributes:
+            showName: 'Elastic Search URL'
+            help: >-
+              The url of elastic search cluster that the connector connects to
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        # Advanced configurations
+        - fieldName: compatibilityMode
+          typeName: enum
+          attributes:
+            showName: 'Compatibility Mode'
+            help: 'Specify compatibility mode with the ElasticSearch cluster. "AUTO" value will try to auto detect the correct compatibility mode to use. Use "ELASTICSEARCH_7" if the target cluster is running ElasticSearch 7 or prior. Use "ELASTICSEARCH" if the target cluster is running ElasticSearch 8 or higher. Use "OPENSEARCH" if the target cluster is running OpenSearch.'
+            required: 'false'
+            defaultValue: 'AUTO'
+            sensitive: 'false'
+            value: '["AUTO", "ELASTICSEARCH_7", "ELASTICSEARCH", "OPENSEARCH"]'
+        ## Authentication configurations
+        - fieldName: authMethod
+          typeName: enum
+          attributes:
+            showName: 'Authentication Method'
+            help: >-
+              Authentication Method that the connector uses to connect to the ElasticSearch cluster. Possible options are BASIC, TOKEN or API_KEY. If no authentication method is provided, the connector will try to connect to the ElasticSearch cluster without any authentication.
+            required: 'true'
+            ignoreForBackend: 'true'
+            defaultValue: 'None'
+            sensitive: 'false'
+            value: '["None", "Basic", "Token", "ApiKey"]'
+        - fieldName: username
+          typeName: string
+          attributes:
+            showName: 'Username'
+            help: >-
+              The username used by the connector to connect to the elastic search cluster. If username is set, a password should also be provided.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+            parent: '["authMethod.Basic"]'
+        - fieldName: password
+          typeName: string
+          attributes:
+            showName: 'Password'
+            help: >-
+              The password used by the connector to connect to the elastic search cluster. If password is set, a username should also be provided
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+            parent: '["authMethod.Basic"]'
+        - fieldName: token
+          typeName: string
+          attributes:
+            showName: 'Token'
+            help: >-
+              The token used by the connector to connect to the ElasticSearch cluster. Only one between basic/token/apiKey authentication mode must be configured.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+            parent: '["authMethod.Token"]'
+        - fieldName: apiKey
+          typeName: string
+          attributes:
+            showName: 'API Key'
+            help: 'The apiKey used by the connector to connect to the ElasticSearch cluster. Only one between basic/token/apiKey authentication mode must be configured.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+            parent: '["authMethod.ApiKey"]'
+        ## Index configurations
+        - fieldName: indexName
+          typeName: string
+          attributes:
+            showName: 'Index Name'
+            help: >-
+              The index name to which the connector writes messages. The default value is the topic name. It accepts date formats in the name to support event time based index with the pattern %{+<date-format>}. For example, suppose the event time of the record is 1645182000000L, the indexName is "logs-%{+yyyy-MM-dd}", then the formatted index name would be "logs-2022-02-18".
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: createIndexIfNeeded
+          typeName: boolean
+          attributes:
+            showName: 'Create Index If Needed'
+            help: >-
+              Create the index if it does not exist
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: typeName
+          typeName: string
+          attributes:
+            showName: 'Type Name'
+            help: >-
+              The type name that the connector writes messages to, with the default value set to _doc. This value should be set explicitly to a valid type name other than _doc for Elasticsearch version before 6.2, and left to the default value otherwise.
+            required: 'false'
+            defaultValue: '_doc'
+            sensitive: 'false'
+        - fieldName: schemaEnable
+          typeName: boolean
+          attributes:
+            showName: 'Schema Enable'
+            help: >-
+              Sets whether the Sink has to take into account the Schema or if it should simply copy the raw message to Elastichsearch
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: indexNumberOfShards
+          typeName: number
+          attributes:
+            showName: 'Index Number Of Shards'
+            help: >-
+              The number of shards of the index
+            required: 'false'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: indexNumberOfReplicas
+          typeName: number
+          attributes:
+            showName: 'Index Number Of Replicas'
+            help: >-
+              The number of replicas of the index
+            required: 'false'
+            defaultValue: '0'
+            sensitive: 'false'
+        - fieldName: bulkEnabled
+          typeName: enum
+          attributes:
+            showName: 'Bulk Enabled'
+            help: 'Enable the elasticsearch bulk processor to flush write requests based on the number or size of requests, or after a given period.'
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            value: '["true", "false"]'
+        - fieldName: bulkActions
+          typeName: number
+          attributes:
+            showName: 'Bulk Actions'
+            help: 'The maximum number of actions per elasticsearch bulk request. Use -1 to disable it.'
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+            parent: '["bulkEnabled.true"]'
+        - fieldName: bulkSizeInMb
+          typeName: number
+          attributes:
+            showName: 'Bulk Size In Mb'
+            help: 'The maximum size in megabytes of elasticsearch bulk requests.Use -1 to disable it.'
+            required: 'false'
+            defaultValue: '5'
+            sensitive: 'false'
+            parent: '["bulkEnabled.true"]'
+        - fieldName: bulkConcurrentRequests
+          typeName: number
+          attributes:
+            showName: 'Bulk Concurrent Requests'
+            help: 'The maximum number of in flight elasticsearch bulk requests. The default 0 allows the execution of a single request. A value of 1 means 1 concurrent request is allowed to be executed while accumulating new bulk requests.'
+            required: 'false'
+            defaultValue: '0'
+            sensitive: 'false'
+            parent: '["bulkEnabled.true"]'
+        - fieldName: bulkFlushIntervalInMs
+          typeName: number
+          attributes:
+            showName: 'Bulk Flush Interval In Ms'
+            help: 'The bulk flush interval flushing any bulk request pending if the interval passes. -1 or zero means the scheduled flushing is disabled.'
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+            parent: '["bulkEnabled.true"]'
+        - fieldName: compressionEnabled
+          typeName: boolean
+          attributes:
+            showName: 'Compression Enabled'
+            help: 'Enable elasticsearch request compression.'
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: keyIgnore
+          typeName: boolean
+          attributes:
+            showName: 'Key Ignore'
+            help: 'Whether to ignore the record key to build the Elasticsearch document _id. If primaryFields is defined, the connector extract the primary fields from the payload to build the document _id. If no primaryFields are provided, elasticsearch auto generates a random document _id.'
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: primaryFields
+          typeName: string
+          attributes:
+            showName: 'Primary Fields'
+            help: 'The comma separated ordered list of field names used to build the Elasticsearch document _id from the record value. If this list is a singleton, the field is converted as a string. If this list has 2 or more fields, the generated _id is a string representation of a JSON array of the field values.'
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: ssl
+          typeName: string
+          attributes:
+            showName: 'SSL'
+            help: 'The SSL config for elastic search.'
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: nullValueAction
+          typeName: enum
+          attributes:
+            showName: 'Null Value Action'
+            help: 'How to handle records with null values, possible options are IGNORE, DELETE or FAIL. Default is IGNORE the message.'
+            required: 'false'
+            defaultValue: 'IGNORE'
+            sensitive: 'false'
+            value: '["IGNORE", "DELETE", "FAIL"]'
+        - fieldName: malformedDocAction
+          typeName: enum
+          attributes:
+            showName: 'Malformed Doc Action'
+            help: 'How to handle elasticsearch rejected documents due to some malformation. Possible options are IGNORE, WARN or FAIL. Default is FAIL the Elasticsearch document.'
+            required: 'false'
+            defaultValue: 'FAIL'
+            sensitive: 'false'
+            value: '["IGNORE", "WARN", "FAIL"]'
+        - fieldName: stripNulls
+          typeName: boolean
+          attributes:
+            showName: 'Strip Nulls'
+            help: >-
+              If stripNulls is false, elasticsearch _source includes 'null' for empty fields (for example {"foo": null}), otherwise null fields are stripped.
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: stripNonPrintableCharacters
+          typeName: boolean
+          attributes:
+            showName: 'Strip Non Printable Characters'
+            help: 'If stripNonPrintableCharacters is true, all non-printable characters will be removed from the document.'
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: copyKeyFields
+          typeName: boolean
+          attributes:
+            showName: 'Copy Key Fields'
+            help: 'When the message key schema is AVRO or JSON, copy the message key fields into the Elasticsearch _source.'
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: maxRetries
+          typeName: number
+          attributes:
+            showName: 'Max Retries'
+            help: 'The maximum number of retries for elasticsearch requests. Use -1 to disable it.'
+            required: 'false'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: retryBackoffInMs
+          typeName: number
+          attributes:
+            showName: 'Retry Backoff In Ms'
+            help: 'The base time in milliseconds to wait when retrying an elasticsearch request.'
+            required: 'false'
+            defaultValue: '100'
+            sensitive: 'false'
+        - fieldName: maxRetryTimeInSec
+          typeName: number
+          attributes:
+            showName: 'Max Retry Time In Sec'
+            help: 'The maximum retry time interval in seconds for retrying an elasticsearch request.'
+            required: 'false'
+            defaultValue: '86400'
+            sensitive: 'false'
+        - fieldName: connectTimeoutInMs
+          typeName: number
+          attributes:
+            showName: 'Connect Timeout In Ms'
+            help: 'The elasticsearch client connection timeout in milliseconds.'
+            required: 'false'
+            defaultValue: '5000'
+            sensitive: 'false'
+        - fieldName: connectionRequestTimeoutInMs
+          typeName: number
+          attributes:
+            showName: 'Connection Request Timeout In Ms'
+            help: 'The time in milliseconds for getting a connection from the elasticsearch connection pool.'
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+        - fieldName: connectionIdleTimeoutInMs
+          typeName: number
+          attributes:
+            showName: 'Connection Idle Timeout In Ms'
+            help: 'Idle connection timeout to prevent a connection timeout due to inactivity.'
+            required: 'false'
+            defaultValue: '30000'
+            sensitive: 'false'
+    - id: pulsar-io-aws-lambda
+      name: aws-lambda
+      description: AWS Lambda Sink
+      sinkClass: org.apache.pulsar.ecosystem.io.aws.lambda.AWSLambdaSink
+      sinkConfigClass: org.apache.pulsar.ecosystem.io.aws.lambda.AWSLambdaConnectorConfig
+      typeClassName: org.apache.pulsar.client.api.schema.GenericObject
+      imageRepository: streamnative/pulsar-io-aws-lambda
+      iconLink: https://docs.streamnative.io/images/connectors/lambda-logo.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-aws-lambda-sink-v4.0
+      version: 4.0.4
+      imageTag: 4.0.4
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an AWS Lambda sink connector to external systems include: <br />
+              1. Create a AWS Lambda function in AWS: https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html <br />
+              2. Create the [AWS User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) and create `AccessKey`( <br />
+                Please record `AccessKey` and `SecretAccessKey`). <br />
+              3. Assign permissions to AWS User, and ensure they have the following permissions to the AWS EventBus. For details, <br />
+                see [permissions for AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/lambda-permissions.html) <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: awsEndpoint
+          typeName: string
+          attributes:
+            showName: 'AWS Endpoint URL'
+            help: >-
+              AWS Lambda end-point url. It can be found at https://docs.aws.amazon.com/general/latest/gr/rande.html
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: awsRegion
+          typeName: enum
+          attributes:
+            showName: 'AWS Region'
+            help: >-
+              Appropriate aws region. E.g. us-west-1, us-west-2
+            required: 'true'
+            defaultValue: ''
+            value: >
+              ["us-east-2", "us-east-1", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", "ap-south-2", "ap-southeast-3",
+              "ap-southeast-4", "ap-south-1", "ap-northeast-3", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2",
+              "ap-northeast-1", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-south-1", "eu-west-3",
+              "eu-south-2", "eu-north-1", "eu-central-2", "il-central-1", "me-south-1", "me-central-1", "sa-east-1",
+              "us-gov-east-1", "us-gov-west-1"]
+        - fieldName: awsAccessKey
+          typeName: string
+          attributes:
+            showName: 'AWS Access Key'
+            help: >-
+              The AWS access key. See here for how to get it: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: awsSecretKey
+          typeName: string
+          attributes:
+            showName: 'AWS Secret Key'
+            help: >-
+              The AWS secret key. Here is how to get it: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: lambdaFunctionName
+          typeName: string
+          attributes:
+            showName: 'Lambda Function Name'
+            help: >-
+              The lambda function name should be invoked.
+            required: 'true'
+            defaultValue: ''
+        - fieldName: synchronousInvocation
+          typeName: boolean
+          attributes:
+            showName: 'Synchronous Invocation'
+            help: >-
+              Invoke a lambda function synchronously, false to invoke asynchronously.
+            required: 'false'
+            defaultValue: 'true'
+        - fieldName: payloadFormat
+          typeName: enum
+          attributes:
+            showName: 'Payload Format'
+            help: >-
+              The format of the payload to be sent to the lambda function. The payload format determines the structure and organization of the data being sent to the lambda function. Valid values are V1 and V2. V2 is the default value.
+            required: 'false'
+            defaultValue: 'V2'
+            value: '["V1", "V2"]'
+        - fieldName: metadataFields
+          typeName: string
+          attributes:
+            showName: 'Metadata Fields'
+            help: >-
+              The metadata fields to be sent to the lambda function. The metadata fields provide additional contextual information about the data being sent to the lambda function. Valid values are topic, key, partitionIndex, sequence, properties, eventTime. The default value is to choose all these fields. 
+            required: 'false'
+            defaultValue: 'topic,key,partitionIndex,sequence,properties,eventTime'
+            parent: '["payloadFormat.V2"]'
+        - fieldName: batchMaxSize
+          typeName: number
+          attributes:
+            showName: 'Batch Max Size'
+            help: >-
+              The maximum number of records to send to the lambda function in a single batch. Batching allows grouping of records for more efficient processing. By setting a higher value for this field you can increase the number of records that are sent together as a batch. Set this value to 1 to disable batching. 
+            required: 'false'
+            defaultValue: '10'
+            parent: '["payloadFormat.V2"]'
+        - fieldName: batchMaxBytesSize
+          typeName: number
+          attributes:
+            showName: 'Batch Max Bytes Size'
+            help: >-
+              The maximum size of the payload to send to the lambda function in a single batch. Batching allows grouping of data for more efficient processing. By setting a higher value for this field, you can increase the size of the payload that is sent together as a batch. 
+            required: 'false'
+            defaultValue: '262144'
+            parent: '["payloadFormat.V2"]'
+        - fieldName: batchMaxTimeMs
+          typeName: number
+          attributes:
+            showName: 'Batch Max Time Ms'
+            help: >-
+              The maximum wait time for batching in milliseconds. Batching allows grouping of data within a specified time window for more efficient processing. By setting a higher value for this field, you can increase the maximum time allowed for data to accumulate before being processed as a batch.
+            required: 'false'
+            defaultValue: '5000'
+            parent: '["payloadFormat.V2"]'
+    - id: pulsar-io-snowflake
+      name: snowflake
+      description: Snowflake Sink
+      sinkClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConnector
+      sinkConfigClass: org.apache.pulsar.ecosystem.io.snowflake.SnowflakeSinkConfig
+      imageRepository: streamnative/pulsar-io-snowflake
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      iconLink: https://docs.streamnative.io/images/connectors/snowflake-logo.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-snowflake-sink-v4.0
+      typeClassName: org.apache.pulsar.client.api.schema.GenericObject
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Snowflake sink connector to external systems include: <br />
+
+              1. Prepare a snowflake account <br />
+              2. Get the account URL from the `Admin - Accounts` page and click the link. It should be the format like `https://<account_identifier>.snowflakecomputing.com`. <br />
+
+              3. Generate the public key and private key for the authentication. For more details, please check [this guide](https://docs.snowflake.com/en/user-guide/key-pair-auth#step-1-generate-the-private-key) <br />
+
+              ```sh <br />
+
+              openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt
+              openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+
+              ```
+
+              It will generate `rsa_key.p8` (the private key) and `rsa_key.pub` (the public key) locally.  <br />
+
+              4. Log in and configure the public key. <br />
+
+              See [Installing SnowSQL](https://docs.snowflake.com/en/user-guide/snowsql-install-config) to install the SnowSQL. <br />
+
+              ```sh <br />
+
+              snowsql -a ${account_identifier} -u ${account_name}
+
+              ```
+
+              The `-a` is followed by an account identifier, which is a substring of the account URL before. The `-u` is followed by your account name. After logging in, set the public key passphrase: <br />
+
+              ```sh <br />
+
+              ALTER USER ${account_name} SET RSA_PUBLIC_KEY='MIIBIjA...';
+
+              ```
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: user
+          typeName: string
+          attributes:
+            showName: 'User'
+            help: 'The user account name of the snowflake service.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: privateKey
+          typeName: string
+          attributes:
+            showName: 'Private Key'
+            help: 'The private key of the user.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: host
+          typeName: string
+          attributes:
+            showName: 'Host'
+            help: 'The host URL of the snowflake service.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database
+          typeName: string
+          attributes:
+            showName: 'Database'
+            help: 'The database in the snowflake that the connector will sink data in.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: schema
+          typeName: string
+          attributes:
+            showName: 'Schema'
+            help: 'The schema in the snowflake that the connector will sink data in.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: autoCreateTable
+          typeName: enum
+          attributes:
+            showName: 'Auto Create Table'
+            help: 'Automatically create a table when the table does not exist.'
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+            value: '["true", "false"]'
+        - fieldName: tableName
+          typeName: string
+          attributes:
+            showName: 'Table Name'
+            help: 'If autoCreateTable is false, the connector will sink the messages to this table.'
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+            parent: '["autoCreateTable.false"]'
+        - fieldName: warehouse
+          typeName: string
+          attributes:
+            showName: 'Warehouse'
+            help: 'The warehouse name in the snowflake. Default to empty'
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: bufferCountRecords
+          typeName: number
+          attributes:
+            showName: 'Buffer Count Records'
+            help: 'Number of records buffered in memory before ingesting to Snowflake. The default value is 10_000 records.'
+            required: 'false'
+            defaultValue: '10000'
+            sensitive: 'false'
+        - fieldName: bufferSizeBytes
+          typeName: number
+          attributes:
+            showName: 'Buffer Size Bytes'
+            help: 'Cumulative size in bytes of records buffered in memory before they are ingested in Snowflake as data files. The default value for this is 5_000_000 (5 MB).'
+            required: 'false'
+            defaultValue: '5000000'
+            sensitive: 'false'
+        - fieldName: bufferFlushTimeInSeconds
+          typeName: number
+          attributes:
+            showName: 'Buffer Flush Time In Seconds'
+            help: 'Number of seconds between buffer flushes, where the flush is from the Pulsar’s memory cache to the internal stage. The default value is 60 seconds.'
+            required: 'false'
+            defaultValue: '60'
+            sensitive: 'false'
+        - fieldName: topic2table
+          typeName: string
+          attributes:
+            showName: 'Topic To Table'
+            help: 'This optional parameter allows a user to specify which topics should be mapped to which tables. Each topic and its table name should be separated by a colon. See example: topic1:table1, topic2:table2'
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: metadataField
+          typeName: string
+          attributes:
+            showName: 'Metadata Field'
+            help: 'The metadata fields for each snowflake record. Separate multiple fields with commas. The supported metadata fields are: __schema_version__ , __partition__ , __event_time__ , __publish_time__ , __message_id__ , __sequence_id__ , __producer_name__ , __topic__'
+            required: 'false'
+            defaultValue: '__message_id__,__partition__,__topic__,__event_time__'
+            sensitive: 'false'
+    - id: pulsar-io-aws-eventbridge
+      name: aws-eventbridge
+      description: AWS EventBridge Sink
+      sinkClass: org.apache.pulsar.io.eventbridge.sink.EventBridgeSink
+      sinkConfigClass: org.apache.pulsar.io.eventbridge.sink.EventBridgeConfig
+      imageRepository: streamnative/pulsar-io-aws-eventbridge
+      version: 4.0.0.4
+      imageTag: 4.0.0.4
+      iconLink: https://docs.streamnative.io/images/connectors/aws-eventbridge.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-aws-eventbridge-sink-v4.0
+      typeClassName: org.apache.pulsar.client.api.schema.GenericObject
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an AWS EventBridge sink connector to external systems include: <br />
+              1. Create EventBridge and EventBus in AWS. <br />
+              2. Create the [AWS User](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html) and create `AccessKey`(Please record `AccessKey` and `SecretAccessKey`). <br />
+              3. Assign permissions to AWS User, and ensure they have the `PutEvents` permissions to the AWS EventBus. For details, see [permissions for event buses](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-bus-perms.html) <br />
+
+              ```json <br />
+
+              {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Sid": "AllowAccountToPutEvents",
+                      "Effect": "Allow",
+                      "Principal": {
+                        "AWS": "<ACCOUNT_ID>"
+                      },
+                      "Action": "events:PutEvents",
+                      "Resource": "{EventBusArn}"
+                    }
+                  ]
+              }
+
+              ```
+
+              4. Create a [Rule](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-create-rule.html) in EventBridge. <br />
+              - The data structure sent to Event Bridge is described [here](https://docs.streamnative.io/hub/connector-aws-eventbridge-sink-v3.1#metadata-mapping), and you can create **event pattern** based on this structure. <br />
+              - Set the target according to your needs. If you're testing this connector, you can set the target to [Cloud Watch](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html). <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: accessKeyId
+          typeName: string
+          attributes:
+            showName: 'Access Key ID'
+            help: >-
+              The AWS [access key ID](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: secretAccessKey
+          typeName: string
+          attributes:
+            showName: 'Secret Access Key'
+            help: >-
+              The AWS [Secret access key](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: region
+          typeName: enum
+          attributes:
+            showName: 'EventBridge Region'
+            help: >-
+              The region where AWS EventBridge service is located. [All AWS region](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/regions/Region.html)
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+            value: >
+              ["us-east-2", "us-east-1", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", "ap-south-2", "ap-southeast-3",
+              "ap-southeast-4", "ap-south-1", "ap-northeast-3", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2",
+              "ap-northeast-1", "ca-central-1", "eu-central-1", "eu-west-1", "eu-west-2", "eu-south-1", "eu-west-3",
+              "eu-south-2", "eu-north-1", "eu-central-2", "il-central-1", "me-south-1", "me-central-1", "sa-east-1",
+              "us-gov-east-1", "us-gov-west-1"]
+        - fieldName: eventBusName
+          typeName: string
+          attributes:
+            showName: 'EventBus Name'
+            help: >-
+              The EventBus name.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: metaDataField
+          typeName: string
+          attributes:
+            showName: 'Metadata Field'
+            help: >-
+              The metadata field will add to the event. separate multiple fields with commas. optional: schema_version, partition, event_time, publish_time, message_id, sequence_id, producer_name, key, properties
+            required: 'false'
+            defaultValue: 'event_time,message_id'
+            sensitive: 'false'
+        - fieldName: batchPendingQueueSize
+          typeName: number
+          attributes:
+            showName: 'Pending Queue Size'
+            help: >-
+              Batch Pending Queue size, This value must greater than batchMaxSize.
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+        - fieldName: batchMaxSize
+          typeName: number
+          attributes:
+            showName: 'Batch Max Size'
+            help: >-
+              Maximum number of batch messages. The number must be less than or equal to 10 (AWS EventBridge Required).
+            required: 'false'
+            defaultValue: '10'
+            sensitive: 'false'
+        - fieldName: batchMaxBytesSize
+          typeName: number
+          attributes:
+            showName: 'Batch Max Byte Size'
+            help: >-
+              Maximum number of batch bytes payload size. This value cannot be greater than 512KB.
+            required: 'false'
+            defaultValue: '640'
+            sensitive: 'false'
+        - fieldName: batchMaxTimeMs
+          typeName: number
+          attributes:
+            showName: 'Batch Max Timeout'
+            help: >-
+              Batch timeout interval: milliseconds.
+            required: 'false'
+            defaultValue: '5000'
+            sensitive: 'false'
+        - fieldName: maxRetryCount
+          typeName: number
+          attributes:
+            showName: 'Max retry count'
+            help: >-
+              Maximum retry send event count, when the event put failed.
+            required: 'false'
+            defaultValue: '100'
+            sensitive: 'false'
+        - fieldName: intervalRetryTimeMs
+          typeName: number
+          attributes:
+            showName: 'Retry interval time'
+            help: >-
+              The interval time(milliseconds) for each retry, when the event put failed.
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
+    - description: Google BigQuery connectors
+      id: pulsar-io-bigquery
+      imageRepository: streamnative/pulsar-io-bigquery
+      imageTag: 3.3.1.9-6
+      name: bigquery
+      sinkClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySink
+      sinkConfigClass: org.apache.pulsar.ecosystem.io.bigquery.BigQueryConfig
+      sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
+      sourceClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySource
+      sourceConfigClass: org.apache.pulsar.ecosystem.io.bigquery.BigQuerySourceConfig
+      sourceTypeClassName: org.apache.pulsar.client.api.schema.GenericRecord
+      iconLink: https://docs.streamnative.io/images/connectors/google-bigquery-logo.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-google-bigquery-sink-v4.0
+      sourceDocLink: https://docs.streamnative.io/hub/connector-google-bigquery-source-v4.0
+      version: 3.3.1.9-6
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an Google BigQuery sink connector to external systems include: <br />
+              1. Create GoogleBigQuery, DataSet and TableName in Google Cloud. <br />
+              2. Create the [Gcloud ServiceAccount](https://cloud.google.com/iam/docs/service-accounts-create) and create a public key certificate. <br />
+              3. Create the [Gcloud Role](https://cloud.google.com/iam/docs/creating-custom-roles), ensure the Google Cloud role have the following permissions to the Google [BigQuery API](https://cloud.google.com/bigquery/docs/access-control): <br />
+              - bigquery.tables.create <br />
+              - bigquery.tables.get <br />
+              - bigquery.tables.getData <br />
+              - bigquery.tables.list <br />
+              - bigquery.tables.update <br />
+              - bigquery.tables.updateData <br />
+              4. Grant the service account the above role permissions. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: projectId
+          typeName: string
+          attributes:
+            showName: 'BigQuery Project ID'
+            help: >-
+              This is the project ID of the BigQuery in Google Cloud.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: datasetName
+          typeName: string
+          attributes:
+            showName: 'BigQuery Dataset Name'
+            help: >-
+              The Google BigQuery dataset name
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: tableName
+          typeName: string
+          attributes:
+            showName: 'BigQuery Table Name'
+            help: >-
+              The Google BigQuery table name
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: credentialJsonString
+          typeName: string
+          attributes:
+            showName: 'The BigQuery Credential JsonString'
+            help: >-
+              Authentication key, use the environment variable to get the key when key is empty. 
+              It is recommended to set this value to null, and then add the GOOGLE_APPLICATION_CREDENTIALS 
+              environment variable to point to the path of the authentication key json file Key acquisition 
+              reference [google docs](https://cloud.google.com/bigquery/docs/quickstarts/quickstart-client-libraries#before-you-begin)
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: autoCreateTable
+          typeName: enum
+          attributes:
+            showName: 'Auto Create Table'
+            help: >-
+              Automatically create table when table does not exist
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+            value: '["true", "false"]'
+        - fieldName: clusteredTables
+          typeName: boolean
+          attributes:
+            showName: 'Clustered Tables'
+            help: >-
+              Create a clusteredTables table when the table is automatically created, it will use __message_id__ the partition key.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["autoCreateTable.true"]'
+        - fieldName: partitionedTables
+          typeName: boolean
+          attributes:
+            showName: 'Partitioned Tables'
+            help: >-
+              Create a partitioned table when the table is automatically created, it will use __event_time__ the partition key.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+            parent: '["autoCreateTable.true"]'
+        - fieldName: partitionedTableIntervalDay
+          typeName: number
+          attributes:
+            showName: 'Partitioned Table Interval Day'
+            help: >-
+              The partitionedTableIntervalDay is number of days between partitioning of the partitioned table, It only takes effect when partitionedTables is true.
+            required: 'false'
+            defaultValue: '7'
+            sensitive: 'false'
+            parent: '["autoCreateTable.true"]'
+        - fieldName: autoUpdateTable
+          typeName: boolean
+          attributes:
+            showName: 'Auto Update Table'
+            help: >-
+              Automatically update table schema when table schema is incompatible
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: defaultSystemField
+          typeName: string
+          attributes:
+            showName: 'Default System Field'
+            help: >-
+              Create system fields when the table is automatically created, separate multiple fields with commas.
+              The supported system fields are: `__schema_version__ , __partition__ , __event_time__ ,
+              __publish_time__ , __message_id__ , __sequence_id__ , __producer_name__, __properties__`
+              (The `__properties__` will be a repeat struct on bigquery. key and value will as a string type)
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: visibleModel
+          typeName: enum
+          attributes:
+            showName: 'Visible Model'
+            help: >-
+              The mode that controls when data written to the stream becomes visible in BigQuery for reading. For details, 
+              see the [Google documentation](https://cloud.google.com/bigquery/docs/write-api#application-created_streams). 
+              Available options are `Committed` and `Pending`.
+            required: 'false'
+            defaultValue: 'Committed'
+            sensitive: 'false'
+            value: '["Committed", "Pending"]'
+        - fieldName: batchMaxSize
+          typeName: number
+          attributes:
+            showName: 'Batch Max Size'
+            help: >-
+              Maximum number of batch messages
+            required: 'false'
+            defaultValue: '200'
+            sensitive: 'false'
+        - fieldName: batchMaxTime
+          typeName: number
+          attributes:
+            showName: 'Batch max wait time'
+            help: >-
+              Batch max wait time: milliseconds"
+            required: 'false'
+            defaultValue: '5000'
+            sensitive: 'false'
+        - fieldName: batchFlushIntervalTime
+          typeName: number
+          attributes:
+            showName: 'Batch Flush Interval Time'
+            help: >-
+              Batch trigger flush interval time: milliseconds
+            required: 'false'
+            defaultValue: '2000'
+            sensitive: 'false'
+        - fieldName: failedMaxRetryNum
+          typeName: number
+          attributes:
+            showName: 'Failed Max Retry Num'
+            help: >-
+              When append failed, max retry num. Wait 2 seconds for each retry
+            required: 'false'
+            defaultValue: '20'
+            sensitive: 'false'
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting an Google BigQuery source connector to external systems include: <br />
+              1. Create GoogleBigQuery, DataSet and Table in Google Cloud. You can set the schema of the table, and this connector will convert the Avro schema to Pulsar. <br />
+              2. Create the [Gcloud ServiceAccount](https://cloud.google.com/iam/docs/service-accounts-create) and create a public key certificate. <br />
+              3. Create the [Gcloud Role](https://cloud.google.com/iam/docs/creating-custom-roles), ensure the Google Cloud role have the following permissions to the Google [BigQuery API](https://cloud.google.com/bigquery/docs/access-control): <br />
+              - bigquery.readsessions.create <br />
+              - bigquery.readsessions.getData <br />
+              - bigquery.readsessions.update <br />
+              - bigquery.jobs.create <br />
+              - bigquery.tables.get <br />
+              - bigquery.tables.getData  <br />
+              4. Grant the service account the above role permissions.  <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: projectId
+          typeName: string
+          attributes:
+            showName: 'BigQuery Project ID'
+            help: >-
+              This is the project ID of the BigQuery in Google Cloud.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: datasetName
+          typeName: string
+          attributes:
+            showName: 'BigQuery Dataset Name'
+            help: >-
+              The Google BigQuery dataset name
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: tableName
+          typeName: string
+          attributes:
+            showName: 'BigQuery Table Name'
+            help: >-
+              The Google BigQuery table name
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: credentialJsonString
+          typeName: string
+          attributes:
+            showName: 'BigQuery Credential JsonString'
+            help: >-
+              Authentication key, use the environment variable to get the key when key is empty. 
+              It is recommended to set this value to null, and then add the GOOGLE_APPLICATION_CREDENTIALS 
+              environment variable to point to the path of the authentication key json file Key acquisition 
+              reference [google docs](https://cloud.google.com/bigquery/docs/quickstarts/quickstart-client-libraries#before-you-begin)
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: forceUpdate
+          typeName: boolean
+          attributes:
+            showName: 'Force update'
+            help: >-
+              If forceUpdate=true,a new session will be created. The connector will transmit the data again.
+            required: 'false'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: expirationTimeInMinutes
+          typeName: number
+          attributes:
+            showName: 'Expiration Time In Minutes'
+            help: >-
+              The expiration time in minutes until the table is expired and auto-deleted.
+            required: 'false'
+            defaultValue: '1440'
+            sensitive: 'false'
+        - fieldName: checkpointIntervalSeconds
+          typeName: number
+          attributes:
+            showName: 'Checkpoint Interval Seconds'
+            help: >-
+              The checkpoint interval(in units of seconds). By default, it is set to 60s.
+            required: 'false'
+            defaultValue: '60'
+            sensitive: 'false'
+        - fieldName: maxParallelism
+          typeName: number
+          attributes:
+            showName: 'Max Parallelism'
+            help: >-
+              The max parallelism for reading. The maximal number of partitions to split the data into. Actual number may be less if BigQuery deems the data small enough.
+            required: 'false'
+            defaultValue: '1'
+            sensitive: 'false'
+        - fieldName: sql
+          typeName: string
+          attributes:
+            showName: 'Filter SQL'
+            help: >-
+              The SQL query on BigQuery and save the computed result in a temporary table.
+              The temporary table has a configurable expiration time,and the source-connector automatically deletes the temporary table when the data transfer is completely.
+              The projectId and datasetName use values in config,and the tableName will be generated by UUID.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: selectedFields
+          typeName: string
+          attributes:
+            showName: 'Selected Fields'
+            help: >-
+              Names of the fields in the table that should be read.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: filters
+          typeName: string
+          attributes:
+            showName: 'Filters'
+            help: >-
+              A list of clauses that can filter the result of the table.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+    - id: pulsar-io-google-pubsub
+      description: Google Pub/Sub connectors
+      imageRepository: streamnative/pulsar-io-google-pubsub
+      imageTag: 4.0.0.4
+      name: google-pubsub
+      sinkClass: org.apache.pulsar.ecosystem.io.pubsub.PubsubSink
+      sinkConfigClass: org.apache.pulsar.ecosystem.io.pubsub.PubsubConnectorConfig
+      sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
+      sourceClass: org.apache.pulsar.ecosystem.io.pubsub.PubsubSource
+      sourceConfigClass: org.apache.pulsar.ecosystem.io.pubsub.PubsubConnectorConfig
+      iconLink: https://docs.streamnative.io/images/connectors/google-pubsub.svg
+      sinkDocLink: https://docs.streamnative.io/hub/connector-google-pubsub-sink-v4.0
+      sourceDocLink: https://docs.streamnative.io/hub/connector-google-pubsub-source-v4.0
+      version: 4.0.0.4
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Google Pub/Sub sink connector to external systems include: <br />
+              1. Create Google PubSub Topic in Google Cloud. <br />
+              2. Create the [Gcloud ServiceAccount](https://cloud.google.com/iam/docs/service-accounts-create) and create a public key certificate. <br />
+              3. Create the [Gcloud Role](https://cloud.google.com/iam/docs/creating-custom-roles), ensure the Google Cloud role have the following permissions:: <br />
+              - pubsub.topics.create <br />
+              - pubsub.topics.get <br />
+              - pubsub.topics.publish <br />
+              4. Grant the service account the above role permissions. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: 'Retain ordering'
+            help: >-
+              Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: pubsubCredential
+          typeName: string
+          attributes:
+            showName: 'Google PubSub Credential JsonString'
+            help: >-
+              The credential (JSON string) for accessing the Google Cloud. It needs to be compressed before use.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: pubsubProjectId
+          typeName: string
+          attributes:
+            showName: 'Google PubSub project ID.'
+            help: >-
+              The Google Cloud project ID.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: pubsubTopicId
+          typeName: string
+          attributes:
+            showName: 'Google PubSub Topic Id'
+            help: >-
+              It is used to read messages from or write messages to Google Cloud Pub/Sub topics.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: withSchema
+          typeName: enum
+          attributes:
+            showName: 'With Schema'
+            help: >-
+              Whether to use a schema
+            required: 'false'
+            defaultValue: 'false'
+            ignoreForBackend: 'true'
+            sensitive: 'false'
+            value: '["true", "false"]'
+        - fieldName: pubsubSchemaType
+          typeName: enum
+          attributes:
+            showName: 'Schema Type'
+            help: >-
+              The schema type. You must set the schema type when creating a schema for Google Cloud Pub/Sub topics. Currently, only the AVRO format is supported.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+            value: '["AVRO"]'
+            parent: '["withSchema.true"]'
+        - fieldName: pubsubSchemaId
+          typeName: string
+          attributes:
+            showName: 'Schema Id'
+            help: >-
+              The schema ID. You must set the schema ID when creating a schema for Google Cloud Pub/Sub topics.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+            parent: '["withSchema.true"]'
+        - fieldName: pubsubSchemaEncoding
+          typeName: enum
+          attributes:
+            showName: 'Schema Encoding'
+            help: >-
+              The encoding of the schema. You must set the schema encoding when creating a schema for Google Cloud Pub/Sub topics. Currently, only the JSON format is supported.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+            value: '["JSON"]'
+            parent: '["withSchema.true"]'
+        - fieldName: pubsubSchemaDefinition
+          typeName: string
+          attributes:
+            showName: 'Schema Definition'
+            help: >-
+              The definition of the schema. It is used to create a schema to or parse messages from Google Cloud Pub/Sub topics.
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+            parent: '["withSchema.true"]'
+      sourceConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Google Pub/Sub source connector to external systems include: <br />
+              1. Create Google PubSub Topic in Google Cloud. <br />
+              2. Create the [Gcloud ServiceAccount](https://cloud.google.com/iam/docs/service-accounts-create) and create a public key certificate. <br />
+              3. Create the [Gcloud Role](https://cloud.google.com/iam/docs/creating-custom-roles), ensure the Google Cloud role have the following permissions:: <br />
+              - pubsub.subscriptions.consume <br />
+              - pubsub.subscriptions.create <br />
+              - pubsub.subscriptions.get <br />
+              - pubsub.subscriptions.update <br />
+              - pubsub.topics.attachSubscription <br />
+              4. Grant the service account the above role permissions. <br />
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: pubsubCredential
+          typeName: string
+          attributes:
+            showName: 'Google PubSub Credential JsonString'
+            help: >-
+              The credential (JSON string) for accessing the Google Cloud. It needs to be compressed before use.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: pubsubProjectId
+          typeName: string
+          attributes:
+            showName: 'Google PubSub project ID.'
+            help: >-
+              The Google Cloud project ID.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: pubsubTopicId
+          typeName: string
+          attributes:
+            showName: 'Google PubSub Topic Id'
+            help: >-
+              It is used to read messages from or write messages to Google Cloud Pub/Sub topics.
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+    -  id: pulsar-io-pinecone
+       description: pinecone.io connectors
+       imageRepository: streamnative/pulsar-io-pinecone-parent
+       imageTag: 4.0.0.4
+       name: pulsar-io-pinecone
+       sinkClass: org.streamnative.pulsar.io.pinecone.PineconeConnectorSink
+       sinkConfigClass: org.streamnative.pulsar.io.pinecone.PineconeConnectorConfig
+       sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
+       iconLink: https://docs.streamnative.io/images/connectors/pinecone-logo.png
+       sinkDocLink: https://docs.streamnative.io/hub/connector-pinecone-sink-v4.0
+       version: 4.0.0.4
+       sinkConfigFieldDefinitions:
+         - fieldName: Prerequisites
+           typeName: docs
+           attributes:
+             showName: 'Prerequisites'
+             help: >-
+               The prerequisites for connecting a pinecone.io sink connector to a Pinecone index include: <br />
+               1. Create Pinecone index in pinecone.io. <br />
+               2. Obtain the required information such as api key, connection url, etc listed below. <br />
+             required: 'true'
+             defaultValue: ''
+             sensitive: 'false'
+         - fieldName: sourceSubscriptionPosition
+           typeName: enum
+           attributes:
+             showName: 'Subscription Position'
+             help: >-
+               Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+             configType: 'common'
+             required: 'true'
+             defaultValue: 'Latest'
+             sensitive: 'false'
+             value: '["Latest", "Earliest"]'
+         - fieldName: retainOrdering
+           typeName: boolean
+           attributes:
+             showName: 'Retain ordering'
+             help: >-
+               Sink consumes and sinks messages in order. If set to true, it will use the Failover subscription mode; otherwise, it will use the shared subscription mode
+             configType: 'common'
+             required: 'true'
+             defaultValue: 'false'
+             sensitive: 'false'
+         - fieldName: apiKey
+           typeName: string
+           attributes:
+             showName: 'Pinecone.io ApiKey'
+             help: >-
+               The API key for the Pinecone service.
+             required: 'true'
+             defaultValue: ''
+             sensitive: 'true'
+         - fieldName: indexName
+           typeName: string
+           attributes:
+             showName: 'The pinecone.io Index name.'
+             help: >-
+               The name of the Pinecone index to which you want to write data.
+             required: 'true'
+             defaultValue: ''
+             sensitive: 'false'
+         - fieldName: namespace
+           typeName: string
+           attributes:
+             showName: 'The Pinecone namespace.'
+             help: >-
+               The namespace in Pinecone that you want to write vectors to
+             required: 'true'
+             defaultValue: ''
+             sensitive: 'false'
+         - fieldName: dimensions
+           typeName: number
+           attributes:
+             showName: 'Vector dimensions'
+             help: >-
+               The number of dimensions required by the index. If a request is made to
+               upsert data into an index with a different number of dimensions, the
+               request will fail.
+             required: 'false'
+             defaultValue: ''
+             sensitive: 'false'
+         - fieldName: queryMetadata
+           typeName: string
+           attributes:
+             showName: 'Metadata to add to the message'
+             help: >-
+               The metadata to be associated with the request to the index.
+               This should be a JSON object in the form
+               {"key": "value", "key2": "value2" }.
+             required: 'false'
+             defaultValue: ''
+             sensitive: 'false'
+    - id: pulsar-io-snowflake-streaming
+      name: snowflake-streaming
+      description: Snowflake Streaming Connector
+      imageRepository: streamnative/pulsar-io-snowflake-streaming
+      imageTag: 1.1.0
+      version: 1.1.0
+      sinkClass: org.apache.pulsar.ecosystem.io.snowflake.streaming.SnowflakeStreamingConnector
+      sinkConfigClass: org.apache.pulsar.ecosystem.io.snowflake.streaming.SnowflakeStreamingConfig
+      sinkTypeClassName: org.apache.pulsar.client.api.schema.GenericObject
+      iconLink: https://docs.streamnative.io/images/connectors/snowflake-logo.png
+      sinkDocLink: https://docs.streamnative.io/hub/connector-snowflake-streaming-v0.1
+      sinkConfigFieldDefinitions:
+        - fieldName: Prerequisites
+          typeName: docs
+          attributes:
+            showName: 'Prerequisites'
+            help: >-
+              The prerequisites for connecting a Snowflake Streaming sink connector to external systems include: <br />
+              1. Prepare a snowflake account <br />
+              2. Get the account URL from the `Admin - Accounts` page and click the link. It should be the format like `https://<account_identifier>.snowflakecomputing.com`. <br />
+              3. Generate the public key and private key for the authentication. For more details, please check [this guide](https://docs.snowflake.com/en/user-guide/key-pair-auth#step-1-generate-the-private-key) <br />
+
+              ```sh <br />
+
+              openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt
+              openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub
+
+              ```
+
+              It will generate `rsa_key.p8` (the private key) and `rsa_key.pub` (the public key) locally.  <br />
+
+              4. Log in and configure the public key. <br />
+
+              See [Installing SnowSQL](https://docs.snowflake.com/en/user-guide/snowsql-install-config) to install the SnowSQL. <br />
+
+              ```sh <br />
+
+              snowsql -a ${account_identifier} -u ${account_name}
+
+              ```
+
+              The `-a` is followed by an account identifier, which is a substring of the account URL before. The `-u` is followed by your user name. After logging in, set the public key passphrase: <br />
+
+              ```sh <br />
+
+              ALTER USER ${account_name} SET RSA_PUBLIC_KEY='MIIBIjA...';
+
+              ```
+              
+              You can get the public key passphrase `(MIIBIjA…)` by running the following command:
+
+               ```sh
+               grep -v "\-\-\-" rsa_key.pub | tr -d '\n'
+               ```
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: sourceSubscriptionPosition
+          typeName: enum
+          attributes:
+            showName: 'Subscription Position'
+            help: >-
+              Pulsar subscription position if user wants to consume messages from the specified location Possible Values: [Latest, Earliest]
+            configType: 'common'
+            required: 'true'
+            defaultValue: 'Latest'
+            sensitive: 'false'
+            value: '["Latest", "Earliest"]'
+        - fieldName: retainOrdering
+          typeName: boolean
+          attributes:
+            showName: ''
+            help: >-
+              Sink consumes and sinks messages in order. It must be set to true for the Snowflake Streaming Connector.
+            configType: 'common'
+            required: 'false'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: url
+          typeName: string
+          attributes:
+            showName: 'Snowflake URL'
+            help: 'The URL for accessing your Snowflake account. This URL must include your account identifier. The protocol (https://) and port number are optional.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: user
+          typeName: string
+          attributes:
+            showName: 'User'
+            help: 'User login name for the Snowflake account.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: database
+          typeName: string
+          attributes:
+            showName: 'Database'
+            help: 'The database in the Snowflake that the connector will sink data.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: schema
+          typeName: string
+          attributes:
+            showName: 'Schema'
+            help: 'The schema in the Snowflake that the connector will sink data.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: role
+          typeName: string
+          attributes:
+            showName: 'Role'
+            help: 'Access control role to use when inserting the rows into the table.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: warehouse
+          typeName: string
+          attributes:
+            showName: 'Warehouse'
+            help: 'The warehouse name in the Snowflake. Default to empty.'
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: privateKey
+          typeName: string
+          attributes:
+            showName: 'Private Key'
+            help: 'The private key of the user. The private key should not have any headers or footers. It must be a base64 encoded string.'
+            required: 'true'
+            defaultValue: ''
+            sensitive: 'true'
+        - fieldName: topic2table
+          typeName: string
+          attributes:
+            showName: 'Topic to Table Mapping'
+            help: 'Optional parameter to map topics to tables. Separate each topic and table with a colon. You can use regular expressions for topics, but each topic must match only one table. Use fully qualified Pulsar topic names or regex. Example: persistent://public/default/topic1:table1,persistent://public/default/topic2:table2"'
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: metadataFields
+          typeName: string
+          attributes:
+            showName: 'Metadata Fields'
+            help: 'The metadata fields for each Snowflake record. Separate multiple fields with commas. The supported metadata fields are: schema_version, partition, event_time, publish_time, message_id, sequence_id, producer_name, topic.'
+            required: 'false'
+            defaultValue: 'message_id,partition,topic,publish_time'
+            sensitive: 'false'
+        - fieldName: enableSchematization
+          typeName: boolean
+          attributes:
+            showName: 'Enable Schematization'
+            help: 'Specify to true to enable schema detection and evolution.'
+            required: 'true'
+            defaultValue: 'true'
+            sensitive: 'false'
+        - fieldName: icebergEnabled
+          typeName: boolean
+          attributes:
+            showName: 'Iceberg Enabled'
+            help: 'Enable the iceberg table format. Default to false.'
+            required: 'true'
+            defaultValue: 'false'
+            sensitive: 'false'
+        - fieldName: maxClientLag
+          typeName: string
+          attributes:
+            showName: 'Max Client Lag'
+            help: "Specifies how often Snowflake Ingest Java flushes the data to Snowflake, in seconds. Specify it to 0 or leave it empty to let the connector decide the value. If the table is an Iceberg table, the maxClientLag is 30 seconds. If it's a standard table, the maxClientLag is 1 second."
+            required: 'false'
+            defaultValue: ''
+            sensitive: 'false'
+        - fieldName: checkCommittedMessageIntervalMs
+          typeName: string
+          attributes:
+            showName: 'Check Committed Message Interval'
+            help: 'Specifies how often the Connector checks for committed messages, in milliseconds.'
+            required: 'false'
+            defaultValue: '1000'
+            sensitive: 'false'
