@@ -74,6 +74,13 @@ rules:
     - create
     - delete
     - patch
+- apiGroups: ["k8s.streamnative.io"]
+  resources:
+    - 'connectorcatalogs'
+  verbs:
+    - get
+    - list
+    - watch
 {{- end }}
 ---
 
