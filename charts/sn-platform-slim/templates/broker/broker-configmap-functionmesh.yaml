@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
-{{- if and .Values.components.broker .Values.broker.functionmesh.enabled}}
+{{- if and .Values.components.broker .Values.broker.functionmesh.enabled (eq .Values.broker.functionmesh.builtinConnectorType "ConfigMap")}}
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -201,14 +201,20 @@ spec:
     function:
       enabled: true
       mesh:
+        {{- if eq .Values.broker.functionmesh.builtinConnectorType "ConfigMap" }}
         builtinConnectorsRef:
           name: {{ include "pulsar.builtinConnectorsConfigMapName" . }}
+        {{- end }}
         functionEnabled: {{ .Values.broker.functionmesh.mesh.functionEnabled }}
         sinkEnabled: {{ .Values.broker.functionmesh.mesh.sinkEnabled }}
         sourceEnabled: {{ .Values.broker.functionmesh.mesh.sourceEnabled }}
         uploadEnabled: {{ .Values.broker.functionmesh.mesh.uploadEnabled }}
+      {{- if and .Values.broker.functionmesh.enabled (eq .Values.broker.functionmesh.builtinConnectorType "ConnectorCatalog") }}
+      customWorkerConfig: {{ template "pulsar.functions.config.mergedCustomWorkerConfig" . }}
+      {{- else }}
       {{- if .Values.broker.functionmesh.customWorkerConfig }}
       customWorkerConfig: {{ .Values.broker.functionmesh.customWorkerConfig | quote }}
+      {{- end }}
       {{- end }}
       {{- if .Values.broker.functionmesh.custom }}
       custom:
