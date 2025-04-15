@@ -689,6 +689,21 @@ entries:
     version: 0.7.0
   pulsar-resources-operator:
   - apiVersion: v2
+    appVersion: v0.9.2
+    created: "2025-04-15T06:48:55.735374459Z"
+    description: Pulsar Resources Operator Helm chart for Pulsar Resources Management
+      on Kubernetes
+    digest: 3693e80b669a15e1c0d242bb92a39129d33e98f82cefde15fd102048749c8318
+    icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
+    kubeVersion: '>= 1.18.0-0'
+    name: pulsar-resources-operator
+    sources:
+    - https://github.com/streamnative/pulsar-resources-operator
+    type: application
+    urls:
+    - https://github.com/streamnative/pulsar-resources-operator/releases/download/pulsar-resources-operator-v0.9.2/pulsar-resources-operator-v0.9.2.tgz
+    version: v0.9.2
+  - apiVersion: v2
     appVersion: v0.9.1
     created: "2025-03-20T07:39:13.791638275Z"
     description: Pulsar Resources Operator Helm chart for Pulsar Resources Management
@@ -4312,4 +4327,4 @@ entries:
     urls:
     - https://github.com/streamnative/charts/releases/download/sn-platform-slim-1.10.0/sn-platform-slim-1.10.0.tgz
     version: 1.10.0
-generated: "2025-04-02T02:20:22.849332448Z"
+generated: "2025-04-15T06:48:55.737868118Z"
