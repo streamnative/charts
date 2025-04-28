@@ -1648,6 +1648,7 @@ toolset:
 
 # pulsar coordinator
 pulsar_coordinator:
+  toolSet: false
   component: coordinator
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
