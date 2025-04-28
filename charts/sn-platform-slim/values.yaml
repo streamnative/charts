@@ -1646,6 +1646,12 @@ toolset:
     # annotations to apply to the serviceAccount.
     annotations: {}
 
+# pulsar coordinator
+pulsar_coordinator:
+  component: coordinator
+    # nodeSelector:
+    # cloud.google.com/gke-nodepool: default-pool
+
 #############################################################
 ### Monitoring Stack : Prometheus / Grafana
 #############################################################
