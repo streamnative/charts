@@ -40,7 +40,7 @@ metadata:
   {{- end }}
 spec:
 {{- if $isIngressAPIStable }}
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingress.control_center.ingressClassName | default "nginx" }}
 {{- end }}
 {{- if and .Values.ingress.control_center.tls.enabled (not .Values.ingress.controller.tls.termination) }}
   {{- if .Values.domain.enabled }}
