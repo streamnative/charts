@@ -8,5 +8,14 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-coordinator"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
+  {{- if not .Values.pulsar_coordinator.toolSet }}
+  toolSet:
+    enabled: {{ .Values.pulsar_coordinator.toolSet }}
+  {{- end }}
   image: {{ .Values.images.coordinator.repository }}:{{ .Values.images.coordinator.tag }}
+  {{- if .Values.pulsar_coordinator.nodeSelector }}
+  pod:
+    nodeSelector:
+{{ toYaml .Values.pulsar_coordinator.nodeSelector | indent 6 }}
+    {{- end }}
 {{- end }}
