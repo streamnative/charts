@@ -33,7 +33,7 @@ metadata:
     ingress.kubernetes.io/ssl-redirect: "false"
 {{- end }}
   {{- if not $isIngressAPIStable }}
-    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.class: {{ .Values.ingress.control_center.ingressClassName | default "nginx" }}
   {{- end }}
   {{- with .Values.ingress.control_center.annotations }}
     {{- toYaml . | nindent 4 }}
