@@ -257,31 +257,19 @@ Define function for get authenticaiton environment variable
         key: PULSAR_PREFIX_OIDCTokenAudienceID
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
 - name: brokerClientAuthenticationParameters
-  valueFrom:
-      secretKeyRef:
-        name: {{ template "pulsar.vault-secret-key-name" . }}
-        key: PROXY_brokerClientAuthenticationParameters
+  value: "file:///mnt/token/TOKEN"
 {{- else }}
 - name: brokerClientAuthenticationParameters
-  valueFrom:
-      secretKeyRef:
-        name: {{ template "pulsar.vault-secret-key-name" . }}
-        key: brokerClientAuthenticationParameters
+  value: "file:///mnt/token/TOKEN"
 {{- end }}
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
 - name: brokerClientAuthenticationParameters
-  valueFrom:
-      secretKeyRef:
-        name: {{ .Release.Name }}-token-proxy-admin
-        key: TOKEN
+  value: "file:///mnt/token/TOKEN"
 {{- else }}
 - name: brokerClientAuthenticationParameters
-  valueFrom:
-      secretKeyRef:
-        name: {{ .Release.Name }}-token-admin
-        key: TOKEN
+  value: "file:///mnt/token/TOKEN"
 {{- end }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
 - name: tokenSecretKey
@@ -303,11 +291,25 @@ Define function for get authenticaiton secret
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
 {{- end }}
 {{- if and .Values.auth.vault.enabled (or .Values.broker.readPublicKeyFromFile .Values.proxy.readPublicKeyFromFile) }}
+{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
+- mountPath: /mnt/token
+  secretName: {{ .Release.Name }}-token-proxy-admin
+{{- else }}
+- mountPath: /mnt/token
+  secretName: {{ .Release.Name }}-token-admin
+{{- end }}
 - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
   {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
   secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
+{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
+- mountPath: /mnt/token
+  secretName: {{ .Release.Name }}-token-proxy-admin
+{{- else }}
+- mountPath: /mnt/token
+  secretName: {{ .Release.Name }}-token-admin
+{{- end }}
 {{- if .Values.auth.authentication.jwt.usingSecretKey }}
 - mountPath: /mnt/secrets
   secretName: {{ .Release.Name }}-token-symmetric-key
