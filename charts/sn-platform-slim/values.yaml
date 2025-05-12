@@ -850,6 +850,10 @@ bookkeeper:
     runAsNonRoot: true
   tolerations: []
   gracePeriod: 30
+  # The minimum number of seconds for new pods to be ready.
+  # This can add a delay in the startup/restart of the bookkeeper cluster.
+  # default is 0
+  minReadySeconds: 0
   resources:
     requests:
       memory: "512Mi"

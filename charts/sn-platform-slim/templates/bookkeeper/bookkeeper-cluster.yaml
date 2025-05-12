@@ -58,6 +58,9 @@ spec:
     topologySpreadConstraints:
     {{- toYaml . | nindent 4 }}
     {{- end }}
+    {{- if .Values.bookkeeper.minReadySeconds }}
+    minReadySeconds: {{ .Values.bookkeeper.minReadySeconds }}
+    {{- end }}
     {{- if .Values.bookkeeper.serviceAccount.use }}
     serviceAccountName: {{ template "pulsar.bookkeeper.serviceAccount" . }}
     {{- end }}
