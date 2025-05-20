@@ -125,24 +125,6 @@ Define broker tls certs volumes
 {{- end }}
 
 {{/*
-Define broker log mounts
-*/}}
-{{- define "pulsar.broker.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j2"
-  mountPath: "{{ template "pulsar.home" .}}/conf/log4j2.yaml"
-  subPath: log4j2.yaml
-{{- end }}
-
-{{/*
-Define broker log volumes
-*/}}
-{{- define "pulsar.broker.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}-log4j2"
-  configMap:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
-{{- end }}
-
-{{/*
 Define function worker config volume mount
 */}}
 {{- define "pulsar.function.worker.config.volumeMounts" -}}

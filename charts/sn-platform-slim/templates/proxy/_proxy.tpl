@@ -77,23 +77,6 @@ Define proxy certs volumes
 {{- end }}
 {{- end }}
 
-{{/*
-Define proxy log mounts
-*/}}
-{{- define "pulsar.proxy.log.volumeMounts" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j2"
-  mountPath: "{{ template "pulsar.home" . }}/conf/log4j2.yaml"
-  subPath: log4j2.yaml
-{{- end }}
-
-{{/*
-Define proxy log volumes
-*/}}
-{{- define "pulsar.proxy.log.volumes" -}}
-- name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-log4j2"
-  configMap:
-    name: "{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}"
-{{- end }}
 
 {{/*Define proxy pod name*/}}
 {{- define "pulsar.proxy.containerName" -}}
