@@ -34,9 +34,10 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.containerName" . }}.instances:
       {{ else -}}
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
+      "metrics": {{ .Values.datadog.components.autorecovery.metrics }},
+      "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
       "timeout": 1000,
-      "metrics": {{ .Values.datadog.components.autorecovery.metrics }},
       "tags": [
         "pulsar-autorecovery: {{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
       ]
