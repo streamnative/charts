@@ -77,7 +77,6 @@ spec:
             bin/pulsar-metadata-tool backup
         volumeMounts:
         {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
-        {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
         - name: backup-config
           mountPath: /pulsar-metadata-tool/conf/pulsar-metadata-tool
         env:
@@ -176,12 +175,10 @@ spec:
         volumeMounts:
         {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 8 }}
-        {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.zookeeper.genzkconf.volumeMounts" . | nindent 8 }}
       volumes:
       {{- include "pulsar.zookeeper.data.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.certs.volumes" . | nindent 6 }}
-      {{- include "pulsar.zookeeper.log.volumes" . | nindent 6 }}
       {{- include "pulsar.zookeeper.genzkconf.volumes" . | nindent 6 }}
       {{- if .Values.zookeeper.customTools.backup.enable }}
       - name: backup-config

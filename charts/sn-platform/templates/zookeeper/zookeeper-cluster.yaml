@@ -140,7 +140,6 @@ spec:
     volumes:
     {{- include "pulsar.zookeeper.data.volumes" . | nindent 4 }}
     {{- include "pulsar.zookeeper.certs.volumes" . | nindent 4 }}
-    {{- include "pulsar.zookeeper.log.volumes" . | nindent 4 }}
     {{- include "pulsar.zookeeper.genzkconf.volumes" . | nindent 4 }}
     {{- if .Values.zookeeper.customTools.restore.enable }}
     - name: restore-config
@@ -223,7 +222,6 @@ spec:
       volumeMounts:
       {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 6 }}
       {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 6 }}
-      {{- include "pulsar.zookeeper.log.volumeMounts" . | nindent 6 }}
       {{- include "pulsar.zookeeper.genzkconf.volumeMounts" . | nindent 6 }}
       {{- end }}
       {{- if and (not .Values.zookeeper.operator.adopt_existing) .Values.tls.zookeeper.enabled }}
