@@ -59,6 +59,9 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
       {{ end -}}
       "enable_health_service_check": true,
       "timeout": 1000,
+      {{- range $key, $value := .Values.datadog.components.prometheus.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value | quote }},
+      {{- end }}
       "metrics": {{ .Values.datadog.components.prometheus.metrics }}
     }
   ]
@@ -78,6 +81,9 @@ ad.datadoghq.com/{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.compon
       {{ end -}}
       "enable_health_service_check": true,
       "timeout": 1000,
+      {{- range $key, $value := .Values.datadog.components.prometheus.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value | quote }},
+      {{- end }}
       "metrics": {{ .Values.datadog.components.prometheus.metrics }}
     }
   ]

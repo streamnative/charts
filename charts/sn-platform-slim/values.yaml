@@ -1833,31 +1833,38 @@ datadog:
       metrics: [
         "\".*\""
       ]
+      custom_instance_configs: {}
     bookkeeper:
       enabled: false
       metrics: [
         "\".*\""
       ]
+      custom_instance_configs: {}
     autorecovery:
       enabled: false
       metrics: [
         "\".*\""
       ]
+      custom_instance_configs: {}
     broker:
       enabled: false
       metrics: [
         "\".*\""
       ]
+      custom_instance_configs: {}
+      kafka_consumer_custom_instance_configs: {}
     proxy:
       enabled: false
       metrics: [
         "\".*\""
       ]
+      custom_instance_configs: {}
     prometheus:
       enabled: false
       metrics: [
         "\".*\""
       ]
+      custom_instance_configs: {}
 
 ## Monitoring Stack: Grafana
 ## templates/grafana-statefulset.yaml
