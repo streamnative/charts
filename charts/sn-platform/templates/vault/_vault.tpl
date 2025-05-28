@@ -33,6 +33,9 @@ ad.datadoghq.com/vault.init_configs: |
 ad.datadoghq.com/vault.instances: |
   [
     {
+      {{- range $key, $value := .Values.datadog.components.vault.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value | quote }},
+      {{- end }}
       "api_url": "http://%%host%%:8200/v1",
       {{- if .Values.datadog.components.vault.auth.enabled }}
       "client_token": {{ .Values.datadog.components.vault.auth.token }}
@@ -54,6 +57,9 @@ ad.datadoghq.com/vault.checks: |
       "init_config": {},
       "instances": [
     {
+      {{- range $key, $value := .Values.datadog.components.vault.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value | quote }},
+      {{- end }}
       "api_url": "http://%%host%%:8200/v1",
       {{- if .Values.datadog.components.vault.auth.enabled }}
       "client_token": {{ .Values.datadog.components.vault.auth.token }}

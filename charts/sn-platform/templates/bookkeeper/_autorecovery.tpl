@@ -37,6 +37,9 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.containerName" . }}.instances:
       "enable_health_service_check": true,
       "timeout": 1000,
       "metrics": {{ .Values.datadog.components.autorecovery.metrics }},
+      {{- range $key, $value := .Values.datadog.components.autorecovery.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value | quote }},
+      {{- end }}
       "tags": [
         "pulsar-autorecovery: {{ template "pulsar.fullname" . }}-{{ .Values.autorecovery.component }}"
       ]
@@ -57,6 +60,9 @@ ad.datadoghq.com/{{ template "pulsar.autorecovery.containerName" . }}.checks: |
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.autorecovery.metrics }},
+      {{- range $key, $value := .Values.datadog.components.autorecovery.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value | quote }},
+      {{- end }}
       "enable_health_service_check": true,
       "timeout": 1000,
       "tags": [
