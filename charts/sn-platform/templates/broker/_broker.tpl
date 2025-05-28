@@ -240,8 +240,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
       ]
     }
 {{- end }}
-  } 
-{{- end }}
+  }
 {{- end }}
 {{- end }}
 {{- end }}
