@@ -177,7 +177,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
       "enable_health_service_check": true,
       "timeout": 1000,
       {{- range $key, $value := .Values.datadog.components.broker.custom_instance_configs }}
-      {{ $key | quote }}: {{ $value | quote }},
+      {{ $key | quote }}: {{ $value }},
       {{- end }}
       "tags": [
         "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
@@ -190,7 +190,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
       "kafka_connect_str": "{{ template "pulsar.broker.kop.service.url" .}}",
       {{- if .Values.datadog.components.broker.kafka_consumer_custom_instance_configs }}
       {{- range $key, $value := .Values.datadog.components.broker.kafka_consumer_custom_instance_configs }}
-      {{ $key | quote }}: {{ $value | quote }},
+      {{ $key | quote }}: {{ $value }},
       {{- end }}
       {{- end }}
       "tags": [
@@ -217,7 +217,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
           "enable_health_service_check": true,
           "timeout": 1000,
           {{- range $key, $value := .Values.datadog.components.broker.custom_instance_configs }}
-          {{ $key | quote }}: {{ $value | quote }},
+          {{ $key | quote }}: {{ $value }},
           {{- end }}
           "tags": [
             "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
@@ -233,7 +233,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
       "instances": [
         {
           {{- range $key, $value := .Values.datadog.components.broker.kafka_consumer_custom_instance_configs }}
-          {{ $key | quote }}: {{ $value | quote }},
+          {{ $key | quote }}: {{ $value }},
           {{- end }}
           "kafka_connect_str": "{{ template "pulsar.broker.kop.service.url" .}}"
         }

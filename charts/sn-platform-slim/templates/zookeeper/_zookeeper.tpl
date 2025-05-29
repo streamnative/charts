@@ -116,7 +116,7 @@ ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.instances: |
       {{ end -}}
       "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
       {{- range $key, $value := .Values.datadog.components.zookeeper.custom_instance_configs }}
-      {{ $key | quote }}: {{ $value | quote }},
+      {{ $key | quote }}: {{ $value }},
       {{- end }}
       "enable_health_service_check": true,
       "timeout": 1000,
@@ -141,7 +141,7 @@ ad.datadoghq.com/{{ template "pulsar.zookeeper.podName" . }}.checks: |
       {{ end -}}
       "metrics": {{ .Values.datadog.components.zookeeper.metrics }},
       {{- range $key, $value := .Values.datadog.components.zookeeper.custom_instance_configs }}
-      {{ $key | quote }}: {{ $value | quote }},
+      {{ $key | quote }}: {{ $value }},
       {{- end }}
       "enable_health_service_check": true,
       "timeout": 1000,
