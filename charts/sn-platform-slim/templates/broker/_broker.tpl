@@ -177,6 +177,7 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
       {{- if .Values.broker.kop.enabled }}
       "kafka_connect_str": {{ template "pulsar.broker.kop.service.url" .}}
       {{- end }}
+      "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
       "timeout": 1000,
       "tags": [
