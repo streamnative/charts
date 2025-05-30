@@ -102,6 +102,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.instances: |
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
+      "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
       "timeout": 1000,
       {{- range $key, $value := .Values.datadog.components.proxy.custom_instance_configs }}
@@ -134,6 +135,7 @@ ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.checks: |
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
+      "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
       "timeout": 1000,
       {{- range $key, $value := .Values.datadog.components.proxy.custom_instance_configs }}
