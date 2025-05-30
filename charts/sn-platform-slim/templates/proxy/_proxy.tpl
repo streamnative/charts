@@ -105,6 +105,9 @@ ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.instances: |
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
+      {{- range $key, $value := .Values.datadog.components.proxy.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value }},
+      {{- end }}
       "timeout": 1000,
 {{- if .Values.auth.authentication.enabled }}
 {{- if and (eq .Values.auth.authentication.provider "jwt") (and .Values.proxy.authenticateMetricsEndpoint .Values.proxy.authenticateMetricsEndpoint.enabled) }}
@@ -135,6 +138,9 @@ ad.datadoghq.com/{{ template "pulsar.proxy.containerName" . }}.checks: |
       "metrics": {{ .Values.datadog.components.proxy.metrics }},
       "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
+      {{- range $key, $value := .Values.datadog.components.proxy.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value }},
+      {{- end }}
       "timeout": 1000,
 {{- if .Values.auth.authentication.enabled }}
 {{- if and (eq .Values.auth.authentication.provider "jwt") (and .Values.proxy.authenticateMetricsEndpoint .Values.proxy.authenticateMetricsEndpoint.enabled) }}

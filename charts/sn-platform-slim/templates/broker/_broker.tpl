@@ -180,10 +180,28 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.instances: |
       "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
       "timeout": 1000,
+      {{- range $key, $value := .Values.datadog.components.broker.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value }},
+      {{- end }}
+      "tags": [
+        "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
+      ]
+{{- if not .Values.broker.kop.enabled }}
+    }
+{{- else }}
+    },
+    {
+      "kafka_connect_str": "{{ template "pulsar.broker.kop.service.url" .}}",
+      {{- if .Values.datadog.components.broker.kafka_consumer_custom_instance_configs }}
+      {{- range $key, $value := .Values.datadog.components.broker.kafka_consumer_custom_instance_configs }}
+      {{ $key | quote }}: {{ $value }},
+      {{- end }}
+      {{- end }}
       "tags": [
         "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
       ]
     }
+{{- end }}
   ]
 {{- end }}
 {{- if eq .Values.datadog.adVersion "v2" }}
@@ -202,21 +220,31 @@ ad.datadoghq.com/{{ template "pulsar.broker.podName" . }}.checks: |
           "metrics": {{ .Values.datadog.components.broker.metrics }},
           "enable_health_service_check": true,
           "timeout": 1000,
+          {{- range $key, $value := .Values.datadog.components.broker.custom_instance_configs }}
+          {{ $key | quote }}: {{ $value }},
+          {{- end }}
           "tags": [
             "pulsar-broker: {{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}"
           ]
         }
       ]
+{{- if not .Values.broker.kop.enabled }}
     }
-{{- if .Values.broker.kop.enabled }}
+{{- else }}
+    },
     "kafka_consumer": {
       "init_config": {},
       "instances": [
-        {"kafka_connect_str": {{ template "pulsar.broker.kop.service.url" .}} }
+        {
+          {{- range $key, $value := .Values.datadog.components.broker.kafka_consumer_custom_instance_configs }}
+          {{ $key | quote }}: {{ $value }},
+          {{- end }}
+          "kafka_connect_str": "{{ template "pulsar.broker.kop.service.url" .}}"
+        }
       ]
     }
-  } 
 {{- end }}
+  } 
 {{- end }}
 {{- end }}
 {{- end }}

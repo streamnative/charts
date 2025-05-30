@@ -167,6 +167,9 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.instances: |
       "namespace": "{{ template "pulsar.namespace" . }}",
       {{ end -}}
       "metrics": {{ .Values.datadog.components.bookkeeper.metrics }},
+      {{- range $key, $value := .Values.datadog.components.bookkeeper.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value }},
+      {{- end }}
       "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
       "timeout": 1000,
@@ -193,6 +196,9 @@ ad.datadoghq.com/{{ template "pulsar.bookkeeper.podName" . }}.checks: |
       "max_returned_metrics": 1000000,
       "enable_health_service_check": true,
       "timeout": 1000,
+      {{- range $key, $value := .Values.datadog.components.bookkeeper.custom_instance_configs }}
+      {{ $key | quote }}: {{ $value }},
+      {{- end }}
       "tags": [
         "pulsar-bookie: {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
       ]
