@@ -139,7 +139,7 @@ spec:
         {{- end }}
         {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
         - name: brokerClientAuthenticationParameters
-          value: "file:///mnt/token/TOKEN"
+          value: "/mnt/token/TOKEN"
         {{- end }}
         {{- if .Values.pulsar_detector.extraEnv  }}
         {{- toYaml .Values.pulsar_detector.extraEnv | nindent 10 }}
