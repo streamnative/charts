@@ -139,17 +139,16 @@ spec:
         {{- end }}
         {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
         - name: brokerClientAuthenticationParameters
-          value: "file:///mnt/token/TOKEN"
+          valueFrom:
+              secretKeyRef:
+                name: {{ .Release.Name }}-token-admin
+                key: TOKEN
         {{- end }}
         {{- if .Values.pulsar_detector.extraEnv  }}
         {{- toYaml .Values.pulsar_detector.extraEnv | nindent 10 }}
         {{- end }}
-        {{- if or .Values.pulsar_detector.extraVolumeMounts (and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled) }}
+        {{- if .Values.pulsar_detector.extraVolumeMounts }}
         volumeMounts: 
-         {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
-        - mountPath: /mnt/token
-          secretName: {{ .Release.Name }}-token-admin
-        {{- end }}
         {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
         {{- end }}
       volumes:
