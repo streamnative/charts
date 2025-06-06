@@ -141,6 +141,7 @@ spec:
         volumeMounts: 
          {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
         - mountPath: /mnt/token
+          name: detector-token
           secretName: {{ .Release.Name }}-token-admin
         {{- end }}
         {{- if .Values.pulsar_detector.extraVolumeMounts }}
