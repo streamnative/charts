@@ -142,7 +142,7 @@ spec:
          {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
         - mountPath: /mnt/token
           name: detector-token
-          secretName: {{ .Release.Name }}-token-admin
+          readOnly: true
         {{- end }}
         {{- if .Values.pulsar_detector.extraVolumeMounts }}
         {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
