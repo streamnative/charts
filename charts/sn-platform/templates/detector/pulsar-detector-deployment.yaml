@@ -150,9 +150,7 @@ spec:
         - mountPath: /mnt/token
           secretName: {{ .Release.Name }}-token-admin
         {{- end }}
-        {{- if .Values.pulsar_detector.extraVolumeMounts }}
         {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
-        {{- end }}
         {{- end }}
       volumes:
       - name: tmp
