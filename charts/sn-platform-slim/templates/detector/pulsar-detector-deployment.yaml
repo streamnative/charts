@@ -151,6 +151,12 @@ spec:
       volumes:
       - name: tmp
         emptyDir: {}
+      {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
+      - name: detector-token
+        secret:
+          secretName: {{ .Release.Name }}-token-admin
+          defaultMode: 420
+      {{- end }}
       {{- if .Values.pulsar_detector.extraVolumes }}
       {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 8 }}
       {{- end }}
