@@ -982,6 +982,12 @@ bookkeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
+      # metadata to add onto PVCs for journal storage
+      # metadata:
+      #   annotations:
+      #     example.com/annotation-key: "annotation-value"
+      #   labels:
+      #     example.com/label-key: "label-value"
     ledgers:
       # It determines the directory of ledgers data
       numVolumes: 1
@@ -1005,6 +1011,12 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
+      # metadata to add onto PVCs for ledgers storage
+      # metadata:
+      #   annotations:
+      #     example.com/annotation-key: "annotation-value"
+      #   labels:
+      #     example.com/label-key: "label-value"
   jvm:
     # BookKeeper Operator will automatically generate the JVM memory options based on the Pod memory size. You can override this by entering a new value.
     memoryOptions: []
