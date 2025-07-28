@@ -300,6 +300,7 @@ auth:
       usingSecretKey: false
       # Whether to enable automatic initialization jwt authentication secret
       autoInitSecret: false
+      readTokenFromFile: false
     tls:
       enabled: false
   authorization:
