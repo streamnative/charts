@@ -12,7 +12,9 @@ spec:
   toolSet:
     enabled: {{ .Values.pulsar_coordinator.toolSet }}
   {{- end }}
+  {{- if .Values.images.coordinator }}
   image: {{ .Values.images.coordinator.repository }}:{{ .Values.images.coordinator.tag }}
+  {{- end }}
   {{- if .Values.pulsar_coordinator.nodeSelector }}
   pod:
     nodeSelector:
