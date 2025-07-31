@@ -29,7 +29,7 @@ metadata:
 spec:
   brokerAddress: {{ template "pulsar.proxy.broker.service.address" . }}
   replicas: {{ .Values.proxy.replicaCount }}
-  {{- if not .Values.components.pulsar_coordinator }}
+  {{- if not (and .Values.components.pulsar_coordinator .Values.images.coordinator) }}
   image: "{{ .Values.images.proxy.repository }}:{{ .Values.images.proxy.tag }}"
   {{- end }}
   imagePullPolicy: {{ .Values.images.proxy.pullPolicy }}

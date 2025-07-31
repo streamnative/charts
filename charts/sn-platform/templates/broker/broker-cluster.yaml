@@ -33,7 +33,7 @@ spec:
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   configurationStoreServers: "{{ template "pulsar.configurationStore.connect" . }}{{ .Values.metadataPrefix }}"
   replicas: {{ .Values.broker.replicaCount }}
-  {{- if not .Values.components.pulsar_coordinator }}
+  {{- if not (and .Values.components.pulsar_coordinator .Values.images.coordinator) }}
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   {{- end }}
   imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
