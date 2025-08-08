@@ -1195,6 +1195,8 @@ broker:
   dnsNames:
 #    - my-pulsar-service-aop.example.com
 #    - my-pulsar-service-mop.example.com
+  # Broker placement policy, one of: "az-rack-aware", "az-region-aware"
+  placementPolicy: ""
   kop:
     enabled: true
     ports:

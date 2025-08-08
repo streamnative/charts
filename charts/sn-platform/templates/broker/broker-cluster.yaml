@@ -234,6 +234,9 @@ spec:
     advertisedDomain: {{ template "pulsar.broker_service_domain" . }}
     serviceURLGenerationPolicy: FQDN
     {{- end }}
+    {{- if .Values.broker.placementPolicy }}
+    placementPolicy: {{ .Values.broker.placementPolicy | quote }}
+    {{- end }}
     usePodIPAsAdvertisedAddress: {{ .Values.broker.usePodIPAsAdvertisedAddress | default "false" }}
     {{- if .Values.broker.pulsarRestMessaging.enabled }}
     pulsarRestMessagingServiceEnabled: true
