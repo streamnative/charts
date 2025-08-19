@@ -1322,8 +1322,13 @@ broker:
     extraOptions: []
     gcLoggingOptions: []
   configData:
-    managedLedgerDefaultEnsembleSize: "3"
-    managedLedgerDefaultWriteQuorum: "3"
+    # Ensemble size (E): Number of bookies to use for storing entries in a ledger
+    # Write quorum (Qw): Replication factor for storing entries (messages) in a ledger
+    # Ack quorum (Qa): Number of guaranteed copies (acks to wait for before a write is considered completed)
+    # Default values are set to 2 to allow for single bookie failure tolerance with 3 bookies
+    # For clusters with more bookies, you may want to increase these values for better data durability
+    managedLedgerDefaultEnsembleSize: "2"
+    managedLedgerDefaultWriteQuorum: "2"
     managedLedgerDefaultAckQuorum: "2"
     PULSAR_PREFIX_systemTopicEnabled: "true"
     PULSAR_PREFIX_topicLevelPoliciesEnabled: "true"
