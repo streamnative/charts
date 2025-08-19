@@ -6,12 +6,12 @@ broker:
     # Deploy the https://github.com/kubernetes-sigs/metrics-server to support resource metrics.
     # Metrics server supports the cpu and memory PodMetrics.
     metrics:
-      type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 70
 
 bookkeeper:
   autoScaling:
@@ -21,9 +21,9 @@ bookkeeper:
     # Deploy the https://github.com/kubernetes-sigs/metrics-server to support resource metrics.
     # Metrics server supports the cpu and memory PodMetrics.
     metrics:
-      type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 70
