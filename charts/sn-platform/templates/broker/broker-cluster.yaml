@@ -94,7 +94,7 @@ spec:
 {{ toYaml . | indent 4 }}
 {{- end }}
     {{- if or .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled (and .Values.auth.vault.enabled .Values.broker.readPublicKeyFromFile) }}
-{{- include "pulsar.authSecret" . | indent 4 }}
+{{- include "pulsar.authSecret" (dict "Values" .Values "Component" .Values.proxy.component "Release" .Release "Chart" .Chart) | indent 4 }}
     {{- end }}
 {{- end }}
     {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumes }}
