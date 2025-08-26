@@ -177,7 +177,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: streamnative/private-cloud-console
-    tag: "v2.3.9"
+    tag: "v2.3.15"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -2173,6 +2173,8 @@ streamnative_console:
     GRAFANA_AUTH_PROXY_USER: ""
     CONNECTOR_ENABLED: true
     OPENAPI_ENABLED: false
+    # please use base64 encoded your password
+    DB_PASSWORD: ""
 
   login:
     sso:
