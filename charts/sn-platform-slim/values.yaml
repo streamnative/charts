@@ -2046,6 +2046,49 @@ alert_manager:
   # add alert rules below
   rules:
     groups:
+    - name: streamnative_license_alerts
+      interval: 30s
+      rules:
+      - alert: StreamNativeLicenseExpiringSoon
+        expr: streamnative_pulsar_license_expire_close_days < 30 and streamnative_pulsar_license_expire_close_days >= 7
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "StreamNative license expiring soon"
+          description: "StreamNative license for {{ $labels.license_id }} (type: {{ $labels.type }}) will expire in {{ $value }} days. Please contact StreamNative support at https://support.streamnative.io to renew your license."
+      - alert: StreamNativeLicenseExpiringCritical
+        expr: streamnative_pulsar_license_expire_close_days < 7 and streamnative_pulsar_license_expire_close_days >= 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "StreamNative license expiring critically soon"
+          description: "StreamNative license for {{ $labels.license_id }} (type: {{ $labels.type }}) will expire in {{ $value }} days! Urgent action required. Contact StreamNative support immediately at https://support.streamnative.io."
+      - alert: StreamNativeLicenseExpired
+        expr: streamnative_pulsar_license_valid_status == 1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "StreamNative license has expired"
+          description: "StreamNative license for {{ $labels.license_id }} (type: {{ $labels.type }}) has expired {{ $labels.license_expired_days }} days ago. Your StreamNative Platform features may be disabled. Contact StreamNative support urgently at https://support.streamnative.io."
+      - alert: StreamNativeInvalidLicense
+        expr: streamnative_pulsar_license_valid_status == 2
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "StreamNative license is invalid"
+          description: "No valid StreamNative license found. Please ensure a valid license secret is present in the operator namespace. Contact StreamNative support at https://support.streamnative.io."
+      - alert: StreamNativeNoValidLicenses
+        expr: streamnative_pulsar_license_valid_licenses == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No valid StreamNative licenses found"
+          description: "The system has detected no valid StreamNative licenses. Platform functionality may be severely impacted. Contact StreamNative support immediately at https://support.streamnative.io."
 
 
 ## Components Stack: streamnative_console
