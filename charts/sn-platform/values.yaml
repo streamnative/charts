@@ -141,7 +141,7 @@ images:
     tag: "3.3.3.3"
     pullPolicy: IfNotPresent
     exporter:
-      repository: bitnami/jmx-exporter
+      repository: prom/jmx-exporter
       tag: "0.17.0"
       pullPolicy: IfNotPresent
   # NOTE: allow overriding the presto worker image
@@ -179,7 +179,7 @@ images:
     tag: "3.3.3.3"
     pullPolicy: IfNotPresent
     kafka:
-      repository: bitnami/kafka
+      repository: apache/kafka
       tag: "3.5.1"
       pullPolicy: IfNotPresent
     busybox:
@@ -187,8 +187,8 @@ images:
       tag: "1.36.1-uclibc"
       pullPolicy: IfNotPresent
     kubectl:
-      repository: bitnami/kubectl
-      tag: "1.28.3"
+      repository: registry.k8s.io/kubectl
+      tag: "v1.28.3"
       pullPolicy: IfNotPresent
   prometheus:
     repository: quay.io/prometheus/prometheus

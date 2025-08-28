@@ -209,7 +209,6 @@ spec:
 {{- end }}
         {{- if .Values.presto.exporter.enabled }}
         - name: jmx-exporter
-          image: "bitnami/jmx-exporter:0.17.0"
           image: "{{ .Values.images.presto.exporter.repository }}:{{ .Values.images.presto.exporter.tag }}"
           imagePullPolicy: {{ .Values.images.presto.exporter.pullPolicy }}
           command:
