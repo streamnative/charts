@@ -2136,6 +2136,56 @@ alert_manager:
   # add alert rules below
   rules:
     groups:
+      - name: zookeeper_consistency
+        interval: 30s
+        rules:
+          # Alert when ZK metadata operations are taking too long
+          - alert: ZookeeperHighOperationLatency
+            expr: |
+              histogram_quantile(0.99, sum(rate(pulsar_metadata_store_ops_latency_bucket{metadata_store_name="zk"}[5m])) by (le, cluster, job)) > 2000
+            for: 5m
+            labels:
+              severity: warning
+              component: zookeeper
+            annotations:
+              summary: "ZooKeeper operations experiencing high latency"
+              description: "99th percentile latency for ZooKeeper operations is {{ $value }}ms (cluster: {{ $labels.cluster }}, job: {{ $labels.job }})"
+              
+          # Alert when ZK metadata operations are failing
+          - alert: ZookeeperOperationFailures
+            expr: |
+              sum(rate(pulsar_metadata_store_ops_failed{metadata_store_name="zk"}[5m])) by (cluster, job) > 0.1
+            for: 3m
+            labels:
+              severity: critical
+              component: zookeeper
+            annotations:
+              summary: "ZooKeeper operations are failing"
+              description: "ZooKeeper operation failure rate is {{ $value }} per second (cluster: {{ $labels.cluster }}, job: {{ $labels.job }})"
+              
+          # Alert when topic loads are timing out (early indicator of ZK issues)
+          - alert: TopicLoadTimeoutRisk
+            expr: |
+              histogram_quantile(0.95, sum(rate(pulsar_broker_topic_load_latency_ms_bucket[5m])) by (le, cluster, job)) > 30000
+            for: 5m
+            labels:
+              severity: warning
+              component: broker
+            annotations:
+              summary: "Topic load operations approaching timeout threshold"
+              description: "95th percentile topic load latency is {{ $value }}ms, risk of timeouts (cluster: {{ $labels.cluster }}, job: {{ $labels.job }})"
+              
+          # Alert when metadata store connection is lost/unstable
+          - alert: MetadataStoreConnectionUnstable
+            expr: |
+              sum(increase(pulsar_metadata_store_connection_lost_total[5m])) by (cluster, job) > 2
+            for: 5m
+            labels:
+              severity: warning
+              component: zookeeper
+            annotations:
+              summary: "Metadata store connection unstable"
+              description: "Metadata store has lost connection {{ $value }} times in the last 5 minutes (cluster: {{ $labels.cluster }}, job: {{ $labels.job }})"
 
 
 ## Components Stack: streamnative_console
