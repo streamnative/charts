@@ -160,7 +160,7 @@ images:
       tag: "1.36.1-uclibc"
       pullPolicy: IfNotPresent
     kubectl:
-      repository: bitnamilegacy/kubectl
+      repository: docker-proxy.streamnative.io/bitnamilegacy/kubectl
       tag: "1.28.3"
       pullPolicy: IfNotPresent
   prometheus:
