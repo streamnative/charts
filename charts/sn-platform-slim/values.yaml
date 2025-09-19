@@ -176,7 +176,7 @@ images:
     tag: "0.1.2"
     pullPolicy: IfNotPresent
   streamnative_console:
-    repository: streamnative/private-cloud-console
+    repository: docker-proxy.streamnative.io/streamnative/private-cloud-console
     tag: "v2.3.21"
     pullPolicy: IfNotPresent
     hasCommand: false
