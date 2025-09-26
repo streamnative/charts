@@ -33,7 +33,7 @@ data:
     scrape_configs:
 {{- if .Values.prometheus.customScrapeConfigs -}}
 {{- with .Values.prometheus.customScrapeConfigs }}
-{{ toYaml . | indent 6 }}
+{{ toYaml . | indent 4 }}
 {{- end }}
 {{- else }}
     - job_name: 'prometheus'
