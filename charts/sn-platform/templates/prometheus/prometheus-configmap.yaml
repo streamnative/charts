@@ -31,6 +31,11 @@ data:
         path_prefix: {{ template "pulsar.control_center_path.alertmanager" . }}/
 {{- end }}
     scrape_configs:
+{{- if .Values.prometheus.customScrapeConfigs -}}
+{{- with .Values.prometheus.customScrapeConfigs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- else }}
     - job_name: 'prometheus'
       static_configs:
       - targets:
@@ -153,6 +158,7 @@ data:
 {{- if .Values.prometheus.extraCustomArgs -}}
 {{- with .Values.prometheus.extraCustomArgs }}
 {{ toYaml . | indent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}
   rules.yml: |
