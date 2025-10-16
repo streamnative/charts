@@ -256,6 +256,33 @@ spec:
           resources:
 {{ toYaml .Values.streamnative_console.resources | indent 12 }}
           {{- end }}
+          {{- if .Values.streamnative_console.probe.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /cloud-manager/login/enabled
+              port: {{ .Values.streamnative_console.ports.frontend }}
+            initialDelaySeconds: {{ .Values.streamnative_console.probe.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.streamnative_console.probe.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.streamnative_console.probe.readiness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.streamnative_console.probe.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /cloud-manager/login/enabled
+              port: {{ .Values.streamnative_console.ports.frontend }}
+            initialDelaySeconds: {{ .Values.streamnative_console.probe.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.streamnative_console.probe.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.streamnative_console.probe.liveness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.streamnative_console.probe.startup.enabled }}
+          startupProbe:
+            httpGet:
+              path: /cloud-manager/login/enabled
+              port: {{ .Values.streamnative_console.ports.frontend }}
+            initialDelaySeconds: {{ .Values.streamnative_console.probe.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.streamnative_console.probe.startup.periodSeconds }}
+            failureThreshold: {{ .Values.streamnative_console.probe.startup.failureThreshold }}
+          {{- end }}
           workingDir: "/pulsar-manager/gateway"
           command: ["/pulsar-manager/gateway/gateway-entrypoint.sh"]
           env:
