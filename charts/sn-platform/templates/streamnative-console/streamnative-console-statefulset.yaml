@@ -335,25 +335,25 @@ spec:
       - name: google-oauth2-secret
         secret:
           secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"
-          defaultMode: 420
+          defaultMode: 440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.azure.enabled }}
       - name: azure-oauth2-secret
         secret:
           secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-azure-oauth2-secret"
-          defaultMode: 420
+          defaultMode: 440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.okta.enabled }}
       - name: okta-oauth2-secret
         secret:
           secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-okta-oauth2-secret"
-          defaultMode: 420
+          defaultMode: 440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
       - name: pulsar-jwt-secret
         secret:
           secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
-          defaultMode: 420
+          defaultMode: 440
       {{- end }}
       {{- if .Values.streamnative_console.securityContext }}
       securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
