@@ -10,11 +10,20 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if .Values.bookkeeper.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.bookkeeper.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if .Values.bookkeeper.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.bookkeeper.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "3181"
         - "8000"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:
@@ -30,10 +39,19 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if .Values.autorecovery.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.autorecovery.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if .Values.autorecovery.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.autorecovery.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "{{ .Values.autorecovery.ports.http }}"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:

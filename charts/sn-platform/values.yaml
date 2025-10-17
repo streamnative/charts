@@ -636,6 +636,26 @@ zookeeper:
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
 
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["2181", "9990"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["zookeeper.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
@@ -890,6 +910,26 @@ bookkeeper:
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
 
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["3181", "8000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["bookie.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
@@ -1055,6 +1095,26 @@ bookkeeper:
 ## templates/autorecovery-statefulset.yaml
 ##
 autorecovery:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["recovery.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: recovery
@@ -1159,6 +1219,26 @@ broker:
     format: "text"
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
+
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-proxy"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["6650", "8080"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["broker.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
 
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
