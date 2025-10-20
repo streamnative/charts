@@ -10,7 +10,15 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if .Values.broker.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.broker.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if .Values.broker.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.broker.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "6650"
@@ -41,6 +49,7 @@ spec:
         - "9095"
         {{- end }}
         {{- end }}
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:
