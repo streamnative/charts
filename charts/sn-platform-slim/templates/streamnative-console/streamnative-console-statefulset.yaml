@@ -76,7 +76,7 @@ spec:
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
           imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
           {{- if .Values.streamnative_console.securityContext }}
-          securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 12 }}
+          securityContext: {{- toYaml .Values.streamnative_console.containerSecurityContext | nindent 12 }}
           {{- end }}
           {{- if .Values.streamnative_console.resources }}
           resources:
@@ -256,7 +256,7 @@ spec:
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
           imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
           {{- if .Values.streamnative_console.securityContext }}
-          securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 12 }}
+          securityContext: {{- toYaml .Values.streamnative_console.containerSecurityContext | nindent 12 }}
           {{- end }}
           {{- if .Values.streamnative_console.resources }}
           resources:
