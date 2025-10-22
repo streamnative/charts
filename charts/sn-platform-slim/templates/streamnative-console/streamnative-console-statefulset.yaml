@@ -247,6 +247,14 @@ spec:
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data
+          - name: tmp-storage
+            mountPath: /tmp
+          - name: run-postgresql-tmpfs
+            mountPath: /run/postgresql
+          - name: pulsar-manager-conf
+            mountPath: /pulsar-manager/pulsar-manager
+          - name: psql
+            mountPath: /pulsar-manager/psql
           {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
           - mountPath: /pulsar-manager/keys
             name: token-keys
@@ -262,6 +270,19 @@ spec:
           resources:
 {{ toYaml .Values.streamnative_console.resources | indent 12 }}
           {{- end }}
+          volumeMounts:
+          - name: nginx-conf
+            mountPath: /etc/nginx/conf.d
+          - name: nginx-logs
+            mountPath: /var/log/nginx
+          - name: nginx-tmp
+            mountPath: /var/lib/nginx/tmp
+          - name: nginx-run
+            mountPath: /run
+          - name: nginx-lib-log
+            mountPath: /var/lib/nginx/logs
+          - name: tmp-storage
+            mountPath: /tmp
           workingDir: "/pulsar-manager/gateway"
           command: ["/pulsar-manager/gateway/gateway-entrypoint.sh"]
           env:
@@ -273,6 +294,26 @@ spec:
           - name: backend
             containerPort: {{ .Values.streamnative_console.ports.backend }}
       volumes:
+      - name: tmp-storage
+        emptyDir: {}
+      - name: run-postgresql-tmpfs
+        emptyDir:
+          medium: Memory
+      - name: nginx-conf
+        emptyDir: {}
+      - name: nginx-logs
+        emptyDir: {}
+      - name: nginx-tmp
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir:
+          medium: Memory
+      - name: pulsar-manager-conf
+        emptyDir: {}
+      - name: nginx-lib-log
+        emptyDir: {}
+      - name: psql
+        emptyDir: {}
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
       - name: streamnative-console-data
         emptyDir: {}
