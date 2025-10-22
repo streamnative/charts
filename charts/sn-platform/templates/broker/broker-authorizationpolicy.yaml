@@ -10,11 +10,11 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - {{- if .Values.broker.authorizationPolicy.from }}
+  - {{- if and .Values.broker.authorizationPolicy .Values.broker.authorizationPolicy.from }}
     from:
 {{ toYaml .Values.broker.authorizationPolicy.from | indent 4 }}
     {{- end }}
-    {{- if .Values.broker.authorizationPolicy.to }}
+    {{- if and .Values.broker.authorizationPolicy .Values.broker.authorizationPolicy.to }}
     to:
 {{ toYaml .Values.broker.authorizationPolicy.to | indent 4 }}
     {{- else }}
