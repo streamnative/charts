@@ -393,6 +393,7 @@ spec:
       {{- end }}
       {{- if .Values.streamnative_console.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
+      automountServiceAccountToken: {{ .Values.streamnative_console.serviceAccount.automountToken | default false }}
       {{- end }}
   {{- if or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName }}
   volumeClaimTemplates:
