@@ -2199,6 +2199,7 @@ streamnative_console:
     runAsGroup: 1000
     fsGroup: 1000
     runAsUser: 1000
+  authorizationPolicy: {}
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml

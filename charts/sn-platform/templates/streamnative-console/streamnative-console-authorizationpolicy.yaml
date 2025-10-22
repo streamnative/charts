@@ -9,12 +9,20 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-  rules:
+  - {{- if and .Values.streamnative_console.authorizationPolicy .Values.streamnative_console.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.streamnative_console.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.streamnative_console.authorizationPolicy .Values.streamnative_console.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.streamnative_console.authorizationPolicy.to | indent 4 }}
+    {{- else }}
   - to:
     - operation:
         ports:
         - "7750"
         - "9527"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:
