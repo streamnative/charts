@@ -1985,6 +1985,8 @@ prometheus:
   customRelabelConfigs: []
   extraScrapeConfigs: []
   extraCustomArgs: {}
+  # A advanced configuration to add custom scrape configs.
+  customScrapeConfigs: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml

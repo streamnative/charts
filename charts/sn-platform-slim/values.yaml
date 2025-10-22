@@ -1904,6 +1904,7 @@ prometheus:
   customRelabelConfigs: []
   extraScrapeConfigs: []
   extraCustomArgs: {}
+  customScrpaConfigs: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
