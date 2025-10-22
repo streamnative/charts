@@ -10,11 +10,11 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - {{- if .Values.zookeeper.authorizationPolicy.from }}
+  - {{- if and .Values.zookeeper.authorizationPolicy .Values.zookeeper.authorizationPolicy.from }}
     from:
 {{ toYaml .Values.zookeeper.authorizationPolicy.from | indent 4 }}
     {{- end }}
-    {{- if .Values.zookeeper.authorizationPolicy.to }}
+    {{- if and .Values.zookeeper.authorizationPolicy .Values.zookeeper.authorizationPolicy.to }}
     to:
 {{ toYaml .Values.zookeeper.authorizationPolicy.to | indent 4 }}
     {{- else }}
