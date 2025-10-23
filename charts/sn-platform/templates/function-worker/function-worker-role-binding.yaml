@@ -50,7 +50,11 @@ rules:
 {{- if .Values.broker.functionmesh.enabled}}
 - apiGroups: ["compute.functionmesh.io"]
   resources:
-    - '*'
+    - backendconfigs
+    - functionmeshes
+    - functions
+    - sources
+    - sinks
   verbs:
     - list
     - watch
