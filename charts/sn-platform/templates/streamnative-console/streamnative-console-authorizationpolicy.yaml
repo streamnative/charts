@@ -18,7 +18,7 @@ spec:
     to:
 {{ toYaml .Values.streamnative_console.authorizationPolicy.to | indent 4 }}
     {{- else }}
-  - to:
+    to:
     - operation:
         ports:
         - "7750"
