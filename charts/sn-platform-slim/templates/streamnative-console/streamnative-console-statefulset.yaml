@@ -107,7 +107,7 @@ spec:
             failureThreshold: {{ .Values.streamnative_console.probe.startup.failureThreshold }}
           {{- end }}
           workingDir: "/pulsar-manager/console"
-          command: ["/pulsar-manager/entrypoint.sh"]
+          command: ["/bin/sh", "-c"]
           args:
             - |
               if [ -f "/pulsar-manager/secrets/google-oauth2/GOOGLE_CLIENT_ID" ]; then
@@ -134,6 +134,7 @@ spec:
               if [ -f "/pulsar-manager/secrets/pulsar-jwt/TOKEN" ]; then
                 export TOKEN=$(cat /pulsar-manager/secrets/pulsar-jwt/TOKEN)
               fi
+              /pulsar-manager/entrypoint.sh
           env:
           - name: SPRING_CONFIGURATION_FILE
             value: /pulsar-manager/pulsar-manager/application.properties

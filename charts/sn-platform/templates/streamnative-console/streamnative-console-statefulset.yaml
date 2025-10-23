@@ -107,9 +107,51 @@ spec:
             failureThreshold: {{ .Values.streamnative_console.probe.startup.failureThreshold }}
           {{- end }}
           workingDir: "/pulsar-manager/console"
-          command: ["/pulsar-manager/entrypoint.sh"]
+          command: ["/bin/sh", "-c"]
           args:
             - |
+              if [ -f "/pulsar-manager/secrets/vault/PROXY_brokerClientAuthenticationParameters" ]; then
+                export PROXY_brokerClientAuthenticationParameters=$(cat /pulsar-manager/secrets/vault/PROXY_brokerClientAuthenticationParameters)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/PULSAR_PREFIX_OIDCTokenAudienceID" ]; then
+                export PULSAR_PREFIX_OIDCTokenAudienceID=$(cat /pulsar-manager/secrets/vault/PULSAR_PREFIX_OIDCTokenAudienceID)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_APPROLE_MOUNT_ACCESSOR" ]; then
+                export VAULT_APPROLE_MOUNT_ACCESSOR=$(cat /pulsar-manager/secrets/vault/VAULT_APPROLE_MOUNT_ACCESSOR)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_APPROLE_ROLE_ID" ]; then
+                export VAULT_APPROLE_ROLE_ID=$(cat /pulsar-manager/secrets/vault/VAULT_APPROLE_ROLE_ID)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_APPROLE_SECRET_ID" ]; then
+                export VAULT_APPROLE_SECRET_ID=$(cat /pulsar-manager/secrets/vault/VAULT_APPROLE_SECRET_ID)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_APPROLE_SUPER_NAME" ]; then
+                export VAULT_APPROLE_SUPER_NAME=$(cat /pulsar-manager/secrets/vault/VAULT_APPROLE_SUPER_NAME)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_APPROLE_SUPER_TOKEN" ]; then
+                export VAULT_APPROLE_SUPER_TOKEN=$(cat /pulsar-manager/secrets/vault/VAULT_APPROLE_SUPER_TOKEN)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_HOST" ]; then
+                export VAULT_HOST=$(cat /pulsar-manager/secrets/vault/VAULT_HOST)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_SUPER_USER_NAME" ]; then
+                export VAULT_SUPER_USER_NAME=$(cat /pulsar-manager/secrets/vault/VAULT_SUPER_USER_NAME)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_SUPER_USER_PASSWORD" ]; then
+                export VAULT_SUPER_USER_PASSWORD=$(cat /pulsar-manager/secrets/vault/VAULT_SUPER_USER_PASSWORD)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_USERPASS_MOUNT_ACCESSOR" ]; then
+                export VAULT_USERPASS_MOUNT_ACCESSOR=$(cat /pulsar-manager/secrets/vault/VAULT_USERPASS_MOUNT_ACCESSOR)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/VAULT_USERPASS_SUPER_NAME" ]; then
+                export VAULT_USERPASS_SUPER_NAME=$(cat /pulsar-manager/secrets/vault/VAULT_USERPASS_SUPER_NAME)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/AULT_SUPER_USER_TOKEN" ]; then
+                export AULT_SUPER_USER_TOKEN=$(cat /pulsar-manager/secrets/vault/AULT_SUPER_USER_TOKEN)
+              fi
+              if [ -f "/pulsar-manager/secrets/vault/brokerClientAuthenticationParameters" ]; then
+                export brokerClientAuthenticationParameters=$(cat /pulsar-manager/secrets/vault/brokerClientAuthenticationParameters)
+              fi
               if [ -f "/pulsar-manager/secrets/google-oauth2/GOOGLE_CLIENT_ID" ]; then
                 export GOOGLE_CLIENT_ID=$(cat /pulsar-manager/secrets/google-oauth2/GOOGLE_CLIENT_ID)
               fi
@@ -134,6 +176,7 @@ spec:
               if [ -f "/pulsar-manager/secrets/pulsar-jwt/TOKEN" ]; then
                 export TOKEN=$(cat /pulsar-manager/secrets/pulsar-jwt/TOKEN)
               fi
+              /pulsar-manager/entrypoint.sh
           env:
           - name: SPRING_CONFIGURATION_FILE
             value: /pulsar-manager/pulsar-manager/application.properties
@@ -271,6 +314,11 @@ spec:
             mountPath: /pulsar-manager/pulsar-manager
           - name: psql
             mountPath: /pulsar-manager/psql
+          {{- end }}
+          {{- if .Values.auth.vault.enabled }}
+          - mountPath: /pulsar-manager/secrets/vault
+            name: vault-secret
+            readOnly: true
           {{- end }}
           {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
           - mountPath: /pulsar-manager/keys
@@ -410,6 +458,12 @@ spec:
             path: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_SECRET_KEY_FILE | default "token/secret.key" }} 
           secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_SECRET_KEY }}
           {{- end }}
+      {{- end }}
+      {{- if .Values.auth.vault.enabled }}
+      - name: vault-secret
+        secret:
+          secretName: {{ template "pulsar.vault-secret-key-name" . }}
+          defaultMode: 440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.google.enabled }}
       - name: google-oauth2-secret
