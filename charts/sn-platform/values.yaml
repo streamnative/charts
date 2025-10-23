@@ -204,7 +204,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: docker-proxy.streamnative.io/streamnative/private-cloud-console
-    tag: "v2.3.21"
+    tag: "v2.3.23"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -2283,12 +2283,22 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
-  containerSecurityContext: {}
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    privileged: false
+    capabilities:
+      drop:
+      - "ALL"
   securityContext:
     runAsNonRoot: true
     runAsGroup: 1000
     fsGroup: 1000
     runAsUser: 1000
+  authorizationPolicy: {}
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml
