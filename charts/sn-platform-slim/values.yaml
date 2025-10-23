@@ -2193,7 +2193,16 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
-  containerSecurityContext: {}
+  containerSecurityContext: 
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    privileged: false
+    capabilities:
+      drop:
+      - "ALL"
   securityContext:
     runAsNonRoot: true
     runAsGroup: 1000
