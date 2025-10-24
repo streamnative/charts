@@ -714,6 +714,7 @@ zookeeper:
   advanced: {}
   securityContext:
     runAsNonRoot: true
+  initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
   # Resources requests/limits for both init containers and app containers
@@ -963,6 +964,7 @@ bookkeeper:
   annotations: {}
   securityContext:
     runAsNonRoot: true
+  initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
   # The minimum number of seconds for new pods to be ready.

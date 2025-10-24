@@ -71,6 +71,9 @@ spec:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.zookeeper.component }}-{{ .Values.zookeeper.customTools.restore.component }}"
         image: "{{ .Values.images.zookeeper.customTools.restore.repository }}:{{ .Values.images.zookeeper.customTools.restore.tag }}"
         imagePullPolicy: {{ .Values.zookeeper.customTools.restore.pullPolicy }}
+        {{- if .Values.zookeeper.initContainerSecurityContext }}
+        securityContext: {{- toYaml .Values.zookeeper.initContainerSecurityContext | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c"]
         args:
           - >
