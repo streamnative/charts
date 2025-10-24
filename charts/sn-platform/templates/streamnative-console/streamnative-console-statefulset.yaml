@@ -75,7 +75,7 @@ spec:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
           imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
-          {{- if .Values.streamnative_console.securityContext }}
+          {{- if .Values.streamnative_console.containerSecurityContext }}
           securityContext: {{- toYaml .Values.streamnative_console.containerSecurityContext | nindent 12 }}
           {{- end }}
           {{- if .Values.streamnative_console.resources }}
@@ -463,31 +463,31 @@ spec:
       - name: vault-secret
         secret:
           secretName: {{ template "pulsar.vault-secret-key-name" . }}
-          defaultMode: 440
+          defaultMode: 0440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.google.enabled }}
       - name: google-oauth2-secret
         secret:
           secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"
-          defaultMode: 440
+          defaultMode: 0440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.azure.enabled }}
       - name: azure-oauth2-secret
         secret:
           secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-azure-oauth2-secret"
-          defaultMode: 440
+          defaultMode: 0440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.okta.enabled }}
       - name: okta-oauth2-secret
         secret:
           secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-okta-oauth2-secret"
-          defaultMode: 440
+          defaultMode: 0440
       {{- end }}
       {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
       - name: pulsar-jwt-secret
         secret:
           secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
-          defaultMode: 440
+          defaultMode: 0440
       {{- end }}
       {{- if .Values.streamnative_console.securityContext }}
       securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
