@@ -2700,6 +2700,26 @@ presto:
     rules: []
 
 vault:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports (8200, 8201, 9091) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/pulsar/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8200", "8201", "9091"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/v1/*"]
+  #       hosts: ["vault.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: "vault"
   # -- replicaCount indicates the number of vault pod
   replicaCount: 3
