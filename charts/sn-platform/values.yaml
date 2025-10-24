@@ -1685,6 +1685,9 @@ proxy:
   annotations: {}
   securityContext:
     runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
   tolerations: []
   gracePeriod: 30
   resources:
