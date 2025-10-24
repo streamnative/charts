@@ -364,6 +364,12 @@ spec:
                     env;
                     {{- end }}
                     bin/pulsar-metadata-tool cleanup
+                {{- if .Values.bookkeeper.initContainerSecurityContext }}
+                securityContext: {{- toYaml .Values.bookkeeper.initContainerSecurityContext | nindent 16 }}
+                {{- end }}
+                {{- if .Values.bookkeeper.resources }}
+                resources: {{- toYaml .Values.bookkeeper.resources | nindent 16 }}
+                {{- end }}
                 env:
                 - name: METADATA_TOOL_CONF
                   value: "/pulsar-metadata-tool/conf/pulsar-metadata-tool/pulsar-metadata-tool.properties"
