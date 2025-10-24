@@ -43,6 +43,7 @@ Define toolset token volumes
 - name: client-token
   secret:
     secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.client }}"
+    defaultMode: 0400
     items:
       - key: TOKEN
         path: client/token
@@ -79,6 +80,7 @@ Define toolset tls certs volumes
 - name: toolset-certs
   secret:
     secretName: "{{ template "pulsar.toolset.tls.secret.name" . }}"
+    defaultMode: 0400
     items:
     - key: tls.crt
       path: tls.crt
@@ -87,6 +89,7 @@ Define toolset tls certs volumes
 - name: ca
   secret:
     secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
+    defaultMode: 0400
     items:
     - key: ca.crt
       path: ca.crt
@@ -97,11 +100,13 @@ Define toolset tls certs volumes
   secret:
   {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
     secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
+    defaultMode: 0400
     items:
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
     secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
+    defaultMode: 0400
     items:
       - key: ca.crt
         path: ca.crt
