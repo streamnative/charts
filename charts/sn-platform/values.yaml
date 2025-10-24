@@ -1487,6 +1487,26 @@ broker:
 ## templates/function-worker-configmap.yaml
 ##
 functions:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports (8080, 8443 for HTTPS) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8080", "8443"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["function-worker.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: functions-worker
   enableCustomizerRuntime: false
   useDedicatedRunner: false
@@ -1589,6 +1609,26 @@ functions:
 ## templates/pulsar-detector-statefulset.yaml
 ##
 pulsar_detector:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default port (9000) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-admin"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["9000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["pulsar-detector.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: pulsar-detector
   replicaCount: 1
   labels: {}
@@ -1661,6 +1701,26 @@ proxy:
     format: "text"
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
+
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports (6650, 8080, 9090) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-client"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["6650", "8080", "9090"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["proxy.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
 
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
@@ -1778,6 +1838,25 @@ proxy:
 ## templates/toolset-deployment.yaml
 ##
 toolset:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # Toolset is a headless service, no default 'to' ports are specified
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-admin"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8080"]
+  #       methods: ["GET", "POST"]
+  #       hosts: ["toolset.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: toolset
   useProxy: false
   installBusybox: true
@@ -1897,6 +1976,25 @@ configmapReload:
 ## templates/prometheus-deployment.yaml
 ##
 prometheus:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'from' is not specified, default will allow from the same namespace
+  # If 'to' is not specified, default port (9090) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["9090"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics", "/api/*"]
+  #       hosts: ["prometheus.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: prometheus
   replicaCount: 1
   scrape:
@@ -2052,6 +2150,26 @@ datadog:
 ## templates/grafana-statefulset.yaml
 ##
 grafana:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default port (3000) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/grafana-user"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["3000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/api/*"]
+  #       hosts: ["grafana.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: grafana
   grafana.ini:
     paths:
@@ -2582,6 +2700,26 @@ presto:
     rules: []
 
 vault:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports (8200, 8201, 9091) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/pulsar/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8200", "8201", "9091"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/v1/*"]
+  #       hosts: ["vault.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: "vault"
   # -- replicaCount indicates the number of vault pod
   replicaCount: 3

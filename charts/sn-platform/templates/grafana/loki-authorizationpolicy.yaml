@@ -10,14 +10,24 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - from:
+  - {{- if and .Values.loki.authorizationPolicy .Values.loki.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.loki.authorizationPolicy.from | indent 4 }}
+    {{- else }}
+    from:
     - source:
         namespaces:
         - {{ template "pulsar.namespace" . }}
-  - to:
+    {{- end }}
+    {{- if and .Values.loki.authorizationPolicy .Values.loki.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.loki.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "3100"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:

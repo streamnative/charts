@@ -10,10 +10,19 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if and .Values.grafana.authorizationPolicy .Values.grafana.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.grafana.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.grafana.authorizationPolicy .Values.grafana.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.grafana.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "{{ .Values.grafana.port }}"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:

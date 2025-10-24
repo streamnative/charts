@@ -10,10 +10,19 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if and .Values.pulsar_detector.authorizationPolicy .Values.pulsar_detector.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.pulsar_detector.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.pulsar_detector.authorizationPolicy .Values.pulsar_detector.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.pulsar_detector.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "{{ .Values.pulsar_detector.port }}"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:
