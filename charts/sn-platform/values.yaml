@@ -1745,6 +1745,9 @@ proxy:
   annotations: {}
   securityContext:
     runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
   tolerations: []
   gracePeriod: 30
   resources:
@@ -1891,6 +1894,9 @@ toolset:
       -XX:MaxDirectMemorySize=128M
   securityContext:
     runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
