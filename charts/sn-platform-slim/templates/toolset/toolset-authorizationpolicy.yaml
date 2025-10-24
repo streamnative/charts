@@ -1,0 +1,29 @@
+#
+# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
+#
+
+{{- if and .Values.components.toolset .Values.istio.enabled }}
+{{- if or (and .Values.toolset.authorizationPolicy .Values.toolset.authorizationPolicy.from) (and .Values.toolset.authorizationPolicy .Values.toolset.authorizationPolicy.to) }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: "{{ template "pulsar.fullname" . }}-{{ .Values.toolset.component }}"
+  namespace: {{ template "pulsar.namespace" . }}
+spec:
+  rules:
+  - {{- if and .Values.toolset.authorizationPolicy .Values.toolset.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.toolset.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.toolset.authorizationPolicy .Values.toolset.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.toolset.authorizationPolicy.to | indent 4 }}
+    {{- end }}
+  action: ALLOW
+  selector:
+    matchLabels:
+      {{- include "pulsar.matchLabels" . | nindent 6 }}
+      component: {{ .Values.toolset.component }}
+{{- end }}
+{{- end }}
+

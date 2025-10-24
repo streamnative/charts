@@ -11,7 +11,15 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if and .Values.proxy.authorizationPolicy .Values.proxy.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.proxy.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.proxy.authorizationPolicy .Values.proxy.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.proxy.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "6650"
@@ -19,6 +27,7 @@ spec:
         {{- if .Values.proxy.websocket }}
         - "9090"
         {{- end }}
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:
