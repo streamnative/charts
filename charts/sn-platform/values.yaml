@@ -1899,6 +1899,10 @@ toolset:
     runAsUser: 10000
     runAsGroup: 10000
     fsGroup: 10000
+  containerSecurityContext: 
+    runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
