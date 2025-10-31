@@ -1899,7 +1899,7 @@ toolset:
     runAsUser: 10000
     runAsGroup: 10000
     fsGroup: 10000
-  containerSecurityContext: 
+  containerSecurityContext:
     runAsNonRoot: true
     runAsUser: 10000
     runAsGroup: 10000
