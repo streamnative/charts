@@ -110,6 +110,9 @@ spec:
         resources:
 {{ toYaml .Values.toolset.resources | indent 10 }}
       {{- end }}
+        {{- if .Values.toolset.containerSecurityContext }}
+        securityContext: {{- toYaml .Values.toolset.containerSecurityContext | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c"]
         args:
         - >
