@@ -297,7 +297,7 @@ Define function for get authenticaiton secret
 {{- end }}
 {{- if .Values.auth.vault.enabled }}
 - mountPath: /mnt/vault
-  secretName: {{ .Release.Name }}-sn-platform-vault-secret-env-injection
+  secretName: {{ template "pulsar.fullname" . }}-vault-secret-env-injection
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
