@@ -168,6 +168,9 @@ spec:
   {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
   istio:
     enabled: true
+    {{- if .Values.istio.dataplaneMode }}
+    dataplaneMode: {{ .Values.istio.dataplaneMode }}
+    {{- end }}
     {{- if .Values.istio.migration }}
     mtls:
       mode: permissive

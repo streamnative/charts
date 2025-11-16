@@ -180,6 +180,17 @@ spec:
 {{- include "pulsar.zookeeper.dataLog.storage.class" . | nindent 6 }}
     reclaimPolicy: {{ .Values.zookeeper.volumes.reclaimPolicy | default "Delete" }}
   {{- end }}
+  {{- if .Values.istio.enabled }}
+  istio:
+    enabled: true
+    {{- if .Values.istio.dataplaneMode }}
+    dataplaneMode: {{ .Values.istio.dataplaneMode }}
+    {{- end }}
+    {{- if .Values.istio.migration }}
+    mtls:
+      mode: permissive
+    {{- end }}
+  {{- end }}
   config:
     serverCnxnFactory: {{ .Values.zookeeper.serverCnxnFactory }}
     # copy from configmap

@@ -2459,6 +2459,11 @@ istio:
   # mergeMetrics should be enabled if you want to scrape pulsar metrics from an external prometheus not running on Istio
   # prometheus and grafana will not be Istio injected if mergeMetrics is enabled
   mergeMetrics: false
+  # Istio data plane mode: "sidecar" or "ambient"
+  # - sidecar: Traditional per-pod sidecars (default if empty)
+  # - ambient: Sidecar-less data plane using ztunnel for L4 mTLS (~70-80% resource savings)
+  # Leave empty for default behavior (sidecar mode)
+  dataplaneMode: ""
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
