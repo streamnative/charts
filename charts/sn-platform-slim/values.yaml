@@ -2398,6 +2398,8 @@ streamnative_console:
     OPENAPI_ENABLED: false
     # please use base64 encoded your password
     DB_PASSWORD: ""
+  # Extra environment variables for streamnative-console container
+  extraEnv: []
 
   login:
     sso:
