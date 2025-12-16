@@ -152,12 +152,19 @@ spec:
           - name: DB_PASSWORD
             value: {{ .Values.streamnative_console.configData.DB_PASSWORD | b64dec | quote }}
           {{- end }}
+          {{- if hasSuffix "-all" .Values.images.streamnative_console.tag }}
+          - name: DB_BASE
+            value: sqlite
+          {{- end }}
           {{- if .Values.streamnative_console.configData.NEW_PASSWORD }}
           - name: NEW_PASSWORD
             value: {{ .Values.streamnative_console.configData.NEW_PASSWORD | b64dec | quote }}
           {{- end }}
           - name: CONNECTOR_ENABLED
             value: "{{ .Values.streamnative_console.configData.CONNECTOR_ENABLED | default "true" }}"
+          {{- with .Values.streamnative_console.extraEnv }}
+{{ toYaml . | indent 10 }}
+          {{- end }}
           - name: WEB_SERVICE_URL
             value: {{ template "pulsar.web.internal.service.url" . }}
           - name: KOP_SERVICE_URL
