@@ -2396,10 +2396,12 @@ streamnative_console:
     GRAFANA_AUTH_PROXY_USER: ""
     CONNECTOR_ENABLED: true
     OPENAPI_ENABLED: false
-    # please use base64 encoded your password
-    DB_PASSWORD: ""
   # Extra environment variables for streamnative-console container
   extraEnv: []
+  # Secret name containing DB_PASSWORD and NEW_PASSWORD keys
+  # The secret should have two keys: DB_PASSWORD and NEW_PASSWORD
+  # Example: kubectl create secret generic my-db-password-secret --from-literal=DB_PASSWORD=xxx --from-literal=NEW_PASSWORD=yyy
+  dbPasswordSecret: ""
 
   login:
     sso:
