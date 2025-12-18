@@ -176,6 +176,12 @@ spec:
               if [ -f "/pulsar-manager/secrets/pulsar-jwt/TOKEN" ]; then
                 export TOKEN=$(cat /pulsar-manager/secrets/pulsar-jwt/TOKEN)
               fi
+              if [ -f "/pulsar-manager/secrets/db-password/DB_PASSWORD" ]; then
+                export DB_PASSWORD=$(cat /pulsar-manager/secrets/db-password/DB_PASSWORD)
+              fi
+              if [ -f "/pulsar-manager/secrets/db-password/NEW_PASSWORD" ]; then
+                export NEW_PASSWORD=$(cat /pulsar-manager/secrets/db-password/NEW_PASSWORD)
+              fi
               /pulsar-manager/entrypoint.sh
           env:
           - name: SPRING_CONFIGURATION_FILE
@@ -192,17 +198,9 @@ spec:
           - name: GLOBAL_RESOURCE_READ_ONLY
             value: "true"
           {{- end }}
-          {{- if .Values.streamnative_console.configData.DB_PASSWORD }}
-          - name: DB_PASSWORD
-            value: {{ .Values.streamnative_console.configData.DB_PASSWORD | b64dec | quote }}
-          {{- end }}
           {{- if hasSuffix "-all" .Values.images.streamnative_console.tag }}
           - name: DB_BASE
             value: sqlite
-          {{- end }}
-          {{- if .Values.streamnative_console.configData.NEW_PASSWORD }}
-          - name: NEW_PASSWORD
-            value: {{ .Values.streamnative_console.configData.NEW_PASSWORD | b64dec | quote }}
           {{- end }}
           - name: CONNECTOR_ENABLED
             value: "{{ .Values.streamnative_console.configData.CONNECTOR_ENABLED | default "true" }}"
@@ -352,6 +350,11 @@ spec:
             mountPath: /pulsar-manager/secrets/pulsar-jwt
             readOnly: true
           {{- end }}
+          {{- if .Values.streamnative_console.dbPasswordSecret }}
+          - name: db-password-secret
+            mountPath: /pulsar-manager/secrets/db-password
+            readOnly: true
+          {{- end }}
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-gateway"
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
           {{- if .Values.streamnative_console.securityContext }}
@@ -494,6 +497,12 @@ spec:
       - name: pulsar-jwt-secret
         secret:
           secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
+          defaultMode: 0440
+      {{- end }}
+      {{- if .Values.streamnative_console.dbPasswordSecret }}
+      - name: db-password-secret
+        secret:
+          secretName: {{ .Values.streamnative_console.dbPasswordSecret }}
           defaultMode: 0440
       {{- end }}
       {{- if .Values.streamnative_console.securityContext }}
