@@ -8,7 +8,7 @@ metadata:
   name: "{{ template "pulsar.fullname" . }}-coordinator"
   namespace: {{ template "pulsar.namespace" . }}
 spec:
-  {{- if not .Values.pulsar_coordinator.toolSet }}
+  {{- if hasKey .Values.pulsar_coordinator "toolSet" }}
   toolSet:
     enabled: {{ .Values.pulsar_coordinator.toolSet }}
   {{- end }}
