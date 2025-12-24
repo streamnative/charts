@@ -1024,7 +1024,10 @@ bookkeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
-      # metadata to add onto PVCs for journal storage
+      
+      # Add custom annotations and labels to PVCs.
+      # Currently only BookKeeper PVCs support this feature.
+      # See docs/pulsar/pvc-metadata.md for more details.
       # metadata:
       #   annotations:
       #     example.com/annotation-key: "annotation-value"
@@ -1053,7 +1056,9 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
-      # metadata to add onto PVCs for ledgers storage
+      # Add custom annotations and labels to PVCs.
+      # Currently only BookKeeper PVCs support this feature.
+      # See docs/pulsar/pvc-metadata.md for more details.
       # metadata:
       #   annotations:
       #     example.com/annotation-key: "annotation-value"
