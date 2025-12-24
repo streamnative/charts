@@ -30,6 +30,14 @@ Define bookie zookeeper client tls settings
 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}
 {{- end }}
 
+{{- define "pulsar.bookkeeper.journal.volumeAttributesClassName" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.journal.name }}
+{{- end }}
+
+{{- define "pulsar.bookkeeper.ledgers.volumeAttributesClassName" -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}
+{{- end }}
+
 {{- define "pulsar.bookkeeper.journal.storage.class" -}}
 {{- if  .Values.bookkeeper.volumes.journal.storageClass }}
 storageClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
@@ -37,7 +45,7 @@ storageClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
 storageClassName: "{{ .Values.bookkeeper.volumes.journal.storageClassName }}"
 {{- end }}
 {{- if .Values.bookkeeper.volumes.journal.volumeAttributesClass }}
-volumeAttributesClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
+volumeAttributesClassName: "{{ template "pulsar.bookkeeper.journal.volumeAttributesClassName" . }}"
 {{- else if .Values.bookkeeper.volumes.journal.volumeAttributesClassName }}
 volumeAttributesClassName: "{{ .Values.bookkeeper.volumes.journal.volumeAttributesClassName }}"
 {{- end }}
@@ -50,7 +58,7 @@ storageClassName: "{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}"
 storageClassName: "{{ .Values.bookkeeper.volumes.ledgers.storageClassName }}"
 {{- end }}
 {{- if .Values.bookkeeper.volumes.ledgers.volumeAttributesClass }}
-volumeAttributesClassName: "{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}"
+volumeAttributesClassName: "{{ template "pulsar.bookkeeper.ledgers.volumeAttributesClassName" . }}"
 {{- else if .Values.bookkeeper.volumes.ledgers.volumeAttributesClassName }}
 volumeAttributesClassName: "{{ .Values.bookkeeper.volumes.ledgers.volumeAttributesClassName }}"
 {{- end }}
