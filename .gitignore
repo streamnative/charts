@@ -18,3 +18,5 @@ PRIVATEKEY
 PUBLICKEY
 .cursorindexingignore
 .specstory/
+
+.claude
