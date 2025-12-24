@@ -36,6 +36,11 @@ storageClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
 {{- else if .Values.bookkeeper.volumes.journal.storageClassName }}
 storageClassName: "{{ .Values.bookkeeper.volumes.journal.storageClassName }}"
 {{- end }}
+{{- if .Values.bookkeeper.volumes.journal.volumeAttributesClass }}
+volumeAttributesClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
+{{- else if .Values.bookkeeper.volumes.journal.volumeAttributesClassName }}
+volumeAttributesClassName: "{{ .Values.bookkeeper.volumes.journal.volumeAttributesClassName }}"
+{{- end }}
 {{- end }}
 
 {{- define "pulsar.bookkeeper.ledgers.storage.class" -}}
@@ -43,6 +48,11 @@ storageClassName: "{{ .Values.bookkeeper.volumes.journal.storageClassName }}"
 storageClassName: "{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}"
 {{- else if .Values.bookkeeper.volumes.ledgers.storageClassName }}
 storageClassName: "{{ .Values.bookkeeper.volumes.ledgers.storageClassName }}"
+{{- end }}
+{{- if .Values.bookkeeper.volumes.ledgers.volumeAttributesClass }}
+volumeAttributesClassName: "{{ template "pulsar.bookkeeper.ledgers.pvc.name" . }}"
+{{- else if .Values.bookkeeper.volumes.ledgers.volumeAttributesClassName }}
+volumeAttributesClassName: "{{ .Values.bookkeeper.volumes.ledgers.volumeAttributesClassName }}"
 {{- end }}
 {{- end }}
 

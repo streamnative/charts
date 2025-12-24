@@ -935,6 +935,7 @@ bookkeeper:
       accessModes:
         - ReadWriteOnce
       # storageClassName: ""
+      # volumeAttributesClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -949,6 +950,11 @@ bookkeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
+      # volumeAttributesClass:
+      #   driverName: "driver.example.com"
+      #   parameters:
+      #     key1: "value1"
+      #     key2: "value2"
       # metadata to add onto PVCs for journal storage
       # metadata:
       #   annotations:
@@ -964,6 +970,7 @@ bookkeeper:
       accessModes:
         - ReadWriteOnce
       # storageClassName: ""
+      # volumeAttributesClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -978,6 +985,11 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
+      # volumeAttributesClass:
+      #   driverName: "driver.example.com"
+      #   parameters:
+      #     key1: "value1"
+      #     key2: "value2"
       # metadata to add onto PVCs for ledgers storage
       # metadata:
       #   annotations:
