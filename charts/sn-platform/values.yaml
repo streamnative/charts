@@ -1024,7 +1024,6 @@ bookkeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
-      
       # Add custom annotations and labels to PVCs.
       # Currently only BookKeeper PVCs support this feature.
       # See docs/pulsar/pvc-metadata.md for more details.
