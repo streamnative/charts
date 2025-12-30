@@ -38,6 +38,25 @@ Define bookie zookeeper client tls settings
 {{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}-{{ .Values.bookkeeper.volumes.ledgers.name }}
 {{- end }}
 
+{{/*
+Get VolumeAttributesClass API version based on Kubernetes version
+Alpha: v1.29, storage.k8s.io/v1alpha1
+Beta: v1.31, storage.k8s.io/v1beta1
+Stable (GA): v1.34, storage.k8s.io/v1
+*/}}
+{{- define "pulsar.bookkeeper.volumeAttributesClass.apiVersion" -}}
+{{- $kubeVersion := default .Capabilities.KubeVersion.Version .Values.kubeVersionOverride -}}
+{{- if semverCompare ">= 1.34-0" $kubeVersion -}}
+storage.k8s.io/v1
+{{- else if semverCompare ">= 1.31-0" $kubeVersion -}}
+storage.k8s.io/v1beta1
+{{- else if semverCompare ">= 1.29-0" $kubeVersion -}}
+storage.k8s.io/v1alpha1
+{{- else -}}
+storage.k8s.io/v1alpha1
+{{- end }}
+{{- end }}
+
 {{- define "pulsar.bookkeeper.journal.storage.class" -}}
 {{- if  .Values.bookkeeper.volumes.journal.storageClass }}
 storageClassName: "{{ template "pulsar.bookkeeper.journal.pvc.name" . }}"
