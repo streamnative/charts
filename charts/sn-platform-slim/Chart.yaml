@@ -6,7 +6,7 @@ apiVersion: v1
 appVersion: "3.0.0"
 description: StreamNative Platform Slim Chart
 name: sn-platform-slim
-version: 1.11.0
+version: 1.11.34
 home: https://streamnative.io
 sources:
 - https://github.com/streamnative/charts/tree/master/charts/sn-platform
