@@ -15,6 +15,11 @@ rules:
   resources:
   - nodes
   - nodes/proxy
+  {{- if .Values.prometheus.kubelet }}
+  - nodes/metrics
+  - nodes/stats
+  - nodes/spec
+  {{- end }}
   - services
   - endpoints
   - pods

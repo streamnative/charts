@@ -2107,6 +2107,13 @@ prometheus:
   customRelabelConfigs: []
   extraScrapeConfigs: []
   extraCustomArgs: {}
+  # Enable kubelet scraping
+  # When enabled, Prometheus will scrape kubelet metrics directly from nodes
+  kubelet:
+    # scheme: "https" or "http"
+    # Use "https" for secure kubelet endpoints (default in most clusters)
+    # Use "http" for insecure kubelet endpoints (requires kubelet to be configured with --read-only-port)
+    scheme: "https"
 
   ## Prometheus service
   ## templates/prometheus-service.yaml

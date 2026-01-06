@@ -145,6 +145,49 @@ data:
           target_label: __metrics_path__
           replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
 {{- end }}
+{{- if .Values.prometheus.kubelet }}
+    - job_name: kubelet
+      honor_labels: true
+      kubernetes_sd_configs:
+      - role: node
+      scrape_interval: 60s
+      scrape_timeout: 20s
+      metrics_path: /metrics
+      {{- if contains .Values.prometheus.kubelet.scheme "http" }}
+      scheme: http
+      {{- else if contains .Values.prometheus.kubelet.scheme "https" }}
+      scheme: https
+      authorization:
+        type: Bearer
+        credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+      {{- end }}
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_node_name
+        target_label: node
+      - regex: __meta_kubernetes_node_label_(.+)
+        action: labelmap
+      - source_labels:
+        - __address__
+        separator: ;
+        target_label: __address__
+        regex: ([^:]+)(?::\d+)?
+        {{- if contains .Values.prometheus.kubelet.scheme "http" }}
+        replacement: $1:10255
+        {{- else if contains .Values.prometheus.kubelet.scheme "https" }}
+        replacement: $1:10250
+        {{- end }}
+        action: replace
+      - action: labeldrop
+        regex: "(eks|beta_kubernetes_io|cloud_google|iam_gke_io|gke|kubernetes_io|node_kubernetes_io|failure_domain|projectcalico)_.*"
+      metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: "storage_operation_duration_seconds_bucket|kubelet_runtime_operations_duration_seconds_bucket|kubelet_http_requests_duration_seconds_bucket"
+        action: drop
+{{- end }}
 {{- if .Values.prometheus.extraScrapeConfigs -}}
 {{- with .Values.prometheus.extraScrapeConfigs }}
 {{ toYaml . | indent 4 }}
