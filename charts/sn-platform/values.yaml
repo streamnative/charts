@@ -2032,6 +2032,10 @@ prometheus:
     proxy: true
     zookeeper: true
     vault: true
+    # Enable scraping of kubernetes nodes metrics
+    kubernetesNodes: true
+    # Enable scraping of kubernetes cadvisor metrics
+    kubernetesCadvisor: true
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   labels: {}
