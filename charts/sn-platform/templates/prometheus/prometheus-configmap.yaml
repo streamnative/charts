@@ -112,7 +112,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if and .Values.prometheus.serviceAccount.clusterRole (ne (default true .Values.prometheus.scrape.kubernetesNodes) false) }}
+{{- if and .Values.prometheus.serviceAccount.clusterRole (or (not (hasKey .Values.prometheus.scrape "kubernetesNodes")) (eq .Values.prometheus.scrape.kubernetesNodes true)) }}
     - job_name: 'kubernetes-nodes'
       scheme: https
       kubernetes_sd_configs:
@@ -132,7 +132,7 @@ data:
           target_label: __metrics_path__
           replacement: /api/v1/nodes/${1}/proxy/metrics
 {{- end }}
-{{- if and .Values.prometheus.serviceAccount.clusterRole (ne (default true .Values.prometheus.scrape.kubernetesCadvisor) false) }}
+{{- if and .Values.prometheus.serviceAccount.clusterRole (or (not (hasKey .Values.prometheus.scrape "kubernetesCadvisor")) (eq .Values.prometheus.scrape.kubernetesCadvisor true)) }}
     - job_name: 'kubernetes-cadvisor'
       scheme: https
       kubernetes_sd_configs:
