@@ -32,7 +32,9 @@ spec:
 {{- end }}
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   configurationStoreServers: "{{ template "pulsar.configurationStore.connect" . }}{{ .Values.metadataPrefix }}"
+{{- if not .Values.broker.autoScaling.enabled }}
   replicas: {{ .Values.broker.replicaCount }}
+{{- end }}
   {{- if not (and .Values.components.pulsar_coordinator .Values.images.coordinator) }}
   image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
   {{- end }}
@@ -168,6 +170,9 @@ spec:
   {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
   istio:
     enabled: true
+    {{- if .Values.istio.dataplaneMode }}
+    dataplaneMode: {{ .Values.istio.dataplaneMode }}
+    {{- end }}
     {{- if .Values.istio.migration }}
     mtls:
       mode: permissive

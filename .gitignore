@@ -16,3 +16,5 @@ charts/**/*.lock
 
 PRIVATEKEY
 PUBLICKEY
+.cursorindexingignore
+.specstory/

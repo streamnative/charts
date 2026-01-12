@@ -10,7 +10,15 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if and .Values.zookeeper.authorizationPolicy .Values.zookeeper.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.zookeeper.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.zookeeper.authorizationPolicy .Values.zookeeper.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.zookeeper.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "2181"
@@ -18,6 +26,7 @@ spec:
         - "2888"
         - "3888"
         - "{{ .Values.zookeeper.ports.metrics  }}"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:

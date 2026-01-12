@@ -204,7 +204,7 @@ images:
     pullPolicy: IfNotPresent
   streamnative_console:
     repository: docker-proxy.streamnative.io/streamnative/private-cloud-console
-    tag: "v2.3.21"
+    tag: "v2.3.23"
     pullPolicy: IfNotPresent
     hasCommand: false
   node_exporter:
@@ -636,6 +636,26 @@ zookeeper:
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
 
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["2181", "9990"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["zookeeper.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: zookeeper
@@ -694,6 +714,7 @@ zookeeper:
   advanced: {}
   securityContext:
     runAsNonRoot: true
+  initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
   # Resources requests/limits for both init containers and app containers
@@ -890,6 +911,26 @@ bookkeeper:
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
 
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["3181", "8000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["bookie.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: bookie
@@ -923,6 +964,7 @@ bookkeeper:
   annotations: {}
   securityContext:
     runAsNonRoot: true
+  initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
   # The minimum number of seconds for new pods to be ready.
@@ -968,6 +1010,7 @@ bookkeeper:
       accessModes:
         - ReadWriteOnce
       # storageClassName: ""
+      # volumeAttributesClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -982,6 +1025,11 @@ bookkeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
+      # volumeAttributesClass:
+      #   driverName: "driver.example.com"
+      #   parameters:
+      #     key1: "value1"
+      #     key2: "value2"
       # metadata to add onto PVCs for journal storage
       # metadata:
       #   annotations:
@@ -997,6 +1045,7 @@ bookkeeper:
       accessModes:
         - ReadWriteOnce
       # storageClassName: ""
+      # volumeAttributesClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -1011,6 +1060,11 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
+      # volumeAttributesClass:
+      #   driverName: "driver.example.com"
+      #   parameters:
+      #     key1: "value1"
+      #     key2: "value2"
       # metadata to add onto PVCs for ledgers storage
       # metadata:
       #   annotations:
@@ -1055,6 +1109,26 @@ bookkeeper:
 ## templates/autorecovery-statefulset.yaml
 ##
 autorecovery:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["recovery.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: recovery
@@ -1159,6 +1233,26 @@ broker:
     format: "text"
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
+
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-proxy"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["6650", "8080"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["broker.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
 
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
@@ -1407,6 +1501,26 @@ broker:
 ## templates/function-worker-configmap.yaml
 ##
 functions:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports (8080, 8443 for HTTPS) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8080", "8443"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["function-worker.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: functions-worker
   enableCustomizerRuntime: false
   useDedicatedRunner: false
@@ -1509,6 +1623,26 @@ functions:
 ## templates/pulsar-detector-statefulset.yaml
 ##
 pulsar_detector:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default port (9000) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-admin"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["9000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["pulsar-detector.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: pulsar-detector
   replicaCount: 1
   labels: {}
@@ -1582,6 +1716,26 @@ proxy:
   # The template field can totally change the log config of the component. The value is a string, which is the content of the log config file.
     template: {}
 
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports (6650, 8080, 9090) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-client"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["6650", "8080", "9090"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics"]
+  #       hosts: ["proxy.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   # use a component name that matches your grafana configuration
   # so the metrics are correctly rendered in grafana dashboard
   component: proxy
@@ -1605,6 +1759,9 @@ proxy:
   annotations: {}
   securityContext:
     runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
   tolerations: []
   gracePeriod: 30
   resources:
@@ -1698,6 +1855,25 @@ proxy:
 ## templates/toolset-deployment.yaml
 ##
 toolset:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # Toolset is a headless service, no default 'to' ports are specified
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/pulsar-admin"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8080"]
+  #       methods: ["GET", "POST"]
+  #       hosts: ["toolset.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: toolset
   useProxy: false
   installBusybox: true
@@ -1732,6 +1908,13 @@ toolset:
       -XX:MaxDirectMemorySize=128M
   securityContext:
     runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
+    fsGroup: 10000
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 10000
+    runAsGroup: 10000
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
@@ -1817,6 +2000,25 @@ configmapReload:
 ## templates/prometheus-deployment.yaml
 ##
 prometheus:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'from' is not specified, default will allow from the same namespace
+  # If 'to' is not specified, default port (9090) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["9090"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/metrics", "/api/*"]
+  #       hosts: ["prometheus.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: prometheus
   replicaCount: 1
   scrape:
@@ -1974,6 +2176,26 @@ datadog:
 ## templates/grafana-statefulset.yaml
 ##
 grafana:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default port (3000) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/default/sa/grafana-user"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["3000"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/api/*"]
+  #       hosts: ["grafana.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: grafana
   grafana.ini:
     paths:
@@ -2205,11 +2427,22 @@ streamnative_console:
         # type: pd-standard
         # fsType: xfs
         # provisioner: kubernetes.io/gce-pd
+  containerSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    privileged: false
+    capabilities:
+      drop:
+      - "ALL"
   securityContext:
     runAsNonRoot: true
     runAsGroup: 1000
     fsGroup: 1000
     runAsUser: 1000
+  authorizationPolicy: {}
 
   ## Cloud Console service
   ## templates/streamnative-console-service.yaml
@@ -2235,6 +2468,8 @@ streamnative_console:
     # YAML or a YAML-formatted multi-line templated string map of the
     # annotations to apply to the serviceAccount.
     annotations: {}
+    # automount the service account token to the pods
+    automountToken: false
 
   ## cloud console configmap
   ## templates/streamnative-console-configmap.yaml
@@ -2266,8 +2501,20 @@ streamnative_console:
     CONNECTOR_ENABLED: true
     CUSTOM_PAYLOAD_ENABLED: false
     OPENAPI_ENABLED: false
-    # please use base64 encoded your password
-    DB_PASSWORD: ""
+  # Extra environment variables for streamnative-console container
+  extraEnv: []
+  # Secret name containing DB_PASSWORD and NEW_PASSWORD keys
+  # The secret should have two keys: DB_PASSWORD and NEW_PASSWORD
+  # Example command to create the secret:
+  # kubectl create secret generic my-db-password-secret \
+  #   --from-literal=DB_PASSWORD=your-db-password \
+  #   --from-literal=NEW_PASSWORD=your-new-password
+  # Example command to update the secret:
+  # kubectl create secret generic my-db-password-secret \
+  #   --from-literal=DB_PASSWORD=your-new-db-password \
+  #   --from-literal=NEW_PASSWORD=your-new-password \
+  #   --dry-run=client -o yaml | kubectl apply -f -
+  dbPasswordSecret: ""
 
   login:
     sso:
@@ -2491,6 +2738,26 @@ presto:
     rules: []
 
 vault:
+  # Istio AuthorizationPolicy configuration
+  # Configure the 'from' and 'to' sections to restrict sources and operations
+  # If 'to' is not specified, default ports (8200, 8201, 9091) will be used
+  # Example:
+  # authorizationPolicy:
+  #   from:
+  #   - source:
+  #       principals: ["cluster.local/ns/pulsar/sa/pulsar-broker"]
+  #   - source:
+  #       namespaces: ["pulsar"]
+  #   to:
+  #   - operation:
+  #       ports: ["8200", "8201", "9091"]
+  #       methods: ["GET", "POST"]
+  #       paths: ["/v1/*"]
+  #       hosts: ["vault.pulsar.svc.cluster.local"]
+  authorizationPolicy:
+    from: []
+    to: []
+
   component: "vault"
   # -- replicaCount indicates the number of vault pod
   replicaCount: 3

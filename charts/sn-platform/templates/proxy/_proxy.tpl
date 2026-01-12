@@ -48,11 +48,13 @@ Define proxy certs volumes
   secret:
   {{- if and .Values.certs.public_issuer.enabled (eq .Values.certs.public_issuer.type "acme") }}
     secretName: {{ .Values.certs.lets_encrypt.ca_ref.secretName }}
+    defaultMode: 0400
     items:
       - key: {{ .Values.certs.lets_encrypt.ca_ref.keyName }}
         path: ca.crt
   {{- else }}
     secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
+    defaultMode: 0400
     items:
       - key: ca.crt
         path: ca.crt
@@ -61,6 +63,7 @@ Define proxy certs volumes
 - name: proxy-certs
   secret:
     secretName: "{{ template "pulsar.proxy.tls.secret.name" . }}"
+    defaultMode: 0400
     items:
       - key: tls.crt
         path: tls.crt
@@ -71,6 +74,7 @@ Define proxy certs volumes
 - name: broker-ca
   secret:
     secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
+    defaultMode: 0400
     items:
       - key: ca.crt
         path: ca.crt

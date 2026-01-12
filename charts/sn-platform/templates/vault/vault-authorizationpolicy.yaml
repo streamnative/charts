@@ -10,12 +10,22 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - to:
+  - {{- if and .Values.vault.authorizationPolicy .Values.vault.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.vault.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.vault.authorizationPolicy .Values.vault.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.vault.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "8200"
         - "8201"
         - "9091"
+    {{- end }}
+  action: ALLOW
   selector:
     matchLabels:
       app.kubernetes.io/name: vault

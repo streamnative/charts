@@ -67,7 +67,7 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if or (and .Values.auth.vault.enabled .Values.proxy.readPublicKeyFromFile) .Values.proxy.extraSecretRefs  .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
+{{- if or .Values.auth.vault.enabled .Values.proxy.extraSecretRefs  .Values.auth.oauth.enabled .Values.auth.authentication.jwt.enabled }}
     secretRefs:
 {{- with .Values.proxy.extraSecretRefs }}
 {{ toYaml . | indent 4 }}

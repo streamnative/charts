@@ -75,6 +75,9 @@ spec:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}"
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
           imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
+          {{- if .Values.streamnative_console.containerSecurityContext }}
+          securityContext: {{- toYaml .Values.streamnative_console.containerSecurityContext | nindent 12 }}
+          {{- end }}
           {{- if .Values.streamnative_console.resources }}
           resources:
 {{ toYaml .Values.streamnative_console.resources | indent 12 }}
@@ -103,6 +106,41 @@ spec:
             periodSeconds: {{ .Values.streamnative_console.probe.startup.periodSeconds }}
             failureThreshold: {{ .Values.streamnative_console.probe.startup.failureThreshold }}
           {{- end }}
+          workingDir: "/pulsar-manager/console"
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ -f "/pulsar-manager/secrets/google-oauth2/GOOGLE_CLIENT_ID" ]; then
+                export GOOGLE_CLIENT_ID=$(cat /pulsar-manager/secrets/google-oauth2/GOOGLE_CLIENT_ID)
+              fi
+              if [ -f "/pulsar-manager/secrets/google-oauth2/GOOGLE_CLIENT_SECRET" ]; then
+                export GOOGLE_CLIENT_SECRET=$(cat /pulsar-manager/secrets/google-oauth2/GOOGLE_CLIENT_SECRET)
+              fi
+              if [ -f "/pulsar-manager/secrets/azure-oauth2/AZURE_CLIENT_ID" ]; then
+                export AZURE_CLIENT_ID=$(cat /pulsar-manager/secrets/azure-oauth2/AZURE_CLIENT_ID)
+              fi
+              if [ -f "/pulsar-manager/secrets/azure-oauth2/AZURE_CLIENT_SECRET" ]; then
+                export AZURE_CLIENT_SECRET=$(cat /pulsar-manager/secrets/azure-oauth2/AZURE_CLIENT_SECRET)
+              fi
+              if [ -f "/pulsar-manager/secrets/azure-oauth2/AZURE_TENANT_ID" ]; then
+                export AZURE_TENANT_ID=$(cat /pulsar-manager/secrets/azure-oauth2/AZURE_TENANT_ID)
+              fi
+              if [ -f "/pulsar-manager/secrets/okta-oauth2/OKTA_CLIENT_ID" ]; then
+                export OKTA_CLIENT_ID=$(cat /pulsar-manager/secrets/okta-oauth2/OKTA_CLIENT_ID)
+              fi
+              if [ -f "/pulsar-manager/secrets/okta-oauth2/OKTA_CLIENT_SECRET" ]; then
+                export OKTA_CLIENT_SECRET=$(cat /pulsar-manager/secrets/okta-oauth2/OKTA_CLIENT_SECRET)
+              fi
+              if [ -f "/pulsar-manager/secrets/pulsar-jwt/TOKEN" ]; then
+                export TOKEN=$(cat /pulsar-manager/secrets/pulsar-jwt/TOKEN)
+              fi
+              if [ -f "/pulsar-manager/secrets/db-password/DB_PASSWORD" ]; then
+                export DB_PASSWORD=$(cat /pulsar-manager/secrets/db-password/DB_PASSWORD)
+              fi
+              if [ -f "/pulsar-manager/secrets/db-password/NEW_PASSWORD" ]; then
+                export NEW_PASSWORD=$(cat /pulsar-manager/secrets/db-password/NEW_PASSWORD)
+              fi
+              /pulsar-manager/entrypoint.sh
           env:
           - name: SPRING_CONFIGURATION_FILE
             value: /pulsar-manager/pulsar-manager/application.properties
@@ -116,16 +154,15 @@ spec:
           - name: GLOBAL_RESOURCE_READ_ONLY
             value: "true"
           {{- end }}
-          {{- if .Values.streamnative_console.configData.DB_PASSWORD }}
-          - name: DB_PASSWORD
-            value: {{ .Values.streamnative_console.configData.DB_PASSWORD | b64dec | quote }}
-          {{- end }}
-          {{- if .Values.streamnative_console.configData.NEW_PASSWORD }}
-          - name: NEW_PASSWORD
-            value: {{ .Values.streamnative_console.configData.NEW_PASSWORD | b64dec | quote }}
+          {{- if hasSuffix "-all" .Values.images.streamnative_console.tag }}
+          - name: DB_BASE
+            value: sqlite
           {{- end }}
           - name: CONNECTOR_ENABLED
             value: "{{ .Values.streamnative_console.configData.CONNECTOR_ENABLED | default "true" }}"
+          {{- with .Values.streamnative_console.extraEnv }}
+{{ toYaml . | indent 10 }}
+          {{- end }}
           - name: WEB_SERVICE_URL
             value: {{ template "pulsar.web.internal.service.url" . }}
           - name: KOP_SERVICE_URL
@@ -222,39 +259,100 @@ spec:
             value: {{ "/pulsar-manager/keys" }}/{{ .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_SECRET_KEY_FILE | default "token/secret.key" }}
           {{- end }}
           {{- end }}
-          {{- if or .Values.streamnative_console.login.sso.google.enabled .Values.streamnative_console.login.sso.azure.enabled .Values.streamnative_console.login.sso.okta.enabled .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
-          envFrom:
-          {{- end }}
-          {{- if .Values.streamnative_console.login.sso.google.enabled }}
-          - secretRef:
-              name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"
-          {{- end }}
-          {{- if .Values.streamnative_console.login.sso.azure.enabled }}
-          - secretRef:
-              name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-azure-oauth2-secret"
-          {{- end }}
-          {{- if .Values.streamnative_console.login.sso.okta.enabled }}
-          - secretRef:
-              name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-okta-oauth2-secret"
-          {{- end }}
-          {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
-          - secretRef:
-              name: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
-          {{- end }}
           volumeMounts:
           - name: streamnative-console-data
             mountPath: /data
+          {{- if and .Values.streamnative_console.containerSecurityContext .Values.streamnative_console.containerSecurityContext.readOnlyRootFilesystem }}
+          - name: tmp-storage
+            mountPath: /tmp
+          - name: run-postgresql-tmpfs
+            mountPath: /run/postgresql
+          - name: pulsar-manager-conf
+            mountPath: /pulsar-manager/pulsar-manager
+          - name: psql
+            mountPath: /pulsar-manager/psql
+          {{- end }}
           {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
           - mountPath: /pulsar-manager/keys
             name: token-keys
             readOnly: true
           {{- end }}
+          {{- if .Values.streamnative_console.login.sso.google.enabled }}
+          - name: google-oauth2-secret
+            mountPath: /pulsar-manager/secrets/google-oauth2
+            readOnly: true
+          {{- end }}
+          {{- if .Values.streamnative_console.login.sso.azure.enabled }}
+          - name: azure-oauth2-secret
+            mountPath: /pulsar-manager/secrets/azure-oauth2
+            readOnly: true
+          {{- end }}
+          {{- if .Values.streamnative_console.login.sso.okta.enabled }}
+          - name: okta-oauth2-secret
+            mountPath: /pulsar-manager/secrets/okta-oauth2
+            readOnly: true
+          {{- end }}
+          {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+          - name: pulsar-jwt-secret
+            mountPath: /pulsar-manager/secrets/pulsar-jwt
+            readOnly: true
+          {{- end }}
+          {{- if .Values.streamnative_console.dbPasswordSecret }}
+          - name: db-password-secret
+            mountPath: /pulsar-manager/secrets/db-password
+            readOnly: true
+          {{- end }}
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-gateway"
           image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
           imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
+          {{- if .Values.streamnative_console.securityContext }}
+          securityContext: {{- toYaml .Values.streamnative_console.containerSecurityContext | nindent 12 }}
+          {{- end }}
           {{- if .Values.streamnative_console.resources }}
           resources:
 {{ toYaml .Values.streamnative_console.resources | indent 12 }}
+          {{- end }}
+          {{- if and .Values.streamnative_console.containerSecurityContext .Values.streamnative_console.containerSecurityContext.readOnlyRootFilesystem }}
+          volumeMounts:
+          - name: nginx-conf
+            mountPath: /etc/nginx/conf.d
+          - name: nginx-logs
+            mountPath: /var/log/nginx
+          - name: nginx-tmp
+            mountPath: /var/lib/nginx/tmp
+          - name: nginx-run
+            mountPath: /run
+          - name: nginx-lib-log
+            mountPath: /var/lib/nginx/logs
+          - name: tmp-storage
+            mountPath: /tmp
+          {{- end }}
+          {{- if .Values.streamnative_console.probe.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /cloud-manager/login/enabled
+              port: {{ .Values.streamnative_console.ports.frontend }}
+            initialDelaySeconds: {{ .Values.streamnative_console.probe.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.streamnative_console.probe.readiness.periodSeconds }}
+            failureThreshold: {{ .Values.streamnative_console.probe.readiness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.streamnative_console.probe.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /cloud-manager/login/enabled
+              port: {{ .Values.streamnative_console.ports.frontend }}
+            initialDelaySeconds: {{ .Values.streamnative_console.probe.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.streamnative_console.probe.liveness.periodSeconds }}
+            failureThreshold: {{ .Values.streamnative_console.probe.liveness.failureThreshold }}
+          {{- end }}
+          {{- if .Values.streamnative_console.probe.startup.enabled }}
+          startupProbe:
+            httpGet:
+              path: /cloud-manager/login/enabled
+              port: {{ .Values.streamnative_console.ports.frontend }}
+            initialDelaySeconds: {{ .Values.streamnative_console.probe.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.streamnative_console.probe.startup.periodSeconds }}
+            failureThreshold: {{ .Values.streamnative_console.probe.startup.failureThreshold }}
           {{- end }}
           workingDir: "/pulsar-manager/gateway"
           command: ["/pulsar-manager/gateway/gateway-entrypoint.sh"]
@@ -267,6 +365,28 @@ spec:
           - name: backend
             containerPort: {{ .Values.streamnative_console.ports.backend }}
       volumes:
+      {{- if and .Values.streamnative_console.containerSecurityContext .Values.streamnative_console.containerSecurityContext.readOnlyRootFilesystem }}
+      - name: tmp-storage
+        emptyDir: {}
+      - name: run-postgresql-tmpfs
+        emptyDir:
+          medium: Memory
+      - name: nginx-conf
+        emptyDir: {}
+      - name: nginx-logs
+        emptyDir: {}
+      - name: nginx-tmp
+        emptyDir: {}
+      - name: nginx-run
+        emptyDir:
+          medium: Memory
+      - name: pulsar-manager-conf
+        emptyDir: {}
+      - name: nginx-lib-log
+        emptyDir: {}
+      - name: psql
+        emptyDir: {}
+      {{- end }}
       {{- if not (and .Values.volumes.persistence .Values.streamnative_console.volumes.persistence) }}
       - name: streamnative-console-data
         emptyDir: {}
@@ -296,11 +416,42 @@ spec:
           secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_SECRET_KEY }}
           {{- end }}
       {{- end }}
+      {{- if .Values.streamnative_console.login.sso.google.enabled }}
+      - name: google-oauth2-secret
+        secret:
+          secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-google-oauth2-secret"
+          defaultMode: 0440
+      {{- end }}
+      {{- if .Values.streamnative_console.login.sso.azure.enabled }}
+      - name: azure-oauth2-secret
+        secret:
+          secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-azure-oauth2-secret"
+          defaultMode: 0440
+      {{- end }}
+      {{- if .Values.streamnative_console.login.sso.okta.enabled }}
+      - name: okta-oauth2-secret
+        secret:
+          secretName: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-okta-oauth2-secret"
+          defaultMode: 0440
+      {{- end }}
+      {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
+      - name: pulsar-jwt-secret
+        secret:
+          secretName: {{ .Values.streamnative_console.login.sso.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
+          defaultMode: 0440
+      {{- end }}
+      {{- if .Values.streamnative_console.dbPasswordSecret }}
+      - name: db-password-secret
+        secret:
+          secretName: {{ .Values.streamnative_console.dbPasswordSecret }}
+          defaultMode: 0440
+      {{- end }}
       {{- if .Values.streamnative_console.securityContext }}
       securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
       {{- end }}
       {{- if .Values.streamnative_console.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
+      automountServiceAccountToken: {{ .Values.streamnative_console.serviceAccount.automountToken | default false }}
       {{- end }}
   {{- if or .Values.streamnative_console.volumes.data.storageClass .Values.streamnative_console.volumes.data.storageClassName }}
   volumeClaimTemplates:

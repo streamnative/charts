@@ -11,13 +11,22 @@ metadata:
 spec:
   action: ALLOW
   rules:
-  - to:
+  - {{- if and .Values.functions.authorizationPolicy .Values.functions.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.functions.authorizationPolicy.from | indent 4 }}
+    {{- end }}
+    {{- if and .Values.functions.authorizationPolicy .Values.functions.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.functions.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "{{ .Values.functions.ports.http }}"
         {{- if and .Values.tls.enabled .Values.tls.functions.enabled }}
         - "{{ .Values.functions.ports.https }}"
         {{- end }}
+    {{- end }}
   selector:
     matchLabels:
       {{- include "pulsar.template.labels" . | nindent 6 }}

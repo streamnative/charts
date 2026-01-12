@@ -257,10 +257,10 @@ Define function for get authenticaiton environment variable
         key: PULSAR_PREFIX_OIDCTokenAudienceID
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
 - name: brokerClientAuthenticationParameters
-  value: "file:///mnt/token/TOKEN"
+  value: "file:///mnt/vault/PROXY_brokerClientAuthenticationParameters"
 {{- else }}
 - name: brokerClientAuthenticationParameters
-  value: "file:///mnt/token/TOKEN"
+  value: "file:///mnt/vault/brokerClientAuthenticationParameters"
 {{- end }}
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
@@ -291,16 +291,13 @@ Define function for get authenticaiton secret
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
 {{- end }}
 {{- if and .Values.auth.vault.enabled (or .Values.broker.readPublicKeyFromFile .Values.proxy.readPublicKeyFromFile) }}
-{{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}
-- mountPath: /mnt/token
-  secretName: {{ .Release.Name }}-token-proxy-admin
-{{- else }}
-- mountPath: /mnt/token
-  secretName: {{ .Release.Name }}-token-admin
-{{- end }}
 - mountPath: {{ default "/pulsar/vault/v1/identity/oidc/.well-known/keys" .Values.broker.publicKeyPath }}
   {{ $defaultSecretName := print (include "pulsar.fullname" .) "-" .Values.vault.component "-public-key" }}
   secretName: {{ default $defaultSecretName .Values.broker.publicKeySecret }}
+{{- end }}
+{{- if .Values.auth.vault.enabled }}
+- mountPath: /mnt/vault
+  secretName: {{ template "pulsar.fullname" . }}-vault-secret-env-injection
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
 {{- if and (eq .Component "proxy") .Values.auth.superUsers.proxyRolesEnabled }}

@@ -10,14 +10,24 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
 spec:
   rules:
-  - from:
+  - {{- if and .Values.prometheus.authorizationPolicy .Values.prometheus.authorizationPolicy.from }}
+    from:
+{{ toYaml .Values.prometheus.authorizationPolicy.from | indent 4 }}
+    {{- else }}
+    from:
     - source:
         namespaces:
         - {{ template "pulsar.namespace" . }}
-  - to:
+    {{- end }}
+    {{- if and .Values.prometheus.authorizationPolicy .Values.prometheus.authorizationPolicy.to }}
+    to:
+{{ toYaml .Values.prometheus.authorizationPolicy.to | indent 4 }}
+    {{- else }}
+    to:
     - operation:
         ports:
         - "{{ .Values.prometheus.port }}"
+    {{- end }}
   action: ALLOW
   selector:
     matchLabels:
