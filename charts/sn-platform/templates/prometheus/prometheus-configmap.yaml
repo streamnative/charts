@@ -31,6 +31,11 @@ data:
         path_prefix: {{ template "pulsar.control_center_path.alertmanager" . }}/
 {{- end }}
     scrape_configs:
+{{- if .Values.prometheus.customScrapeConfigs -}}
+{{- with .Values.prometheus.customScrapeConfigs }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- else }}
     - job_name: 'prometheus'
       static_configs:
       - targets:
@@ -107,7 +112,7 @@ data:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if .Values.prometheus.serviceAccount.clusterRole }}
+{{- if and .Values.prometheus.serviceAccount.clusterRole (or (not (hasKey .Values.prometheus.scrape "kubernetesNodes")) (eq .Values.prometheus.scrape.kubernetesNodes true)) }}
     - job_name: 'kubernetes-nodes'
       scheme: https
       kubernetes_sd_configs:
@@ -126,6 +131,8 @@ data:
           regex: (.+)
           target_label: __metrics_path__
           replacement: /api/v1/nodes/${1}/proxy/metrics
+{{- end }}
+{{- if and .Values.prometheus.serviceAccount.clusterRole (or (not (hasKey .Values.prometheus.scrape "kubernetesCadvisor")) (eq .Values.prometheus.scrape.kubernetesCadvisor true)) }}
     - job_name: 'kubernetes-cadvisor'
       scheme: https
       kubernetes_sd_configs:
@@ -153,6 +160,7 @@ data:
 {{- if .Values.prometheus.extraCustomArgs -}}
 {{- with .Values.prometheus.extraCustomArgs }}
 {{ toYaml . | indent 4 }}
+{{- end }}
 {{- end }}
 {{- end }}
   rules.yml: |

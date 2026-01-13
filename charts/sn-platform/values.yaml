@@ -1010,6 +1010,7 @@ bookkeeper:
       accessModes:
         - ReadWriteOnce
       # storageClassName: ""
+      # volumeAttributesClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -1024,6 +1025,11 @@ bookkeeper:
       #   mountOptions:
       #   extraParameters:
       #     iopsPerGB: "50"
+      # volumeAttributesClass:
+      #   driverName: "driver.example.com"
+      #   parameters:
+      #     key1: "value1"
+      #     key2: "value2"
       # Add custom annotations and labels to PVCs.
       # Currently only BookKeeper PVCs support this feature.
       # See docs/pulsar/pvc-metadata.md for more details.
@@ -1041,6 +1047,7 @@ bookkeeper:
       accessModes:
         - ReadWriteOnce
       # storageClassName: ""
+      # volumeAttributesClassName: ""
       ## If the storage class is left undefined when using persistence
       ## the default storage class for the cluster will be used.
       ##
@@ -1055,6 +1062,11 @@ bookkeeper:
         # mountOptions:
         # extraParameters:
         #   iopsPerGB: "50"
+      # volumeAttributesClass:
+      #   driverName: "driver.example.com"
+      #   parameters:
+      #     key1: "value1"
+      #     key2: "value2"
       # Add custom annotations and labels to PVCs.
       # Currently only BookKeeper PVCs support this feature.
       # See docs/pulsar/pvc-metadata.md for more details.
@@ -2024,6 +2036,10 @@ prometheus:
     proxy: true
     zookeeper: true
     vault: true
+    # Enable scraping of kubernetes nodes metrics
+    kubernetesNodes: true
+    # Enable scraping of kubernetes cadvisor metrics
+    kubernetesCadvisor: true
     # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   labels: {}
@@ -2099,6 +2115,8 @@ prometheus:
   customRelabelConfigs: []
   extraScrapeConfigs: []
   extraCustomArgs: {}
+  # A advanced configuration to add custom scrape configs.
+  customScrapeConfigs: []
 
   ## Prometheus service
   ## templates/prometheus-service.yaml
