@@ -1218,6 +1218,48 @@ broker:
     labels: {}
     # annotations that will be added on the PulsarBroker CR only.
     annotations: {}
+    # networking configures per-pod Service creation for broker pods
+    # When enabled, creates a dedicated Service for each broker pod
+    # Essential for Istio Federation/Multi-cluster scenarios
+    networking:
+      podService:
+        # enabled controls whether per-pod Services are created
+        enabled: false
+        # type specifies the Service type: ClusterIP, LoadBalancer, or NodePort
+        type: ClusterIP
+        # annotations to add to each pod Service
+        annotations: {}
+        # labels to add to each pod Service
+        labels: {}
+        # ports to expose on each pod Service
+        # If not specified, uses default broker ports (6650, 8080, etc.)
+        # Example:
+        # ports:
+        #   - name: pulsar
+        #     port: 6650
+        #     targetPort: 6650
+        #   - name: http
+        #     port: 8080
+        #     targetPort: 8080
+        ports: []
+    # advertisedListeners defines how brokers are advertised to clients
+    # Used with networking.podService for Istio Federation/Multi-cluster scenarios
+    #
+    # Available hostTemplate variables (interpolated by Kubernetes at runtime):
+    #   - $(POD_NAME): Full pod name, e.g., "pulsar-broker-0"
+    #   - $(POD_ID): Pod ordinal from StatefulSet, e.g., "0", "1", "2"
+    #
+    # IMPORTANT: Use a non-default port (e.g., 6660) to avoid conflict with brokerServicePort (6650)
+    #
+    # Example for Istio Federation:
+    # advertisedListeners:
+    #   - name: pod
+    #     hostTemplate: "$(POD_NAME).my-namespace.svc.cluster.local"
+    #     protocols:
+    #       pulsar:
+    #         advertisedPort: 6660
+    #         containerPort: 6660
+    advertisedListeners: []
 
   # The field autoScaling will track the average metrics usage of the Pulsar nodes and adjusts the nodes to keep at the target metrics usage level.
   # If the average metrics usage for nodes is over the target, scaling controller will scale out to bring more nodes and if the average metrics for the nodes is less than the target, scaling controller will downscale nodes to save resources.

@@ -190,6 +190,32 @@ spec:
         mode: "passthrough"
       {{- end }}
   {{- end }}
+  {{- if and .Values.broker.pulsarBroker.networking .Values.broker.pulsarBroker.networking.podService .Values.broker.pulsarBroker.networking.podService.enabled }}
+  networking:
+    {{- with .Values.broker.pulsarBroker.networking.podService }}
+    podService:
+      enabled: {{ .enabled }}
+      {{- if .type }}
+      type: {{ .type }}
+      {{- end }}
+      {{- with .annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .labels }}
+      labels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .ports }}
+      ports:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- with .Values.broker.pulsarBroker.advertisedListeners }}
+  advertisedListeners:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- if .Values.broker.dnsNames }}
   dnsNames:
 {{ toYaml .Values.broker.dnsNames | indent 2}}
