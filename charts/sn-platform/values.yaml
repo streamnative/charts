@@ -2583,6 +2583,8 @@ streamnative_console:
           AZURE_TENANT_ID: "AZURE_TENANT_ID"
           AZURE_RESTRICT_DOMAIN_SUFFIXES_NAME: ""
           AZURE_REDIRECT_URI: ""
+          SERVICE_ACCOUNT_OAUTH2_AUDIENCE: ""
+          SERVICE_ACCOUNT_OAUTH2_SCOPE: ""
       okta:
         enabled: false
         config:
