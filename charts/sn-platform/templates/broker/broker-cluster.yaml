@@ -178,6 +178,9 @@ spec:
     mtls:
       mode: permissive
     {{- end }}
+    {{- if .Values.istio.revision }}
+    revision: {{ .Values.istio.revision }}
+    {{- end }}
     gateway:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}

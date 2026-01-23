@@ -2921,6 +2921,9 @@ istio:
   # mergeMetrics should be enabled if you want to scrape pulsar metrics from an external prometheus not running on Istio
   # prometheus and grafana will not be Istio injected if mergeMetrics is enabled
   mergeMetrics: false
+  # Istio revision to use for control plane injection
+  # When set, this revision will be applied to broker, bookkeeper, and zookeeper components
+  revision: ""
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}

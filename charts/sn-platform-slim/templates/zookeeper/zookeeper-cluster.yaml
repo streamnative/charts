@@ -190,6 +190,9 @@ spec:
     mtls:
       mode: permissive
     {{- end }}
+    {{- if .Values.istio.revision }}
+    revision: {{ .Values.istio.revision }}
+    {{- end }}
   {{- end }}
   config:
     serverCnxnFactory: {{ .Values.zookeeper.serverCnxnFactory }}

@@ -2539,6 +2539,9 @@ istio:
   # - ambient: Sidecar-less data plane using ztunnel for L4 mTLS (~70-80% resource savings)
   # Leave empty for default behavior (sidecar mode)
   dataplaneMode: ""
+  # Istio revision to use for control plane injection
+  # When set, this revision will be applied to broker, bookkeeper, and zookeeper components
+  revision: ""
   gateway:
     # gateway selector if it's not `istio: ingressgateway`
     selector: {}
