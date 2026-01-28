@@ -5880,6 +5880,29 @@ entries:
     version: 1.10.0
   snmcp:
   - apiVersion: v2
+    appVersion: v0.1.15
+    created: "2026-01-28T02:00:45.80989597Z"
+    description: A Helm chart for StreamNative MCP Server with Multi-Session Pulsar
+      support
+    digest: d7c16e174a87411cdd6b6ecaadbd1339c63aa9b7275f6fbe067ebbe0d91dacbd
+    home: https://github.com/streamnative/streamnative-mcp-server
+    keywords:
+    - mcp
+    - streamnative
+    - pulsar
+    - ai
+    - llm
+    maintainers:
+    - name: StreamNative
+      url: https://streamnative.io
+    name: snmcp
+    sources:
+    - https://github.com/streamnative/streamnative-mcp-server
+    type: application
+    urls:
+    - https://github.com/streamnative/streamnative-mcp-server/releases/download/snmcp-v0.1.15/snmcp-v0.1.15.tgz
+    version: v0.1.15
+  - apiVersion: v2
     appVersion: v0.1.15-rc.2
     created: "2026-01-23T10:47:34.062052062Z"
     description: A Helm chart for StreamNative MCP Server with Multi-Session Pulsar
@@ -5902,4 +5925,4 @@ entries:
     urls:
     - https://github.com/streamnative/streamnative-mcp-server/releases/download/snmcp-v0.1.15-rc.2-rc.2/snmcp-v0.1.15-rc.2-rc.2.tgz
     version: v0.1.15-rc.2-rc.2
-generated: "2026-01-26T14:29:32.861080034Z"
+generated: "2026-01-28T02:00:45.813837884Z"
