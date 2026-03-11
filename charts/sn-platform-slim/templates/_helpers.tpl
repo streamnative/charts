@@ -71,6 +71,8 @@ cluster: {{ template "pulsar.fullname" . }}
 {{- if .Values.istio.enabled }}
 {{- if .Values.istio.labels }}
 {{ toYaml .Values.istio.labels }}
+{{- else if eq (default "" .Values.istio.dataplaneMode) "ambient" }}
+istio.io/dataplane-mode: "ambient"
 {{- else }}
 sidecar.istio.io/inject: "true"
 {{- end }}

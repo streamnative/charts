@@ -167,7 +167,7 @@ spec:
     certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
     trustCertsEnabled: {{ .Values.tls.broker.trustCertsEnabled }}
   {{- end }}
-  {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
+  {{- if .Values.istio.enabled }}
   istio:
     enabled: true
     {{- if .Values.istio.dataplaneMode }}
@@ -177,6 +177,7 @@ spec:
     mtls:
       mode: permissive
     {{- end }}
+    {{- if .Values.ingress.broker.enabled }}
     gateway:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
@@ -189,6 +190,7 @@ spec:
         trustCertsEnabled: {{ .Values.tls.broker.gateway.trustCertsEnabled }}
         mode: "passthrough"
       {{- end }}
+    {{- end }}
   {{- end }}
   {{- if and .Values.broker.pulsarBroker.networking .Values.broker.pulsarBroker.networking.podService .Values.broker.pulsarBroker.networking.podService.enabled }}
   networking:
