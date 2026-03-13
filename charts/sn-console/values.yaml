@@ -113,6 +113,7 @@ configData:
   DEFAULT_ENVIRONMENT_SERVICE_URL: "http://private-cloud-proxy:8080"
   BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
   CONNECTOR_ENABLED: true
+  CLUSTER_NAME: "private-cloud"
 
 # Extra environment variables for streamnative-console container
 extraEnv: []
