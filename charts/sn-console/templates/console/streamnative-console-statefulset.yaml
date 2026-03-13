@@ -151,6 +151,13 @@ spec:
           {{- end }}
           - name: CONNECTOR_ENABLED
             value: "{{ .Values.configData.CONNECTOR_ENABLED | default "true" }}"
+          {{- if hasSuffix "-all" .Values.image.tag }}
+          - name: DB_BASE
+            value: sqlite
+          {{- end }}
+          {{- with .Values.extraEnv }}
+{{ toYaml . | indent 10 }}
+          {{- end }}
           {{- if .Values.login.pulsarJwt.enabled }}
           - name: AUTHENTICATION_NAME
             value: "pulsar-jwt"
@@ -208,7 +215,18 @@ spec:
           - secretRef:
               name: {{ .Values.login.pulsarJwt.config.SERVICE_ACCOUNT_SUPER_TOKEN_SECRET }}
           {{- end }}
-          
+          {{- if .Values.dbPasswordSecret }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ -f "/pulsar-manager/secrets/db-password/DB_PASSWORD" ]; then
+                export DB_PASSWORD=$(cat /pulsar-manager/secrets/db-password/DB_PASSWORD)
+              fi
+              if [ -f "/pulsar-manager/secrets/db-password/NEW_PASSWORD" ]; then
+                export NEW_PASSWORD=$(cat /pulsar-manager/secrets/db-password/NEW_PASSWORD)
+              fi
+              exec /pulsar-manager/entrypoint.sh
+          {{- end }}
           ports:
           - name: frontend
             containerPort: {{ .Values.ports.frontend }}
@@ -221,6 +239,11 @@ spec:
           {{- if .Values.login.pulsarJwt.enabled }}
           - mountPath: /pulsar-manager/keys
             name: token-keys
+            readOnly: true
+          {{- end }}
+          {{- if .Values.dbPasswordSecret }}
+          - name: db-password-secret
+            mountPath: /pulsar-manager/secrets/db-password
             readOnly: true
           {{- end }}
 
@@ -253,6 +276,12 @@ spec:
             path: token/secret.key
           secretName: {{ .Values.login.pulsarJwt.config.JWT_BROKER_SECRET_KEY }}
           {{- end }}
+      {{- end }}
+      {{- if .Values.dbPasswordSecret }}
+      - name: db-password-secret
+        secret:
+          secretName: {{ .Values.dbPasswordSecret }}
+          defaultMode: 0440
       {{- end }}
 
   {{- if or .Values.volumes.data.storageClass .Values.volumes.data.storageClassName }}
