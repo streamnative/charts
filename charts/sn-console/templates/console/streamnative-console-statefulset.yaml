@@ -120,6 +120,8 @@ spec:
             value: {{ .Values.configData.DEFAULT_NAME }}
           - name: INSTANCE_NAME
             value: {{ .Values.configData.INSTANCE_NAME }}
+          - name: CLUSTER_NAME
+            value: {{ .Values.configData.CLUSTER_NAME | quote }}
           - name: WEB_SERVICE_URL
             value: {{ .Values.broker.webServiceUrl }}
           - name: KOP_SERVICE_URL

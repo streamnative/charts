@@ -94,6 +94,8 @@ configData:
   DEFAULT_ORGANIZATION: "streamnative"
   # *required*: the instance name to display for the Pulsar clusters in SN console
   INSTANCE_NAME: "pulsar"
+  # Optional: customize the cluster name shown in Console
+  CLUSTER_NAME: ""
   GLOBAL_RESOURCE_READ_ONLY: false
   REDIRECT_SCHEME: ""
   REDIRECT_HOST: ""
@@ -108,7 +110,7 @@ configData:
   GRAFANA_AUTH_PROXY: false
   GRAFANA_AUTH_PROXY_USER: ""
   DEFAULT_ENVIRONMENT_NAME: "pulsar"
-  DEFAULT_ENVIRONMENT_SERVICE_URL: ""
+  DEFAULT_ENVIRONMENT_SERVICE_URL: "http://private-cloud-proxy:8080"
   BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
   CONNECTOR_ENABLED: true
 
