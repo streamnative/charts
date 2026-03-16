@@ -1755,6 +1755,22 @@ entries:
     version: v0.1.0
   sn-console:
   - apiVersion: v1
+    appVersion: "1.13"
+    created: "2026-03-16T09:05:24.893022227Z"
+    description: StreamNative Console Chart
+    digest: 61cda2c9320ac0269986153890a31bc323bbd1763012392922b9552b950195ce
+    home: https://streamnative.io
+    icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
+    maintainers:
+    - email: support@streamnative.io
+      name: StreamNative Support
+    name: sn-console
+    sources:
+    - https://github.com/streamnative/charts/tree/master/charts/sn-console
+    urls:
+    - https://github.com/streamnative/charts/releases/download/sn-console-1.13.0/sn-console-1.13.0.tgz
+    version: 1.13.0
+  - apiVersion: v1
     appVersion: "1.9"
     created: "2021-12-15T08:53:58.649973988Z"
     description: StreamNative Console Chart
@@ -5986,4 +6002,4 @@ entries:
     urls:
     - https://github.com/streamnative/streamnative-mcp-server/releases/download/snmcp-v0.1.15-rc.2-rc.2/snmcp-v0.1.15-rc.2-rc.2.tgz
     version: v0.1.15-rc.2-rc.2
-generated: "2026-03-16T08:38:38.118258907Z"
+generated: "2026-03-16T09:05:24.897085697Z"
