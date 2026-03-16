@@ -2,11 +2,11 @@
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
 
-initialize: true
+initialize: false
 
 image:
-  repository: streamnative/sn-platform-console
-  tag: "v1.14.2"
+  repository: streamnative/private-cloud-console
+  tag: "v2.3.27-all"
   pullPolicy: IfNotPresent
   hasCommand: false
 
@@ -47,7 +47,7 @@ resources:
     cpu: 0.1
 volumes:
   # use a persistent volume or emptyDir
-  persistence: true
+  persistence: false
   data:
     name: data
     size: 10Gi
@@ -94,6 +94,8 @@ configData:
   DEFAULT_ORGANIZATION: "streamnative"
   # *required*: the instance name to display for the Pulsar clusters in SN console
   INSTANCE_NAME: "pulsar"
+  # Optional: customize the cluster name shown in Console
+  CLUSTER_NAME: ""
   GLOBAL_RESOURCE_READ_ONLY: false
   REDIRECT_SCHEME: ""
   REDIRECT_HOST: ""
@@ -108,13 +110,29 @@ configData:
   GRAFANA_AUTH_PROXY: false
   GRAFANA_AUTH_PROXY_USER: ""
   DEFAULT_ENVIRONMENT_NAME: "pulsar"
-  DEFAULT_ENVIRONMENT_SERVICE_URL: ""
+  DEFAULT_ENVIRONMENT_SERVICE_URL: "http://private-cloud-proxy:8080"
   BACKEND_DEFAULT_SUPER_USER_ROLE: "pulsar-manager-admin"
   CONNECTOR_ENABLED: true
+  CLUSTER_NAME: "private-cloud"
+
+# Extra environment variables for streamnative-console container
+extraEnv: []
+# Secret name containing DB_PASSWORD and NEW_PASSWORD keys (mounted as files; read by startup script)
+# The secret should have two keys: DB_PASSWORD and NEW_PASSWORD
+# Example command to create the secret:
+#   kubectl create secret generic my-db-password-secret \
+#     --from-literal=DB_PASSWORD=your-db-password \
+#     --from-literal=NEW_PASSWORD=your-new-password
+# Example command to update the secret:
+#   kubectl create secret generic my-db-password-secret \
+#     --from-literal=DB_PASSWORD=your-new-db-password \
+#     --from-literal=NEW_PASSWORD=your-new-password \
+#     --dry-run=client -o yaml | kubectl apply -f -
+dbPasswordSecret: ""
 
 login:
   vault:
-    enabled: true
+    enabled: false
   pulsarJwt:
     enabled: false
     config:
@@ -154,7 +172,7 @@ login:
 
 # broker related settings. configure how streamnative console should access Pulsar brokers.
 broker:
-  webServiceUrl: http://localhost:8080
+  webServiceUrl: http://private-cloud-proxy:8080
   # kopServiceUrl: localhost:9093
   auth:
     authentication:
