@@ -206,6 +206,18 @@ Define toolset TLS certificate secret name
 {{- end -}}
 
 {{/*
+Define the proxy service host for toolset (ingress when proxy ingress is enabled, else headless).
+Toolset uses this so pulsar-admin and client commands reach the proxy via the ingress service.
+*/}}
+{{- define "toolset.proxy.service.host" -}}
+{{- if and .Values.ingress.proxy.enabled (ne .Values.ingress.proxy.type "IstioGateway") -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-ingress
+{{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless
+{{- end -}}
+{{- end -}}
+
+{{/*
 Define the toolset web service url
 */}}
 {{- define "toolset.web.service.url" -}}
@@ -217,9 +229,9 @@ http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Val
 {{- end -}}
 {{- else -}}
 {{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
+https://{{ template "toolset.proxy.service.host" . }}:{{ .Values.proxy.ports.https }}
 {{- else -}}
-http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
+http://{{ template "toolset.proxy.service.host" . }}:{{ .Values.proxy.ports.http }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
