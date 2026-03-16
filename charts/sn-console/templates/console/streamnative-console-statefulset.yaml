@@ -188,7 +188,7 @@ spec:
           {{- end }}
           - name: CONNECTOR_ENABLED
             value: "{{ .Values.configData.CONNECTOR_ENABLED | default "true" }}"
-          {{- if hasSuffix "-all" .Values.image.tag }}
+          {{- if hasSuffix "-all" (toString .Values.image.tag) }}
           - name: DB_BASE
             value: sqlite
           {{- end }}
