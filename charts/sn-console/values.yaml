@@ -6,7 +6,7 @@ initialize: false
 
 image:
   repository: streamnative/private-cloud-console
-  tag: "v2.3.26-all"
+  tag: "v2.3.27-all"
   pullPolicy: IfNotPresent
   hasCommand: false
 
