@@ -269,6 +269,43 @@ Define the toolset proxy web service port.
 {{- end -}}
 
 {{/*
+Define the toolset proxy broker service scheme.
+*/}}
+{{- define "toolset.proxy.broker.service.scheme" -}}
+{{- if eq (include "toolset.proxy.service.usesIngress" .) "true" -}}
+{{- if or (and .Values.tls.enabled .Values.tls.proxy.enabled) .Values.ingress.proxy.tls.enabled -}}
+pulsar+ssl
+{{- else -}}
+pulsar
+{{- end -}}
+{{- else -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
+pulsar+ssl
+{{- else -}}
+pulsar
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset proxy broker service port.
+*/}}
+{{- define "toolset.proxy.broker.service.port" -}}
+{{- if eq (include "toolset.proxy.broker.service.scheme" .) "pulsar+ssl" -}}
+{{ .Values.proxy.ports.pulsarssl }}
+{{- else -}}
+{{ .Values.proxy.ports.pulsar }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset proxy broker service url.
+*/}}
+{{- define "toolset.proxy.broker.service.url" -}}
+{{ template "toolset.proxy.broker.service.scheme" . }}://{{ template "toolset.proxy.service.host" . }}:{{ template "toolset.proxy.broker.service.port" . }}
+{{- end -}}
+
+{{/*
 Define the toolset web service url
 */}}
 {{- define "toolset.web.service.url" -}}

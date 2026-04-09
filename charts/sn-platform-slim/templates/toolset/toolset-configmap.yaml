@@ -31,17 +31,14 @@ data:
   {{- if .Values.toolset.useProxy }}
   # talk to proxy (use proxy-ingress when ingress enabled so pulsar-admin works from Toolset pod)
   webServiceUrl: "{{ template "toolset.web.service.url" . }}/"
-  {{- if and .Values.tls.enabled .Values.tls.proxy.enabled }}
-  brokerServiceUrl: "pulsar+ssl://{{ template "toolset.proxy.service.host" . }}:{{ .Values.proxy.ports.pulsarssl }}/"
+  brokerServiceUrl: "{{ template "toolset.proxy.broker.service.url" . }}/"
+  {{- if or (and .Values.tls.enabled .Values.tls.proxy.enabled) .Values.ingress.proxy.tls.enabled }}
   useTls: "true"
   tlsAllowInsecureConnection: "false"
   {{- if .Values.tls.proxy.untrustedCa }}
   tlsTrustCertsFilePath: "/pulsar/certs/proxy-ca/ca.crt"
   {{- end }}
   tlsEnableHostnameVerification: "false"
-  {{- end }}
-  {{- if not (and .Values.tls.enabled .Values.tls.proxy.enabled) }}
-  brokerServiceUrl: "pulsar://{{ template "toolset.proxy.service.host" . }}:{{ .Values.proxy.ports.pulsar }}/"
   {{- end }}
   {{- end }}
   # Authentication Settings
