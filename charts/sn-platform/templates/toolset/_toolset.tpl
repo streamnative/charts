@@ -206,6 +206,106 @@ Define toolset TLS certificate secret name
 {{- end -}}
 
 {{/*
+Define the proxy service host for toolset (ingress when proxy ingress is enabled, else headless).
+Toolset uses this so pulsar-admin and client commands reach the proxy via the ingress service.
+*/}}
+{{- define "toolset.proxy.service.host" -}}
+{{- if and .Values.ingress.proxy.enabled (ne .Values.ingress.proxy.type "IstioGateway") -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-ingress
+{{- else -}}
+{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}-headless
+{{- end -}}
+{{- end -}}
+
+{{/*
+Whether toolset resolves the proxy through the ingress service.
+*/}}
+{{- define "toolset.proxy.service.usesIngress" -}}
+{{- if and .Values.ingress.proxy.enabled (ne .Values.ingress.proxy.type "IstioGateway") -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset proxy web service scheme.
+*/}}
+{{- define "toolset.proxy.web.service.scheme" -}}
+{{- if eq (include "toolset.proxy.service.usesIngress" .) "true" -}}
+{{- if or (and .Values.tls.enabled .Values.tls.proxy.enabled) .Values.ingress.proxy.tls.enabled -}}
+https
+{{- else -}}
+http
+{{- end -}}
+{{- else -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
+https
+{{- else -}}
+http
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset proxy web service port.
+*/}}
+{{- define "toolset.proxy.web.service.port" -}}
+{{- if eq (include "toolset.proxy.service.usesIngress" .) "true" -}}
+{{- if eq (include "toolset.proxy.web.service.scheme" .) "https" -}}
+{{ .Values.proxy.ports.https }}
+{{- else if .Values.ingress.proxy.httpPortOverride -}}
+{{ .Values.ingress.proxy.httpPortOverride }}
+{{- else -}}
+{{ .Values.proxy.ports.http }}
+{{- end -}}
+{{- else -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
+{{ .Values.proxy.ports.https }}
+{{- else -}}
+{{ .Values.proxy.ports.http }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset proxy broker service scheme.
+*/}}
+{{- define "toolset.proxy.broker.service.scheme" -}}
+{{- if eq (include "toolset.proxy.service.usesIngress" .) "true" -}}
+{{- if or (and .Values.tls.enabled .Values.tls.proxy.enabled) .Values.ingress.proxy.tls.enabled -}}
+pulsar+ssl
+{{- else -}}
+pulsar
+{{- end -}}
+{{- else -}}
+{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
+pulsar+ssl
+{{- else -}}
+pulsar
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset proxy broker service port.
+*/}}
+{{- define "toolset.proxy.broker.service.port" -}}
+{{- if eq (include "toolset.proxy.broker.service.scheme" .) "pulsar+ssl" -}}
+{{ .Values.proxy.ports.pulsarssl }}
+{{- else -}}
+{{ .Values.proxy.ports.pulsar }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Define the toolset proxy broker service url.
+*/}}
+{{- define "toolset.proxy.broker.service.url" -}}
+{{ template "toolset.proxy.broker.service.scheme" . }}://{{ template "toolset.proxy.service.host" . }}:{{ template "toolset.proxy.broker.service.port" . }}
+{{- end -}}
+
+{{/*
 Define the toolset web service url
 */}}
 {{- define "toolset.web.service.url" -}}
@@ -216,11 +316,7 @@ https://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Va
 http://{{ template "pulsar.fullname" . }}-{{ .Values.broker.component }}:{{ .Values.broker.ports.http }}
 {{- end -}}
 {{- else -}}
-{{- if and .Values.tls.enabled .Values.tls.proxy.enabled -}}
-https://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.https }}
-{{- else -}}
-http://{{ template "pulsar.fullname" . }}-{{ .Values.proxy.component }}:{{ .Values.proxy.ports.http }}
-{{- end -}}
+{{ template "toolset.proxy.web.service.scheme" . }}://{{ template "toolset.proxy.service.host" . }}:{{ template "toolset.proxy.web.service.port" . }}
 {{- end -}}
 {{- end -}}
 
