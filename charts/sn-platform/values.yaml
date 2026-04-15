@@ -1931,6 +1931,7 @@ toolset:
   annotations: {}
   podLabels: {}
   podAnnotations: {}
+  initJobAnnotations: {}
   tolerations: []
   kafka:
     enabled: false

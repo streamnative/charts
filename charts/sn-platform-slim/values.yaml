@@ -1853,6 +1853,7 @@ toolset:
   annotations: {}
   podLabels: {}
   podAnnotations: {}
+  initJobAnnotations: {}
   tolerations: []
   gracePeriod: 0
   resources:
