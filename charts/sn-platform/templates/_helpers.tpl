@@ -1,6 +1,38 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
+Resolve busybox image fields with backward compatibility.
+Prefer .Values.images.busybox and fall back to deprecated .Values.images.toolset.busybox.
+*/}}
+{{- define "pulsar.images.busybox.repository" -}}
+{{- coalesce .Values.images.busybox.repository (dig "toolset" "busybox" "repository" "" .Values.images) -}}
+{{- end -}}
+
+{{- define "pulsar.images.busybox.tag" -}}
+{{- coalesce .Values.images.busybox.tag (dig "toolset" "busybox" "tag" "" .Values.images) -}}
+{{- end -}}
+
+{{- define "pulsar.images.busybox.pullPolicy" -}}
+{{- coalesce .Values.images.busybox.pullPolicy (dig "toolset" "busybox" "pullPolicy" "" .Values.images) -}}
+{{- end -}}
+
+{{/*
+Resolve kubectl image fields with backward compatibility.
+Prefer .Values.images.kubectl and fall back to deprecated .Values.images.toolset.kubectl.
+*/}}
+{{- define "pulsar.images.kubectl.repository" -}}
+{{- coalesce .Values.images.kubectl.repository (dig "toolset" "kubectl" "repository" "" .Values.images) -}}
+{{- end -}}
+
+{{- define "pulsar.images.kubectl.tag" -}}
+{{- coalesce .Values.images.kubectl.tag (dig "toolset" "kubectl" "tag" "" .Values.images) -}}
+{{- end -}}
+
+{{- define "pulsar.images.kubectl.pullPolicy" -}}
+{{- coalesce .Values.images.kubectl.pullPolicy (dig "toolset" "kubectl" "pullPolicy" "" .Values.images) -}}
+{{- end -}}
+
+{{/*
 pulsar home
 */}}
 {{- define "pulsar.home" -}}

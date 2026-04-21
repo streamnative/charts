@@ -79,8 +79,8 @@ spec:
       {{- end }}
       {{- if .Values.toolset.installBusybox }}
       - name: busybox
-        image: "{{ .Values.images.toolset.busybox.repository }}:{{ .Values.images.toolset.busybox.tag }}"
-        imagePullPolicy: {{ .Values.images.toolset.busybox.pullPolicy }}
+        image: "{{ include "pulsar.images.busybox.repository" . }}:{{ include "pulsar.images.busybox.tag" . }}"
+        imagePullPolicy: {{ include "pulsar.images.busybox.pullPolicy" . }}
       {{- if .Values.toolset.resources }}
         resources:
 {{ toYaml .Values.toolset.resources | indent 10 }}

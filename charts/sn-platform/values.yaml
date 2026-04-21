@@ -182,14 +182,24 @@ images:
       repository: bitnami/kafka
       tag: "3.5.1"
       pullPolicy: IfNotPresent
+    # deprecated: use images.busybox instead
     busybox:
       repository: busybox
       tag: "1.36.1-uclibc"
       pullPolicy: IfNotPresent
+    # deprecated: use images.kubectl instead
     kubectl:
       repository: docker-proxy.streamnative.io/bitnamilegacy/kubectl
       tag: "1.28.3"
       pullPolicy: IfNotPresent
+  busybox:
+    repository: busybox
+    tag: "1.36.1-uclibc"
+    pullPolicy: IfNotPresent
+  kubectl:
+    repository: docker-proxy.streamnative.io/bitnamilegacy/kubectl
+    tag: "1.28.3"
+    pullPolicy: IfNotPresent
   prometheus:
     repository: quay.io/prometheus/prometheus
     tag: "v2.43.0"
