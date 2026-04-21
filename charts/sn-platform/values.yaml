@@ -192,14 +192,6 @@ images:
       repository: docker-proxy.streamnative.io/bitnamilegacy/kubectl
       tag: "1.28.3"
       pullPolicy: IfNotPresent
-  busybox:
-    repository: busybox
-    tag: "1.36.1-uclibc"
-    pullPolicy: IfNotPresent
-  kubectl:
-    repository: docker-proxy.streamnative.io/bitnamilegacy/kubectl
-    tag: "1.28.3"
-    pullPolicy: IfNotPresent
   prometheus:
     repository: quay.io/prometheus/prometheus
     tag: "v2.43.0"
