@@ -155,10 +155,12 @@ images:
     repository: streamnative/sn-platform-slim
     tag: "3.3.3.3"
     pullPolicy: IfNotPresent
+    # deprecated: use images.busybox instead
     busybox:
       repository: busybox
       tag: "1.36.1-uclibc"
       pullPolicy: IfNotPresent
+    # deprecated: use images.kubectl instead
     kubectl:
       repository: docker-proxy.streamnative.io/bitnamilegacy/kubectl
       tag: "1.28.3"
