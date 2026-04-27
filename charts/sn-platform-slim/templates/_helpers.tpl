@@ -6,26 +6,38 @@ Prefer top-level .Values.images.busybox when present and fall back to deprecated
 .Values.images.toolset.busybox for backward compatibility.
 */}}
 {{- define "pulsar.images.busybox.repository" -}}
-{{- if and (hasKey .Values.images "busybox") .Values.images.busybox.repository -}}
-{{- .Values.images.busybox.repository -}}
-{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.repository -}}
-{{- .Values.images.toolset.busybox.repository -}}
+{{- $images := .Values.images | default dict -}}
+{{- $busybox := get $images "busybox" | default dict -}}
+{{- $toolset := get $images "toolset" | default dict -}}
+{{- $toolsetBusybox := get $toolset "busybox" | default dict -}}
+{{- if get $busybox "repository" -}}
+{{- get $busybox "repository" -}}
+{{- else if get $toolsetBusybox "repository" -}}
+{{- get $toolsetBusybox "repository" -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.busybox.tag" -}}
-{{- if and (hasKey .Values.images "busybox") .Values.images.busybox.tag -}}
-{{- .Values.images.busybox.tag -}}
-{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.tag -}}
-{{- .Values.images.toolset.busybox.tag -}}
+{{- $images := .Values.images | default dict -}}
+{{- $busybox := get $images "busybox" | default dict -}}
+{{- $toolset := get $images "toolset" | default dict -}}
+{{- $toolsetBusybox := get $toolset "busybox" | default dict -}}
+{{- if get $busybox "tag" -}}
+{{- get $busybox "tag" -}}
+{{- else if get $toolsetBusybox "tag" -}}
+{{- get $toolsetBusybox "tag" -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.busybox.pullPolicy" -}}
-{{- if and (hasKey .Values.images "busybox") .Values.images.busybox.pullPolicy -}}
-{{- .Values.images.busybox.pullPolicy -}}
-{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.pullPolicy -}}
-{{- .Values.images.toolset.busybox.pullPolicy -}}
+{{- $images := .Values.images | default dict -}}
+{{- $busybox := get $images "busybox" | default dict -}}
+{{- $toolset := get $images "toolset" | default dict -}}
+{{- $toolsetBusybox := get $toolset "busybox" | default dict -}}
+{{- if get $busybox "pullPolicy" -}}
+{{- get $busybox "pullPolicy" -}}
+{{- else if get $toolsetBusybox "pullPolicy" -}}
+{{- get $toolsetBusybox "pullPolicy" -}}
 {{- end -}}
 {{- end -}}
 
@@ -35,26 +47,38 @@ Prefer top-level .Values.images.kubectl when present and fall back to deprecated
 .Values.images.toolset.kubectl for backward compatibility.
 */}}
 {{- define "pulsar.images.kubectl.repository" -}}
-{{- if and (hasKey .Values.images "kubectl") .Values.images.kubectl.repository -}}
-{{- .Values.images.kubectl.repository -}}
-{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.repository -}}
-{{- .Values.images.toolset.kubectl.repository -}}
+{{- $images := .Values.images | default dict -}}
+{{- $kubectl := get $images "kubectl" | default dict -}}
+{{- $toolset := get $images "toolset" | default dict -}}
+{{- $toolsetKubectl := get $toolset "kubectl" | default dict -}}
+{{- if get $kubectl "repository" -}}
+{{- get $kubectl "repository" -}}
+{{- else if get $toolsetKubectl "repository" -}}
+{{- get $toolsetKubectl "repository" -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.kubectl.tag" -}}
-{{- if and (hasKey .Values.images "kubectl") .Values.images.kubectl.tag -}}
-{{- .Values.images.kubectl.tag -}}
-{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.tag -}}
-{{- .Values.images.toolset.kubectl.tag -}}
+{{- $images := .Values.images | default dict -}}
+{{- $kubectl := get $images "kubectl" | default dict -}}
+{{- $toolset := get $images "toolset" | default dict -}}
+{{- $toolsetKubectl := get $toolset "kubectl" | default dict -}}
+{{- if get $kubectl "tag" -}}
+{{- get $kubectl "tag" -}}
+{{- else if get $toolsetKubectl "tag" -}}
+{{- get $toolsetKubectl "tag" -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.kubectl.pullPolicy" -}}
-{{- if and (hasKey .Values.images "kubectl") .Values.images.kubectl.pullPolicy -}}
-{{- .Values.images.kubectl.pullPolicy -}}
-{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.pullPolicy -}}
-{{- .Values.images.toolset.kubectl.pullPolicy -}}
+{{- $images := .Values.images | default dict -}}
+{{- $kubectl := get $images "kubectl" | default dict -}}
+{{- $toolset := get $images "toolset" | default dict -}}
+{{- $toolsetKubectl := get $toolset "kubectl" | default dict -}}
+{{- if get $kubectl "pullPolicy" -}}
+{{- get $kubectl "pullPolicy" -}}
+{{- else if get $toolsetKubectl "pullPolicy" -}}
+{{- get $toolsetKubectl "pullPolicy" -}}
 {{- end -}}
 {{- end -}}
 
