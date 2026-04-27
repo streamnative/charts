@@ -2,59 +2,59 @@
 
 {{/*
 Resolve busybox image fields with backward compatibility.
-Prefer deprecated .Values.images.toolset.busybox when present so existing overrides
-continue to work after top-level defaults are introduced.
+Prefer top-level .Values.images.busybox when present and fall back to deprecated
+.Values.images.toolset.busybox for backward compatibility.
 */}}
 {{- define "pulsar.images.busybox.repository" -}}
-{{- if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.repository -}}
-{{- .Values.images.toolset.busybox.repository -}}
-{{- else if and (hasKey .Values.images "busybox") .Values.images.busybox.repository -}}
+{{- if and (hasKey .Values.images "busybox") .Values.images.busybox.repository -}}
 {{- .Values.images.busybox.repository -}}
+{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.repository -}}
+{{- .Values.images.toolset.busybox.repository -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.busybox.tag" -}}
-{{- if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.tag -}}
-{{- .Values.images.toolset.busybox.tag -}}
-{{- else if and (hasKey .Values.images "busybox") .Values.images.busybox.tag -}}
+{{- if and (hasKey .Values.images "busybox") .Values.images.busybox.tag -}}
 {{- .Values.images.busybox.tag -}}
+{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.tag -}}
+{{- .Values.images.toolset.busybox.tag -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.busybox.pullPolicy" -}}
-{{- if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.pullPolicy -}}
-{{- .Values.images.toolset.busybox.pullPolicy -}}
-{{- else if and (hasKey .Values.images "busybox") .Values.images.busybox.pullPolicy -}}
+{{- if and (hasKey .Values.images "busybox") .Values.images.busybox.pullPolicy -}}
 {{- .Values.images.busybox.pullPolicy -}}
+{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "busybox") .Values.images.toolset.busybox.pullPolicy -}}
+{{- .Values.images.toolset.busybox.pullPolicy -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
 Resolve kubectl image fields with backward compatibility.
-Prefer deprecated .Values.images.toolset.kubectl when present so existing overrides
-continue to work after top-level defaults are introduced.
+Prefer top-level .Values.images.kubectl when present and fall back to deprecated
+.Values.images.toolset.kubectl for backward compatibility.
 */}}
 {{- define "pulsar.images.kubectl.repository" -}}
-{{- if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.repository -}}
-{{- .Values.images.toolset.kubectl.repository -}}
-{{- else if and (hasKey .Values.images "kubectl") .Values.images.kubectl.repository -}}
+{{- if and (hasKey .Values.images "kubectl") .Values.images.kubectl.repository -}}
 {{- .Values.images.kubectl.repository -}}
+{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.repository -}}
+{{- .Values.images.toolset.kubectl.repository -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.kubectl.tag" -}}
-{{- if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.tag -}}
-{{- .Values.images.toolset.kubectl.tag -}}
-{{- else if and (hasKey .Values.images "kubectl") .Values.images.kubectl.tag -}}
+{{- if and (hasKey .Values.images "kubectl") .Values.images.kubectl.tag -}}
 {{- .Values.images.kubectl.tag -}}
+{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.tag -}}
+{{- .Values.images.toolset.kubectl.tag -}}
 {{- end -}}
 {{- end -}}
 
 {{- define "pulsar.images.kubectl.pullPolicy" -}}
-{{- if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.pullPolicy -}}
-{{- .Values.images.toolset.kubectl.pullPolicy -}}
-{{- else if and (hasKey .Values.images "kubectl") .Values.images.kubectl.pullPolicy -}}
+{{- if and (hasKey .Values.images "kubectl") .Values.images.kubectl.pullPolicy -}}
 {{- .Values.images.kubectl.pullPolicy -}}
+{{- else if and (hasKey .Values.images "toolset") (hasKey .Values.images.toolset "kubectl") .Values.images.toolset.kubectl.pullPolicy -}}
+{{- .Values.images.toolset.kubectl.pullPolicy -}}
 {{- end -}}
 {{- end -}}
 
