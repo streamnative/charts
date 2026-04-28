@@ -158,7 +158,7 @@ images:
     # deprecated: use images.busybox instead
     busybox:
       repository: busybox
-      tag: "1.36.1-uclibc"
+      tag: "1.37.0-uclibc"
       pullPolicy: IfNotPresent
     # deprecated: use images.kubectl instead
     kubectl:
