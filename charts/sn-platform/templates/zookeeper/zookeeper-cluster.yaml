@@ -220,8 +220,10 @@ spec:
         - all
       {{- end }}
       {{- if .Values.zookeeper.operator.adopt_existing }}
+      {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
       volumeClaimTemplates:
-      {{- include "pulsar.zookeeper.data.volumeClaimTemplates" . | nindent 6 }}
+      {{- include "pulsar.zookeeper.data.volumeClaimTemplates" . | nindent 8 }}
+      {{- end }}
       volumeMounts:
       {{- include "pulsar.zookeeper.data.volumeMounts" . | nindent 6 }}
       {{- include "pulsar.zookeeper.certs.volumeMounts" . | nindent 6 }}
