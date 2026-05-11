@@ -385,6 +385,7 @@ spec:
     pdb:
       managed: {{ .Values.broker.pdb.autoCreate }}
     {{- end }}
+{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts .Values.broker.extraVolumeClaimTemplates }}
     statefulSet:
 {{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
       volumeMounts:
@@ -393,10 +394,11 @@ spec:
 {{ toYaml . | indent 6 }}
 {{- end }}
 {{- end }}
-{{- if or .Values.tls.broker.enabled .Values.broker.extraVolumeMounts }}
+{{- if .Values.broker.extraVolumeClaimTemplates }}
       volumeClaimTemplates:
 {{- with .Values.broker.extraVolumeClaimTemplates }}
 {{ toYaml . | indent 6 }}
+{{- end }}
 {{- end }}
 {{- end }}
   {{- end }}
