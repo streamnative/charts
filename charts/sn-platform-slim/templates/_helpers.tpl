@@ -345,7 +345,7 @@ Define function for get authenticaiton secret
 {{- define "pulsar.authSecret" }}
 {{- if .Values.auth.authentication.enabled }}
 {{- if and .Values.auth.oauth.enabled .Values.auth.oauth.brokerClientCredentialSecret }}
-- mountPath: /mnt/secret-oauth
+- mountPath: /mnt/secrets-oauth
   secretName: "{{ .Values.auth.oauth.brokerClientCredentialSecret }}"
 {{- end }}
 {{- if .Values.auth.authentication.jwt.enabled }}
