@@ -1249,7 +1249,7 @@ broker:
   # When enabled (true), the sn-operator will auto-create PDBs with default constraints.
   # Disable (false) if you need to manually manage PDBs for fine-grained control.
   pdb:
-    autoCreate: false
+    autoCreate: true
   labels: {}
   annotations: {}
   tolerations: []
