@@ -338,7 +338,7 @@ auth:
     # --from-literal=broker_client_credential.json=$(echo -n '{"client_id":"your-client-id","client_secret":"your-client-secret","issuer_url":"http://your-issuer-url/"}') \
     # -n your-namespace
     # brokerClientCredentialSecret: "my-secret"
-    # brokerClientAuthenticationParameters: {"privateKey":"file:///mnt/secrets/oauth/broker_client_credential.json", "issuerUrl":"https://login.microsoftonline.com/your-tenant-id/v2.0", "audience":"your-audience", "scope":"your-scope"}
+    # brokerClientAuthenticationParameters: {"privateKey":"file:///mnt/secret-oauth/broker_client_credential.json", "issuerUrl":"https://login.microsoftonline.com/your-tenant-id/v2.0", "audience":"your-audience", "scope":"your-scope"}
     authenticationProvider: "io.streamnative.pulsar.broker.authentication.AuthenticationProviderOAuth"
     authorizationProvider: "io.streamnative.pulsar.broker.authorization.AuthorizationProviderOAuth"
 
@@ -1249,7 +1249,7 @@ broker:
   # When enabled (true), the sn-operator will auto-create PDBs with default constraints.
   # Disable (false) if you need to manually manage PDBs for fine-grained control.
   pdb:
-    autoCreate: true
+    autoCreate: false
   labels: {}
   annotations: {}
   tolerations: []
