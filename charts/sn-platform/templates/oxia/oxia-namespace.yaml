@@ -3,12 +3,11 @@
 #
 # deploy oxia namespaces only when `pulsar_metadata.provider` is oxia
 {{- if include "pulsar.metadata.isOxia" . }}
-{{- $namespaces := list
-  (dict "name" (include "pulsar.oxia.broker.namespace" .) "type" "broker")
-  (dict "name" (include "pulsar.oxia.bookkeeper.namespace" .) "type" "bookkeeper")
-  (dict "name" (include "pulsar.oxia.schema.namespace" .) "type" "pulsar-schema")
-  (dict "name" (include "pulsar.oxia.function.namespace" .) "type" "function")
-}}
+{{- $brokerNamespace := dict "name" (include "pulsar.oxia.broker.namespace" .) "type" "broker" }}
+{{- $bookkeeperNamespace := dict "name" (include "pulsar.oxia.bookkeeper.namespace" .) "type" "bookkeeper" }}
+{{- $schemaNamespace := dict "name" (include "pulsar.oxia.schema.namespace" .) "type" "pulsar-schema" }}
+{{- $functionNamespace := dict "name" (include "pulsar.oxia.function.namespace" .) "type" "function" }}
+{{- $namespaces := list $brokerNamespace $bookkeeperNamespace $schemaNamespace $functionNamespace }}
 {{- range $index, $oxiaNamespace := $namespaces }}
 {{- if $index }}
 ---
