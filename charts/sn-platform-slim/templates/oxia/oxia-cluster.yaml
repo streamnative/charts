@@ -1,0 +1,34 @@
+#
+# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
+#
+# deploy oxia only when `pulsar_metadata.provider` is oxia
+{{- if include "pulsar.metadata.isOxia" . }}
+apiVersion: k8s.streamnative.io/v1alpha1
+kind: OxiaCluster
+metadata:
+  name: "{{ template "pulsar.oxia.cluster" . }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: oxia
+{{- if .Values.components.pulsar_coordinator }}
+    k8s.streamnative.io/coordinator-name: "{{ template "pulsar.fullname" . }}-coordinator"
+{{- end }}
+spec:
+  image: "{{ .Values.images.oxia.repository }}:{{ .Values.images.oxia.tag }}"
+  imagePullPolicy: {{ .Values.images.oxia.pullPolicy }}
+  monitoringEnabled: {{ include "pulsar.oxia.podMonitor.enabled" . }}
+  server:
+    replicas: 3
+  {{- if .Values.istio.enabled }}
+  istio:
+    enabled: true
+    {{- if .Values.istio.dataplaneMode }}
+    dataplaneMode: {{ .Values.istio.dataplaneMode }}
+    {{- end }}
+    {{- if .Values.istio.migration }}
+    mtls:
+      mode: permissive
+    {{- end }}
+  {{- end }}
+{{- end }}

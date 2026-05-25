@@ -1,0 +1,37 @@
+#
+# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
+#
+# deploy oxia namespaces only when `pulsar_metadata.provider` is oxia
+{{- if include "pulsar.metadata.isOxia" . }}
+{{- $namespaces := list
+  (dict "name" (include "pulsar.oxia.broker.namespace" .) "type" "broker")
+  (dict "name" (include "pulsar.oxia.bookkeeper.namespace" .) "type" "bookkeeper")
+  (dict "name" (include "pulsar.oxia.schema.namespace" .) "type" "pulsar-schema")
+  (dict "name" (include "pulsar.oxia.function.namespace" .) "type" "function")
+}}
+{{- range $index, $oxiaNamespace := $namespaces }}
+{{- if $index }}
+---
+{{- end }}
+apiVersion: k8s.streamnative.io/v1alpha1
+kind: OxiaNamespace
+metadata:
+  name: "{{ template "pulsar.oxia.cluster" $ }}-{{ $oxiaNamespace.type }}"
+  namespace: {{ template "pulsar.namespace" $ }}
+  labels:
+    {{- include "pulsar.standardLabels" $ | nindent 4 }}
+    component: oxia
+spec:
+  namespaceConfig:
+    name: "{{ $oxiaNamespace.name }}"
+    initialShardCount: 1
+    replicationFactor: 3
+    notificationsEnabled: true
+  clusterRef:
+    name: "{{ template "pulsar.oxia.cluster" $ }}"
+    namespace: {{ template "pulsar.namespace" $ }}
+  ownerRef:
+    name: "{{ template "pulsar.fullname" $ }}"
+    namespace: {{ template "pulsar.namespace" $ }}
+{{- end }}
+{{- end }}

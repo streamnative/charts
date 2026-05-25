@@ -134,8 +134,12 @@ Define bookie tls certs volumes
 Define bookie common config
 */}}
 {{- define "pulsar.bookkeeper.config.common" -}}
+{{- if include "pulsar.metadata.isOxia" . }}
+metadataServiceUri: "{{ template "pulsar.oxia.bookkeeper.metadataServiceUri" . }}"
+{{- else }}
 zkServers: "{{ template "pulsar.zookeeper.connect" . }}"
 zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+{{- end }}
 # enable bookkeeper http server
 httpServerEnabled: "true"
 httpServerPort: "{{ .Values.bookkeeper.ports.http }}"

@@ -3,7 +3,7 @@
 #
 
 # deploy zookeeper only when `zookeeper.customTools.restore.enable` is true
-{{- if .Values.zookeeper.customTools.restore.enable }}
+{{- if and .Values.zookeeper.customTools.restore.enable (include "pulsar.metadata.isZookeeper" .) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

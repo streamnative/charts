@@ -3,8 +3,10 @@
 #
 
 {{- if and .Values.openshift.enabled .Values.openshift.scc.enabled -}}
-{{- $sas := list (include "pulsar.zookeeper.serviceAccount" .) -}}
-{{- $sas = append $sas (include "pulsar.bookkeeper.serviceAccount" .) -}}
+{{- $sas := list (include "pulsar.bookkeeper.serviceAccount" .) -}}
+{{- if include "pulsar.metadata.isZookeeper" . -}}
+{{- $sas = append $sas (include "pulsar.zookeeper.serviceAccount" .) -}}
+{{- end -}}
 {{- $sas = append $sas (include "pulsar.broker.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.proxy.serviceAccount" .) -}}
 {{- $sas = append $sas (include "pulsar.streamnative_console.serviceAccount" .) -}}

@@ -132,6 +132,10 @@ images:
         repository: "streamnative/pulsar-metadata-tool"
         tag: "3.3.3.3"
         pullPolicy: IfNotPresent
+  oxia:
+    repository: oxia/oxia
+    tag: "0.16.4"
+    pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
     tag: "3.3.3.3"
@@ -1189,6 +1193,8 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
+  # metadata provider. Valid values: zookeeper, oxia
+  provider: zookeeper
   # set the cluster name. if empty or not specified,
   # it will use helm release name to generate a cluster name.
   clusterName: ""

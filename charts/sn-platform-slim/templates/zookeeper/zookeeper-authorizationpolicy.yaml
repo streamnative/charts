@@ -2,7 +2,7 @@
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
 
-{{- if and .Values.components.zookeeper .Values.istio.enabled }}
+{{- if and .Values.components.zookeeper .Values.istio.enabled (include "pulsar.metadata.isZookeeper" .) }}
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:

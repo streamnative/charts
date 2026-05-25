@@ -1,6 +1,7 @@
 #
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
+{{- include "pulsar.validate.metadata" . }}
 {{- range .Values.extraResources }}
 {{ toYaml . }}
 ---

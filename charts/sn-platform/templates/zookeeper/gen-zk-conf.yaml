@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
-
+{{- if include "pulsar.metadata.isZookeeper" . }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -66,3 +66,4 @@ data:
             echo $MY_ID > $DATA_DIR/myid
         fi
     fi
+{{- end }}

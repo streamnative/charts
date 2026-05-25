@@ -2,7 +2,7 @@
 # Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
 #
 # deploy zookeeper only when `components.zookeeper` is true
-{{- if .Values.components.zookeeper }}
+{{- if and .Values.components.zookeeper (include "pulsar.metadata.isZookeeper" .) }}
 apiVersion: zookeeper.streamnative.io/v1alpha1
 kind: ZooKeeperCluster
 metadata:

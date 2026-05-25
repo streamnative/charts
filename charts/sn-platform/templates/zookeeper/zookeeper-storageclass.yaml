@@ -3,7 +3,7 @@
 #
 
 # deploy zookeeper only when `components.zookeeper` is true
-{{- if .Values.components.zookeeper }}
+{{- if and .Values.components.zookeeper (include "pulsar.metadata.isZookeeper" .) }}
 {{- if and .Values.volumes.persistence .Values.zookeeper.volumes.persistence }}
 
 # define the storage class for data directory

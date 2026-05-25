@@ -56,6 +56,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.pulsar_detector.gracePeriod }}
       {{- if not .Values.istio.enabled }}
       initContainers:
+      {{- if include "pulsar.metadata.isZookeeper" . }}
       # This init container will wait for zookeeper to be ready before
       # deploying the bookies
       - name: wait-zookeeper-ready
@@ -73,6 +74,7 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /pulsar/logs
+      {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready

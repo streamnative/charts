@@ -57,7 +57,7 @@ data:
           names:
             - {{ template "pulsar.namespace" . }}
 {{- end }}
-{{- if and .Values.istio.enabled (not .Values.istio.mergeMetrics) }}
+{{- if eq (include "pulsar.istio.prometheus.sidecarMTLS" .) "true" }}
 {{- if .Values.istio.migration }}
       scheme: http
       enable_http2: false
@@ -83,6 +83,12 @@ data:
         action: drop
         regex: "{{ .Values.prometheus.component }}|{{ .Values.grafana.component }}|{{ .Values.toolset.component }}|{{ .Values.streamnative_console.component }}"
 {{- end }}
+{{- if include "pulsar.metadata.isOxia" . }}
+      # Oxia has two metrics ports. Dedicated Oxia scrape config below handles both.
+      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+        action: drop
+        regex: "{{ template "pulsar.oxia.service" . }}"
+{{- end }}
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
         regex: true
@@ -100,8 +106,13 @@ data:
       - source_labels: [__meta_kubernetes_namespace]
         action: replace
         target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_label_cloud_streamnative_io_component]
+        action: replace
+        regex: (.+)
+        target_label: job
       - source_labels: [__meta_kubernetes_pod_label_component]
         action: replace
+        regex: (.+)
         target_label: job
       - source_labels: [__meta_kubernetes_pod_name]
         action: replace
@@ -110,6 +121,60 @@ data:
 {{- if .Values.prometheus.customRelabelConfigs -}}
 {{- with .Values.prometheus.customRelabelConfigs }}
 {{ toYaml . | indent 6 }}
+{{- end }}
+{{- end }}
+{{- if include "pulsar.metadata.isOxia" . }}
+    - job_name: 'oxia'
+{{- if .Values.prometheus.sampleLimit }}
+      sample_limit: {{ .Values.prometheus.sampleLimit }}
+{{- end }}
+      kubernetes_sd_configs:
+      - role: pod
+{{- if or .Values.istio.enabled (not .Values.prometheus.serviceAccount.clusterRole) }}
+        namespaces:
+          names:
+            - {{ template "pulsar.namespace" . }}
+{{- end }}
+{{- if eq (include "pulsar.istio.prometheus.sidecarMTLS" .) "true" }}
+{{- if .Values.istio.migration }}
+      scheme: http
+      enable_http2: false
+{{- else }}
+      scheme: https
+      # Disable http2 for Prometheus issue: https://github.com/prometheus/prometheus/issues/10213
+      enable_http2: false
+      tls_config:
+        ca_file: /etc/prom-certs/root-cert.pem
+        cert_file: /etc/prom-certs/cert-chain.pem
+        key_file: /etc/prom-certs/key.pem
+        insecure_skip_verify: true
+{{- end }}
+{{- end }}
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+        action: keep
+        regex: "{{ template "pulsar.oxia.service" . }}"
+      - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+        action: keep
+        regex: oxia-cluster
+      - source_labels: [__meta_kubernetes_pod_container_port_name]
+        action: keep
+        regex: metrics|coord-metrics
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - target_label: job
+        replacement: oxia
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+      metric_relabel_configs:
+{{- if .Values.prometheus.customRelabelConfigs -}}
+{{- with .Values.prometheus.customRelabelConfigs }}
+{{ toYaml . | indent 6 }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- if and .Values.prometheus.serviceAccount.clusterRole (or (not (hasKey .Values.prometheus.scrape "kubernetesNodes")) (eq .Values.prometheus.scrape.kubernetesNodes true)) }}
