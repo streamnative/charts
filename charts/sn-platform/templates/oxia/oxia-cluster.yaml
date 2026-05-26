@@ -14,7 +14,7 @@ metadata:
 {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: {{ .Values.oxia.component }}
+    component: oxia
 {{- with .Values.oxia.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
