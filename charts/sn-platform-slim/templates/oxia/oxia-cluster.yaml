@@ -8,9 +8,16 @@ kind: OxiaCluster
 metadata:
   name: "{{ template "pulsar.oxia.cluster" . }}"
   namespace: {{ template "pulsar.namespace" . }}
+{{- with .Values.oxia.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
-    component: oxia
+    component: {{ .Values.oxia.component }}
+{{- with .Values.oxia.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
 {{- if .Values.components.pulsar_coordinator }}
     k8s.streamnative.io/coordinator-name: "{{ template "pulsar.fullname" . }}-coordinator"
 {{- end }}
@@ -18,8 +25,21 @@ spec:
   image: "{{ .Values.images.oxia.repository }}:{{ .Values.images.oxia.tag }}"
   imagePullPolicy: {{ .Values.images.oxia.pullPolicy }}
   monitoringEnabled: {{ include "pulsar.oxia.podMonitor.enabled" . }}
+  {{- with .Values.oxia.labels }}
+  labels:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- with .Values.oxia.coordinator.resources }}
+  coordinator:
+    resources:
+{{ toYaml . | indent 6 }}
+  {{- end }}
   server:
-    replicas: 3
+    replicas: {{ .Values.oxia.replicaCount }}
+    {{- with .Values.oxia.resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
   {{- if .Values.istio.enabled }}
   istio:
     enabled: true

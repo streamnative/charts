@@ -1209,6 +1209,22 @@ pulsar_metadata:
   #
   # configurationStoreServers: "zk04:2181,zk05:2181,zk06:2181"
 
+## Oxia metadata store.
+## Used only when pulsar_metadata.provider is oxia.
+oxia:
+  component: oxia
+  # The number of Oxia server replicas to run. Must be at least 3 for Oxia metadata deployments.
+  replicaCount: 3
+  # Labels added to the OxiaCluster CR and propagated to generated Oxia resources.
+  labels: {}
+  # Annotations added to the OxiaCluster CR.
+  annotations: {}
+  # Resources requests/limits for Oxia server containers.
+  resources: {}
+  coordinator:
+    # Resources requests/limits for Oxia coordinator containers.
+    resources: {}
+
 ## deprecated: move to broker.kop
 # kop:
 #   ports:

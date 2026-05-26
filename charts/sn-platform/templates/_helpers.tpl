@@ -275,6 +275,9 @@ false
 {{- if and (eq $provider "oxia") .Values.components.sql_worker -}}
 {{- fail "components.sql_worker is not supported with pulsar_metadata.provider=oxia" -}}
 {{- end -}}
+{{- if and (eq $provider "oxia") (lt (int .Values.oxia.replicaCount) 3) -}}
+{{- fail "oxia.replicaCount must be at least 3 when pulsar_metadata.provider=oxia" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
