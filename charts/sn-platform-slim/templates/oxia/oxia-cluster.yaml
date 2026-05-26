@@ -29,10 +29,12 @@ spec:
   labels:
 {{ toYaml . | indent 4 }}
   {{- end }}
-  {{- with .Values.oxia.coordinator.resources }}
+  {{- with .Values.oxia.coordinator }}
+  {{- with .resources }}
   coordinator:
     resources:
 {{ toYaml . | indent 6 }}
+  {{- end }}
   {{- end }}
   server:
     replicas: {{ .Values.oxia.replicaCount }}

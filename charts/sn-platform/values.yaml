@@ -1214,15 +1214,19 @@ pulsar_metadata:
 oxia:
   # The number of Oxia server replicas to run. Must be at least 3 for Oxia metadata deployments.
   replicaCount: 3
-  # Labels added to the OxiaCluster CR and propagated to generated Oxia resources.
-  labels: {}
-  # Annotations added to the OxiaCluster CR.
-  annotations: {}
-  # Resources requests/limits for Oxia server containers.
-  resources: {}
-  coordinator:
-    # Resources requests/limits for Oxia coordinator containers.
-    resources: {}
+  # labels:
+  #   example: value
+  # annotations:
+  #   example: value
+  # resources:
+  #   requests:
+  #     cpu: "0.5"
+  #     memory: "1Gi"
+  # coordinator:
+  #   resources:
+  #     requests:
+  #       cpu: "0.25"
+  #       memory: "512Mi"
 
 ## deprecated: move to broker.kop
 # kop:
