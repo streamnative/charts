@@ -5,6 +5,8 @@
 {{- if include "pulsar.metadata.isOxia" . }}
 {{- $oxia := default dict .Values.oxia }}
 {{- $dataserver := default dict $oxia.dataserver }}
+{{- $oxiaIstio := default dict $oxia.istio }}
+{{- $istioRevision := index (default dict .Values.istio.labels) "istio.io/rev" }}
 apiVersion: k8s.streamnative.io/v1alpha1
 kind: OxiaCluster
 metadata:
@@ -47,9 +49,25 @@ spec:
   {{- if .Values.istio.enabled }}
   istio:
     enabled: true
+    {{- with $istioRevision }}
+    revision: {{ . | quote }}
+    {{- end }}
     {{- if .Values.istio.migration }}
     mtls:
       mode: permissive
+    {{- end }}
+    {{- if $oxiaIstio.authRules }}
+    authRules:
+{{ toYaml $oxiaIstio.authRules | indent 4 }}
+    {{- else }}
+    authRules:
+    - toOperation:
+      - ports:
+        - "6648"
+        - "6649"
+        - "8080"
+        - "6650"
+        - "8081"
     {{- end }}
   {{- end }}
 {{- end }}

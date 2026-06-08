@@ -1159,6 +1159,15 @@ pulsar_metadata:
   #     limits:
   #       cpu: "1"
   #       memory: "1Gi"
+  # istio:
+  #   authRules:
+  #   - toOperation:
+  #     - ports:
+  #       - "6648"
+  #       - "6649"
+  #       - "8080"
+  #       - "6650"
+  #       - "8081"
 
 ## deprecated: move to broker.kop
 # kop:
