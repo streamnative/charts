@@ -29,7 +29,11 @@ spec:
 {{- if not .Values.initialize }}
   initialized: true
 {{- end }}
+{{- if include "pulsar.metadata.isOxia" . }}
+  metadataServiceUri: "{{ template "pulsar.oxia.bookkeeper.metadataServiceUri" . }}"
+{{- else }}
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}"
+{{- end }}
   replicas: {{ .Values.bookkeeper.replicaCount }}
   {{- if not (and .Values.components.pulsar_coordinator .Values.images.coordinator) }}
   image: "{{ .Values.images.bookie.repository }}:{{ .Values.images.bookie.tag }}"
@@ -199,7 +203,11 @@ spec:
 {{- with .Values.bookkeeper.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}
+      {{- if include "pulsar.metadata.isZookeeper" . }}
       zkLedgersRootPath: "{{ .Values.metadataPrefix }}/ledgers"
+      {{- else }}
+      metadataServiceUri: "{{ template "pulsar.oxia.bookkeeper.metadataServiceUri" . }}"
+      {{- end }}
       # enable bookkeeper http server
       httpServerEnabled: "true"
       httpServerPort: "{{ .Values.bookkeeper.ports.http }}"
@@ -351,7 +359,7 @@ spec:
   {{- with .Values.bookkeeper.customization }}
   {{- toYaml . | nindent 2 -}}
   {{- end }}
-  {{- if .Values.zookeeper.customTools.restore.enable}}
+  {{- if and .Values.zookeeper.customTools.restore.enable (include "pulsar.metadata.isZookeeper" .) }}
     - match:
         groupVersionKinds:
           - kind: Job

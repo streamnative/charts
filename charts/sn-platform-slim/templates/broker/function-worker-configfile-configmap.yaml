@@ -65,7 +65,11 @@ data:
     pulsarServiceUrl: {{template "pulsar.function.broker.service.url" . }}
     pulsarWebServiceUrl: {{template "pulsar.function.web.service.url" . }}
     {{- end }}
+    {{- if include "pulsar.metadata.isOxia" . }}
+    configurationMetadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
+    {{- else }}
     configurationStoreServers: "{{ template "pulsar.configurationStore.connect" . }}{{ .Values.metadataPrefix }}"
+    {{- end }}
     {{- if .Values.auth.authorization.enabled }}
     authorizationEnabled: "true"
     authorizationProvider: {{ .Values.functions.authorizationProvider }}

@@ -188,6 +188,104 @@ Pulsar Cluster Name.
 {{- end }}
 
 {{/*
+Metadata provider selection.
+*/}}
+{{- define "pulsar.metadata.provider" -}}
+{{- default "zookeeper" .Values.pulsar_metadata.provider -}}
+{{- end -}}
+
+{{- define "pulsar.metadata.isZookeeper" -}}
+{{- if eq (include "pulsar.metadata.provider" .) "zookeeper" -}}true{{- end -}}
+{{- end -}}
+
+{{- define "pulsar.metadata.isOxia" -}}
+{{- if eq (include "pulsar.metadata.provider" .) "oxia" -}}true{{- end -}}
+{{- end -}}
+
+{{- define "pulsar.oxia.cluster" -}}
+{{- template "pulsar.fullname" . -}}
+{{- end -}}
+
+{{- define "pulsar.oxia.service" -}}
+{{- template "pulsar.oxia.cluster" . -}}-oxia
+{{- end -}}
+
+{{- define "pulsar.oxia.service.address" -}}
+{{- template "pulsar.oxia.service" . -}}.{{ template "pulsar.namespace" . }}.svc.cluster.local:6648
+{{- end -}}
+
+{{- define "pulsar.oxia.broker.namespace" -}}
+broker
+{{- end -}}
+
+{{- define "pulsar.oxia.bookkeeper.namespace" -}}
+bookkeeper
+{{- end -}}
+
+{{- define "pulsar.oxia.schema.namespace" -}}
+pulsar-schema
+{{- end -}}
+
+{{- define "pulsar.oxia.function.namespace" -}}
+function
+{{- end -}}
+
+{{- define "pulsar.oxia.broker.url" -}}
+oxia://{{ template "pulsar.oxia.service.address" . }}/{{ template "pulsar.oxia.broker.namespace" . }}
+{{- end -}}
+
+{{- define "pulsar.oxia.bookkeeper.url" -}}
+oxia://{{ template "pulsar.oxia.service.address" . }}/{{ template "pulsar.oxia.bookkeeper.namespace" . }}
+{{- end -}}
+
+{{- define "pulsar.oxia.schema.url" -}}
+oxia://{{ template "pulsar.oxia.service.address" . }}/{{ template "pulsar.oxia.schema.namespace" . }}
+{{- end -}}
+
+{{- define "pulsar.oxia.metadata.url" -}}
+{{- template "pulsar.oxia.broker.url" . -}}
+{{- end -}}
+
+{{- define "pulsar.oxia.bookkeeper.metadataServiceUri" -}}
+metadata-store:{{ template "pulsar.oxia.bookkeeper.url" . }}
+{{- end -}}
+
+{{- define "pulsar.oxia.replicaCount" -}}
+{{- $oxia := default dict .Values.oxia -}}
+{{- if hasKey $oxia "replicaCount" -}}{{- $oxia.replicaCount -}}{{- else -}}3{{- end -}}
+{{- end -}}
+
+{{- define "pulsar.oxia.podMonitor.enabled" -}}
+{{- if and .Values.monitoring.prometheus (or (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/PodMonitor") (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1")) -}}
+true
+{{- else -}}
+false
+{{- end -}}
+{{- end -}}
+
+{{- define "pulsar.validate.metadata" -}}
+{{- $provider := include "pulsar.metadata.provider" . -}}
+{{- if and (ne $provider "zookeeper") (ne $provider "oxia") -}}
+{{- fail "pulsar_metadata.provider must be one of: zookeeper, oxia" -}}
+{{- end -}}
+{{- if and (eq $provider "oxia") .Values.metadataPrefix -}}
+{{- fail "metadataPrefix is only supported with pulsar_metadata.provider=zookeeper" -}}
+{{- end -}}
+{{- if and (eq $provider "oxia") .Values.pulsar_metadata.userProvidedZookeepers -}}
+{{- fail "pulsar_metadata.userProvidedZookeepers is only supported with pulsar_metadata.provider=zookeeper" -}}
+{{- end -}}
+{{- if and (eq $provider "oxia") .Values.pulsar_metadata.configurationStoreServers -}}
+{{- fail "pulsar_metadata.configurationStoreServers is only supported with pulsar_metadata.provider=zookeeper" -}}
+{{- end -}}
+{{- if and (eq $provider "oxia") .Values.components.sql_worker -}}
+{{- fail "components.sql_worker is not supported with pulsar_metadata.provider=oxia" -}}
+{{- end -}}
+{{- if and (eq $provider "oxia") (lt (int (include "pulsar.oxia.replicaCount" .)) 3) -}}
+{{- fail "oxia.replicaCount must be at least 3 when pulsar_metadata.provider=oxia" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Istio gateway selector
 */}}
 {{- define "pulsar.istio.gateway.selector" -}}
@@ -208,6 +306,15 @@ prometheus.istio.io/merge-metrics: "true"
 {{- else -}}
 prometheus.istio.io/merge-metrics: "false"
 {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Whether Prometheus should use sidecar-issued mTLS certs to scrape workload metrics.
+*/}}
+{{- define "pulsar.istio.prometheus.sidecarMTLS" -}}
+{{- if and .Values.istio.enabled (not .Values.istio.mergeMetrics) (ne (default "" .Values.istio.dataplaneMode) "ambient") -}}
+true
 {{- end -}}
 {{- end -}}
 

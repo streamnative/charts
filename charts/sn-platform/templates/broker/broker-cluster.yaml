@@ -30,8 +30,14 @@ spec:
 {{- if not .Values.initialize }}
   initialized: true
 {{- end }}
+{{- if include "pulsar.metadata.isOxia" . }}
+  metadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
+  configurationMetadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
+  bkMetadataServiceUri: "{{ template "pulsar.oxia.bookkeeper.metadataServiceUri" . }}"
+{{- else }}
   zkServers: "{{ template "pulsar.zookeeper.connect" . }}{{ .Values.metadataPrefix }}"
   configurationStoreServers: "{{ template "pulsar.configurationStore.connect" . }}{{ .Values.metadataPrefix }}"
+{{- end }}
 {{- if not .Values.broker.autoScaling.enabled }}
   replicas: {{ .Values.broker.replicaCount }}
 {{- end }}
@@ -171,13 +177,14 @@ spec:
     certSecretName: "{{ template "pulsar.broker.tls.secret.name" . }}"
     trustCertsEnabled: {{ .Values.tls.broker.trustCertsEnabled }}
   {{- end }}
-  {{- if and .Values.istio.enabled .Values.ingress.broker.enabled }}
+  {{- if .Values.istio.enabled }}
   istio:
     enabled: true
     {{- if .Values.istio.migration }}
     mtls:
       mode: permissive
     {{- end }}
+    {{- if .Values.ingress.broker.enabled }}
     gateway:
       selector:
 {{- include "pulsar.istio.gateway.selector" . | indent 8 }}
@@ -190,6 +197,7 @@ spec:
         trustCertsEnabled: {{ .Values.tls.broker.gateway.trustCertsEnabled }}
         mode: "passthrough"
       {{- end }}
+    {{- end }}
   {{- end }}
   {{- if and .Values.broker.pulsarBroker.networking .Values.broker.pulsarBroker.networking.podService .Values.broker.pulsarBroker.networking.podService.enabled }}
   networking:
@@ -224,6 +232,12 @@ spec:
   config:
     {{- if .Values.pulsar_metadata.clusterName }}
     clusterName: {{ .Values.pulsar_metadata.clusterName }}
+    {{- end }}
+    {{- if include "pulsar.metadata.isOxia" . }}
+    oxiaBasedSystemTopic:
+      enabled: true
+      schemaStorageUrl: "{{ template "pulsar.oxia.schema.url" . }}"
+      topicPoliciesServiceClassName: "io.streamnative.pulsar.OxiaTopicPoliciesService"
     {{- end }}
     {{- if .Values.broker.functionmesh.enabled }}
     function:
@@ -323,6 +337,11 @@ spec:
     {{- end }}
     custom:
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
+      {{- if include "pulsar.metadata.isOxia" . }}
+      PULSAR_PREFIX_metadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
+      PULSAR_PREFIX_configurationMetadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
+      PULSAR_PREFIX_enablePackagesManagement: "false"
+      {{- end }}
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
 {{- end }}

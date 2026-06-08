@@ -1,0 +1,76 @@
+#
+# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
+#
+# deploy oxia only when `pulsar_metadata.provider` is oxia
+{{- if include "pulsar.metadata.isOxia" . }}
+{{- $oxia := default dict .Values.oxia }}
+{{- $dataserver := default dict $oxia.dataserver }}
+{{- $oxiaIstio := default dict $oxia.istio }}
+{{- $istioRevision := index (default dict .Values.istio.labels) "istio.io/rev" }}
+apiVersion: k8s.streamnative.io/v1alpha1
+kind: OxiaCluster
+metadata:
+  name: "{{ template "pulsar.oxia.cluster" . }}"
+  namespace: {{ template "pulsar.namespace" . }}
+{{- with $oxia.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: oxia
+{{- with $oxia.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- if .Values.components.pulsar_coordinator }}
+    k8s.streamnative.io/coordinator-name: "{{ template "pulsar.fullname" . }}-coordinator"
+{{- end }}
+spec:
+  image: "{{ .Values.images.oxia.repository }}:{{ .Values.images.oxia.tag }}"
+  imagePullPolicy: {{ .Values.images.oxia.pullPolicy }}
+  monitoringEnabled: {{ include "pulsar.oxia.podMonitor.enabled" . }}
+  {{- with $oxia.labels }}
+  labels:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- with $oxia.coordinator }}
+  {{- with .resources }}
+  coordinator:
+    resources:
+{{ toYaml . | indent 6 }}
+  {{- end }}
+  {{- end }}
+  server:
+    replicas: {{ include "pulsar.oxia.replicaCount" . }}
+    {{- with $dataserver.resources }}
+    resources:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+  {{- if .Values.istio.enabled }}
+  istio:
+    enabled: true
+    {{- with $istioRevision }}
+    revision: {{ . | quote }}
+    {{- end }}
+    {{- if .Values.istio.dataplaneMode }}
+    dataplaneMode: {{ .Values.istio.dataplaneMode }}
+    {{- end }}
+    {{- if .Values.istio.migration }}
+    mtls:
+      mode: permissive
+    {{- end }}
+    {{- if $oxiaIstio.authRules }}
+    authRules:
+{{ toYaml $oxiaIstio.authRules | indent 4 }}
+    {{- else }}
+    authRules:
+    - toOperation:
+      - ports:
+        - "6648"
+        - "6649"
+        - "8080"
+        - "6650"
+        - "8081"
+    {{- end }}
+  {{- end }}
+{{- end }}

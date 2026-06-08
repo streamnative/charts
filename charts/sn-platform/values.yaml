@@ -132,6 +132,10 @@ images:
         repository: "streamnative/pulsar-metadata-tool"
         tag: "3.3.3.3"
         pullPolicy: IfNotPresent
+  oxia:
+    repository: oxia/oxia
+    tag: "0.16.6"
+    pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
     tag: "3.3.3.3"
@@ -1189,6 +1193,8 @@ autorecovery:
 ## metadata deployed
 pulsar_metadata:
   component: pulsar-init
+  # metadata provider. Valid values: zookeeper, oxia
+  provider: zookeeper
   # set the cluster name. if empty or not specified,
   # it will use helm release name to generate a cluster name.
   clusterName: ""
@@ -1202,6 +1208,32 @@ pulsar_metadata:
   # to use this, you should explicit set components.zookeeper to false
   #
   # configurationStoreServers: "zk04:2181,zk05:2181,zk06:2181"
+
+## Oxia metadata store.
+## Used only when pulsar_metadata.provider is oxia.
+# oxia:
+  # The number of Oxia server replicas to run. Must be at least 3 for Oxia metadata deployments.
+  # replicaCount: 3
+  # labels:
+  #   example: value
+  # annotations:
+  #   example: value
+  # dataserver:
+  #   resources:
+  #     requests:
+  #       cpu: "0.5"
+  #       memory: "1Gi"
+  #     limits:
+  #       cpu: "2"
+  #       memory: "4Gi"
+  # coordinator:
+  #   resources:
+  #     requests:
+  #       cpu: "0.25"
+  #       memory: "512Mi"
+  #     limits:
+  #       cpu: "1"
+  #       memory: "1Gi"
 
 ## deprecated: move to broker.kop
 # kop:

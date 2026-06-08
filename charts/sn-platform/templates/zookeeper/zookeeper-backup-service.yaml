@@ -3,7 +3,7 @@
 #
 
 # deploy zookeeper only when `zookeeper.customTools.backup.enable` is true
-{{- if .Values.zookeeper.customTools.backup.enable }}
+{{- if and .Values.zookeeper.customTools.backup.enable (include "pulsar.metadata.isZookeeper" .) }}
 apiVersion: v1
 kind: Service
 metadata:

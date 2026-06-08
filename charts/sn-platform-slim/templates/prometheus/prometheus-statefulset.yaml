@@ -37,7 +37,7 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
       annotations:
-        {{- if and .Values.istio.enabled (not .Values.istio.mergeMetrics ) }}
+        {{- if eq (include "pulsar.istio.prometheus.sidecarMTLS" .) "true" }}
         # ref: https://istio.io/latest/docs/ops/integrations/prometheus/#tls-settings
         traffic.sidecar.istio.io/includeOutboundIPRanges: ""  # do not intercept any outbound traffic
         # configure an env variable `OUTPUT_CERTS` to write certificates to the given folder
@@ -158,7 +158,7 @@ spec:
           mountPath: /etc/config
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}-{{ .Values.prometheus.volumes.data.name }}"
           mountPath: /prometheus
-        {{- if and .Values.istio.enabled (not .Values.istio.mergeMetrics ) }}
+        {{- if eq (include "pulsar.istio.prometheus.sidecarMTLS" .) "true" }}
         - name: istio-certs
           mountPath: /etc/prom-certs/
         {{- end }}
@@ -167,7 +167,7 @@ spec:
       - name: config-volume
         configMap:
           name: "{{ template "pulsar.fullname" . }}-{{ .Values.prometheus.component }}"
-      {{- if and .Values.istio.enabled (not .Values.istio.mergeMetrics )}}
+      {{- if eq (include "pulsar.istio.prometheus.sidecarMTLS" .) "true" }}
       - emptyDir:
           medium: Memory
         name: istio-certs

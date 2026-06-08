@@ -3,7 +3,7 @@
 #
 
 {{- if .Values.zookeeper.customTools.serviceAccount.clusterRole }}
-{{- if and .Values.zookeeper.customTools.restore.enable .Values.zookeeper.customTools.serviceAccount.create }}
+{{- if and .Values.zookeeper.customTools.restore.enable .Values.zookeeper.customTools.serviceAccount.create (include "pulsar.metadata.isZookeeper" .) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

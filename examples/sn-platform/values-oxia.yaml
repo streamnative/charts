@@ -1,0 +1,3 @@
+# Use an in-cluster Oxia metadata store instead of ZooKeeper.
+pulsar_metadata:
+  provider: oxia
