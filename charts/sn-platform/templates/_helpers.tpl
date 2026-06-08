@@ -226,6 +226,10 @@ bookkeeper
 pulsar-schema
 {{- end -}}
 
+{{- define "pulsar.oxia.kafkaSchema.namespace" -}}
+kafka-schema
+{{- end -}}
+
 {{- define "pulsar.oxia.function.namespace" -}}
 function
 {{- end -}}
@@ -240,6 +244,10 @@ oxia://{{ template "pulsar.oxia.service.address" . }}/{{ template "pulsar.oxia.b
 
 {{- define "pulsar.oxia.schema.url" -}}
 oxia://{{ template "pulsar.oxia.service.address" . }}/{{ template "pulsar.oxia.schema.namespace" . }}
+{{- end -}}
+
+{{- define "pulsar.oxia.kafkaSchema.url" -}}
+oxia://{{ template "pulsar.oxia.service.address" . }}/{{ template "pulsar.oxia.kafkaSchema.namespace" . }}
 {{- end -}}
 
 {{- define "pulsar.oxia.metadata.url" -}}

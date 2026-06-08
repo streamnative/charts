@@ -232,12 +232,6 @@ spec:
     {{- if .Values.pulsar_metadata.clusterName }}
     clusterName: {{ .Values.pulsar_metadata.clusterName }}
     {{- end }}
-    {{- if include "pulsar.metadata.isOxia" . }}
-    oxiaBasedSystemTopic:
-      enabled: true
-      schemaStorageUrl: "{{ template "pulsar.oxia.schema.url" . }}"
-      topicPoliciesServiceClassName: "io.streamnative.pulsar.OxiaTopicPoliciesService"
-    {{- end }}
     {{- if .Values.broker.functionmesh.enabled }}
     function:
       enabled: true
@@ -340,6 +334,12 @@ spec:
       PULSAR_PREFIX_metadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
       PULSAR_PREFIX_configurationMetadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
       PULSAR_PREFIX_enablePackagesManagement: "false"
+      PULSAR_PREFIX_kafkaGroupOffsetsStoreInMetadata: "true"
+      PULSAR_PREFIX_kafkaProducerStateStoreInMetadata: "true"
+      PULSAR_PREFIX_kafkaSchemaRegistryStoreInOxia: "true"
+      PULSAR_PREFIX_oxiaSchemaStorageUrl: "{{ template "pulsar.oxia.schema.url" . }}"
+      PULSAR_PREFIX_oxiaSchemaRegistryUrl: "{{ template "pulsar.oxia.kafkaSchema.url" . }}"
+      PULSAR_PREFIX_topicPoliciesServiceClassName: "io.streamnative.pulsar.OxiaTopicPoliciesService"
       {{- end }}
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
