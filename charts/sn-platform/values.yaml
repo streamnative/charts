@@ -134,7 +134,7 @@ images:
         pullPolicy: IfNotPresent
   oxia:
     repository: oxia/oxia
-    tag: "0.16.6"
+    tag: "0.16.7"
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
