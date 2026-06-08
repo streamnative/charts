@@ -1234,18 +1234,6 @@ pulsar_metadata:
   #     limits:
   #       cpu: "1"
   #       memory: "1Gi"
-  # storageCatalog:
-  #   oxiaMetadataServiceUrl: ""
-  #   schemaStorageUrl: ""
-  #   schemaRegistryUrl: ""
-  #   schemaRegistryStorageClassName: io.streamnative.pulsar.schema.OxiaSchemaStorageFactory
-  #   storageUrl: ""
-  #   backendStorageType: S3
-  #   bucket: ""
-  #   prefix: ""
-  #   region: ""
-  #   useOwnStorage: false
-
 ## deprecated: move to broker.kop
 # kop:
 #   ports:
