@@ -329,6 +329,9 @@ spec:
     {{- end }}
 
     {{- end }}
+    {{- if include "pulsar.metadata.isOxia" . }}
+    useStorageCatalog: true
+    {{- end }}
     custom:
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
       {{- if include "pulsar.metadata.isOxia" . }}
@@ -338,8 +341,12 @@ spec:
       PULSAR_PREFIX_kafkaGroupOffsetsStoreInMetadata: "true"
       PULSAR_PREFIX_kafkaProducerStateStoreInMetadata: "true"
       PULSAR_PREFIX_kafkaSchemaRegistryStoreInOxia: "true"
-      PULSAR_PREFIX_oxiaSchemaStorageUrl: "{{ template "pulsar.oxia.schema.url" . }}"
+      {{- $oxia := default dict .Values.oxia }}
+      {{- $storageCatalog := default dict $oxia.storageCatalog }}
+      PULSAR_PREFIX_oxiaSchemaStorageUrl: {{ default (include "pulsar.oxia.schema.url" .) $storageCatalog.schemaStorageUrl | quote }}
       PULSAR_PREFIX_oxiaSchemaRegistryUrl: "{{ template "pulsar.oxia.kafkaSchema.url" . }}"
+      PULSAR_PREFIX_schemaRegistryUrl: {{ default (include "pulsar.oxia.kafkaSchema.url" .) $storageCatalog.schemaRegistryUrl | quote }}
+      PULSAR_PREFIX_schemaRegistryStorageClassName: {{ default "io.streamnative.pulsar.schema.OxiaSchemaStorageFactory" $storageCatalog.schemaRegistryStorageClassName | quote }}
       PULSAR_PREFIX_topicPoliciesServiceClassName: "io.streamnative.pulsar.OxiaTopicPoliciesService"
       {{- end }}
 {{- with .Values.broker.configData }}
