@@ -1159,7 +1159,6 @@ pulsar_metadata:
   #     limits:
   #       cpu: "1"
   #       memory: "1Gi"
-
 ## deprecated: move to broker.kop
 # kop:
 #   ports:

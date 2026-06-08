@@ -1,0 +1,39 @@
+#
+# Copyright (c) 2019 - 2024 StreamNative, Inc.. All Rights Reserved.
+#
+# deploy StorageCatalog only when `pulsar_metadata.provider` is oxia
+{{- if and .Values.components.broker (include "pulsar.metadata.isOxia" .) }}
+{{- $oxia := default dict .Values.oxia }}
+{{- $storageCatalog := default dict $oxia.storageCatalog }}
+apiVersion: k8s.streamnative.io/v1alpha1
+kind: StorageCatalog
+metadata:
+  name: "{{ template "pulsar.fullname" . }}"
+  namespace: {{ template "pulsar.namespace" . }}
+  labels:
+    {{- include "pulsar.standardLabels" . | nindent 4 }}
+    component: broker
+spec:
+  oxiaMetadataServiceUrl: {{ default (include "pulsar.oxia.metadata.url" .) $storageCatalog.oxiaMetadataServiceUrl | quote }}
+  schemaStorageUrl: {{ default (include "pulsar.oxia.schema.url" .) $storageCatalog.schemaStorageUrl | quote }}
+  schemaRegistryUrl: {{ default (include "pulsar.oxia.kafkaSchema.url" .) $storageCatalog.schemaRegistryUrl | quote }}
+  schemaRegistryStorageClassName: {{ default "io.streamnative.pulsar.schema.OxiaSchemaStorageFactory" $storageCatalog.schemaRegistryStorageClassName | quote }}
+  {{- with $storageCatalog.storageUrl }}
+  storageUrl: {{ . | quote }}
+  {{- end }}
+  {{- with $storageCatalog.backendStorageType }}
+  backendStorageType: {{ . | quote }}
+  {{- end }}
+  {{- with $storageCatalog.bucket }}
+  bucket: {{ . | quote }}
+  {{- end }}
+  {{- with $storageCatalog.prefix }}
+  prefix: {{ . | quote }}
+  {{- end }}
+  {{- with $storageCatalog.region }}
+  region: {{ . | quote }}
+  {{- end }}
+  {{- if hasKey $storageCatalog "useOwnStorage" }}
+  useOwnStorage: {{ $storageCatalog.useOwnStorage }}
+  {{- end }}
+{{- end }}
