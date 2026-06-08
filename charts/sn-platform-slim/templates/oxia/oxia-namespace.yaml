@@ -6,8 +6,9 @@
 {{- $brokerNamespace := dict "name" (include "pulsar.oxia.broker.namespace" .) "type" "broker" }}
 {{- $bookkeeperNamespace := dict "name" (include "pulsar.oxia.bookkeeper.namespace" .) "type" "bookkeeper" }}
 {{- $schemaNamespace := dict "name" (include "pulsar.oxia.schema.namespace" .) "type" "pulsar-schema" }}
+{{- $kafkaSchemaNamespace := dict "name" (include "pulsar.oxia.kafkaSchema.namespace" .) "type" "kafka-schema" }}
 {{- $functionNamespace := dict "name" (include "pulsar.oxia.function.namespace" .) "type" "function" }}
-{{- $namespaces := list $brokerNamespace $bookkeeperNamespace $schemaNamespace $functionNamespace }}
+{{- $namespaces := list $brokerNamespace $bookkeeperNamespace $schemaNamespace $kafkaSchemaNamespace $functionNamespace }}
 {{- range $index, $oxiaNamespace := $namespaces }}
 {{- if $index }}
 ---
