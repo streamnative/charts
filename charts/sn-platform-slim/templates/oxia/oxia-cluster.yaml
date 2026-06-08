@@ -3,19 +3,21 @@
 #
 # deploy oxia only when `pulsar_metadata.provider` is oxia
 {{- if include "pulsar.metadata.isOxia" . }}
+{{- $oxia := default dict .Values.oxia }}
+{{- $dataserver := default dict $oxia.dataserver }}
 apiVersion: k8s.streamnative.io/v1alpha1
 kind: OxiaCluster
 metadata:
   name: "{{ template "pulsar.oxia.cluster" . }}"
   namespace: {{ template "pulsar.namespace" . }}
-{{- with .Values.oxia.annotations }}
+{{- with $oxia.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
 {{- end }}
   labels:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: oxia
-{{- with .Values.oxia.labels }}
+{{- with $oxia.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
 {{- if .Values.components.pulsar_coordinator }}
@@ -25,11 +27,11 @@ spec:
   image: "{{ .Values.images.oxia.repository }}:{{ .Values.images.oxia.tag }}"
   imagePullPolicy: {{ .Values.images.oxia.pullPolicy }}
   monitoringEnabled: {{ include "pulsar.oxia.podMonitor.enabled" . }}
-  {{- with .Values.oxia.labels }}
+  {{- with $oxia.labels }}
   labels:
 {{ toYaml . | indent 4 }}
   {{- end }}
-  {{- with .Values.oxia.coordinator }}
+  {{- with $oxia.coordinator }}
   {{- with .resources }}
   coordinator:
     resources:
@@ -37,8 +39,8 @@ spec:
   {{- end }}
   {{- end }}
   server:
-    replicas: {{ .Values.oxia.replicaCount }}
-    {{- with .Values.oxia.resources }}
+    replicas: {{ include "pulsar.oxia.replicaCount" . }}
+    {{- with $dataserver.resources }}
     resources:
 {{ toYaml . | indent 6 }}
     {{- end }}

@@ -250,6 +250,11 @@ oxia://{{ template "pulsar.oxia.service.address" . }}/{{ template "pulsar.oxia.s
 metadata-store:{{ template "pulsar.oxia.bookkeeper.url" . }}
 {{- end -}}
 
+{{- define "pulsar.oxia.replicaCount" -}}
+{{- $oxia := default dict .Values.oxia -}}
+{{- if hasKey $oxia "replicaCount" -}}{{- $oxia.replicaCount -}}{{- else -}}3{{- end -}}
+{{- end -}}
+
 {{- define "pulsar.oxia.podMonitor.enabled" -}}
 {{- if and .Values.monitoring.prometheus (or (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1/PodMonitor") (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1")) -}}
 true
@@ -275,7 +280,7 @@ false
 {{- if and (eq $provider "oxia") .Values.components.sql_worker -}}
 {{- fail "components.sql_worker is not supported with pulsar_metadata.provider=oxia" -}}
 {{- end -}}
-{{- if and (eq $provider "oxia") (lt (int .Values.oxia.replicaCount) 3) -}}
+{{- if and (eq $provider "oxia") (lt (int (include "pulsar.oxia.replicaCount" .)) 3) -}}
 {{- fail "oxia.replicaCount must be at least 3 when pulsar_metadata.provider=oxia" -}}
 {{- end -}}
 {{- end -}}

@@ -134,7 +134,7 @@ images:
         pullPolicy: IfNotPresent
   oxia:
     repository: oxia/oxia
-    tag: "0.16.4"
+    tag: "0.16.6"
     pullPolicy: IfNotPresent
   bookie:
     repository: streamnative/sn-platform
@@ -1213,20 +1213,27 @@ pulsar_metadata:
 ## Used only when pulsar_metadata.provider is oxia.
 oxia:
   # The number of Oxia server replicas to run. Must be at least 3 for Oxia metadata deployments.
-  replicaCount: 3
+  # replicaCount: 3
   # labels:
   #   example: value
   # annotations:
   #   example: value
-  # resources:
-  #   requests:
-  #     cpu: "0.5"
-  #     memory: "1Gi"
+  # dataserver:
+  #   resources:
+  #     requests:
+  #       cpu: "0.5"
+  #       memory: "1Gi"
+  #     limits:
+  #       cpu: "2"
+  #       memory: "4Gi"
   # coordinator:
   #   resources:
   #     requests:
   #       cpu: "0.25"
   #       memory: "512Mi"
+  #     limits:
+  #       cpu: "1"
+  #       memory: "1Gi"
 
 ## deprecated: move to broker.kop
 # kop:
