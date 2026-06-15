@@ -11,6 +11,9 @@ metadata:
   namespace: {{ template "pulsar.namespace" . }}
   annotations:
     "cloud.streamnative.io/enable-config-prefix": "false"
+    {{- if and (include "pulsar.metadata.isOxia" .) (not (hasKey (default dict .Values.broker.pulsarBroker.annotations) "cloud.streamnative.io/config-profile")) }}
+    "cloud.streamnative.io/config-profile": "default-config-v2"
+    {{- end }}
     {{- with .Values.broker.pulsarBroker.annotations -}}
     {{ toYaml . | nindent 4 }}
     {{- end }}
