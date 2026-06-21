@@ -3,6 +3,7 @@
 #
 # deploy PulsarBroker only when `components.broker and operator.enabled` is true
 {{- if .Values.components.broker }}
+{{- include "pulsar.functions.packageManagement.validate" . }}
 apiVersion: pulsar.streamnative.io/v1alpha1
 kind: PulsarBroker
 metadata:
@@ -350,6 +351,22 @@ spec:
       PULSAR_PREFIX_schemaRegistryUrl: {{ default (include "pulsar.oxia.kafkaSchema.url" .) $storageCatalog.schemaRegistryUrl | quote }}
       PULSAR_PREFIX_schemaRegistryStorageClassName: {{ default "io.streamnative.pulsar.schema.OxiaSchemaStorageFactory" $storageCatalog.schemaRegistryStorageClassName | quote }}
       PULSAR_PREFIX_topicPoliciesServiceClassName: "io.streamnative.pulsar.OxiaTopicPoliciesService"
+      {{- end }}
+      {{- $pm := .Values.functions.packageManagement | default dict }}
+      {{- if $pm.enabled }}
+      PULSAR_PREFIX_enablePackagesManagement: "true"
+      {{- if eq $pm.provider "cloudStorage" }}
+      {{- $cloud := $pm.cloudStorage | default dict }}
+      PULSAR_PREFIX_packagesManagementStorageProvider: {{ $cloud.storageProvider | quote }}
+      PULSAR_PREFIX_packagesCloudStorageType: {{ $cloud.type | quote }}
+      PULSAR_PREFIX_packagesCloudStorageBucket: {{ $cloud.bucket | quote }}
+      PULSAR_PREFIX_packagesCloudStorageBucketPath: {{ $cloud.bucketPath | quote }}
+      {{- else }}
+      {{- $bookkeeper := $pm.bookkeeper | default dict }}
+      PULSAR_PREFIX_packagesManagementStorageProvider: {{ $bookkeeper.storageProvider | quote }}
+      PULSAR_PREFIX_packagesReplicas: {{ default .Values.broker.configData.managedLedgerDefaultEnsembleSize $bookkeeper.replicas | quote }}
+      PULSAR_PREFIX_packagesManagementLedgerRootPath: {{ $bookkeeper.ledgerRootPath | quote }}
+      {{- end }}
       {{- end }}
 {{- with .Values.broker.configData }}
 {{ toYaml . | indent 6 }}
