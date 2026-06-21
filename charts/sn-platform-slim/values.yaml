@@ -102,6 +102,14 @@ monitoring:
   # monitoring - datadog
   datadog: false
 
+### ArgoCD Hook
+##
+## Control what hooks to run after deploying sn-platform-slim chart
+argocd_hook:
+  tests:
+    test_pulsar_producer: false
+  enabled: false
+
 ## Images
 ##
 ## Control what images to use for each component
