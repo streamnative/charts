@@ -338,10 +338,13 @@ spec:
     {{- end }}
     custom:
       PULSAR_PREFIX_additionalServletDirectory: "./brokerAdditionalServlet"
+      {{- $pm := .Values.functions.packageManagement | default dict }}
       {{- if include "pulsar.metadata.isOxia" . }}
       PULSAR_PREFIX_metadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
       PULSAR_PREFIX_configurationMetadataStoreUrl: "{{ template "pulsar.oxia.metadata.url" . }}"
+      {{- if not $pm.enabled }}
       PULSAR_PREFIX_enablePackagesManagement: "false"
+      {{- end }}
       PULSAR_PREFIX_kafkaGroupOffsetsStoreInMetadata: "true"
       PULSAR_PREFIX_kafkaProducerStateStoreInMetadata: "true"
       PULSAR_PREFIX_kafkaSchemaRegistryStoreInOxia: "true"
@@ -353,7 +356,6 @@ spec:
       PULSAR_PREFIX_schemaRegistryStorageClassName: {{ default "io.streamnative.pulsar.schema.OxiaSchemaStorageFactory" $storageCatalog.schemaRegistryStorageClassName | quote }}
       PULSAR_PREFIX_topicPoliciesServiceClassName: "io.streamnative.pulsar.OxiaTopicPoliciesService"
       {{- end }}
-      {{- $pm := .Values.functions.packageManagement | default dict }}
       {{- if $pm.enabled }}
       PULSAR_PREFIX_enablePackagesManagement: "true"
       {{- if eq $pm.provider "cloudStorage" }}
