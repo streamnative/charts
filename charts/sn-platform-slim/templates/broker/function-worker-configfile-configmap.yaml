@@ -3,6 +3,7 @@
 #
 
 {{- if .Values.components.functions }}
+{{- include "pulsar.functions.packageManagement.validate" . }}
 ## function config map
 apiVersion: v1
 kind: ConfigMap
@@ -27,7 +28,26 @@ data:
     tlsTrustCertsFilePath: "/pulsar/certs/ca/ca.crt"
     {{- end }}
     {{- end }}
+    {{- $pm := .Values.functions.packageManagement | default dict }}
+    {{- if and $pm.enabled (eq $pm.provider "bookkeeper") }}
+    numFunctionPackageReplicas: {{ default .Values.broker.configData.managedLedgerDefaultEnsembleSize .Values.functions.packageManagement.bookkeeper.replicas }}
+    {{- else }}
     numFunctionPackageReplicas: {{ .Values.broker.configData.managedLedgerDefaultEnsembleSize }}
+    {{- end }}
+    {{- if $pm.enabled }}
+    enablePackagesManagement: "true"
+    {{- if eq $pm.provider "cloudStorage" }}
+    {{- $cloud := $pm.cloudStorage | default dict }}
+    packagesManagementStorageProvider: {{ $cloud.storageProvider | quote }}
+    packagesCloudStorageType: {{ $cloud.type | quote }}
+    packagesCloudStorageBucket: {{ $cloud.bucket | quote }}
+    packagesCloudStorageBucketPath: {{ $cloud.bucketPath | quote }}
+    {{- else }}
+    {{- $bookkeeper := $pm.bookkeeper | default dict }}
+    packagesManagementStorageProvider: {{ $bookkeeper.storageProvider | quote }}
+    packagesManagementLedgerRootPath: {{ $bookkeeper.ledgerRootPath | quote }}
+    {{- end }}
+    {{- end }}
     pulsarFunctionsCluster: {{ template "pulsar.fullname" . }}
     functionRuntimeFactoryConfigs:
       jobNamespace: {{ template "pulsar.functions.namespace" . }}

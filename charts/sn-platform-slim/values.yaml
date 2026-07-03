@@ -1562,6 +1562,29 @@ functions:
     clusterRole: true
   autoRollDeployment: true
   annotations: {}
+  packageManagement:
+    # Whether to render explicit package management service config.
+    # Defaults to false to preserve existing behavior, especially for Oxia deployments.
+    enabled: false
+    # Storage provider selector. Valid values: bookkeeper, cloudStorage.
+    # When Oxia metadata is enabled, cloudStorage is required if package management is enabled.
+    provider: bookkeeper
+    bookkeeper:
+      storageProvider: "org.apache.pulsar.packages.management.storage.bookkeeper.BookKeeperPackagesStorageProvider"
+      # Defaults to broker.configData.managedLedgerDefaultEnsembleSize when empty.
+      replicas: ""
+      ledgerRootPath: "/ledgers"
+    cloudStorage:
+      storageProvider: "io.streamnative.packages.storage.cloud.CloudStorageProvider"
+      # Valid values: S3, GCS, AZUREBLOB.
+      type: ""
+      # Examples: s3a://bucket, gs://bucket, abfs://container@account.
+      bucket: ""
+      # Examples: /packages, /sub/path.
+      bucketPath: ""
+      # Optional documentation-only compatibility field matching cloud-api-server.
+      # Helm does not parse this; set type, bucket, and bucketPath explicitly.
+      storagePath: ""
   ports:
     http: 8080
     https: 8443

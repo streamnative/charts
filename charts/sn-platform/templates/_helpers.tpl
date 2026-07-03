@@ -188,6 +188,33 @@ Pulsar Cluster Name.
 {{- end }}
 
 {{/*
+Package management values validation.
+*/}}
+{{- define "pulsar.functions.packageManagement.validate" -}}
+{{- $pm := .Values.functions.packageManagement | default dict -}}
+{{- if $pm.enabled -}}
+{{- $functionmesh := .Values.broker.functionmesh | default dict -}}
+{{- $mesh := $functionmesh.mesh | default dict -}}
+{{- if and $functionmesh.enabled (hasKey $mesh "uploadEnabled") (not $mesh.uploadEnabled) -}}
+{{- fail "functions.packageManagement.enabled=true conflicts with broker.functionmesh.mesh.uploadEnabled=false" -}}
+{{- end -}}
+{{- $provider := required "functions.packageManagement.provider is required when functions.packageManagement.enabled=true" $pm.provider -}}
+{{- if and (ne $provider "bookkeeper") (ne $provider "cloudStorage") -}}
+{{- fail "functions.packageManagement.provider must be one of: bookkeeper, cloudStorage" -}}
+{{- end -}}
+{{- if and (include "pulsar.metadata.isOxia" .) (ne $provider "cloudStorage") -}}
+{{- fail "functions.packageManagement.provider must be cloudStorage when Oxia metadata is enabled" -}}
+{{- end -}}
+{{- if eq $provider "cloudStorage" -}}
+{{- $cloud := $pm.cloudStorage | default dict -}}
+{{- $_ := required "functions.packageManagement.cloudStorage.type is required when provider=cloudStorage" $cloud.type -}}
+{{- $_ := required "functions.packageManagement.cloudStorage.bucket is required when provider=cloudStorage" $cloud.bucket -}}
+{{- $_ := required "functions.packageManagement.cloudStorage.bucketPath is required when provider=cloudStorage" $cloud.bucketPath -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Metadata provider selection.
 */}}
 {{- define "pulsar.metadata.provider" -}}
