@@ -2108,6 +2108,20 @@ entries:
     version: "1.3"
   sn-operator:
   - apiVersion: v2
+    appVersion: v0.20.9
+    created: "2026-09-09T02:21:58.77899867Z"
+    description: StreamNative Operator
+    digest: 32d04945fb6546d31f492d35bfa27194c7fdb8138a2bbf2baf9f50ea88a13e8b
+    icon: https://raw.githubusercontent.com/streamnative/charts/master/static/logo.svg
+    kubeVersion: '>= 1.16.0-0'
+    name: sn-operator
+    sources:
+    - https://github.com/streamnative/private-cloud
+    type: application
+    urls:
+    - https://github.com/streamnative/private-cloud/releases/download/sn-operator-0.20.1/sn-operator-0.20.1.tgz
+    version: 0.20.1
+  - apiVersion: v2
     appVersion: v0.20.6
     created: "2026-09-07T11:45:55.587013542Z"
     description: StreamNative Operator
@@ -6627,4 +6641,4 @@ entries:
     urls:
     - https://github.com/streamnative/streamnative-mcp-server/releases/download/snmcp-v0.1.15-rc.2-rc.2/snmcp-v0.1.15-rc.2-rc.2.tgz
     version: v0.1.15-rc.2-rc.2
-generated: "2026-09-07T11:45:55.587619726Z"
+generated: "2026-09-09T02:21:58.780393571Z"
