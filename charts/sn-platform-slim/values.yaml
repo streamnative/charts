@@ -306,6 +306,9 @@ auth:
       usingSecretKey: false
       # Whether to enable automatic initialization jwt authentication secret
       autoInitSecret: false
+      # Optional setting for the JWT secret initialization Job ServiceAccount.
+      initServiceAccount:
+        automountServiceAccountToken: null
     tls:
       enabled: false
   authorization:
@@ -755,6 +758,9 @@ zookeeper:
       clusterRole: true
     backup:
       component: "backup"
+      serviceAccount:
+        # Optional; null preserves Kubernetes' default token mounting behavior.
+        automountServiceAccountToken: null
       enable: false
       webServerPort: "8088"
       backupInterval: "600"
@@ -778,6 +784,9 @@ zookeeper:
     ## ```
     restore:
       component: "restore"
+      serviceAccount:
+        # Optional; null preserves Kubernetes' default token mounting behavior.
+        automountServiceAccountToken: null
       enable: false
       restorePoint: ""
       restoreVersion: "1"
@@ -799,6 +808,8 @@ zookeeper:
     keep: false
   # Definition of the serviceAccount used to run zookeeper.
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -913,6 +924,8 @@ bookkeeper:
   extraEnv: []
   # Definition of the serviceAccount used to run bookies.
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1384,6 +1397,8 @@ broker:
 #          storage: 20Gi
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1682,6 +1697,8 @@ pulsar_detector:
     runAsNonRoot: true
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1811,6 +1828,8 @@ proxy:
   extraSecretRefs: []
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1939,6 +1958,8 @@ toolset:
     runAsUser: 10000
     runAsGroup: 10000
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -2078,6 +2099,8 @@ prometheus:
     type: preferredDuringSchedulingIgnoredDuringExecution
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -2473,6 +2496,8 @@ streamnative_console:
       backend: 7750
 
   serviceAccount:
+    # ServiceAccount-level setting; the Pod's automountToken below takes precedence.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
