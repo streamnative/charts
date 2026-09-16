@@ -1913,7 +1913,8 @@ toolset:
   component: toolset
   useProxy: false
   installBusybox: true
-  readOnlyRootFilesystem: true
+  # Enable explicitly after confirming all runtime write paths are mounted writable.
+  readOnlyRootFilesystem: false
   replicaCount: 1
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
