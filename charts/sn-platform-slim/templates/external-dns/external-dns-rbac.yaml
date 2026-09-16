@@ -12,6 +12,9 @@ metadata:
 {{- with .Values.external_dns.serviceAcct.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+{{- if kindIs "bool" .Values.external_dns.serviceAcct.automountServiceAccountToken }}
+automountServiceAccountToken: {{ .Values.external_dns.serviceAcct.automountServiceAccountToken }}
+{{- end }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1

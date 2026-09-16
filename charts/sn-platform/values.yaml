@@ -517,6 +517,8 @@ external_dns:
     aws:
       zoneType: public
   serviceAcct:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     annotations: {}
   securityContext: {}
   extraMounts: []
@@ -1638,6 +1640,8 @@ functions:
   gracePeriod: 30
   # Definition of the serviceAccount used to run function worker.
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -2894,6 +2898,8 @@ vault:
   # -- replicaCount indicates the number of vault pod
   replicaCount: 3
   serviceAccount:
+    # Optional; null preserves Kubernetes' default token mounting behavior.
+    automountServiceAccountToken: null
     created: true
     name: ""
   oidcToken:
