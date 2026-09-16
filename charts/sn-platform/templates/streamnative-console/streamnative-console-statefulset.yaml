@@ -454,7 +454,7 @@ spec:
       {{- if .Values.streamnative_console.login.sso.pulsarJwt.enabled }}
       - name: token-keys
         secret:
-          defaultMode: 420
+          defaultMode: 0440
           items:
           {{- if eq .Values.streamnative_console.login.sso.pulsarJwt.config.JWT_BROKER_TOKEN_MODE "PRIVATE" }}
           - key: PUBLICKEY
