@@ -62,9 +62,6 @@ spec:
       - name: wait-zookeeper-ready
         image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
         imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
-        {{- if .Values.pulsar_detector.containerSecurityContext }}
-        securityContext: {{- toYaml .Values.pulsar_detector.containerSecurityContext | nindent 10 }}
-        {{- end }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -77,17 +74,12 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /pulsar/logs
-        - name: runtime-tmp
-          mountPath: /tmp
       {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
         image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
-        {{- if .Values.pulsar_detector.containerSecurityContext }}
-        securityContext: {{- toYaml .Values.pulsar_detector.containerSecurityContext | nindent 10 }}
-        {{- end }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -104,24 +96,15 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /pulsar/logs
-        - name: runtime-tmp
-          mountPath: /tmp
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
         image: "{{ .Values.images.pulsar_detector.repository }}:{{ .Values.images.pulsar_detector.tag }}"
         imagePullPolicy: {{ .Values.images.pulsar_detector.pullPolicy }}
-        {{- if .Values.pulsar_detector.containerSecurityContext }}
-        securityContext: {{- toYaml .Values.pulsar_detector.containerSecurityContext | nindent 10 }}
-        {{- end }}
         command: ["sh", "-c"]
         {{- if .Values.pulsar_detector.extraArgs }}
         args:
         - >
-          {{- if .Values.pulsar_detector.adminTokenFile }}
-          set -e;
-          brokerClientAuthenticationParameters="$(cat {{ .Values.pulsar_detector.adminTokenFile | quote }})";
-          {{- end }}
           bin/pulsar-detector
           {{- range $key, $value := .Values.pulsar_detector.extraArgs }}
           {{- if $value }}
@@ -139,10 +122,6 @@ spec:
         {{- else }}
         args:
         - >
-          {{- if .Values.pulsar_detector.adminTokenFile }}
-          set -e;
-          brokerClientAuthenticationParameters="$(cat {{ .Values.pulsar_detector.adminTokenFile | quote }})";
-          {{- end }}
           bin/pulsar-detector -service-url {{ template "pulsar.detector.serviceUrl" . }} -webservice-url {{ template "pulsar.detector.webServiceUrl" . }} {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }};
         {{- end }}
         {{- if .Values.pulsar_detector.resources }}
@@ -153,14 +132,14 @@ spec:
         - name: server
           containerPort: {{ .Values.pulsar_detector.port }}
         env:
-        {{- if and .Values.components.vault .Values.auth.vault.enabled (not .Values.pulsar_detector.adminTokenFile) }}
+        {{- if and .Values.components.vault .Values.auth.vault.enabled }}
         - name: brokerClientAuthenticationParameters
           valueFrom:
               secretKeyRef:
                 name: {{ template "pulsar.vault-secret-key-name" . }}
                 key: brokerClientAuthenticationParameters
         {{- end }}
-        {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled (not .Values.pulsar_detector.adminTokenFile) }}
+        {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
         - name: brokerClientAuthenticationParameters
           valueFrom:
               secretKeyRef:
@@ -170,18 +149,12 @@ spec:
         {{- if .Values.pulsar_detector.extraEnv  }}
         {{- toYaml .Values.pulsar_detector.extraEnv | nindent 10 }}
         {{- end }}
-        volumeMounts:
-        - name: tmp
-          mountPath: /pulsar/logs
-        - name: runtime-tmp
-          mountPath: /tmp
         {{- if .Values.pulsar_detector.extraVolumeMounts }}
+        volumeMounts: 
         {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
         {{- end }}
       volumes:
       - name: tmp
-        emptyDir: {}
-      - name: runtime-tmp
         emptyDir: {}
       {{- if .Values.pulsar_detector.extraVolumes }}
       {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 8 }}

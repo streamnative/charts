@@ -40,7 +40,6 @@ Define streamnative-console token volumes
 {{- if not .Values.auth.vault.enabled }}
 - name: token-keys
   secret:
-    defaultMode: 0440
     {{- if not .Values.auth.authentication.jwt.usingSecretKey }}
     secretName: "{{ .Release.Name }}-token-asymmetric-key"
     {{- end}}
@@ -60,7 +59,6 @@ Define streamnative-console token volumes
 {{- end }}
 - name: streamnative-console-token
   secret:
-    defaultMode: 0440
     secretName: "{{ .Release.Name }}-token-{{ .Values.auth.superUsers.streamnative_console }}"
     items:
       - key: TOKEN

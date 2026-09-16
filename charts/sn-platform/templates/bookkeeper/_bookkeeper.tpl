@@ -110,7 +110,6 @@ Define bookie tls certs volumes
 - name: bookie-certs
   secret:
     secretName: "{{ template "pulsar.bookie.tls.secret.name" . }}"
-    defaultMode: 0440
     items:
     - key: tls.crt
       path: tls.crt
@@ -119,7 +118,6 @@ Define bookie tls certs volumes
 - name: ca
   secret:
     secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
-    defaultMode: 0440
     items:
     - key: ca.crt
       path: ca.crt

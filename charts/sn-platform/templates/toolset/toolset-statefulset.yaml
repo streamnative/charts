@@ -62,9 +62,6 @@ spec:
       - name: "init-copy-config"
         image: "{{ .Values.images.toolset.repository }}:{{ .Values.images.toolset.tag }}"
         imagePullPolicy: {{ .Values.images.toolset.pullPolicy }}
-        {{- if .Values.toolset.containerSecurityContext }}
-        securityContext: {{- toYaml (mergeOverwrite (deepCopy .Values.toolset.containerSecurityContext) (dict "readOnlyRootFilesystem" .Values.toolset.readOnlyRootFilesystem)) | nindent 10 }}
-        {{- end }}
         command:
         - sh
         - -c
@@ -92,17 +89,16 @@ spec:
         args:
         - |
           set -ex;
-          cp /bin/busybox /home/tmp/binaries/;
-          cp /bin/busybox /home/tmp/binaries/vi;
+          cd /home;
+          mkdir binaries;
+          mkdir -p tmp/binaries;
+          busybox --install -s binaries;
+          cp binaries/* tmp/binaries/;
+          cp /bin/busybox tmp/binaries;
         securityContext:
           runAsUser: 65534
           runAsGroup: 65534
           runAsNonRoot: true
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-            - ALL
         volumeMounts:
         - name: binaries
           mountPath: /home/tmp/binaries
@@ -115,7 +111,7 @@ spec:
 {{ toYaml .Values.toolset.resources | indent 10 }}
       {{- end }}
         {{- if .Values.toolset.containerSecurityContext }}
-        securityContext: {{- toYaml (mergeOverwrite (deepCopy .Values.toolset.containerSecurityContext) (dict "readOnlyRootFilesystem" .Values.toolset.readOnlyRootFilesystem)) | nindent 10 }}
+        securityContext: {{- toYaml .Values.toolset.containerSecurityContext | nindent 10 }}
         {{- end }}
         command: ["sh", "-c"]
         args:
@@ -158,8 +154,6 @@ spec:
           mountPath: /pulsar/conf
         - name: tmp
           mountPath: /pulsar/logs
-        - name: runtime-tmp
-          mountPath: /tmp
         {{- end }}
         {{- if .Values.toolset.installBusybox }}
         - name: binaries
@@ -180,9 +174,6 @@ spec:
       - name: "kafka"
         image: "{{ .Values.images.toolset.kafka.repository }}:{{ .Values.images.toolset.kafka.tag }}"
         imagePullPolicy: {{ .Values.images.toolset.kafka.pullPolicy }}
-        {{- if .Values.toolset.containerSecurityContext }}
-        securityContext: {{- toYaml (mergeOverwrite (deepCopy .Values.toolset.containerSecurityContext) (dict "readOnlyRootFilesystem" .Values.toolset.readOnlyRootFilesystem)) | nindent 10 }}
-        {{- end }}
         workingDir: {{ template "pulsar.home" . }}
       {{- if .Values.toolset.resources }}
         resources:
@@ -222,14 +213,6 @@ spec:
 {{ toYaml . | indent 8 }}
 {{- end }}
         volumeMounts:
-        {{- if .Values.toolset.readOnlyRootFilesystem }}
-        - name: tmp
-          mountPath: /pulsar/conf
-        - name: tmp
-          mountPath: /pulsar/logs
-        - name: runtime-tmp
-          mountPath: /tmp
-        {{- end }}
         {{- include "pulsar.toolset.certs.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.token.volumeMounts" . | nindent 8 }}
         {{- include "pulsar.toolset.kafka.conf.volumeMounts" . | nindent 8 }}
@@ -240,8 +223,6 @@ spec:
       volumes:
       {{- if .Values.toolset.readOnlyRootFilesystem }}
       - name: tmp
-        emptyDir: {}
-      - name: runtime-tmp
         emptyDir: {}
       {{- end }}
       {{- if .Values.toolset.installBusybox }}
