@@ -1756,6 +1756,17 @@ pulsar_detector:
   # tolerations: []
   securityContext:
     runAsNonRoot: true
+  containerSecurityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+  # Optional admin JWT file from a policy-approved volume. When set, Detector
+  # reads this file instead of injecting the token through secretKeyRef.
+  # Configure extraVolumes and extraVolumeMounts for the credential source;
+  # a Kubernetes Secret volume may also be prohibited by policy.
+  adminTokenFile: ""
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1992,6 +2003,12 @@ toolset:
   tolerations: []
   kafka:
     enabled: false
+    containerSecurityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
   gracePeriod: 0
   resources:
     requests:
@@ -2019,6 +2036,10 @@ toolset:
     runAsNonRoot: true
     runAsUser: 10000
     runAsGroup: 10000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
