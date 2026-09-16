@@ -60,7 +60,7 @@ data:
 {{- else }}
     security.protocol=SSL
 {{- end }}
-    ssl.truststore.location=/pulsar/toolset.truststore.jks
+    ssl.truststore.location=/pulsar/conf/toolset.truststore.jks
     ssl.endpoint.identification.algorithm=
 {{- end }}
   # pulsarctl configs
