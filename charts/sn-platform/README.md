@@ -23,3 +23,9 @@ Most importantly, StreamNative Platform enables you to:
 - Monitor the health and performance of Pulsar clusters using dedicated tools such as Pulsar detector and StreamNative Console.
 
 For details, see [StreamNative Platform documentation](https://docs.streamnative.io/docs/platform-overview). 
+
+## ServiceAccount token mounting
+
+Chart-created ServiceAccounts inherit Kubernetes token mounting behavior by default. Set `global.serviceAccount.automountServiceAccountToken: false` to disable automatic token mounting for all of them. A component's `serviceAccount.automountServiceAccountToken` value overrides the global setting; for example, `vault.serviceAccount.automountServiceAccountToken: true` keeps mounting enabled for Vault. The custom metric server's setting also covers its init and Prometheus ServiceAccounts, and `zookeeper.customTools.serviceAccount` covers backup and restore.
+
+Before disabling token mounting, provide a projected ServiceAccount token and cluster CA to workloads that call the Kubernetes API, including Vault, Prometheus, external DNS, and function worker. Setting the ServiceAccount field alone does not create a replacement token volume in Pods.

@@ -21,6 +21,10 @@ namespaceCreate: false
 ###
 
 global:
+  serviceAccount:
+    # Optional default for chart-created ServiceAccounts. Components can override it.
+    # Disabling token mounting requires explicit projected tokens for workloads using the Kubernetes API.
+    automountServiceAccountToken: null
   ## Reference to one or more secrets to be used when pulling images
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   imagePullSecrets: []
@@ -517,7 +521,7 @@ external_dns:
     aws:
       zoneType: public
   serviceAcct:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     annotations: {}
   securityContext: {}
@@ -582,6 +586,9 @@ ingress:
   controller:
     enabled: false
     rbac: true
+    serviceAccount:
+      # Optional; null inherits the global ServiceAccount setting.
+      automountServiceAccountToken: null
     component: nginx-ingress-controller
     replicaCount: 1
     # nodeSelector:
@@ -832,11 +839,10 @@ zookeeper:
       name: ""
       annotations: {}
       clusterRole: true
+      # Optional; null inherits the global ServiceAccount setting.
+      automountServiceAccountToken: null
     backup:
       component: "backup"
-      serviceAccount:
-        # Optional; null preserves Kubernetes' default token mounting behavior.
-        automountServiceAccountToken: null
       enable: false
       webServerPort: "8088"
       backupInterval: "600"
@@ -860,9 +866,6 @@ zookeeper:
     ## ```
     restore:
       component: "restore"
-      serviceAccount:
-        # Optional; null preserves Kubernetes' default token mounting behavior.
-        automountServiceAccountToken: null
       enable: false
       restorePoint: ""
       restoreVersion: "1"
@@ -884,7 +887,7 @@ zookeeper:
     keep: false
   # Definition of the serviceAccount used to run zookeeper.
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -1001,7 +1004,7 @@ bookkeeper:
   extraEnv: []
   # Definition of the serviceAccount used to run bookies.
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -1475,7 +1478,7 @@ broker:
 #          storage: 20Gi
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -1640,7 +1643,7 @@ functions:
   gracePeriod: 30
   # Definition of the serviceAccount used to run function worker.
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -1777,7 +1780,7 @@ pulsar_detector:
     runAsNonRoot: true
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -1908,7 +1911,7 @@ proxy:
   extraSecretRefs: []
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -2042,7 +2045,7 @@ toolset:
     runAsUser: 10000
     runAsGroup: 10000
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -2184,7 +2187,7 @@ prometheus:
     type: preferredDuringSchedulingIgnoredDuringExecution
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
@@ -2898,7 +2901,7 @@ vault:
   # -- replicaCount indicates the number of vault pod
   replicaCount: 3
   serviceAccount:
-    # Optional; null preserves Kubernetes' default token mounting behavior.
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
     automountServiceAccountToken: null
     created: true
     name: ""
@@ -2983,6 +2986,9 @@ extraResources: []
 
 custom_metric_server:
   component: "custom-metric-server"
+  serviceAccount:
+    # Applies to the server, init job, and Prometheus ServiceAccounts.
+    automountServiceAccountToken: null
   cert_secret_name: "cert-secret"
   enabled: true
   prometheus_url:
