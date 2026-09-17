@@ -3,6 +3,7 @@
 #
 
 {{- if .Values.components.pulsar_detector }}
+{{- $readOnlyRootFilesystem := and .Values.pulsar_detector.containerSecurityContext .Values.pulsar_detector.containerSecurityContext.readOnlyRootFilesystem }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -77,8 +78,10 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /pulsar/logs
+        {{- if $readOnlyRootFilesystem }}
         - name: runtime-tmp
           mountPath: /tmp
+        {{- end }}
       {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
@@ -104,8 +107,10 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /pulsar/logs
+        {{- if $readOnlyRootFilesystem }}
         - name: runtime-tmp
           mountPath: /tmp
+        {{- end }}
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
@@ -163,20 +168,26 @@ spec:
         {{- if .Values.pulsar_detector.extraEnv  }}
         {{- toYaml .Values.pulsar_detector.extraEnv | nindent 10 }}
         {{- end }}
+        {{- if or $readOnlyRootFilesystem .Values.pulsar_detector.extraVolumeMounts }}
         volumeMounts:
+        {{- if $readOnlyRootFilesystem }}
         - name: tmp
           mountPath: /pulsar/logs
         - name: runtime-tmp
           mountPath: /tmp
+        {{- end }}
         {{- if .Values.pulsar_detector.extraVolumeMounts }}
-        {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
+        {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 8 }}
+        {{- end }}
         {{- end }}
       volumes:
       - name: tmp
         emptyDir: {}
+      {{- if $readOnlyRootFilesystem }}
       - name: runtime-tmp
         emptyDir: {}
+      {{- end }}
       {{- if .Values.pulsar_detector.extraVolumes }}
-      {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 8 }}
+      {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 6 }}
       {{- end }}
 {{- end }}

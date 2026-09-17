@@ -1762,6 +1762,8 @@ pulsar_detector:
     capabilities:
       drop:
         - ALL
+    # Enable explicitly after confirming Detector's runtime write paths.
+    readOnlyRootFilesystem: false
   # Optional admin JWT file from a policy-approved volume. When set, Detector
   # reads this file instead of injecting the token through secretKeyRef.
   # Configure extraVolumes and extraVolumeMounts for the credential source;
@@ -2566,6 +2568,8 @@ streamnative_console:
     capabilities:
       drop:
       - "ALL"
+  # Keep fsGroup aligned with the Console process group so it can read
+  # Secret volumes mounted with defaultMode: 0440.
   securityContext:
     runAsNonRoot: true
     runAsGroup: 1000
