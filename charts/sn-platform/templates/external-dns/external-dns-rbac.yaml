@@ -12,6 +12,7 @@ metadata:
 {{- with .Values.external_dns.serviceAcct.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
+{{- include "pulsar.serviceAccount.automount" (dict "root" . "value" .Values.external_dns.serviceAcct.automountServiceAccountToken) | nindent 0 }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -11,3 +11,9 @@ StreamNative Platform Slim is based on the [StreamNative Platform](https://githu
 - metrics server
 
 Security sensitive users can consider the StreamNative Platform Slim chart, ande most usage documentations are same with  [StreamNative Platform documentation](https://docs.streamnative.io/docs/platform-overview).
+
+## ServiceAccount token mounting
+
+Chart-created ServiceAccounts inherit Kubernetes token mounting behavior by default. Set `global.serviceAccount.automountServiceAccountToken: false` to disable automatic token mounting for all of them. A component's `serviceAccount.automountServiceAccountToken` value overrides the global setting; for example, `prometheus.serviceAccount.automountServiceAccountToken: true` keeps mounting enabled for Prometheus. The `zookeeper.customTools.serviceAccount` setting covers both backup and restore.
+
+Before disabling token mounting, provide a projected ServiceAccount token and cluster CA to workloads that call the Kubernetes API, including Prometheus, external DNS, and function worker. Setting the ServiceAccount field alone does not create a replacement token volume in Pods.

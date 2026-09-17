@@ -1,5 +1,16 @@
 {{/* vim: set filetype=mustache: */}}
 
+{{/* A component value takes precedence over the global ServiceAccount setting. */}}
+{{- define "pulsar.serviceAccount.automount" -}}
+{{- $automount := .value -}}
+{{- if not (kindIs "bool" $automount) -}}
+{{- $automount = .root.Values.global.serviceAccount.automountServiceAccountToken -}}
+{{- end -}}
+{{- if kindIs "bool" $automount -}}
+automountServiceAccountToken: {{ $automount }}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Resolve busybox image fields with backward compatibility.
 Prefer top-level .Values.images.busybox when present and fall back to deprecated
