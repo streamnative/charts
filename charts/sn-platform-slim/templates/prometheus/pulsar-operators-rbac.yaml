@@ -75,6 +75,7 @@ kind: ServiceAccount
 metadata:
   name: {{ template "pulsar.prometheus.serviceAccount" . }}
   namespace: {{ template "pulsar.namespace" . }}
+{{- include "pulsar.serviceAccount.automount" (dict "root" . "value" .Values.prometheus.serviceAccount.automountServiceAccountToken) | nindent 0 }}
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1
@@ -141,6 +142,7 @@ kind: ServiceAccount
 metadata:
   name: {{ template "pulsar.prometheus.serviceAccount" . }}
   namespace: {{ template "pulsar.namespace" . }}
+{{- include "pulsar.serviceAccount.automount" (dict "root" . "value" .Values.prometheus.serviceAccount.automountServiceAccountToken) | nindent 0 }}
 ---
 
 apiVersion: rbac.authorization.k8s.io/v1

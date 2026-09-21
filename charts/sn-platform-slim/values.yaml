@@ -21,6 +21,10 @@ namespaceCreate: false
 ###
 
 global:
+  serviceAccount:
+    # Optional default for chart-created ServiceAccounts. Components can override it.
+    # Disabling token mounting requires explicit projected tokens for workloads using the Kubernetes API.
+    automountServiceAccountToken: null
   ## Reference to one or more secrets to be used when pulling images
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   imagePullSecrets: []
@@ -306,6 +310,9 @@ auth:
       usingSecretKey: false
       # Whether to enable automatic initialization jwt authentication secret
       autoInitSecret: false
+      # Optional setting for the JWT secret initialization Job ServiceAccount.
+      initServiceAccount:
+        automountServiceAccountToken: null
     tls:
       enabled: false
   authorization:
@@ -454,6 +461,8 @@ external_dns:
     aws:
       zoneType: public
   serviceAcct:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     annotations: {}
   securityContext: {}
   extraMounts: []
@@ -502,6 +511,9 @@ ingress:
   controller:
     enabled: false
     rbac: true
+    serviceAccount:
+      # Optional; null inherits the global ServiceAccount setting.
+      automountServiceAccountToken: null
     component: nginx-ingress-controller
     replicaCount: 1
     # nodeSelector:
@@ -753,6 +765,8 @@ zookeeper:
       name: ""
       annotations: {}
       clusterRole: true
+      # Optional; null inherits the global ServiceAccount setting.
+      automountServiceAccountToken: null
     backup:
       component: "backup"
       enable: false
@@ -799,6 +813,8 @@ zookeeper:
     keep: false
   # Definition of the serviceAccount used to run zookeeper.
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -913,6 +929,8 @@ bookkeeper:
   extraEnv: []
   # Definition of the serviceAccount used to run bookies.
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1384,6 +1402,8 @@ broker:
 #          storage: 20Gi
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1547,6 +1567,8 @@ functions:
   gracePeriod: 30
   # Definition of the serviceAccount used to run function worker.
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1695,6 +1717,8 @@ pulsar_detector:
   adminTokenFile: ""
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1824,6 +1848,8 @@ proxy:
   extraSecretRefs: []
   # Definition of the serviceAccount used to run proxies.
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -1957,6 +1983,8 @@ toolset:
       drop:
         - ALL
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -2096,6 +2124,8 @@ prometheus:
     type: preferredDuringSchedulingIgnoredDuringExecution
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
+    # Optional; null inherits the global setting, which defaults to Kubernetes behavior.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created
@@ -2493,6 +2523,8 @@ streamnative_console:
       backend: 7750
 
   serviceAccount:
+    # ServiceAccount-level setting; the Pod's automountToken below takes precedence.
+    automountServiceAccountToken: null
     # Specifies whether to use a service account to run this component
     use: true
     # Specifies whether a service account should be created

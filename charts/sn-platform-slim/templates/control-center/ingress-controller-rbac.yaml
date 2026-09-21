@@ -9,6 +9,7 @@ kind: ServiceAccount
 metadata:
   name: "{{ template "pulsar.fullname" . }}-nginx-ingress-serviceaccount"
   namespace: {{ template "pulsar.namespace" . }}
+{{- include "pulsar.serviceAccount.automount" (dict "root" . "value" .Values.ingress.controller.serviceAccount.automountServiceAccountToken) | nindent 0 }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
