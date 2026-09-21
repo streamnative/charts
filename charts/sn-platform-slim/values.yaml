@@ -1680,6 +1680,19 @@ pulsar_detector:
   # tolerations: []
   securityContext:
     runAsNonRoot: true
+  containerSecurityContext:
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    # Enable explicitly after confirming Detector's runtime write paths.
+    readOnlyRootFilesystem: false
+  # Optional path to an admin JWT provided by a mounted credential volume.
+  # When set, Detector reads this file instead of using env.valueFrom.secretKeyRef.
+  # Configure extraVolumes/extraVolumeMounts with a source allowed by your policy;
+  # a Kubernetes Secret volume may be prohibited too.
+  adminTokenFile: ""
   # Definition of the serviceAccount used to run brokers.
   serviceAccount:
     # Specifies whether to use a service account to run this component
@@ -1901,6 +1914,7 @@ toolset:
   component: toolset
   useProxy: false
   installBusybox: true
+  # Enable explicitly after confirming all runtime write paths are mounted writable.
   readOnlyRootFilesystem: false
   replicaCount: 1
   # nodeSelector:
@@ -1938,6 +1952,10 @@ toolset:
     runAsNonRoot: true
     runAsUser: 10000
     runAsGroup: 10000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
   serviceAccount:
     # Specifies whether to use a service account to run this component
     use: true
@@ -2453,6 +2471,8 @@ streamnative_console:
     capabilities:
       drop:
       - "ALL"
+  # Keep fsGroup aligned with the Console process group so it can read
+  # Secret volumes mounted with defaultMode: 0440.
   securityContext:
     runAsNonRoot: true
     runAsGroup: 1000

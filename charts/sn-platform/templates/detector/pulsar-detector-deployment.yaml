@@ -3,6 +3,7 @@
 #
 
 {{- if .Values.components.pulsar_detector }}
+{{- $readOnlyRootFilesystem := and .Values.pulsar_detector.containerSecurityContext .Values.pulsar_detector.containerSecurityContext.readOnlyRootFilesystem }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -62,6 +63,9 @@ spec:
       - name: wait-zookeeper-ready
         image: "{{ .Values.images.zookeeper.repository }}:{{ .Values.images.zookeeper.tag }}"
         imagePullPolicy: {{ .Values.images.zookeeper.pullPolicy }}
+        {{- if .Values.pulsar_detector.containerSecurityContext }}
+        securityContext: {{- toYaml .Values.pulsar_detector.containerSecurityContext | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -74,12 +78,19 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /pulsar/logs
+        {{- if $readOnlyRootFilesystem }}
+        - name: runtime-tmp
+          mountPath: /tmp
+        {{- end }}
       {{- end }}
       # This init container will wait for at least one broker to be ready before
       # deploying the pulsar-detector
       - name: wait-broker-ready
         image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        {{- if .Values.pulsar_detector.containerSecurityContext }}
+        securityContext: {{- toYaml .Values.pulsar_detector.containerSecurityContext | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c"]
         args:
           - >-
@@ -96,15 +107,26 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /pulsar/logs
+        {{- if $readOnlyRootFilesystem }}
+        - name: runtime-tmp
+          mountPath: /tmp
+        {{- end }}
       {{- end }}
       containers:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.pulsar_detector.component }}"
         image: "{{ .Values.images.pulsar_detector.repository }}:{{ .Values.images.pulsar_detector.tag }}"
         imagePullPolicy: {{ .Values.images.pulsar_detector.pullPolicy }}
+        {{- if .Values.pulsar_detector.containerSecurityContext }}
+        securityContext: {{- toYaml .Values.pulsar_detector.containerSecurityContext | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c"]
         {{- if .Values.pulsar_detector.extraArgs }}
         args:
         - >
+          {{- if .Values.pulsar_detector.adminTokenFile }}
+          set -e;
+          brokerClientAuthenticationParameters="$(cat {{ .Values.pulsar_detector.adminTokenFile | quote }})";
+          {{- end }}
           bin/pulsar-detector
           {{- range $key, $value := .Values.pulsar_detector.extraArgs }}
           {{- if $value }}
@@ -122,6 +144,10 @@ spec:
         {{- else }}
         args:
         - >
+          {{- if .Values.pulsar_detector.adminTokenFile }}
+          set -e;
+          brokerClientAuthenticationParameters="$(cat {{ .Values.pulsar_detector.adminTokenFile | quote }})";
+          {{- end }}
           bin/pulsar-detector -service-url {{ template "pulsar.detector.serviceUrl" . }} -webservice-url {{ template "pulsar.detector.webServiceUrl" . }} {{- if and .Values.auth.authentication.enabled (eq .Values.auth.authentication.provider "jwt") }} -auth-plugin token -auth-params "{\"token\":\"$brokerClientAuthenticationParameters\"}" {{- end }};
         {{- end }}
         {{- if .Values.pulsar_detector.resources }}
@@ -132,14 +158,14 @@ spec:
         - name: server
           containerPort: {{ .Values.pulsar_detector.port }}
         env:
-        {{- if and .Values.components.vault .Values.auth.vault.enabled }}
+        {{- if and .Values.components.vault .Values.auth.vault.enabled (not .Values.pulsar_detector.adminTokenFile) }}
         - name: brokerClientAuthenticationParameters
           valueFrom:
               secretKeyRef:
                 name: {{ template "pulsar.vault-secret-key-name" . }}
                 key: brokerClientAuthenticationParameters
         {{- end }}
-        {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled }}
+        {{- if and .Values.auth.authentication.enabled .Values.auth.authentication.jwt.enabled (not .Values.pulsar_detector.adminTokenFile) }}
         - name: brokerClientAuthenticationParameters
           valueFrom:
               secretKeyRef:
@@ -149,14 +175,26 @@ spec:
         {{- if .Values.pulsar_detector.extraEnv  }}
         {{- toYaml .Values.pulsar_detector.extraEnv | nindent 10 }}
         {{- end }}
+        {{- if or $readOnlyRootFilesystem .Values.pulsar_detector.extraVolumeMounts }}
+        volumeMounts:
+        {{- if $readOnlyRootFilesystem }}
+        - name: tmp
+          mountPath: /pulsar/logs
+        - name: runtime-tmp
+          mountPath: /tmp
+        {{- end }}
         {{- if .Values.pulsar_detector.extraVolumeMounts }}
-        volumeMounts: 
-        {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 10 }}
+        {{- toYaml .Values.pulsar_detector.extraVolumeMounts | nindent 8 }}
+        {{- end }}
         {{- end }}
       volumes:
       - name: tmp
         emptyDir: {}
+      {{- if $readOnlyRootFilesystem }}
+      - name: runtime-tmp
+        emptyDir: {}
+      {{- end }}
       {{- if .Values.pulsar_detector.extraVolumes }}
-      {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 8 }}
+      {{- toYaml .Values.pulsar_detector.extraVolumes | nindent 6 }}
       {{- end }}
 {{- end }}

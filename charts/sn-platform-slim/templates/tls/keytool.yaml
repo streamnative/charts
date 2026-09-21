@@ -22,9 +22,13 @@ data:
     crtFile=/pulsar/certs/${component}/tls.crt
     keyFile=/pulsar/certs/${component}/tls.key
     caFile=/pulsar/certs/ca/ca.crt
-    p12File=/pulsar/${component}.p12
-    keyStoreFile=/pulsar/${component}.keystore.jks
-    trustStoreFile=/pulsar/${component}.truststore.jks
+    outputDir=/pulsar
+    if [[ "${component}" == "toolset" ]]; then
+        outputDir=/pulsar/conf
+    fi
+    p12File=${outputDir}/${component}.p12
+    keyStoreFile=${outputDir}/${component}.keystore.jks
+    trustStoreFile=${outputDir}/${component}.truststore.jks
     
     function checkFile() {
         local file=$1
