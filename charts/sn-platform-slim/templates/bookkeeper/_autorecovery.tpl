@@ -114,6 +114,9 @@ Define autorecovery tls certs volumes
 - name: autorecovery-certs
   secret:
     secretName: "{{ template "pulsar.autorecovery.tls.secret.name" . }}"
+    {{- with .Values.tls.secretDefaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
     items:
     - key: tls.crt
       path: tls.crt
@@ -122,6 +125,9 @@ Define autorecovery tls certs volumes
 - name: ca
   secret:
     secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
+    {{- with .Values.tls.secretDefaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
     items:
     - key: ca.crt
       path: ca.crt

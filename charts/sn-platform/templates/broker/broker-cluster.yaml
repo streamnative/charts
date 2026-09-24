@@ -450,8 +450,29 @@ spec:
 {{- end }}
 {{- end }}
   {{- end }}
-  {{- with .Values.broker.customization }}
+  {{- $initCopyConfig := default dict .Values.global.initCopyConfig }}
+  {{- $configureInitCopyConfig := .Values.broker.securityContext.readOnlyRootFilesystem }}
+  {{- $tlsVolumeNames := list }}
+  {{- if and .Values.tls.secretDefaultMode .Values.tls.enabled .Values.tls.broker.enabled }}
+  {{- $tlsVolumeNames = append $tlsVolumeNames "pulsar-broker-tls" }}
+  {{- end }}
+  {{- if and .Values.tls.secretDefaultMode .Values.broker.kop.enabled .Values.broker.kop.tls.enabled }}
+  {{- $tlsVolumeNames = append $tlsVolumeNames "pulsar-kop-tls" }}
+  {{- end }}
+  {{- if and .Values.tls.secretDefaultMode .Values.istio.enabled .Values.ingress.broker.enabled (ne .Values.istio.gateway.tls.mode "SIMPLE") }}
+  {{- $tlsVolumeNames = append $tlsVolumeNames "pulsar-broker-gateway-tls" }}
+  {{- end }}
+  {{- if or $configureInitCopyConfig $tlsVolumeNames .Values.broker.customization }}
   customization:
-  {{- toYaml . | nindent 2 -}}
+  {{- if $configureInitCopyConfig }}
+  {{- include "pulsar.initCopyConfig.customization" (dict "Config" $initCopyConfig "Kind" "StatefulSet" "Name" (printf "^%s-%s$" (include "pulsar.fullname" .) .Values.broker.component) "PodResources" .Values.broker.resources "PodSecurityContext" .Values.broker.securityContext) | nindent 2 }}
+  {{- include "pulsar.initCopyConfig.customization" (dict "Config" $initCopyConfig "Kind" "Job" "Name" (printf "^%s-%s-metadata-init$" (include "pulsar.fullname" .) .Values.broker.component) "PodResources" .Values.broker.resources "PodSecurityContext" .Values.broker.securityContext) | nindent 2 }}
+  {{- end }}
+  {{- if $tlsVolumeNames }}
+  {{- include "pulsar.tlsSecretDefaultMode.customization" (dict "DefaultMode" .Values.tls.secretDefaultMode "Name" (printf "^%s-%s$" (include "pulsar.fullname" .) .Values.broker.component) "VolumeNames" $tlsVolumeNames) | nindent 2 }}
+  {{- end }}
+  {{- with .Values.broker.customization }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
   {{- end }}
 {{- end }}

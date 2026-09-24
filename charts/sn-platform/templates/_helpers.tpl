@@ -640,3 +640,64 @@ podAntiAffinity:
 {{ toYaml .thisAffinity.customRules }}
 {{- end }}
 {{end}}
+
+{{/*
+Apply securityContext and resources to the operator-generated init-copy-config
+container. The match name is a regular expression understood by sn-operator.
+*/}}
+{{- define "pulsar.initCopyConfig.customization" -}}
+{{- $podSecurityContext := default dict .PodSecurityContext -}}
+{{- $baseSecurityContext := dict "readOnlyRootFilesystem" true -}}
+{{- if get $podSecurityContext "runAsNonRoot" -}}
+{{- $_ := set $baseSecurityContext "capabilities" (dict "drop" (list "ALL")) -}}
+{{- $_ := set $baseSecurityContext "privileged" false -}}
+{{- $_ := set $baseSecurityContext "runAsUser" (default 10000 (get $podSecurityContext "runAsUser")) -}}
+{{- $_ := set $baseSecurityContext "runAsGroup" (default 0 (get $podSecurityContext "runAsGroup")) -}}
+{{- $_ := set $baseSecurityContext "runAsNonRoot" true -}}
+{{- $_ := set $baseSecurityContext "allowPrivilegeEscalation" false -}}
+{{- end -}}
+{{- $securityContext := mergeOverwrite $baseSecurityContext (deepCopy (default dict .Config.securityContext)) -}}
+{{- $resources := mergeOverwrite (deepCopy (default dict .PodResources)) (deepCopy (default dict .Config.resources)) -}}
+- match:
+    groupVersionKinds:
+      - group: {{ ternary "batch" "apps" (eq .Kind "Job") }}
+        version: v1
+        kind: {{ .Kind }}
+    name: {{ .Name | quote }}
+  manifest: |
+    spec:
+      template:
+        spec:
+          initContainers:
+            - name: init-copy-config
+              {{- with $securityContext }}
+              securityContext:
+{{ toYaml . | indent 16 }}
+              {{- end }}
+              {{- with $resources }}
+              resources:
+{{ toYaml . | indent 16 }}
+              {{- end }}
+{{- end }}
+
+{{/*
+Set defaultMode on TLS Secret volumes generated internally by sn-operator.
+*/}}
+{{- define "pulsar.tlsSecretDefaultMode.customization" -}}
+- match:
+    groupVersionKinds:
+      - group: apps
+        version: v1
+        kind: StatefulSet
+    name: {{ .Name | quote }}
+  manifest: |
+    spec:
+      template:
+        spec:
+          volumes:
+          {{- range .VolumeNames }}
+            - name: {{ . | quote }}
+              secret:
+                defaultMode: {{ $.DefaultMode }}
+          {{- end }}
+{{- end }}

@@ -209,8 +209,19 @@ spec:
   {{- else }}
       {}
   {{- end }}
-  {{- with .Values.proxy.customization }}
+  {{- $initCopyConfig := default dict .Values.global.initCopyConfig }}
+  {{- $configureInitCopyConfig := .Values.proxy.securityContext.readOnlyRootFilesystem }}
+  {{- $configureTLSDefaultMode := and .Values.tls.secretDefaultMode .Values.tls.enabled .Values.tls.proxy.enabled }}
+  {{- if or $configureInitCopyConfig $configureTLSDefaultMode .Values.proxy.customization }}
   customization:
-  {{- toYaml . | nindent 2 -}}
+  {{- if $configureInitCopyConfig }}
+  {{- include "pulsar.initCopyConfig.customization" (dict "Config" $initCopyConfig "Kind" "StatefulSet" "Name" (printf "^%s-%s$" (include "pulsar.fullname" .) .Values.proxy.component) "PodResources" .Values.proxy.resources "PodSecurityContext" .Values.proxy.securityContext) | nindent 2 }}
+  {{- end }}
+  {{- if $configureTLSDefaultMode }}
+  {{- include "pulsar.tlsSecretDefaultMode.customization" (dict "DefaultMode" .Values.tls.secretDefaultMode "Name" (printf "^%s-%s$" (include "pulsar.fullname" .) .Values.proxy.component) "VolumeNames" (list "tls")) | nindent 2 }}
+  {{- end }}
+  {{- with .Values.proxy.customization }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
   {{- end }}
 {{- end }}

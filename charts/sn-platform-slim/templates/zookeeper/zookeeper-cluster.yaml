@@ -265,8 +265,15 @@ spec:
 {{ toYaml .Values.zookeeper.advanced.customStartupCommand | indent 6 }}
     {{- end }}
   {{- end }}
-  {{- with .Values.zookeeper.customization }}
+  {{- $initCopyConfig := default dict .Values.global.initCopyConfig }}
+  {{- $configureInitCopyConfig := .Values.zookeeper.securityContext.readOnlyRootFilesystem }}
+  {{- if or $configureInitCopyConfig .Values.zookeeper.customization }}
   customization:
+  {{- if $configureInitCopyConfig }}
+  {{- include "pulsar.initCopyConfig.customization" (dict "Config" $initCopyConfig "Kind" "StatefulSet" "Name" (printf "^%s-%s$" (include "pulsar.fullname" .) .Values.zookeeper.component) "PodResources" .Values.zookeeper.resources "PodSecurityContext" .Values.zookeeper.securityContext) | nindent 2 }}
+  {{- end }}
+  {{- with .Values.zookeeper.customization }}
   {{- toYaml . | nindent 2 -}}
+  {{- end }}
   {{- end }}
 {{- end }}

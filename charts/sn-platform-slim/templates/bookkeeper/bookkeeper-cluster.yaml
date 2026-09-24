@@ -359,6 +359,14 @@ spec:
       metadata:
         name: "{{ template "pulsar.fullname" . }}-{{ .Values.bookkeeper.component }}"
   customization:
+  {{- $initCopyConfig := default dict .Values.global.initCopyConfig }}
+  {{- if .Values.bookkeeper.securityContext.readOnlyRootFilesystem }}
+  {{- include "pulsar.initCopyConfig.customization" (dict "Config" $initCopyConfig "Kind" "StatefulSet" "Name" (printf "^%s-%s$" (include "pulsar.fullname" .) .Values.bookkeeper.component) "PodResources" .Values.bookkeeper.resources "PodSecurityContext" .Values.bookkeeper.securityContext) | nindent 2 }}
+  {{- include "pulsar.initCopyConfig.customization" (dict "Config" $initCopyConfig "Kind" "Job" "Name" (printf "^(%s-%s-bk-init|%s-%s-[0-9]+-decommission)$" (include "pulsar.fullname" .) .Values.bookkeeper.component (include "pulsar.fullname" .) .Values.bookkeeper.component) "PodResources" .Values.bookkeeper.resources "PodSecurityContext" .Values.bookkeeper.securityContext) | nindent 2 }}
+  {{- end }}
+  {{- if .Values.autorecovery.securityContext.readOnlyRootFilesystem }}
+  {{- include "pulsar.initCopyConfig.customization" (dict "Config" $initCopyConfig "Kind" "StatefulSet" "Name" (printf "^%s-%s$" (include "pulsar.fullname" .) .Values.autorecovery.component) "PodResources" .Values.autorecovery.resources "PodSecurityContext" .Values.autorecovery.securityContext) | nindent 2 }}
+  {{- end }}
   {{- with .Values.bookkeeper.customization }}
   {{- toYaml . | nindent 2 -}}
   {{- end }}

@@ -29,6 +29,13 @@ global:
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
   imagePullSecrets: []
   ## - name: image-pull-secret
+  # Security settings applied to the operator-generated init-copy-config
+  # container when a component enables readOnlyRootFilesystem. Empty values
+  # inherit the component's securityContext and resources; set fields here to
+  # override them for init-copy-config.
+  initCopyConfig:
+    securityContext: {}
+    resources: {}
 
 ## Pulsar Metadata Prefix
 ##
@@ -218,6 +225,10 @@ images:
 ## brokers and proxies.
 tls:
   enabled: false
+  # Default permissions for TLS Secret volume files. Kubernetes stores this
+  # value as a decimal integer; 288 is equivalent to octal 0440.
+  # Set to null to use the Kubernetes default (0644).
+  secretDefaultMode: 288
   # common settings for generating certs
   common:
     # 90d

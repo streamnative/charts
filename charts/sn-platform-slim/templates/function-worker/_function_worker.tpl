@@ -85,6 +85,9 @@ Define function tls certs volumes
 - name: function-certs
   secret:
     secretName: "{{ template "pulsar.function.tls.secret.name" . }}"
+    {{- with .Values.tls.secretDefaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
     items:
     - key: tls.crt
       path: tls.crt
@@ -93,6 +96,9 @@ Define function tls certs volumes
 - name: ca
   secret:
     secretName: "{{ template "pulsar.tls.ca.secret.name" . }}"
+    {{- with .Values.tls.secretDefaultMode }}
+    defaultMode: {{ . }}
+    {{- end }}
     items:
     - key: ca.crt
       path: ca.crt
