@@ -117,6 +117,9 @@ spec:
     resources:
 {{ toYaml .Values.zookeeper.resources | indent 6 }}
     {{- end }}
+    {{- if ne .Values.zookeeper.secretVolumeDefaultMode nil }}
+    secretVolumeDefaultMode: {{ .Values.zookeeper.secretVolumeDefaultMode }}
+    {{- end }}
     {{- if .Values.zookeeper.extraEnv }}
     vars:
 {{ toYaml .Values.zookeeper.extraEnv | indent 6 }}

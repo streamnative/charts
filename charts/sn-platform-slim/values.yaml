@@ -660,6 +660,8 @@ zookeeper:
   initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   # Resources requests/limits for both init containers and app containers
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
@@ -914,6 +916,8 @@ bookkeeper:
   initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   # The minimum number of seconds for new pods to be ready.
   # This can add a delay in the startup/restart of the bookkeeper cluster.
   # default is 0
@@ -1103,6 +1107,8 @@ autorecovery:
     runAsNonRoot: true
   # tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   resources:
     requests:
       memory: "512Mi"
@@ -1305,6 +1311,8 @@ broker:
   securityContext:
     runAsNonRoot: true
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   # For exposing kop service for external access
   advertisedDomain: ""
   dnsNames:
@@ -1827,6 +1835,8 @@ proxy:
     fsGroup: 10000
   tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   resources:
     requests:
       memory: "512Mi"
