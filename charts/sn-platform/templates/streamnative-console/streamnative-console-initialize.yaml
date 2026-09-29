@@ -13,6 +13,9 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.streamnative_console.component }}
 spec:
+  {{- if ne .Values.streamnative_console.initJobTTLSecondsAfterFinished nil }}
+  ttlSecondsAfterFinished: {{ .Values.streamnative_console.initJobTTLSecondsAfterFinished }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -36,6 +39,9 @@ spec:
         - name: wait-broker-ready
           image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
           imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+          {{- with .Values.streamnative_console.waitBrokerSecurityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+          {{- end }}
           command: ["sh", "-c"]
           args:
             - >
@@ -49,6 +55,9 @@ spec:
       - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init"
         image: "{{ .Values.images.streamnative_console.repository }}:{{ .Values.images.streamnative_console.tag }}"
         imagePullPolicy: {{ .Values.images.streamnative_console.pullPolicy }}
+        {{- with .Values.streamnative_console.initJobContainerSecurityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         env:
         - name: SPRING_CONFIGURATION_FILE
           value: /pulsar-manager/pulsar-manager/application.properties
@@ -78,6 +87,10 @@ spec:
         volumeMounts:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
           mountPath: "/pulsar-manager/init_instance/"
+        {{- if and .Values.streamnative_console.initJobContainerSecurityContext .Values.streamnative_console.initJobContainerSecurityContext.readOnlyRootFilesystem }}
+        - name: console-init-tmp
+          mountPath: /tmp
+        {{- end }}
         command: ["sh", "-c"]
         args:
           - >
@@ -100,6 +113,10 @@ spec:
         - name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
           configMap:
             name: "{{ template "pulsar.fullname" . }}-{{ .Values.streamnative_console.component }}-init-instance"
+        {{- if and .Values.streamnative_console.initJobContainerSecurityContext .Values.streamnative_console.initJobContainerSecurityContext.readOnlyRootFilesystem }}
+        - name: console-init-tmp
+          emptyDir: {}
+        {{- end }}
       {{- if .Values.streamnative_console.securityContext }}
       securityContext: {{- toYaml .Values.streamnative_console.securityContext | nindent 8 }}
       {{- end }}

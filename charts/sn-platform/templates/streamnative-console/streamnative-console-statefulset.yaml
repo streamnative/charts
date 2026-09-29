@@ -62,6 +62,9 @@ spec:
       - name: wait-broker-ready
         image: "{{ .Values.images.broker.repository }}:{{ .Values.images.broker.tag }}"
         imagePullPolicy: {{ .Values.images.broker.pullPolicy }}
+        {{- with .Values.streamnative_console.waitBrokerSecurityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+        {{- end }}
         command: ["sh", "-c"]
         args:
           - >

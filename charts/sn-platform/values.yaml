@@ -2613,6 +2613,13 @@ streamnative_console:
     capabilities:
       drop:
       - "ALL"
+  # Applied to wait-broker-ready in the Console StatefulSet and init Job.
+  waitBrokerSecurityContext: {}
+  # Applied to the Console init Job's main container. When enabling a read-only
+  # root filesystem, the Job mounts an emptyDir at /tmp.
+  initJobContainerSecurityContext: {}
+  # Optional TTL for the Console initialization Job after it finishes.
+  initJobTTLSecondsAfterFinished: null
   # Keep fsGroup aligned with the Console process group so it can read
   # Secret volumes mounted with defaultMode: 0440.
   securityContext:
