@@ -1912,6 +1912,8 @@ proxy:
     runAsUser: 10000
     runAsGroup: 10000
     fsGroup: 10000
+    # Applied to the proxy and, with sn-operator #1479, its check-broker init container.
+    readOnlyRootFilesystem: true
   tolerations: []
   gracePeriod: 30
   # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
