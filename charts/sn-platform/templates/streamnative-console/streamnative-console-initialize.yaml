@@ -89,6 +89,9 @@ spec:
             done;
             echo "StreamNative Console is ready to use~";
             curl -sf -XPOST http://127.0.0.1:15020/quitquitquit || true;
+        {{- if .Values.streamnative_console.resources }}
+        resources: {{- toYaml .Values.streamnative_console.resources | nindent 10 }}
+        {{- end }}
       restartPolicy: Never
       {{- if .Values.streamnative_console.serviceAccount.use }}
       serviceAccountName: {{ template "pulsar.streamnative_console.serviceAccount" . }}
@@ -102,4 +105,3 @@ spec:
       {{- end }}
 {{- end }}
 {{- end }}
-

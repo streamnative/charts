@@ -77,3 +77,26 @@ Set `secretVolumeDefaultMode: 288` on `broker`, `proxy`, `bookkeeper`, `zookeepe
 Set each component's `securityContext.readOnlyRootFilesystem: true` and `resources.limits` where required by policy. With the updated operator, its `init-copy-config` init container inherits the workload's security context and resources, including for bookie, ZooKeeper, and autorecovery. The operator also derives `allowPrivilegeEscalation: false` and `capabilities.drop: [ALL]` when `runAsNonRoot: true` is set. Inspect the resulting StatefulSets and Pods to verify your policy's exact requirements. Customer-supplied init containers and Secret-backed environment variables need their own configuration or a policy decision; `secretVolumeDefaultMode` does not change them.
 
 The sn-operator controller's own ServiceAccount and Deployment are configured through the separate sn-operator chart. To disable automatic token mounting there, set its `serviceAccount.automountServiceAccountToken: false` and configure its `volumes` and `volumeMounts` to project the API token, cluster CA, and namespace at `/var/run/secrets/kubernetes.io/serviceaccount`. This platform chart only controls the ServiceAccounts it creates for platform components.
+
+The broker example above works only after the PulsarBroker CRD includes `projected`. With an older CRD, keep `broker.serviceAccount.automountServiceAccountToken: true`, omit the broker's projected `extraVolumes` and `extraVolumeMounts`, and use a narrow Kyverno exception for that ServiceAccount. The chart's `functions` workload is a directly rendered StatefulSet, so its volume hook does not pass through the PulsarBroker CRD. If a different component's projected volume fails, inspect its rendered Pod and events before disabling its token mount.
+
+### Other chart-owned policy findings
+
+Detector exposes optional `livenessProbe` and `readinessProbe` values. For example, a TCP probe can check its named `server` port; verify that the port is open once Detector is ready:
+
+```yaml
+pulsar_detector:
+  livenessProbe:
+    tcpSocket:
+      port: server
+    initialDelaySeconds: 30
+    periodSeconds: 30
+  readinessProbe:
+    tcpSocket:
+      port: server
+    periodSeconds: 10
+```
+
+If Detector reads its admin token from a Secret volume, set `secret.defaultMode: 288` (0440) on that `extraVolumes` entry and give its Pod a matching `securityContext.fsGroup`. The `secretVolumeDefaultMode` setting applies to operator-generated volumes, so it does not change Detector's chart-defined volumes. A policy that forbids Secret volumes entirely still needs a different credential source or an exception.
+
+Toolset's StatefulSet init containers and the JWT Secret initialization Job already use `toolset.resources`. Set both CPU and memory limits there to satisfy policies requiring limits, and set `toolset.initJobTTLSecondsAfterFinished` for the Job's TTL. Console's StatefulSet containers, wait init container, and initialization Job now use `streamnative_console.resources`; set its CPU and memory limits to cover them. The JWT initialization ServiceAccount may retain automatic token mounting when its Kubernetes API access is required.

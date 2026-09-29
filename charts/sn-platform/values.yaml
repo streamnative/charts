@@ -1781,6 +1781,9 @@ pulsar_detector:
   annotations: {}
   gracePeriod: 30
   port: 9000
+  # Optional Kubernetes probes for the Detector container.
+  livenessProbe: {}
+  readinessProbe: {}
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   # tolerations: []
@@ -2038,6 +2041,8 @@ toolset:
   podLabels: {}
   podAnnotations: {}
   initJobAnnotations: {}
+  # Optional TTL for the JWT Secret initialization Job after it finishes.
+  initJobTTLSecondsAfterFinished: null
   tolerations: []
   kafka:
     enabled: false
