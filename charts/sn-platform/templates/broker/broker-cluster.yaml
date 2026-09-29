@@ -157,6 +157,9 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
+    {{- if ne .Values.broker.secretVolumeDefaultMode nil }}
+    secretVolumeDefaultMode: {{ .Values.broker.secretVolumeDefaultMode }}
+    {{- end }}
     {{- with .Values.broker.securityContext }}
     securityContext:
 {{ toYaml . | indent 6 }}
