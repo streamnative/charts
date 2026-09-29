@@ -13,7 +13,7 @@ metadata:
     {{- include "pulsar.standardLabels" . | nindent 4 }}
     component: {{ .Values.streamnative_console.component }}
 spec:
-  {{- if ne .Values.streamnative_console.initJobTTLSecondsAfterFinished nil }}
+  {{- if not (kindIs "invalid" .Values.streamnative_console.initJobTTLSecondsAfterFinished) }}
   ttlSecondsAfterFinished: {{ .Values.streamnative_console.initJobTTLSecondsAfterFinished }}
   {{- end }}
   template:

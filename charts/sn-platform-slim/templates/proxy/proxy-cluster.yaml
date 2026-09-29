@@ -96,7 +96,7 @@ spec:
     resources:
 {{ toYaml .Values.proxy.resources | indent 6 }}
     {{- end }}
-    {{- if ne .Values.proxy.secretVolumeDefaultMode nil }}
+    {{- if not (kindIs "invalid" .Values.proxy.secretVolumeDefaultMode) }}
     secretVolumeDefaultMode: {{ .Values.proxy.secretVolumeDefaultMode }}
     {{- end }}
     {{- with .Values.proxy.securityContext }}
