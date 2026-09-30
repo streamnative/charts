@@ -153,6 +153,9 @@ spec:
     resources:
 {{ toYaml .Values.broker.resources | indent 6 }}
     {{- end }}
+    {{- if not (kindIs "invalid" .Values.broker.secretVolumeDefaultMode) }}
+    secretVolumeDefaultMode: {{ .Values.broker.secretVolumeDefaultMode }}
+    {{- end }}
     {{- with .Values.broker.securityContext }}
     securityContext:
 {{ toYaml . | indent 6 }}

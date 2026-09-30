@@ -97,6 +97,9 @@ spec:
     resources:
 {{ toYaml .Values.bookkeeper.resources | indent 6 }}
     {{- end }}
+    {{- if not (kindIs "invalid" .Values.bookkeeper.secretVolumeDefaultMode) }}
+    secretVolumeDefaultMode: {{ .Values.bookkeeper.secretVolumeDefaultMode }}
+    {{- end }}
     {{- if .Values.bookkeeper.extraEnv }}
     vars:
 {{ toYaml .Values.bookkeeper.extraEnv | indent 6 }}
@@ -272,6 +275,9 @@ spec:
       {{- if .Values.autorecovery.resources }}
       resources:
 {{ toYaml .Values.autorecovery.resources | indent 8 }}
+      {{- end }}
+      {{- if not (kindIs "invalid" .Values.autorecovery.secretVolumeDefaultMode) }}
+      secretVolumeDefaultMode: {{ .Values.autorecovery.secretVolumeDefaultMode }}
       {{- end }}
       {{- if .Values.autorecovery.extraEnv }}
       vars:

@@ -92,17 +92,14 @@ spec:
         args:
         - |
           set -ex;
-          cd /home;
-          mkdir binaries;
-          mkdir -p tmp/binaries;
-          busybox --install -s binaries;
-          cp binaries/* tmp/binaries/;
-          cp /bin/busybox tmp/binaries;
+          cp /bin/busybox /home/tmp/binaries/;
+          cp /bin/busybox /home/tmp/binaries/vi;
         securityContext:
           runAsUser: 65534
           runAsGroup: 65534
           runAsNonRoot: true
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
           capabilities:
             drop:
             - ALL

@@ -735,6 +735,8 @@ zookeeper:
   initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   # Resources requests/limits for both init containers and app containers
   # See https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#resources
   resources:
@@ -989,6 +991,8 @@ bookkeeper:
   initContainerSecurityContext: {}
   tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   # The minimum number of seconds for new pods to be ready.
   # This can add a delay in the startup/restart of the bookkeeper cluster.
   # default is 0
@@ -1178,6 +1182,8 @@ autorecovery:
     runAsNonRoot: true
   # tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   resources:
     requests:
       memory: "512Mi"
@@ -1381,6 +1387,8 @@ broker:
   securityContext:
     runAsNonRoot: true
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   # For exposing kop service for external access
   advertisedDomain: ""
   dnsNames:
@@ -1773,6 +1781,9 @@ pulsar_detector:
   annotations: {}
   gracePeriod: 30
   port: 9000
+  # Optional Kubernetes probes for the Detector container.
+  livenessProbe: {}
+  readinessProbe: {}
   # nodeSelector:
     # cloud.google.com/gke-nodepool: default-pool
   # tolerations: []
@@ -1901,8 +1912,12 @@ proxy:
     runAsUser: 10000
     runAsGroup: 10000
     fsGroup: 10000
+    # Applied to the proxy and, with sn-operator #1479, its check-broker init container.
+    readOnlyRootFilesystem: true
   tolerations: []
   gracePeriod: 30
+  # Optional mode for operator-generated Secret volumes; 288 is 0440. Use fsGroup for non-root readers.
+  secretVolumeDefaultMode: null
   resources:
     requests:
       memory: "512Mi"
@@ -2028,6 +2043,8 @@ toolset:
   podLabels: {}
   podAnnotations: {}
   initJobAnnotations: {}
+  # Optional TTL for the JWT Secret initialization Job after it finishes.
+  initJobTTLSecondsAfterFinished: null
   tolerations: []
   kafka:
     enabled: false
@@ -2598,6 +2615,13 @@ streamnative_console:
     capabilities:
       drop:
       - "ALL"
+  # Applied to wait-broker-ready in the Console StatefulSet and init Job.
+  waitBrokerSecurityContext: {}
+  # Applied to the Console init Job's main container. When enabling a read-only
+  # root filesystem, the Job mounts an emptyDir at /tmp.
+  initJobContainerSecurityContext: {}
+  # Optional TTL for the Console initialization Job after it finishes.
+  initJobTTLSecondsAfterFinished: null
   # Keep fsGroup aligned with the Console process group so it can read
   # Secret volumes mounted with defaultMode: 0440.
   securityContext:
